@@ -138,10 +138,8 @@ async function fetchData() {
             sitesToFetch = [site];
         }
 
-        // Clear existing data
         allData = [];
 
-        // Fetch data for each selected site
         for (const currentSite of sitesToFetch) {
             const gid = SITE_GID_MAP[currentSite];
             if (!gid) {
@@ -167,7 +165,6 @@ async function fetchData() {
             if (jsonData && jsonData.length > 0) {
                 const processedSiteData = jsonData.map(row => {
                     let parsedDate = parseDate(row.Date);
-                    console.log(`Original date: ${row.Date}, Parsed date: ${parsedDate}`);
 
                     const binType = (row['BIN TYPE'] || '').trim();
                     const binSize = (row['BIN SIZE'] || '').trim();
@@ -177,7 +174,7 @@ async function fetchData() {
                     const emissions = calculateEmissions(binType, netWeight);
 
                     return {
-                        Site: currentSite === 'Maroonda' ? 'Maroondah' : currentSite, // Display name correction
+                        Site: currentSite === 'Maroonda' ? 'Maroondah' : currentSite,
                         Date: parsedDate,
                         Time: row.Time || '',
                         'Weight (Gross)': parseFloat(row['Weight( kg)'] || 0),
@@ -199,18 +196,11 @@ async function fetchData() {
         startDateObj.setHours(0, 0, 0, 0);
         endDateObj.setHours(23, 59, 59, 999);
 
-        console.log(`Filtering dates between ${startDateObj} and ${endDateObj}`);
-
         filteredData = allData.filter(row => {
             if (!row.Date) {
-                console.log(`Skipping row with invalid date: ${JSON.stringify(row)}`);
                 return false;
             }
-            const isWithinRange = row.Date >= startDateObj && row.Date <= endDateObj;
-            if (!isWithinRange) {
-                console.log(`Date out of range: ${row.Date}`);
-            }
-            return isWithinRange;
+            return row.Date >= startDateObj && row.Date <= endDateObj;
         });
 
         sortDataByDate();
@@ -223,7 +213,7 @@ async function fetchData() {
         }
 
     } catch (error) {
-        console.error('Error fetching data:', error.message, error.stack);
+        console.error('Error fetching data:', error);
         alert(`Error fetching data: ${error.message}`);
         allData = [];
         filteredData = [];
@@ -405,7 +395,7 @@ function updatePagination() {
     paginationElement.appendChild(backButton);
 
     const pageIndicator = document.createElement('span');
-    pageIndicator.textContent = `pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
+    pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
     pageIndicator.style.margin = '0 10px';
     paginationElement.appendChild(pageIndicator);
 
@@ -516,10 +506,7 @@ function downloadExcel() {
             return;
         }
 
-        console.log('Selected rows:', selectedRows);
-
         const headers = getTableHeaders();
-        console.log('Headers:', headers);
 
         const data = [
             headers,
@@ -532,7 +519,6 @@ function downloadExcel() {
                 })
             )
         ];
-        console.log('Data to be exported:', data);
 
         if (!XLSX) {
             throw new Error('XLSX library is not loaded');
