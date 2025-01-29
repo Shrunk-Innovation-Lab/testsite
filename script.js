@@ -603,8 +603,8 @@ function copySelectedRows() {
     const rowCopy = { ...row };
     rowCopy.Site = getSiteDisplayName(rowCopy.Site);
 
-    // If site is "Mirenda" => move Scan data to Location
-    if (row.Site === 'Mirenda') {
+    // If site is "Murenda" => move Scan data to Location
+    if (row.Site === 'Murenda') {
       rowCopy["Location"] = row["Clinical Barcode Scan"] || '';
       rowCopy["Clinical Barcode Scan"] = '';
     } else if (row["Bin Type"]?.toUpperCase() !== 'CLINICAL') {
@@ -664,7 +664,7 @@ function downloadExcel() {
             : '';
         }
         if (header === 'Location') {
-          return (row.Site === 'Mirenda')
+          return (row.Site === 'Murenda')
             ? (row["Clinical Barcode Scan"] || '')
             : '';
         }
