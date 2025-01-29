@@ -1,5 +1,6 @@
 const SPREADSHEET_ID = '1NKMZLWZyorzKHbL-uISb8eEFUFjgGfGoUA_UAKizzAI';
 const SITE_GID_MAP = {
+    'VCCC': '841396830',
     'Box Hill': '494600588',
     'Wantirna': '1825774984',
     'Burwood': '294019943',
@@ -7,6 +8,9 @@ const SITE_GID_MAP = {
     'Maroonda': '191428538',
     'Murenda': '1654220950'
 };
+
+// Add list of sites to hide from display
+const HIDDEN_SITES = ['VCCC'];
 
 let allData = [];
 let currentPage = 1;
@@ -209,6 +213,9 @@ async function fetchData() {
             return row.Date >= startDateObj && row.Date <= endDateObj;
         });
 
+        // Filter out hidden sites from display
+        filteredData = filteredData.filter(row => !HIDDEN_SITES.includes(row.Site));
+
         sortDataByDate();
         currentPage = 1;
         populateFilters();
@@ -329,6 +336,9 @@ function updateTable() {
 
     pageData.forEach(row => {
         const tr = document.createElement('tr');
+        // Only show Clinical Barcode Scan if Bin Type is CLINICAL
+        const clinicalBarcode = row['Bin Type']?.toUpperCase() === 'CLINICAL' ? row['Clinical Barcode Scan'] : '';
+        
         tr.innerHTML = `
             <td><input type="checkbox" class="rowSelector"></td>
             <td>${row.Site}</td>
@@ -338,7 +348,7 @@ function updateTable() {
             <td>${formatNumber(row['Weight (Net)'])}</td>
             <td>${row['Bin Size']}</td>
             <td>${row['Bin Type']}</td>
-            <td>${row['Clinical Barcode Scan']}</td>
+            <td>${clinicalBarcode}</td>
             <td>$${formatNumber(row['Estimated $'])}</td>
             <td>${formatNumber(row.Emissions)}</td>
         `;
@@ -489,7 +499,15 @@ function copySelectedRows() {
     }
 
     const headers = getTableHeaders().join('\t');
-    const rowsContent = selectedRows.map(row => Object.values(row).join('\t')).join('\n');
+    const rowsContent = selectedRows.map(row => {
+        // Create a copy of the row with conditional Clinical Barcode Scan
+        const rowCopy = {...row};
+        if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
+            rowCopy['Clinical Barcode Scan'] = '';
+        }
+        return Object.values(rowCopy).join('\t');
+    }).join('\n');
+    
     const clipboardContent = `${headers}\n${rowsContent}`;
 
     navigator.clipboard.writeText(clipboardContent).then(() => {
@@ -520,6 +538,10 @@ function downloadExcel() {
                 headers.map(header => {
                     if (header === 'Date') {
                         return row[header] instanceof Date ? row[header].toLocaleDateString('en-GB') : row[header];
+                    }
+                    // Clear Clinical Barcode Scan if not CLINICAL
+                    if (header === 'Clinical Barcode Scan' && row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
+                        return '';
                     }
                     return formatExcelNumber(row[header]);
                 })
