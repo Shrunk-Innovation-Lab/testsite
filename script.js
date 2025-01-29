@@ -348,12 +348,12 @@ function updateTable() {
         let location = '';
         let displaySite = getSiteDisplayName(row.Site);
         
-        if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
-            if (row.Site === 'Murenda') {
-                location = row['Clinical Barcode Scan'] || '';
-            } else {
-                clinicalBarcode = row['Clinical Barcode Scan'] || '';
-            }
+        // Move all Murenda Clinical Barcode Scan data to Location
+        if (row.Site === 'Murenda') {
+            location = row['Clinical Barcode Scan'] || '';
+            clinicalBarcode = ''; // Clear Clinical Barcode Scan for Murenda
+        } else if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
+            clinicalBarcode = row['Clinical Barcode Scan'] || '';
         }
         
         tr.innerHTML = `
@@ -522,16 +522,12 @@ function copySelectedRows() {
         const rowCopy = {...row};
         rowCopy.Site = getSiteDisplayName(rowCopy.Site);
         
-        if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
-            if (row.Site === 'Murenda') {
-                rowCopy['Location'] = row['Clinical Barcode Scan'] || '';
-                rowCopy['Clinical Barcode Scan'] = '';
-            } else {
-                rowCopy['Location'] = '';
-            }
-        } else {
+        // Handle Murenda data differently
+        if (row.Site === 'Murenda') {
+            rowCopy['Location'] = row['Clinical Barcode Scan'] || '';
             rowCopy['Clinical Barcode Scan'] = '';
-            rowCopy['Location'] = '';
+        } else if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
+            rowCopy['Clinical Barcode Scan'] = '';
         }
         
         return Object.values(rowCopy).join('\t');
@@ -572,13 +568,16 @@ function downloadExcel() {
                         return row[header] instanceof Date ? row[header].toLocaleDateString('en-GB') : row[header];
                     }
                     if (header === 'Clinical Barcode Scan') {
-                        if (row['Bin Type']?.toUpperCase() !== 'CLINICAL' || row.Site === 'Murenda') {
+                        if (row.Site === 'Murenda') {
+                            return '';
+                        }
+                        if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
                             return '';
                         }
                         return row[header];
                     }
                     if (header === 'Location') {
-                        if (row['Bin Type']?.toUpperCase() === 'CLINICAL' && row.Site === 'Murenda') {
+                        if (row.Site === 'Murenda') {
                             return row['Clinical Barcode Scan'] || '';
                         }
                         return '';
