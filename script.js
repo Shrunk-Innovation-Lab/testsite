@@ -545,42 +545,35 @@ function copySelectedRows() {
 function downloadExcel() {
     try {
         const selectedRows = getSelectedRows();
-        if (selectedRows.length === 0) {
+        if (!selectedRows || selectedRows.length === 0) {
             alert('No rows selected.');
             return;
         }
 
         const headers = getTableHeaders();
+        if (!headers || headers.length === 0) {
+            console.error('Headers are missing.');
+            alert('Error: Unable to export. No headers found.');
+            return;
+        }
 
-        const data = [
-            headers,
-            ...selectedRows.map(row => 
-                headers.map(header => {
-                    if (header === 'Site') {
-                        return getSiteDisplayName(row.Site);
-                    }
-                    if (header === 'Date') {
-                        return row[header] instanceof Date ? row[header].toLocaleDateString('en-GB') : row[header];
-                    }
-                    if (header === 'Clinical Barcode Scan') {
-                        if (row.Site === 'Murenda') {
-                            return ''; // Clear Clinical Barcode Scan for all Murenda entries
-                        }
-                        if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
-                            return '';
-                        }
-                        return row[header];
-                    }
-                    if (header === 'Location') {
-                        if (row.Site === 'Murenda') {
-                            return row['Clinical Barcode Scan'] || ''; // Move all Murenda Scan data to Location
-                        }
-                        return '';
-                    }
-                    return formatExcelNumber(row[header]);
-                })
-            )
-        ];
+        const data = [headers, ...selectedRows.map(row => {
+            return headers.map(header => {
+                if (header === 'Site') {
+                    return getSiteDisplayName(row.Site || '');
+                }
+                if (header === 'Date') {
+                    return row[header] instanceof Date ? row[header].toLocaleDateString('en-GB') : row[header] || '';
+                }
+                if (header === 'Clinical Barcode Scan') {
+                    return row['Bin Type']?.toUpperCase() === 'CLINICAL' ? row[header] || '' : '';
+                }
+                if (header === 'Location') {
+                    return row.Site === 'Murenda' ? row['Clinical Barcode Scan'] || '' : '';
+                }
+                return row[header] !== undefined ? formatExcelNumber(row[header]) : '';
+            });
+        })];
 
         if (!XLSX) {
             throw new Error('XLSX library is not loaded');
@@ -590,16 +583,15 @@ function downloadExcel() {
         const wb = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(wb, ws, "ScalerData");
 
-        const now = new Date();
-        const filename = `ScalerData_${now.getFullYear()}${(now.getMonth()+1).toString().padStart(2, '0')}${now.getDate().toString().padStart(2, '0')}_${now.getHours().toString().padStart(2, '0')}${now.getMinutes().toString().padStart(2, '0')}.xlsx`;
-
+        const filename = `ScalerData_${new Date().toISOString().slice(0, 19).replace(/[-T:]/g, "")}.xlsx`;
         XLSX.writeFile(wb, filename);
-        alert('Excel file has been downloaded.');
+
     } catch (error) {
         console.error('Error in downloadExcel function:', error);
         alert('An error occurred while trying to download the Excel file. Please check the console for more details.');
     }
 }
+
 
 function getSelectedRows() {
     const selectedRows = [];
