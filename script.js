@@ -348,11 +348,12 @@ function updateTable() {
         let location = '';
         let displaySite = getSiteDisplayName(row.Site);
         
-        // Move all Murenda Clinical Barcode Scan data to Location
+        // For Murenda, always move Scan data to Location regardless of bin type
         if (row.Site === 'Murenda') {
             location = row['Clinical Barcode Scan'] || '';
             clinicalBarcode = ''; // Clear Clinical Barcode Scan for Murenda
         } else if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
+            // For other sites, only show Clinical Barcode Scan if bin type is CLINICAL
             clinicalBarcode = row['Clinical Barcode Scan'] || '';
         }
         
@@ -522,11 +523,12 @@ function copySelectedRows() {
         const rowCopy = {...row};
         rowCopy.Site = getSiteDisplayName(rowCopy.Site);
         
-        // Handle Murenda data differently
+        // For Murenda, always move Scan data to Location regardless of bin type
         if (row.Site === 'Murenda') {
             rowCopy['Location'] = row['Clinical Barcode Scan'] || '';
             rowCopy['Clinical Barcode Scan'] = '';
         } else if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
+            // For other sites, clear Clinical Barcode Scan if not CLINICAL
             rowCopy['Clinical Barcode Scan'] = '';
         }
         
@@ -538,13 +540,6 @@ function copySelectedRows() {
     navigator.clipboard.writeText(clipboardContent).then(() => {
         alert('Selected data copied to clipboard.');
     });
-}
-
-function formatExcelNumber(num) {
-    if (typeof num === 'number') {
-        return Number(num.toFixed(2));
-    }
-    return num;
 }
 
 function downloadExcel() {
@@ -569,7 +564,7 @@ function downloadExcel() {
                     }
                     if (header === 'Clinical Barcode Scan') {
                         if (row.Site === 'Murenda') {
-                            return '';
+                            return ''; // Clear Clinical Barcode Scan for all Murenda entries
                         }
                         if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
                             return '';
@@ -578,7 +573,7 @@ function downloadExcel() {
                     }
                     if (header === 'Location') {
                         if (row.Site === 'Murenda') {
-                            return row['Clinical Barcode Scan'] || '';
+                            return row['Clinical Barcode Scan'] || ''; // Move all Murenda Scan data to Location
                         }
                         return '';
                     }
