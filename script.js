@@ -105,7 +105,6 @@ document.addEventListener('DOMContentLoaded', () => {
     updateTable();
     populateFilters();
 });
-
 function formatDateForFiltering(dateObj) {
     const day = String(dateObj.getDate()).padStart(2, '0');
     const month = String(dateObj.getMonth() + 1).padStart(2, '0');
@@ -192,7 +191,7 @@ async function fetchData() {
                         'Bin Size': binSize,
                         'Bin Type': binType,
                         'Clinical Barcode Scan': row['Scan'] || '',
-                        'Location': '',  // Initialize Location field
+                        'Location': '',
                         'Estimated $': cost,
                         'Emissions': emissions
                     };
@@ -237,7 +236,6 @@ async function fetchData() {
         spinner.style.display = 'none';
     }
 }
-
 function calculateNetWeight(grossWeight, binSize) {
     switch (binSize) {
         case '80L': return Math.max(0, grossWeight - 8.5);
@@ -341,6 +339,12 @@ function updateTable() {
         // Handle Clinical Barcode Scan and Location
         let clinicalBarcode = '';
         let location = '';
+        let displaySite = row.Site;
+
+        // Convert Ferntree Gully to Angliss for display
+        if (displaySite === 'Ferntree Gully') {
+            displaySite = 'Angliss';
+        }
         
         if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
             if (row.Site === 'Murenda') {
@@ -352,7 +356,7 @@ function updateTable() {
         
         tr.innerHTML = `
             <td><input type="checkbox" class="rowSelector"></td>
-            <td>${row.Site}</td>
+            <td>${displaySite}</td>
             <td>${row.Date ? row.Date.toLocaleDateString('en-GB') : 'Invalid Date'}</td>
             <td>${row.Time}</td>
             <td>${formatNumber(row['Weight (Gross)'])}</td>
@@ -380,7 +384,6 @@ function getPageData() {
     const end = start + entriesPerPage;
     return filteredData.slice(start, end);
 }
-
 function updateTotals() {
     const totals = filteredData.reduce((acc, row) => {
         acc['Weight (Gross)'] += parseFloat(row['Weight (Gross)']) || 0;
@@ -486,11 +489,9 @@ function applyFilters() {
         return row.Date >= startDate && 
                row.Date <= endDate && 
                selectedBinSizes.includes(row['Bin Size']) && 
-               selectedBinTypes.includes(row['Bin Type']);
+               selectedBinTypes.includes(row['Bin Type']) &&
+               !HIDDEN_SITES.includes(row.Site);
     });
-
-    // Filter out hidden sites from display
-    filteredData = filteredData.filter(row => !HIDDEN_SITES.includes(row.Site));
 
     sortDataByDate();
     currentPage = 1;
@@ -517,6 +518,8 @@ function copySelectedRows() {
     const rowsContent = selectedRows.map(row => {
         // Create a copy of the row with conditional Clinical Barcode Scan and Location
         const rowCopy = {...row};
+        const displaySite = rowCopy.Site === 'Ferntree Gully' ? 'Angliss' : rowCopy.Site;
+        
         if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
             if (row.Site === 'Murenda') {
                 rowCopy['Location'] = row['Clinical Barcode Scan'] || '';
@@ -528,6 +531,8 @@ function copySelectedRows() {
             rowCopy['Clinical Barcode Scan'] = '';
             rowCopy['Location'] = '';
         }
+        
+        rowCopy.Site = displaySite;
         return Object.values(rowCopy).join('\t');
     }).join('\n');
     
@@ -557,8 +562,12 @@ function downloadExcel() {
 
         const data = [
             headers,
-            ...selectedRows.map(row => 
-                headers.map(header => {
+            ...selectedRows.map(row => {
+                const displaySite = row.Site === 'Ferntree Gully' ? 'Angliss' : row.Site;
+                return headers.map(header => {
+                    if (header === 'Site') {
+                        return displaySite;
+                    }
                     if (header === 'Date') {
                         return row[header] instanceof Date ? row[header].toLocaleDateString('en-GB') : row[header];
                     }
@@ -575,8 +584,8 @@ function downloadExcel() {
                         return '';
                     }
                     return formatExcelNumber(row[header]);
-                })
-            )
+                });
+            })
         ];
 
         if (!XLSX) {
