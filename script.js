@@ -192,6 +192,7 @@ async function fetchData() {
                         'Bin Size': binSize,
                         'Bin Type': binType,
                         'Clinical Barcode Scan': row['Scan'] || '',
+                        'Location': '',  // Initialize Location field
                         'Estimated $': cost,
                         'Emissions': emissions
                     };
@@ -336,8 +337,18 @@ function updateTable() {
 
     pageData.forEach(row => {
         const tr = document.createElement('tr');
-        // Only show Clinical Barcode Scan if Bin Type is CLINICAL
-        const clinicalBarcode = row['Bin Type']?.toUpperCase() === 'CLINICAL' ? row['Clinical Barcode Scan'] : '';
+        
+        // Handle Clinical Barcode Scan and Location
+        let clinicalBarcode = '';
+        let location = '';
+        
+        if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
+            if (row.Site === 'Murenda') {
+                location = row['Clinical Barcode Scan'] || '';
+            } else {
+                clinicalBarcode = row['Clinical Barcode Scan'] || '';
+            }
+        }
         
         tr.innerHTML = `
             <td><input type="checkbox" class="rowSelector"></td>
@@ -349,6 +360,7 @@ function updateTable() {
             <td>${row['Bin Size']}</td>
             <td>${row['Bin Type']}</td>
             <td>${clinicalBarcode}</td>
+            <td>${location}</td>
             <td>$${formatNumber(row['Estimated $'])}</td>
             <td>${formatNumber(row.Emissions)}</td>
         `;
@@ -383,7 +395,7 @@ function updateTotals() {
         <td colspan="4"><strong>Total</strong></td>
         <td>${formatNumber(totals['Weight (Gross)'])}</td>
         <td>${formatNumber(totals['Weight (Net)'])}</td>
-        <td colspan="3"></td>
+        <td colspan="4"></td>
         <td>$${formatNumber(totals['Estimated $'])}</td>
         <td>${formatNumber(totals.Emissions)}</td>
     `;
@@ -477,6 +489,9 @@ function applyFilters() {
                selectedBinTypes.includes(row['Bin Type']);
     });
 
+    // Filter out hidden sites from display
+    filteredData = filteredData.filter(row => !HIDDEN_SITES.includes(row.Site));
+
     sortDataByDate();
     currentPage = 1;
     updateTable();
@@ -500,10 +515,18 @@ function copySelectedRows() {
 
     const headers = getTableHeaders().join('\t');
     const rowsContent = selectedRows.map(row => {
-        // Create a copy of the row with conditional Clinical Barcode Scan
+        // Create a copy of the row with conditional Clinical Barcode Scan and Location
         const rowCopy = {...row};
-        if (row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
+        if (row['Bin Type']?.toUpperCase() === 'CLINICAL') {
+            if (row.Site === 'Murenda') {
+                rowCopy['Location'] = row['Clinical Barcode Scan'] || '';
+                rowCopy['Clinical Barcode Scan'] = '';
+            } else {
+                rowCopy['Location'] = '';
+            }
+        } else {
             rowCopy['Clinical Barcode Scan'] = '';
+            rowCopy['Location'] = '';
         }
         return Object.values(rowCopy).join('\t');
     }).join('\n');
@@ -539,8 +562,16 @@ function downloadExcel() {
                     if (header === 'Date') {
                         return row[header] instanceof Date ? row[header].toLocaleDateString('en-GB') : row[header];
                     }
-                    // Clear Clinical Barcode Scan if not CLINICAL
-                    if (header === 'Clinical Barcode Scan' && row['Bin Type']?.toUpperCase() !== 'CLINICAL') {
+                    if (header === 'Clinical Barcode Scan') {
+                        if (row['Bin Type']?.toUpperCase() !== 'CLINICAL' || row.Site === 'Murenda') {
+                            return '';
+                        }
+                        return row[header];
+                    }
+                    if (header === 'Location') {
+                        if (row['Bin Type']?.toUpperCase() === 'CLINICAL' && row.Site === 'Murenda') {
+                            return row['Clinical Barcode Scan'] || '';
+                        }
                         return '';
                     }
                     return formatExcelNumber(row[header]);
@@ -579,7 +610,7 @@ function getSelectedRows() {
 }
 
 function getTableHeaders() {
-    return ['Site', 'Date', 'Time', 'Weight (Gross)', 'Weight (Net)', 'Bin Size', 'Bin Type', 'Clinical Barcode Scan', 'Estimated $', 'Emissions'];
+    return ['Site', 'Date', 'Time', 'Weight (Gross)', 'Weight (Net)', 'Bin Size', 'Bin Type', 'Clinical Barcode Scan', 'Location', 'Estimated $', 'Emissions'];
 }
 
 function selectAllRows() {
