@@ -1,0 +1,374 @@
+body { 
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif; 
+    margin: 20px;
+    background-color: #f5f5f7;
+    color: #1d1d1f;
+    display: flex;
+    flex-direction: column;
+    min-height: 100vh;
+    overflow-x: hidden;
+}
+
+header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+.logo {
+    height: 40px;
+}
+
+.controls { 
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    gap: 10px;
+    margin-bottom: 20px;
+}
+
+.controls button, .controls input, .controls select { 
+    margin-right: 10px;
+}
+
+button, input[type="date"], input[type="text"], select {
+    background-color: #ffffff;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    padding: 8px 16px;
+    font-size: 14px;
+    color: #1d1d1f;
+    transition: all 0.3s ease;
+}
+
+button:hover, select:hover {
+    background-color: #f5f5f7;
+}
+
+.date-picker-container, .site-selector-container {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-wrap: wrap;
+}
+
+#dateRangePicker {
+    width: 220px;
+    max-width: 100%;
+    box-sizing: border-box;
+}
+
+#dateRangePicker:hover {
+    background-color: #f5f5f7;
+}
+
+#dateRangePicker:focus {
+    outline: none;
+    border-color: #007aff;
+    box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+}
+
+.entries-container {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 14px;
+}
+
+.entries-container select {
+    padding-right: 24px;
+    margin-left: auto;
+}
+
+.table-container { 
+    width: 100%;
+    overflow-x: auto;
+    position: relative;
+}
+
+#dataTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: #ffffff;
+    border-radius: 10px;
+    overflow: hidden;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    font-size: 14px;
+    border: 1px solid #ddd;
+    table-layout: fixed;
+}
+
+#dataTable th, #dataTable td { 
+    padding: 12px 16px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+    vertical-align: middle;
+    white-space: normal;
+    overflow: visible;
+    word-wrap: break-word;
+}
+
+#dataTable th {
+    background-color: #f2f2f2;
+    font-weight: 600;
+    color: #1d1d1f;
+    position: relative;
+    height: auto;
+    padding-right: 25px;
+}
+
+#dataTable tr:nth-child(even) {
+    background-color: #f9f9f9;
+}
+
+#dataTable tr:hover {
+    background-color: #f5f5f5;
+}
+
+input[type="checkbox"] {
+    appearance: none;
+    -webkit-appearance: none;
+    width: 20px;
+    height: 20px;
+    background-color: #ffffff;
+    border: 2px solid #d2d2d7;
+    border-radius: 4px;
+    cursor: pointer;
+    position: relative;
+    vertical-align: middle;
+    margin-top: -1px;
+}
+
+input[type="checkbox"]:checked {
+    background-color: #007aff;
+    border-color: #007aff;
+}
+
+input[type="checkbox"]:checked::after {
+    content: '\2714';
+    color: white;
+    font-size: 14px;
+    position: absolute;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+}
+
+#dataTable th:nth-child(1), #dataTable td:nth-child(1) { width: 20px; }
+#dataTable th:nth-child(2), #dataTable td:nth-child(2) { width: 100px; }
+#dataTable th:nth-child(3), #dataTable td:nth-child(3) { width: 80px; }
+#dataTable th:nth-child(4), #dataTable td:nth-child(4) { width: 110px; }
+#dataTable th:nth-child(5), #dataTable td:nth-child(5) { width: 100px; }
+#dataTable th:nth-child(6), #dataTable td:nth-child(6) { width: 80px; }
+#dataTable th:nth-child(7), #dataTable td:nth-child(7) { width: 120px; }
+#dataTable th:nth-child(8), #dataTable td:nth-child(8) { width: 150px; }
+#dataTable th:nth-child(9), #dataTable td:nth-child(9) { width: 100px; }
+#dataTable th:nth-child(10), #dataTable td:nth-child(10) { width: 100px; }
+
+#totalRow td {
+    font-weight: bold;
+    border-top: 2px solid #333;
+}
+
+#totalRow td[colspan="2"] {
+    text-align: center !important;
+}
+
+#search {
+    flex-grow: 1;
+    max-width: 200px;
+}
+
+.table-info {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 10px;
+    font-size: 14px;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    margin-top: 20px;
+}
+
+.pagination button {
+    background-color: #f0f0f0;
+    border: 1px solid #ddd;
+    color: #333;
+    padding: 8px 16px;
+    text-decoration: none;
+    transition: background-color .3s;
+    cursor: pointer;
+}
+
+.pagination button:hover:not(:disabled) {
+    background-color: #ddd;
+}
+
+.pagination button:disabled {
+    color: #999;
+    cursor: not-allowed;
+}
+
+.pagination span {
+    margin: 0 10px;
+}
+
+footer {
+    margin-top: auto;
+    text-align: center;
+    padding: 20px;
+    font-size: 10px;
+    background-color: #f5f5f7;
+    color: #1d1d1f;
+}
+
+.spinner {
+    display: none;
+    text-align: center;
+    padding: 20px;
+    font-weight: bold;
+    font-size: 18px;
+    color: #007aff;
+}
+
+@keyframes spin {
+    0% { transform: rotate(0deg); }
+    100% { transform: rotate(360deg); }
+}
+
+.spinner::after {
+    content: '';
+    display: inline-block;
+    width: 20px;
+    height: 20px;
+    margin-left: 10px;
+    border: 3px solid #007aff;
+    border-top: 3px solid #ffffff;
+    border-radius: 50%;
+    animation: spin 1s linear infinite;
+}
+
+#clearData {
+    background-color: #ff3b30;
+    color: white;
+}
+
+#clearData:hover {
+    background-color: #ff6b6b;
+}
+
+#fetchData {
+    background-color: #007aff;
+    color: white;
+}
+
+#fetchData:hover {
+    background-color: #0056b3;
+}
+
+.filter-icon {
+    background: none;
+    border: none;
+    cursor: pointer;
+    padding: 0;
+    color: #007aff;
+    position: absolute;
+    right: 5px;
+    top: 50%;
+    transform: translateY(-50%);
+}
+
+.filter-icon svg {
+    fill: #007aff;
+    transition: fill 0.3s ease;
+    width: 18px;
+    height: 18px;
+}
+
+.filter-icon:hover svg {
+    fill: #0056b3;
+}
+
+.filter-dropdown {
+    display: none;
+    position: absolute;
+    background-color: white;
+    border: 1px solid #d2d2d7;
+    border-radius: 6px;
+    padding: 10px;
+    z-index: 1000;
+    box-shadow: 0 2px 10px rgba(0,0,0,0.1);
+    max-height: 200px;
+    overflow-y: auto;
+    text-align: left;
+    right: 0;
+    top: 100%;
+}
+
+.filter-dropdown.show {
+    display: block;
+}
+
+.filter-dropdown label {
+    display: block;
+    margin-bottom: 5px;
+    white-space: nowrap;
+}
+
+.filter-dropdown input[type="checkbox"] {
+    margin-right: 5px;
+}
+
+@media screen and (max-width: 768px) {
+    .controls, .date-picker-container {
+        flex-direction: column;
+        align-items: stretch;
+    }
+    
+    .controls > *, .date-picker-container > * {
+        width: 100%;
+        margin-right: 0;
+        margin-bottom: 10px;
+    }
+    
+    #dataTable {
+        font-size: 12px;
+    }
+    
+    #dataTable th, #dataTable td {
+        padding: 8px 12px;
+    }
+
+    #dateRangePicker {
+        width: 100%;
+    }
+
+    .filter-icon {
+        right: 2px;
+    }
+
+    .filter-icon svg {
+        width: 16px;
+        height: 16px;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    #dataTable {
+        font-size: 11px;
+    }
+    
+    #dataTable th, #dataTable td {
+        padding: 6px 8px;
+    }
+
+    .filter-icon svg {
+        width: 14px;
+        height: 14px;
+    }
+}
