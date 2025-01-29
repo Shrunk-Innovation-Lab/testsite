@@ -35,8 +35,7 @@ let currentDateSort = 'newest';
  */
 function getSiteDisplayName(site) {
   if (site === 'Ferntree Gully') return 'Angliss';
-  if (site === 'Maroonda')       return 'Maroondah';
-  if (site === 'Mirenda')        return 'Murenda';  
+  if (site === 'Maroonda')       return 'Maroondah'; 
   return site;
 }
 
