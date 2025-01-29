@@ -404,8 +404,8 @@ function updateTable() {
     let location = '';
     let displaySite = getSiteDisplayName(row.Site);
 
-    // If site is "Mirenda" (displayed as "Murenda"), we move "Scan" to "Location"
-    if (row.Site === 'Mirenda') {
+    // If site is "Murenda" (displayed as "Murenda"), we move "Scan" to "Location"
+    if (row.Site === 'Murenda') {
       location = row["Clinical Barcode Scan"] || '';
       clinicalBarcode = '';
     } else if (row["Bin Type"]?.toUpperCase() === 'CLINICAL') {
