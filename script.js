@@ -16,9 +16,16 @@ let filteredData = [];
 let currentDateSort = 'newest';
 
 document.addEventListener('DOMContentLoaded', () => {
+    // Initialize flatpickr with all options explicitly set
     flatpickr("#dateRangePicker", {
         mode: "range",
         dateFormat: "d-m-Y",
+        allowInput: true,
+        clickOpens: true,
+        enableTime: false,
+        defaultHour: 0,
+        position: "below",
+        static: false,
         onClose: function(selectedDates, dateStr, instance) {
             if (selectedDates.length === 1) {
                 document.getElementById('startDate').value = formatDateForFiltering(selectedDates[0]);
