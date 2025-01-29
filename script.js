@@ -1,6 +1,5 @@
 const SPREADSHEET_ID = '1NKMZLWZyorzKHbL-uISb8eEFUFjgGfGoUA_UAKizzAI';
 const SITE_GID_MAP = {
-    'VCCC': '841396830',
     'Box Hill': '494600588',
     'Wantirna': '1825774984',
     'Burwood': '294019943',
