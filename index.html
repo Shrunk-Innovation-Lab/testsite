@@ -147,7 +147,7 @@
             <option value="all">All Weights</option>
             <option value="overweight">Overweight Only</option>
             <option value="underweight">Underweight Only</option>
-            <option value="normal">Normal Weight Only</option>
+            <option value="normal">Optimal Weight Only</option>
           </select>
           <select id="chargeFilter" class="select-control">
             <option value="all">All Charges</option>
@@ -169,55 +169,64 @@
             <path fill="currentColor" d="M11 14.9861C11 15.5384 11.4477 15.9861 12 15.9861C12.5523 15.9861 13 15.5384 13 14.9861V7.82831L16.2428 11.0711L17.657 9.65685L12.0001 4L6.34326 9.65685L7.75748 11.0711L11 7.82854V14.9861Z" />
             <path fill="currentColor" d="M4 14H6V18H18V14H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V14Z" />
           </svg>
-          Export to Excel
+          Export Issues
         </button>
       </div>
+      <!-- New button to export valid rows (rows with no discrepancies) -->
+      <button id="downloadValidResults" class="button primary">
+        <svg class="export-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+          <path fill="currentColor" d="M11 14.9861C11 15.5384 11.4477 15.9861 12 15.9861C12.5523 15.9861 13 15.5384 13 14.9861V7.82831L16.2428 11.0711L17.657 9.65685L12.0001 4L6.34326 9.65685L7.75748 11.0711L11 7.82854V14.9861Z" />
+          <path fill="currentColor" d="M4 14H6V18H18V14H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V14Z" />
+        </svg>
+        Export Valid Rows
+      </button>
     </div>
+  </div>
 
-    <!-- No Results Message -->
-    <div id="noResultsMessage" class="no-results hidden"></div>
+  <!-- No Results Message -->
+  <div id="noResultsMessage" class="no-results hidden"></div>
 
-    <!-- Results Table -->
-    <div id="resultsTable" class="table-wrapper hidden">
-      <table id="results">
-        <thead>
-          <tr>
-            <th>Row</th>
-            <th>Site Name</th>
-            <th>Bin Size</th>
-            <th>Service Description</th>
-            <th>Contract Unit Price Charged</th>
-            <th>Waste Kg</th>
-            <th>Excess kg</th>
-            <th>Charge excl GST ($)</th>
-            <th>Expected Charge ($)</th>
-            <th>Net Over (-$) | Undercharge ($)</th>
-            <th>Discrepancy</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Dynamic content inserted via JavaScript -->
-        </tbody>
-        <tfoot>
-          <tr id="totalsRow">
-            <!-- Totals row: first cell spans columns 1–5, then one cell per total -->
-            <td colspan="5"><strong>Totals</strong></td>
-            <td id="totWasteKg"></td>
-            <td id="totExcessKg"></td>
-            <td id="totChargeExclGST"></td>
-            <td id="totExpectedCharge"></td>
-            <td id="totNet"></td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
+  <!-- Results Table -->
+  <div id="resultsTable" class="table-wrapper hidden">
+    <table id="results">
+      <thead>
+        <tr>
+          <th>Row</th>
+          <th>Site Name</th>
+          <th>Bin Size</th>
+          <th>Service Description</th>
+          <th>Contract Unit Price Charged</th>
+          <th>Waste Kg</th>
+          <th>Excess kg</th>
+          <th>Charge excl GST ($)</th>
+          <th>Expected Charge ($)</th>
+          <th>Net Over (-$) | Undercharge ($)</th>
+          <th>Discrepancy</th>
+        </tr>
+      </thead>
+      <tbody>
+        <!-- Dynamic content inserted via JavaScript -->
+      </tbody>
+      <tfoot>
+        <tr id="totalsRow">
+          <!-- Totals row: first cell spans columns 1–5, then one cell per total -->
+          <td colspan="5"><strong>Totals</strong></td>
+          <td id="totWasteKg"></td>
+          <td id="totExcessKg"></td>
+          <td id="totChargeExclGST"></td>
+          <td id="totExpectedCharge"></td>
+          <td id="totNet"></td>
+          <td></td>
+        </tr>
+      </tfoot>
+    </table>
+  </div>
 
-    <!-- Pagination Section -->
-    <div class="table-footer">
-      <div id="recordCount">Showing all entries</div>
-      <div id="pagination" class="pagination"></div>
-    </div>
+  <!-- Pagination Section -->
+  <div class="table-footer">
+    <div id="recordCount">Showing all entries</div>
+    <div id="pagination" class="pagination"></div>
+  </div>
   </div>
 
   <footer>
