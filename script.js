@@ -6,11 +6,11 @@ const BIN_CONFIG = {
 
 // Global variables
 let rawData = [];
-let discrepancyData = [];
-let filteredData = [];
+let discrepancyData = []; // All rows with discrepancies as computed in evaluateSheet
+let filteredData = [];    // Subset of discrepancyData after filtering
 let searchTerm = '';
 let selectedBinSize = 'all';
-let selectedSiteName = 'all'; // New filter for Site Name
+let selectedSiteName = 'all';
 let selectedWeightFilter = 'all';
 let selectedChargeFilter = 'all';
 let currentPage = 1;
@@ -18,26 +18,28 @@ let entriesPerPage = 'All';
 let originalFilename = '';
 let summaryStats = {
   totalRows: 0,
+  totalErrors: 0,
   total660L: 0,
   total240LBins: 0,
   total120LBins: 0,
-  totalErrors: 0,
-  totalOvercharges: 0,
-  totalUndercharges: 0,
   totalBinsOverweight: 0,
   totalBinsUnderweight: 0,
   totalChargeExclGST: 0,
-  totalWasteKg: 0,    // Sum of Waste Kg values
-  totalExcessKg: 0,   // Sum of provided Excess kg values
+  totalWasteKg: 0,
+  totalExcessKg: 0,
+  totalOvercharges: 0,
+  totalUndercharges: 0,
   totalNetCharge: 0
 };
 
-// Format numbers (integers) with thousand separators
+/* Helper Functions */
+
+// Format integer numbers with thousand separators.
 function formatNumber(number) {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-// Format currency with two decimals and thousand separators
+// Format currency values with two decimals and thousand separators.
 function formatCurrency(amount) {
   const absAmount = Math.abs(amount);
   const prefix = amount < 0 ? '-$' : '$';
@@ -45,7 +47,7 @@ function formatCurrency(amount) {
   return `${prefix}${formattedAmount}`;
 }
 
-// Format a decimal number with thousand separators and exactly two decimal places
+// Format a decimal number with thousand separators and exactly two decimal places.
 function formatDecimal(number) {
   return Number(number).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -53,37 +55,36 @@ function formatDecimal(number) {
   });
 }
 
-// Validate a single row (includes customer details, bin validations, and uses Task Site Name)
+/* Data Validation */
+
+// Validate a single row from the spreadsheet.
 function validateRow(row) {
   const errors = [];
   
-  // Validate Customer Details
+  // Validate Customer Details.
   const customerGroup = (row["Customer Group"] || "").trim();
   if (customerGroup !== "Eastern Health") {
     errors.push("Incorrect Customer Group");
   }
-  
   const customerName = (row["Customer Name"] || "").trim();
   if (customerName !== "EASTERN HEALTH") {
     errors.push("Incorrect Customer Name");
   }
-  
   const customerNo = (row["Customer No."] || "").trim();
   const validCustomerNos = [
-    "C-001148", "C-002810", "C-001352", "C-001234", 
-    "C-011883", "C-001469", "C-002811", "C-001693", 
+    "C-001148", "C-002810", "C-001352", "C-001234",
+    "C-011883", "C-001469", "C-002811", "C-001693",
     "C-027713", "C-027790"
   ];
   if (!validCustomerNos.includes(customerNo)) {
     errors.push("Incorrect Customer No.");
   }
-  
   const customerABN = (row["Customer ABN"] || "").trim();
   if (customerABN !== "68223819017") {
     errors.push("Incorrect Customer ABN");
   }
-
-  // Determine bin type based on Service Description
+  
+  // Determine bin type from Service Description.
   const serviceDesc = row["Service Description"] || "";
   let binSize = null;
   if (serviceDesc.includes("660L")) {
@@ -96,48 +97,52 @@ function validateRow(row) {
     errors.push("Unknown or missing bin size");
     return { errors };
   }
-
+  
   const config = BIN_CONFIG[binSize];
   const contractPrice = parseFloat(row["Contract Unit Price"] || 0);
   if (Math.abs(contractPrice - config.basePrice) > 0.01) {
     errors.push("Incorrect contract rate applied");
   }
-
-  const includedWeight = config.includedWeight;
+  
+  // Parse weights.
   const actualWeight = parseFloat(row["Waste Kg"] || 0);
   const providedExcessKg = parseFloat(row["Excess kg"] || 0);
-
+  // Calculate the total delivered weight.
+  const totalDelivered = actualWeight + providedExcessKg;
+  
   // Flag error if Waste Kg and Excess kg are identical (and nonzero)
   if (actualWeight === providedExcessKg && actualWeight !== 0) {
     errors.push("Waste Kg and Excess kg cannot be identical");
   }
-
-  // Minimum weight check
-  if (binSize === "660L" && actualWeight < 49) {
-    errors.push("Bin Less than Minimum Kg");
-  } else if (binSize === "240L" && actualWeight < 13) {
-    errors.push("Bin Less than Minimum Kg");
-  } else if (binSize === "120L" && actualWeight < 8) {
+  
+  // Minimum weight check: if total delivered weight is less than the included weight.
+  if (totalDelivered < config.includedWeight) {
     errors.push("Bin Less than Minimum Kg");
   }
-
-  const excessKg = Math.max(0, actualWeight - includedWeight);
-
-  // Check for excessive additional kg
-  if (binSize === "660L" && excessKg > 40) {
+  // Additional error: if Waste Kg is less than the included weight but Excess kg is nonzero.
+  if (actualWeight < config.includedWeight && providedExcessKg > 0) {
+    errors.push("Excess kg should be zero when Waste Kg is less than included weight");
+  }
+  
+  // Calculate the excess based on the total delivered weight.
+  const excessCalculated = Math.max(0, totalDelivered - config.includedWeight);
+  
+  // Maximum weight check using excessCalculated.
+  if (binSize === "660L" && excessCalculated > 40) {
     errors.push("Excessive Additional Kg");
-  } else if (binSize === "240L" && excessKg > 20) {
+  } else if (binSize === "240L" && excessCalculated > 20) {
     errors.push("Excessive Additional Kg");
-  } else if (binSize === "120L" && excessKg > 10) {
+  } else if (binSize === "120L" && excessCalculated > 10) {
     errors.push("Excessive Additional Kg");
   }
-
-  if (Math.abs(excessKg - providedExcessKg) > 0.01) {
+  
+  // Check provided excess kg matches calculated excess.
+  if (Math.abs(excessCalculated - providedExcessKg) > 0.01) {
     errors.push("Incorrect additional kg rate applied");
   }
-
+  
   const excessRate = config.excessRate;
-  const expectedTotalCharge = config.basePrice + excessKg * excessRate;
+  const expectedTotalCharge = config.basePrice + excessCalculated * excessRate;
   const actualCharge = parseFloat(row["Charge excl GST"] || 0);
   let netDifference = 0;
   if (Math.abs(actualCharge - expectedTotalCharge) > 0.01) {
@@ -145,7 +150,7 @@ function validateRow(row) {
     const discrepancyType = actualCharge > expectedTotalCharge ? "Overcharge" : "Undercharge";
     errors.push(`${discrepancyType} - Incorrect total`);
   }
-
+  
   return {
     errors,
     binSize,
@@ -154,28 +159,32 @@ function validateRow(row) {
   };
 }
 
-// Check if a row matches the selected weight filter
+/* Filter Matching Functions */
+
 function matchesWeightFilter(row) {
   const binSize = row["Bin Size"];
-  const actualWeight = parseFloat(row["Waste Kg"].replace(/,/g, "")) || 0;
+  // Use total delivered weight = Waste Kg + Excess kg.
+  const waste = parseFloat(row["Waste Kg"].replace(/,/g, "")) || 0;
+  const excess = parseFloat(row["Excess kg"].replace(/,/g, "")) || 0;
+  const totalDelivered = waste + excess;
+  
   if (selectedWeightFilter === 'all') return true;
   if (binSize === "660L") {
-    if (selectedWeightFilter === 'overweight') return actualWeight > 89;
-    if (selectedWeightFilter === 'underweight') return actualWeight < 49;
-    if (selectedWeightFilter === 'normal') return actualWeight >= 49 && actualWeight <= 89;
+    if (selectedWeightFilter === 'overweight') return totalDelivered > 89;
+    if (selectedWeightFilter === 'underweight') return totalDelivered < 49;
+    if (selectedWeightFilter === 'normal') return totalDelivered >= 49 && totalDelivered <= 89;
   } else if (binSize === "240L") {
-    if (selectedWeightFilter === 'overweight') return actualWeight > 33;
-    if (selectedWeightFilter === 'underweight') return actualWeight < 13;
-    if (selectedWeightFilter === 'normal') return actualWeight >= 13 && actualWeight <= 33;
+    if (selectedWeightFilter === 'overweight') return totalDelivered > 33;
+    if (selectedWeightFilter === 'underweight') return totalDelivered < 13;
+    if (selectedWeightFilter === 'normal') return totalDelivered >= 13 && totalDelivered <= 33;
   } else if (binSize === "120L") {
-    if (selectedWeightFilter === 'overweight') return actualWeight > 18;
-    if (selectedWeightFilter === 'underweight') return actualWeight < 8;
-    if (selectedWeightFilter === 'normal') return actualWeight >= 8 && actualWeight <= 18;
+    if (selectedWeightFilter === 'overweight') return totalDelivered > 18;
+    if (selectedWeightFilter === 'underweight') return totalDelivered < 8;
+    if (selectedWeightFilter === 'normal') return totalDelivered >= 8 && totalDelivered <= 18;
   }
   return true;
 }
 
-// Check if a row matches the selected charge filter
 function matchesChargeFilter(row) {
   if (selectedChargeFilter === 'all') return true;
   const netDifference = parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
@@ -184,196 +193,264 @@ function matchesChargeFilter(row) {
   return true;
 }
 
-// Update summary cards in the UI (using formatDecimal for weight values)
+/* Recalculate Summary Stats from Filtered Data */
+
+function recalcFilteredSummaryStats() {
+  let stats = {
+    totalRows: filteredData.length,
+    totalErrors: 0,
+    total660L: 0,
+    total240LBins: 0,
+    total120LBins: 0,
+    totalBinsOverweight: 0,
+    totalBinsUnderweight: 0,
+    totalWasteKg: 0,
+    totalExcessKg: 0,
+    totalChargeExclGST: 0,
+    totalOvercharges: 0,
+    totalUndercharges: 0
+  };
+  
+  filteredData.forEach(row => {
+    if (row["Discrepancy"] && row["Discrepancy"].trim() !== "") {
+      stats.totalErrors++;
+    }
+    if (row["Bin Size"] === "660L") stats.total660L++;
+    else if (row["Bin Size"] === "240L") stats.total240LBins++;
+    else if (row["Bin Size"] === "120L") stats.total120LBins++;
+    
+    let waste = parseFloat((row["Waste Kg"] || "0").replace(/,/g, ""));
+    let excess = parseFloat((row["Excess kg"] || "0").replace(/,/g, ""));
+    let charge = parseFloat((row["Charge excl GST ($)"] || "0").replace(/[^0-9.-]+/g, ""));
+    stats.totalWasteKg += isNaN(waste) ? 0 : waste;
+    stats.totalExcessKg += isNaN(excess) ? 0 : excess;
+    stats.totalChargeExclGST += isNaN(charge) ? 0 : charge;
+    
+    // Use total delivered weight for overweight/underweight checks.
+    const totalDelivered = waste + excess;
+    if (row["Bin Size"] === "660L") {
+      if (totalDelivered < 49) stats.totalBinsUnderweight++;
+      else if (totalDelivered > 89) stats.totalBinsOverweight++;
+    } else if (row["Bin Size"] === "240L") {
+      if (totalDelivered < 13) stats.totalBinsUnderweight++;
+      else if (totalDelivered > 33) stats.totalBinsOverweight++;
+    } else if (row["Bin Size"] === "120L") {
+      if (totalDelivered < 8) stats.totalBinsUnderweight++;
+      else if (totalDelivered > 18) stats.totalBinsOverweight++;
+    }
+    
+    let net = parseFloat((row["Net Over (-$) | Undercharge ($)"] || "0").replace(/[^0-9.-]+/g, ""));
+    if (!isNaN(net)) {
+      if (net < 0) stats.totalOvercharges += Math.abs(net);
+      else if (net > 0) stats.totalUndercharges += net;
+    }
+  });
+  return stats;
+}
+
+/* Update Summary Cards in the UI */
+
 function updateSummaryCards() {
   document.getElementById("totalRowsAssessed").textContent = formatNumber(summaryStats.totalRows);
+  document.getElementById("totalErrors").textContent = formatNumber(summaryStats.totalErrors);
   document.getElementById("total660LBins").textContent = formatNumber(summaryStats.total660L);
   document.getElementById("total240LBins").textContent = formatNumber(summaryStats.total240LBins);
   document.getElementById("total120LBins").textContent = formatNumber(summaryStats.total120LBins);
-  document.getElementById("totalErrors").textContent = formatNumber(summaryStats.totalErrors);
   
-  // Use formatDecimal for weight totals
+  const totalBins = summaryStats.total660L + summaryStats.total240LBins + summaryStats.total120LBins;
+  document.getElementById("totalBins").textContent = formatNumber(totalBins);
+  
+  document.getElementById("totalBinsOverweight").textContent = formatNumber(summaryStats.totalBinsOverweight);
+  document.getElementById("totalBinsUnderweight").textContent = formatNumber(summaryStats.totalBinsUnderweight);
+  
   document.getElementById("totalWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg);
   document.getElementById("totalExcessKg").textContent = formatDecimal(summaryStats.totalExcessKg);
   document.getElementById("totalCombinedWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg + summaryStats.totalExcessKg);
   
-  // Total Bins is the sum of 660L, 240L, and 120L bins
-  const totalBins = summaryStats.total660L + summaryStats.total240LBins + summaryStats.total120LBins;
-  document.getElementById("totalBins").textContent = formatNumber(totalBins);
-  
   document.getElementById("totalChargeExclGST").textContent = formatCurrency(summaryStats.totalChargeExclGST);
-  
-  const overchargesElement = document.getElementById("totalOvercharges");
-  overchargesElement.textContent = formatCurrency(-summaryStats.totalOvercharges);
-  overchargesElement.classList.remove('credit-negative');
-  overchargesElement.classList.add('credit-positive');
-  
-  const underchargesElement = document.getElementById("totalUndercharges");
-  underchargesElement.textContent = formatCurrency(summaryStats.totalUndercharges);
-  underchargesElement.classList.remove('credit-positive');
-  underchargesElement.classList.add('credit-negative');
+  document.getElementById("totalOvercharges").textContent = formatCurrency(-summaryStats.totalOvercharges);
+  document.getElementById("totalUndercharges").textContent = formatCurrency(summaryStats.totalUndercharges);
   
   const netCharge = summaryStats.totalChargeExclGST - summaryStats.totalOvercharges + summaryStats.totalUndercharges;
-  const totalNetChargeElement = document.getElementById("totalNetCharge");
-  totalNetChargeElement.textContent = formatCurrency(netCharge);
-  totalNetChargeElement.classList.remove('credit-positive', 'credit-negative');
-  if (netCharge < summaryStats.totalChargeExclGST) {
-    totalNetChargeElement.classList.add('credit-positive');
-  } else if (netCharge > summaryStats.totalChargeExclGST) {
-    totalNetChargeElement.classList.add('credit-negative');
-  }
+  document.getElementById("totalNetCharge").textContent = formatCurrency(netCharge);
 }
 
-// Evaluate the entire sheet and update summaryStats
+/* Build Discrepancy Data by Evaluating the Sheet */
+
 function evaluateSheet(sheet) {
   const discrepancies = [];
-  // Reset summaryStats
+  // Reset summaryStats for full dataset.
   summaryStats = {
     totalRows: sheet.length,
+    totalErrors: 0,
     total660L: 0,
     total240LBins: 0,
     total120LBins: 0,
-    totalErrors: 0,
-    totalOvercharges: 0,
-    totalUndercharges: 0,
     totalBinsOverweight: 0,
     totalBinsUnderweight: 0,
     totalChargeExclGST: 0,
     totalWasteKg: 0,
     totalExcessKg: 0,
+    totalOvercharges: 0,
+    totalUndercharges: 0,
     totalNetCharge: 0
   };
-
+  
   sheet.forEach((row, index) => {
     const serviceDesc = row["Service Description"] || "";
     const wasteKg = parseFloat(row["Waste Kg"] || 0);
     const providedExcessKg = parseFloat(row["Excess kg"] || 0);
     const actualCharge = parseFloat(row["Charge excl GST"] || 0);
-
-    // Accumulate totals for waste and excess weights
+    
     summaryStats.totalWasteKg += wasteKg;
     summaryStats.totalExcessKg += providedExcessKg;
     summaryStats.totalChargeExclGST += actualCharge;
-
-    // Count bins and weight thresholds
+    
+    // Use total delivered weight for bin count thresholds.
+    const totalDelivered = wasteKg + providedExcessKg;
     if (serviceDesc.includes("660L")) {
       summaryStats.total660L++;
-      if (wasteKg > 89) {
-        summaryStats.totalBinsOverweight++;
-      } else if (wasteKg < 49) {
-        summaryStats.totalBinsUnderweight++;
-      }
+      if (totalDelivered < 49) summaryStats.totalBinsUnderweight++;
+      else if (totalDelivered > 89) summaryStats.totalBinsOverweight++;
     } else if (serviceDesc.includes("240L")) {
-      summaryStats.total240LBins = summaryStats.total240LBins + 1;
-      if (wasteKg > 33) {
-        summaryStats.totalBinsOverweight++;
-      } else if (wasteKg < 13) {
-        summaryStats.totalBinsUnderweight++;
-      }
+      summaryStats.total240LBins++;
+      if (totalDelivered < 13) summaryStats.totalBinsUnderweight++;
+      else if (totalDelivered > 33) summaryStats.totalBinsOverweight++;
     } else if (serviceDesc.includes("Collect 120L Clinical Waste Bin")) {
-      summaryStats.total120LBins = summaryStats.total120LBins + 1;
-      if (wasteKg > 18) {
-        summaryStats.totalBinsOverweight++;
-      } else if (wasteKg < 8) {
-        summaryStats.totalBinsUnderweight++;
-      }
+      summaryStats.total120LBins++;
+      if (totalDelivered < 8) summaryStats.totalBinsUnderweight++;
+      else if (totalDelivered > 18) summaryStats.totalBinsOverweight++;
     }
-
-    // Build discrepancy row and include Site Name (from "Task Site Name")
-    const { errors, binSize, netDifference, expectedTotalCharge } = validateRow(row);
-    if (errors.length > 0) {
-      const nonWeightErrors = errors.filter(
-        error => error !== "Bin Less than Minimum Kg" && error !== "Excessive Additional Kg"
-      );
-      if (nonWeightErrors.length > 0) {
+    
+    const result = validateRow(row);
+    if (result.errors.length > 0) {
+      // Count errors (excluding weight threshold issues if desired)
+      if (result.errors.filter(err => err !== "Bin Less than Minimum Kg" && err !== "Excessive Additional Kg").length > 0) {
         summaryStats.totalErrors++;
       }
-      if (netDifference > 0) {
-        summaryStats.totalUndercharges += netDifference;
+      if (result.netDifference > 0) {
+        summaryStats.totalUndercharges += result.netDifference;
       } else {
-        summaryStats.totalOvercharges += Math.abs(netDifference);
+        summaryStats.totalOvercharges += Math.abs(result.netDifference);
       }
+      
+      // Add Site Name from "Task Site Name"
+      const siteName = row["Task Site Name"] ? row["Task Site Name"].trim() : "N/A";
+      
       discrepancies.push({
-        Row: index + 2,
-        "Bin Size": binSize || "N/A",
+        "Row": index + 2,
+        "Site Name": siteName,
+        "Bin Size": result.binSize || "N/A",
         "Service Description": row["Service Description"] || "N/A",
-        "Site Name": row["Task Site Name"] ? row["Task Site Name"].trim() : "N/A",
         "Contract Unit Price Charged": formatCurrency(parseFloat(row["Contract Unit Price"]) || 0),
         "Waste Kg": formatNumber(wasteKg),
         "Excess kg": formatNumber(providedExcessKg),
         "Charge excl GST ($)": formatCurrency(actualCharge),
-        "Expected Charge ($)": formatCurrency(expectedTotalCharge),
-        "Net Over (-$) | Undercharge ($)": formatCurrency(netDifference),
-        "Discrepancy": errors.join("; "),
+        "Expected Charge ($)": formatCurrency(result.expectedTotalCharge),
+        "Net Over (-$) | Undercharge ($)": formatCurrency(result.netDifference),
+        "Discrepancy": result.errors.join("; ")
       });
     }
   });
-  updateSummaryCards();
   return discrepancies;
 }
 
-// Populate the Site Name dropdown with unique values from rawData
-function populateSiteNameFilter() {
-  const siteNameSet = new Set();
-  rawData.forEach(row => {
-    if (row["Task Site Name"]) {
-      siteNameSet.add(row["Task Site Name"].trim());
-    }
-  });
-  const siteNames = Array.from(siteNameSet).sort();
-  const siteNameFilter = document.getElementById("siteNameFilter");
-  if (siteNameFilter) {
-    siteNameFilter.innerHTML = "";
-    const defaultOption = document.createElement("option");
-    defaultOption.value = "all";
-    defaultOption.textContent = "All Sites";
-    siteNameFilter.appendChild(defaultOption);
-    siteNames.forEach(site => {
-      const option = document.createElement("option");
-      option.value = site;
-      option.textContent = site;
-      siteNameFilter.appendChild(option);
+/* Table Building Functions */
+
+function updateTable() {
+  const tableBody = document.querySelector("#results tbody");
+  const totalsRow = document.querySelector("#totalsRow");
+  tableBody.innerHTML = "";
+  
+  // Define the fixed column order.
+  const columns = [
+    "Row",
+    "Site Name",
+    "Bin Size",
+    "Service Description",
+    "Contract Unit Price Charged",
+    "Waste Kg",
+    "Excess kg",
+    "Charge excl GST ($)",
+    "Expected Charge ($)",
+    "Net Over (-$) | Undercharge ($)",
+    "Discrepancy"
+  ];
+  
+  const pageData = getPageData();
+  pageData.forEach((row, idx) => {
+    // Set row number if not provided.
+    row["Row"] = idx + 1 + ((currentPage - 1) * (entriesPerPage === "All" ? pageData.length : entriesPerPage));
+    const tr = document.createElement("tr");
+    columns.forEach(col => {
+      const td = document.createElement("td");
+      td.textContent = row[col] || "N/A";
+      if (col === "Net Over (-$) | Undercharge ($)") {
+        td.style.textAlign = "center";
+      }
+      if (col === "Discrepancy") {
+        td.style.textAlign = "left";
+      }
+      tr.appendChild(td);
     });
-  }
-}
-
-// Process the uploaded file
-function processFile(file) {
-  originalFilename = file.name;
-  const reader = new FileReader();
-  reader.onload = function (e) {
-    const data = new Uint8Array(e.target.result);
-    const workbook = XLSX.read(data, { type: "array" });
-    const sheetName = workbook.SheetNames[0];
-    const worksheet = workbook.Sheets[sheetName];
-    const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
-    rawData = jsonData;
-    // Populate Site Name dropdown based on raw data
-    populateSiteNameFilter();
-    discrepancyData = evaluateSheet(jsonData);
-    applyFiltersAndSearch();
-  };
-  reader.readAsArrayBuffer(file);
-}
-
-// Apply filters (including the new Site Name filter) and search
-function applyFiltersAndSearch() {
-  filteredData = discrepancyData.filter((row) => {
-    if (selectedBinSize !== 'all' && row["Bin Size"] !== selectedBinSize) return false;
-    if (selectedSiteName !== 'all' && row["Site Name"] !== selectedSiteName) return false;
-    if (!matchesWeightFilter(row)) return false;
-    if (!matchesChargeFilter(row)) return false;
-    if (searchTerm && !Object.values(row).some(value =>
-      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
-    )) return false;
-    return true;
+    tableBody.appendChild(tr);
   });
-  currentPage = 1;
-  updateUI();
-  updateRecordCount();
+  
+  // Calculate totals for numeric columns from filteredData.
+  let totalChargeExclGST = 0;
+  let totalExpectedCharge = 0;
+  let totalNet = 0;
+  filteredData.forEach(row => {
+    totalChargeExclGST += parseFloat((row["Charge excl GST ($)"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
+    totalExpectedCharge += parseFloat((row["Expected Charge ($)"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
+    totalNet += parseFloat((row["Net Over (-$) | Undercharge ($)"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
+  });
+  
+  totalsRow.innerHTML = `
+    <td colspan="5"><strong>Totals</strong></td>
+    <td>${formatDecimal(summaryStats.totalWasteKg)}</td>
+    <td>${formatDecimal(summaryStats.totalExcessKg)}</td>
+    <td>${formatCurrency(totalChargeExclGST)}</td>
+    <td>${formatCurrency(totalExpectedCharge)}</td>
+    <td>${formatCurrency(totalNet)}</td>
+    <td></td>
+  `;
+  
+  updatePagination();
 }
 
-// Update record count display
+function getPageData() {
+  if (entriesPerPage === "All") return filteredData;
+  const start = (currentPage - 1) * entriesPerPage;
+  return filteredData.slice(start, start + entriesPerPage);
+}
+
+function updatePagination() {
+  const pagination = document.getElementById("pagination");
+  if (!pagination) return;
+  pagination.innerHTML = "";
+  if (entriesPerPage === "All") return;
+  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
+  const prevButton = document.createElement("button");
+  prevButton.textContent = "Previous";
+  prevButton.disabled = currentPage === 1;
+  prevButton.addEventListener("click", () => {
+    currentPage--;
+    updateTable();
+    updateRecordCount();
+  });
+  pagination.appendChild(prevButton);
+  const nextButton = document.createElement("button");
+  nextButton.textContent = "Next";
+  nextButton.disabled = currentPage === totalPages;
+  nextButton.addEventListener("click", () => {
+    currentPage++;
+    updateTable();
+    updateRecordCount();
+  });
+  pagination.appendChild(nextButton);
+}
+
 function updateRecordCount() {
   const recordCount = document.getElementById("recordCount");
   const total = filteredData.length;
@@ -386,7 +463,8 @@ function updateRecordCount() {
   }
 }
 
-// Update the UI: show/hide table and no-results message
+/* UI Update */
+
 function updateUI() {
   const resultsTable = document.getElementById("resultsTable");
   const noResultsMessage = document.getElementById("noResultsMessage");
@@ -394,11 +472,8 @@ function updateUI() {
   const hasBaseData = discrepancyData.length > 0;
   const hasFilteredData = filteredData.length > 0;
   if (tableControls) {
-    if (hasBaseData) {
-      tableControls.classList.remove("hidden");
-    } else {
-      tableControls.classList.add("hidden");
-    }
+    if (hasBaseData) tableControls.classList.remove("hidden");
+    else tableControls.classList.add("hidden");
   }
   if (!hasFilteredData) {
     if (resultsTable) resultsTable.classList.add("hidden");
@@ -441,112 +516,73 @@ function updateUI() {
   }
 }
 
-// Update the results table using a fixed column order
-function updateTable() {
-  const tableBody = document.querySelector("#results tbody");
-  const totalsRow = document.querySelector("#totalsRow");
-  tableBody.innerHTML = "";
-  
-  // Fixed column order as per your requirement.
-  const columns = [
-    "Row",
-    "Site Name",
-    "Bin Size",
-    "Service Description",
-    "Contract Unit Price Charged",
-    "Waste Kg",
-    "Excess kg",
-    "Charge excl GST ($)",
-    "Expected Charge ($)",
-    "Net Over (-$) | Undercharge ($)",
-    "Discrepancy"
-  ];
-  
-  // Create table rows for the current page data.
-  const pageData = getPageData();
-  pageData.forEach((row) => {
-    const tr = document.createElement("tr");
-    columns.forEach(col => {
-      const td = document.createElement("td");
-      td.textContent = row[col] || "N/A";
-      // Center-align cells in the "Net Over (-$) | Undercharge ($)" column.
-      if (col === "Net Over (-$) | Undercharge ($)") {
-        td.style.textAlign = "center";
-      }
-      // Left-align the Discrepancy column (if needed).
-      if (col === "Discrepancy") {
-        td.style.textAlign = "left";
-      }
-      tr.appendChild(td);
+/* Populate Site Name Dropdown */
+
+function populateSiteNameFilter() {
+  const siteNameSet = new Set();
+  rawData.forEach(row => {
+    if (row["Task Site Name"]) {
+      siteNameSet.add(row["Task Site Name"].trim());
+    }
+  });
+  const siteNames = Array.from(siteNameSet).sort();
+  const siteNameFilter = document.getElementById("siteNameFilter");
+  if (siteNameFilter) {
+    siteNameFilter.innerHTML = "";
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "all";
+    defaultOption.textContent = "All Sites";
+    siteNameFilter.appendChild(defaultOption);
+    siteNames.forEach(site => {
+      const option = document.createElement("option");
+      option.value = site;
+      option.textContent = site;
+      siteNameFilter.appendChild(option);
     });
-    tableBody.appendChild(tr);
-  });
-  
-  // Compute totals over all filtered rows (not just the current page).
-  let totalWaste = 0;
-  let totalExcess = 0;
-  let totalCharge = 0;
-  let totalExpected = 0;
-  let totalNet = 0;
-  
-  filteredData.forEach(row => {
-    totalWaste += parseFloat(row["Waste Kg"].replace(/,/g, "")) || 0;
-    totalExcess += parseFloat(row["Excess kg"].replace(/,/g, "")) || 0;
-    totalCharge += parseFloat(row["Charge excl GST ($)"].replace(/[^0-9.-]+/g, "")) || 0;
-    totalExpected += parseFloat(row["Expected Charge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
-    totalNet += parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
-  });
-  
-  // Build the totals row.
-  // First cell spans columns 1 to 5; then one cell per total value; final cell for Discrepancy is blank.
-  totalsRow.innerHTML = `
-    <td colspan="5"><strong>Totals</strong></td>
-    <td>${formatDecimal(totalWaste)}</td>
-    <td>${formatDecimal(totalExcess)}</td>
-    <td>${formatCurrency(totalCharge)}</td>
-    <td>${formatCurrency(totalExpected)}</td>
-    <td>${formatCurrency(totalNet)}</td>
-    <td></td>
-  `;
-  
-  updatePagination();
+  }
 }
 
-// Paginate table data
-function getPageData() {
-  if (entriesPerPage === "All") return filteredData;
-  const start = (currentPage - 1) * entriesPerPage;
-  return filteredData.slice(start, start + entriesPerPage);
+/* File Processing */
+
+function processFile(file) {
+  originalFilename = file.name;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+    rawData = jsonData;
+    populateSiteNameFilter();
+    discrepancyData = evaluateSheet(jsonData);
+    applyFiltersAndSearch();
+  };
+  reader.readAsArrayBuffer(file);
 }
 
-// Update pagination controls
-function updatePagination() {
-  const pagination = document.getElementById("pagination");
-  if (!pagination) return;
-  pagination.innerHTML = "";
-  if (entriesPerPage === "All") return;
-  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
-  const prevButton = document.createElement("button");
-  prevButton.textContent = "Previous";
-  prevButton.disabled = currentPage === 1;
-  prevButton.addEventListener("click", () => {
-    currentPage--;
-    updateTable();
-    updateRecordCount();
+/* Filtering & Recalculation */
+
+function applyFiltersAndSearch() {
+  filteredData = discrepancyData.filter((row) => {
+    if (selectedBinSize !== 'all' && row["Bin Size"] !== selectedBinSize) return false;
+    if (selectedSiteName !== 'all' && row["Site Name"] !== selectedSiteName) return false;
+    if (!matchesWeightFilter(row)) return false;
+    if (!matchesChargeFilter(row)) return false;
+    if (searchTerm && !Object.values(row).some(value =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )) return false;
+    return true;
   });
-  pagination.appendChild(prevButton);
-  const nextButton = document.createElement("button");
-  nextButton.textContent = "Next";
-  nextButton.disabled = currentPage === totalPages;
-  nextButton.addEventListener("click", () => {
-    currentPage++;
-    updateTable();
-    updateRecordCount();
-  });
-  pagination.appendChild(nextButton);
+  currentPage = 1;
+  summaryStats = recalcFilteredSummaryStats();
+  updateSummaryCards();
+  updateUI();
+  updateRecordCount();
 }
 
-// Setup event listeners with defensive checks
+/* Setup Event Listeners */
+
 function setupEventListeners() {
   const binSizeFilterEl = document.getElementById("binSizeFilter");
   if (binSizeFilterEl) {
@@ -554,59 +590,43 @@ function setupEventListeners() {
       selectedBinSize = e.target.value;
       applyFiltersAndSearch();
     });
-  } else {
-    console.warn("Element with id 'binSizeFilter' not found.");
   }
-
   const siteNameFilterEl = document.getElementById("siteNameFilter");
   if (siteNameFilterEl) {
     siteNameFilterEl.addEventListener("change", (e) => {
       selectedSiteName = e.target.value;
       applyFiltersAndSearch();
     });
-  } else {
-    console.warn("Element with id 'siteNameFilter' not found.");
   }
-
   const weightFilterEl = document.getElementById("weightFilter");
   if (weightFilterEl) {
     weightFilterEl.addEventListener("change", (e) => {
       selectedWeightFilter = e.target.value;
       applyFiltersAndSearch();
     });
-  } else {
-    console.warn("Element with id 'weightFilter' not found.");
   }
-
   const chargeFilterEl = document.getElementById("chargeFilter");
   if (chargeFilterEl) {
     chargeFilterEl.addEventListener("change", (e) => {
       selectedChargeFilter = e.target.value;
       applyFiltersAndSearch();
     });
-  } else {
-    console.warn("Element with id 'chargeFilter' not found.");
   }
-
   const searchInputEl = document.getElementById("searchInput");
   if (searchInputEl) {
     searchInputEl.addEventListener("input", (e) => {
       searchTerm = e.target.value.toLowerCase();
       applyFiltersAndSearch();
     });
-  } else {
-    console.warn("Element with id 'searchInput' not found.");
   }
-
   const resetFiltersEl = document.getElementById("resetFilters");
   if (resetFiltersEl) {
     resetFiltersEl.addEventListener("click", () => {
-      const inputs = ["searchInput", "binSizeFilter", "siteNameFilter", "weightFilter", "chargeFilter"];
-      inputs.forEach(id => {
-        const el = document.getElementById(id);
-        if (el) el.value = "all"; // for dropdowns, "all"; for searchInput, set to ""
-      });
       document.getElementById("searchInput").value = "";
+      document.getElementById("binSizeFilter").value = "all";
+      document.getElementById("siteNameFilter").value = "all";
+      document.getElementById("weightFilter").value = "all";
+      document.getElementById("chargeFilter").value = "all";
       searchTerm = "";
       selectedBinSize = "all";
       selectedSiteName = "all";
@@ -614,20 +634,14 @@ function setupEventListeners() {
       selectedChargeFilter = "all";
       applyFiltersAndSearch();
     });
-  } else {
-    console.warn("Element with id 'resetFilters' not found.");
   }
-
   const spreadsheetEl = document.getElementById("spreadsheet");
   if (spreadsheetEl) {
     spreadsheetEl.addEventListener("change", (e) => {
       const file = e.target.files[0];
       if (file) processFile(file);
     });
-  } else {
-    console.warn("Element with id 'spreadsheet' not found.");
   }
-
   const downloadButton = document.getElementById("downloadResults");
   if (downloadButton) {
     const newDownloadButton = downloadButton.cloneNode(true);
@@ -650,10 +664,7 @@ function setupEventListeners() {
         alert('There was an error during export. Please try again.');
       }
     });
-  } else {
-    console.warn("Element with id 'downloadResults' not found.");
   }
-
   const entriesPerPageEl = document.getElementById("entriesPerPage");
   if (entriesPerPageEl) {
     entriesPerPageEl.addEventListener("change", (e) => {
@@ -662,8 +673,6 @@ function setupEventListeners() {
       updateTable();
       updateRecordCount();
     });
-  } else {
-    console.warn("Element with id 'entriesPerPage' not found.");
   }
 }
 
