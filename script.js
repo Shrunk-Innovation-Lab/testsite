@@ -183,12 +183,15 @@ function recalcFilteredSummaryStats() {
     totalExcessKg: 0,
     totalChargeExclGST: 0,
     totalOvercharges: 0,
-    totalUndercharges: 0
+    totalUndercharges: 0,
+    totalCorrect: 0  // New property: count of correct rows
   };
   
   filteredData.forEach(row => {
     if (row["Discrepancy"] && row["Discrepancy"].trim() !== "") {
       stats.totalErrors++;
+    } else {
+      stats.totalCorrect++;
     }
     if (row["Bin Size"] === "660L") stats.total660L++;
     else if (row["Bin Size"] === "240L") stats.total240LBins++;
@@ -224,6 +227,8 @@ function recalcFilteredSummaryStats() {
 function updateSummaryCards() {
   document.getElementById("totalRowsAssessed").textContent = formatNumber(summaryStats.totalRows);
   document.getElementById("totalErrors").textContent = formatNumber(summaryStats.totalErrors);
+  // Update Total Correct Rows card
+  document.getElementById("totalCorrectRows").textContent = formatNumber(summaryStats.totalCorrect);
   document.getElementById("total660LBins").textContent = formatNumber(summaryStats.total660L);
   document.getElementById("total240LBins").textContent = formatNumber(summaryStats.total240LBins);
   document.getElementById("total120LBins").textContent = formatNumber(summaryStats.total120LBins);
@@ -249,6 +254,8 @@ function updateSummaryCards() {
 /* Evaluate the Sheet and Build Processed Data */
 function evaluateSheet(sheet) {
   const processedRows = [];
+  let correctCount = 0; // Counter for correct rows
+  
   sheet.forEach((row, index) => {
     const serviceDesc = row["Service Description"] || "";
     const wasteKg = parseFloat(row["Waste Kg"] || 0);
@@ -257,6 +264,11 @@ function evaluateSheet(sheet) {
     
     const result = validateRow(row);
     const siteName = row["Task Site Name"] ? row["Task Site Name"].trim() : "N/A";
+    
+    // If there are no errors, increment the correctCount.
+    if (result.errors.length === 0) {
+      correctCount++;
+    }
     
     processedRows.push({
       "Row": index + 2,
@@ -277,6 +289,7 @@ function evaluateSheet(sheet) {
       "Discrepancy": result.errors.join("; ")
     });
   });
+  summaryStats.totalCorrect = correctCount;
   return processedRows;
 }
 
@@ -622,3 +635,4 @@ document.addEventListener('DOMContentLoaded', () => {
     entriesEl.value = "All";
   }
 });
+
