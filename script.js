@@ -1,784 +1,639 @@
-/*************************************************
- * script.js — Using CSV for Each Site (No XLSX)
- *************************************************/
-
-/*
-  1) CSV_URL_MAP: map each site name to its published CSV URL.
-  2) If you want to fetch "All Sites", we'll iterate over all these URLs.
-*/
-const CSV_URL_MAP = {
-  "Box Hill":        "https://docs.google.com/spreadsheets/d/e/2PACX-1vREbOQf96fu-XVWClgTFVdmaZ-MQ0CqGlgcXRPq_j2nvoqfpVnqRlQDxmlnhQC_zSYdNXWg4xV5sNOW/pub?gid=494600588&single=true&output=csv",
-  "Wantirna":        "https://docs.google.com/spreadsheets/d/e/2PACX-1vREbOQf96fu-XVWClgTFVdmaZ-MQ0CqGlgcXRPq_j2nvoqfpVnqRlQDxmlnhQC_zSYdNXWg4xV5sNOW/pub?gid=1825774984&single=true&output=csv",
-  "Burwood":         "https://docs.google.com/spreadsheets/d/e/2PACX-1vREbOQf96fu-XVWClgTFVdmaZ-MQ0CqGlgcXRPq_j2nvoqfpVnqRlQDxmlnhQC_zSYdNXWg4xV5sNOW/pub?gid=294019943&single=true&output=csv",
-  "Ferntree Gully":  "https://docs.google.com/spreadsheets/d/e/2PACX-1vREbOQf96fu-XVWClgTFVdmaZ-MQ0CqGlgcXRPq_j2nvoqfpVnqRlQDxmlnhQC_zSYdNXWg4xV5sNOW/pub?gid=267580033&single=true&output=csv",
-  "Maroonda":        "https://docs.google.com/spreadsheets/d/e/2PACX-1vREbOQf96fu-XVWClgTFVdmaZ-MQ0CqGlgcXRPq_j2nvoqfpVnqRlQDxmlnhQC_zSYdNXWg4xV5sNOW/pub?gid=191428538&single=true&output=csv",
-  "Murenda":         "https://docs.google.com/spreadsheets/d/e/2PACX-1vREbOQf96fu-XVWClgTFVdmaZ-MQ0CqGlgcXRPq_j2nvoqfpVnqRlQDxmlnhQC_zSYdNXWg4xV5sNOW/pub?gid=1654220950&single=true&output=csv"
+const BIN_CONFIG = {
+  '660L': { basePrice: 128.93, includedWeight: 49, excessRate: 2.63 },
+  '240L': { basePrice: 34.21, includedWeight: 13, excessRate: 2.63 },
+  '120L': { basePrice: 21.05, includedWeight: 8, excessRate: 2.63 }
 };
 
-// (Optional) Sites to hide from display
-const HIDDEN_SITES = [];  // e.g. ['VCCC'] if needed
-
-// Data arrays
-let allData = [];
+// Global variables
+let rawData = [];
+let discrepancyData = [];
 let filteredData = [];
-
-// Pagination
+let searchTerm = '';
+let selectedBinSize = 'all';
+let selectedSiteName = 'all'; // New filter for Site Name
+let selectedWeightFilter = 'all';
+let selectedChargeFilter = 'all';
 let currentPage = 1;
 let entriesPerPage = 'All';
+let originalFilename = '';
+let summaryStats = {
+  totalRows: 0,
+  total660L: 0,
+  total240LBins: 0,
+  total120LBins: 0,
+  totalErrors: 0,
+  totalOvercharges: 0,
+  totalUndercharges: 0,
+  totalBinsOverweight: 0,
+  totalBinsUnderweight: 0,
+  totalChargeExclGST: 0,
+  totalWasteKg: 0,    // Sum of Waste Kg values
+  totalExcessKg: 0,   // Sum of provided Excess kg values
+  totalNetCharge: 0
+};
 
-// Sorting
-let currentDateSort = 'newest';
-
-/**
- * Return a nicer site display name. 
- * Adjust if your code needs different naming logic.
- */
-function getSiteDisplayName(site) {
-  if (site === 'Ferntree Gully') return 'Angliss';
-  if (site === 'Maroonda')       return 'Maroondah'; 
-  return site;
+// Format numbers (integers) with thousand separators
+function formatNumber(number) {
+  return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
 
-document.addEventListener('DOMContentLoaded', () => {
-  // Initialize flatpickr
-  flatpickr("#dateRangePicker", {
-    mode: "range",
-    dateFormat: "d-m-Y",
-    allowInput: true,
-    clickOpens: true,
-    enableTime: false,
-    defaultHour: 0,
-    position: "below",
-    static: false,
-    onClose: function(selectedDates) {
-      if (selectedDates.length === 1) {
-        document.getElementById('startDate').value = formatDateForFiltering(selectedDates[0]);
-        document.getElementById('endDate').value = formatDateForFiltering(selectedDates[0]);
-      } else if (selectedDates.length === 2) {
-        document.getElementById('startDate').value = formatDateForFiltering(selectedDates[0]);
-        document.getElementById('endDate').value = formatDateForFiltering(selectedDates[1]);
-      }
-    }
-  });
-
-  // Search input
-  document.getElementById('search').addEventListener('input', (e) => {
-    const searchTerm = e.target.value.toLowerCase();
-    filteredData = allData.filter(row =>
-      Object.values(row).some(value => value.toString().toLowerCase().includes(searchTerm))
-    );
-    sortDataByDate();
-    currentPage = 1;
-    updateTable();
-  });
-
-  // Clear data
-  document.getElementById('clearData').addEventListener('click', () => {
-    document.getElementById('dateRangePicker').value = '';
-    document.getElementById('startDate').value = '';
-    document.getElementById('endDate').value = '';
-    document.getElementById('siteSelector').value = '';
-    document.getElementById('search').value = '';
-    allData = [];
-    filteredData = [];
-    currentPage = 1;
-    updateTable();
-    populateFilters();
-  });
-
-  // Fetch data button
-  document.getElementById('fetchData').addEventListener('click', fetchData);
-
-  // Entries per page
-  document.getElementById('entriesPerPage').addEventListener('change', (e) => {
-    entriesPerPage = (e.target.value === 'All') ? 'All' : parseInt(e.target.value);
-    currentPage = 1;
-    updateTable();
-  });
-
-  // Date sort filter
-  document.getElementById('dateSortFilter').addEventListener('change', (e) => {
-    currentDateSort = e.target.value;
-    sortDataByDate();
-    updateTable();
-  });
-
-  // Copy rows button
-  document.getElementById('copyButton').addEventListener('click', copySelectedRows);
-
-  // Export to Excel button
-  document.getElementById('csvButton').addEventListener('click', downloadExcel);
-
-  // Select all checkbox
-  document.getElementById('selectAll').addEventListener('change', selectAllRows);
-
-  // Filter dropdown toggles
-  document.getElementById('binSizeFilterToggle').addEventListener('click', (event) => {
-    toggleFilterDropdown('binSizeFilterDropdown', event);
-  });
-  document.getElementById('binTypeFilterToggle').addEventListener('click', (event) => {
-    toggleFilterDropdown('binTypeFilterDropdown', event);
-  });
-  document.addEventListener('click', (event) => {
-    if (!event.target.closest('.filter-icon') && !event.target.closest('.filter-dropdown')) {
-      closeAllDropdowns();
-    }
-  });
-
-  // Initial (empty) table + filters
-  updateTable();
-  populateFilters();
-});
-
-/**
- * Convert Date -> "YYYY-MM-DD" for hidden fields
- */
-function formatDateForFiltering(dateObj) {
-  const day = String(dateObj.getDate()).padStart(2, '0');
-  const month = String(dateObj.getMonth() + 1).padStart(2, '0');
-  const year = dateObj.getFullYear();
-  return `${year}-${month}-${day}`;
+// Format currency with two decimals and thousand separators
+function formatCurrency(amount) {
+  const absAmount = Math.abs(amount);
+  const prefix = amount < 0 ? '-$' : '$';
+  const formattedAmount = absAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
+  return `${prefix}${formattedAmount}`;
 }
 
-/**
- * Parse "d-m-yyyy" into a JS Date object (or null on failure)
- */
-function parseDate(dateString) {
-  if (!dateString) return null;
-  const [day, month, year] = dateString.split('-');
-  const parsed = new Date(year, month - 1, day);
-  return isNaN(parsed) ? null : parsed;
+// Format a decimal number with thousand separators and exactly two decimal places
+function formatDecimal(number) {
+  return Number(number).toLocaleString(undefined, {
+    minimumFractionDigits: 2,
+    maximumFractionDigits: 2
+  });
 }
 
-/**
- * Fetch data from CSV for the selected site(s) + filter by date
- */
-async function fetchData() {
-  const startDate = document.getElementById('startDate').value;
-  const endDate   = document.getElementById('endDate').value;
-  const site      = document.getElementById('siteSelector').value;
-
-  if (!startDate || !endDate || !site) {
-    alert('Please select start date, end date, and site.');
-    return;
+// Validate a single row (includes customer details, bin validations, and uses Task Site Name)
+function validateRow(row) {
+  const errors = [];
+  
+  // Validate Customer Details
+  const customerGroup = (row["Customer Group"] || "").trim();
+  if (customerGroup !== "Eastern Health") {
+    errors.push("Incorrect Customer Group");
+  }
+  
+  const customerName = (row["Customer Name"] || "").trim();
+  if (customerName !== "EASTERN HEALTH") {
+    errors.push("Incorrect Customer Name");
+  }
+  
+  const customerNo = (row["Customer No."] || "").trim();
+  const validCustomerNos = [
+    "C-001148", "C-002810", "C-001352", "C-001234", 
+    "C-011883", "C-001469", "C-002811", "C-001693", 
+    "C-027713", "C-027790"
+  ];
+  if (!validCustomerNos.includes(customerNo)) {
+    errors.push("Incorrect Customer No.");
+  }
+  
+  const customerABN = (row["Customer ABN"] || "").trim();
+  if (customerABN !== "68223819017") {
+    errors.push("Incorrect Customer ABN");
   }
 
-  const spinner = document.getElementById('spinner');
-  spinner.style.display = 'block';
-
-  try {
-    let sitesToFetch = [];
-    if (site === 'All Sites') {
-      // If user selects "All Sites", fetch them all
-      sitesToFetch = Object.keys(CSV_URL_MAP);
-    } else {
-      // Otherwise just the chosen site
-      sitesToFetch = [site];
-    }
-
-    allData = [];
-
-    // Loop over each required site
-    for (const currentSite of sitesToFetch) {
-      const csvUrl = CSV_URL_MAP[currentSite];
-      if (!csvUrl) {
-        console.warn(`No CSV URL for site: ${currentSite}`);
-        continue;
-      }
-
-      // 1) Fetch CSV
-      const response = await fetch(csvUrl);
-      if (!response.ok) {
-        throw new Error(`Network response was not ok for ${currentSite}`);
-      }
-      const csvText = await response.text();
-
-      // 2) Parse CSV -> Array of objects
-      let rows = parseCsv(csvText);
-
-      // 3) For each row, convert relevant fields
-      rows = rows.map(row => {
-        // Convert the "Date" field (assuming it's stored as e.g. "dd-mm-yyyy" in CSV)
-        let parsedDt = parseDate(row.Date);
-
-        // Convert numeric fields if present
-        let grossWeight = parseFloat(row["Weight( kg)"] || 0);
-
-        // Use your logic for bin size & bin type
-        let binSize = (row["BIN SIZE"] || "").trim();
-        let binType = (row["BIN TYPE"] || "").trim();
-
-        const netWeight = calculateNetWeight(grossWeight, binSize);
-        const cost = calculateCost(binSize, netWeight, binType);
-        const emissions = calculateEmissions(binType, netWeight);
-
-        return {
-          // Adjust the site display name logic if you want
-          Site: (currentSite === 'Maroonda') ? 'Maroondah' : currentSite,
-          Date: parsedDt,
-          Time: row["Time"] || "",
-          "Weight (Gross)": grossWeight,
-          "Weight (Net)": netWeight,
-          "Bin Size": binSize,
-          "Bin Type": binType,
-          "Clinical Barcode Scan": (row["Scan"] || ""),
-          "Location": "",
-          "Estimated $": cost,
-          "Emissions": emissions
-        };
-      });
-
-      // 4) Combine into allData
-      allData = allData.concat(rows);
-    }
-
-    // Filter by date range
-    const startDateObj = new Date(startDate);
-    const endDateObj   = new Date(endDate);
-    startDateObj.setHours(0, 0, 0, 0);
-    endDateObj.setHours(23, 59, 59, 999);
-
-    filteredData = allData.filter(row => {
-      if (!row.Date) return false;
-      return (row.Date >= startDateObj && row.Date <= endDateObj);
-    });
-
-    // Exclude hidden sites if needed
-    filteredData = filteredData.filter(row => !HIDDEN_SITES.includes(row.Site));
-
-    // Sort & update
-    sortDataByDate();
-    currentPage = 1;
-    populateFilters();
-    updateTable();
-
-    if (filteredData.length === 0) {
-      alert('No data found for the selected date range.');
-    }
-
-  } catch (error) {
-    console.error('Error fetching data:', error);
-    alert(`Error fetching data: ${error.message}`);
-    allData = [];
-    filteredData = [];
-    updateTable();
-    populateFilters();
-  } finally {
-    spinner.style.display = 'none';
+  // Determine bin type based on Service Description
+  const serviceDesc = row["Service Description"] || "";
+  let binSize = null;
+  if (serviceDesc.includes("660L")) {
+    binSize = "660L";
+  } else if (serviceDesc.includes("240L")) {
+    binSize = "240L";
+  } else if (serviceDesc.includes("Collect 120L Clinical Waste Bin")) {
+    binSize = "120L";
+  } else {
+    errors.push("Unknown or missing bin size");
+    return { errors };
   }
-}
 
-/**
- * Simple CSV -> Array of Objects parser
- * Assumes first row is headers
- */
-function parseCsv(csvString) {
-  const lines = csvString.trim().split('\n');
-  if (lines.length < 2) return [];
-
-  const headers = lines[0].split(',');
-  const dataRows = lines.slice(1).map(line => {
-    const cols = line.split(',');
-    let obj = {};
-    headers.forEach((header, i) => {
-      obj[header.trim()] = (cols[i] || "").trim();
-    });
-    return obj;
-  });
-  return dataRows;
-}
-
-/**
- * Calculate net weight by subtracting tare weights for known bin sizes
- */
-function calculateNetWeight(grossWeight, binSize) {
-  switch (binSize) {
-    case '80L':   return Math.max(0, grossWeight - 8.5);
-    case '120L':  return Math.max(0, grossWeight - 9.3);
-    case '240L':  return Math.max(0, grossWeight - 12.5);
-    case '660L':  return Math.max(0, grossWeight - 43);
-    case '1100L': return Math.max(0, grossWeight - 65);
-    default:
-      return grossWeight;
+  const config = BIN_CONFIG[binSize];
+  const contractPrice = parseFloat(row["Contract Unit Price"] || 0);
+  if (Math.abs(contractPrice - config.basePrice) > 0.01) {
+    errors.push("Incorrect contract rate applied");
   }
-}
 
-/**
- * Calculate cost by binType/binSize/netWeight
- */
-function calculateCost(binSize, netWeight, binType) {
-  if (!binType) return 0;
-  switch (binType.toUpperCase()) {
-    case 'GENERAL':
-      // cost = netWeight * 0.2233 + base
-      switch (binSize) {
-        case '660L':
-          return (netWeight * 0.2233) + 7.60;
-        case '1100L':
-          return (netWeight * 0.2233) + 23.57;
-        default:
-          return 0;
-      }
-    case 'ORGANICS':
-      // 120L = flat 21.34
-      if (binSize === '120L') return 21.34;
-      return 0;
-    case 'COMMINGLED':
-      // 240L = 11.76, 660L = 18.86
-      switch (binSize) {
-        case '240L':
-          return 11.76;
-        case '660L':
-          return 18.86;
-        default:
-          return 0;
-      }
-    case 'CLINICAL':
-      // base + overage beyond included weight
-      let basePrice, includedWeight, excessPrice;
-      switch (binSize) {
-        case '660L':
-          basePrice = 124.46;
-          includedWeight = 49;
-          excessPrice = 2.54;
-          break;
-        case '240L':
-          basePrice = 33.02;
-          includedWeight = 13;
-          excessPrice = 2.54;
-          break;
-        default:
-          return 0;
-      }
-      if (netWeight <= includedWeight) return basePrice;
-      const excessWeight = netWeight - includedWeight;
-      return basePrice + (excessWeight * excessPrice);
-    default:
-      return 0;
+  const includedWeight = config.includedWeight;
+  const actualWeight = parseFloat(row["Waste Kg"] || 0);
+  const providedExcessKg = parseFloat(row["Excess kg"] || 0);
+
+  // Flag error if Waste Kg and Excess kg are identical (and nonzero)
+  if (actualWeight === providedExcessKg && actualWeight !== 0) {
+    errors.push("Waste Kg and Excess kg cannot be identical");
   }
-}
 
-/**
- * Calculate emissions (CO₂-e) by binType * netWeight
- */
-function calculateEmissions(binType, weight) {
-  if (!binType || !weight) return 0;
-  const factors = {
-    'CLINICAL':   2.9,
-    'COMMINGLED': 0.04,
-    'ORGANICS':   1.9,
-    'PAPER':      0.03,
-    'GENERAL':    1.1
+  // Minimum weight check
+  if (binSize === "660L" && actualWeight < 49) {
+    errors.push("Bin Less than Minimum Kg");
+  } else if (binSize === "240L" && actualWeight < 13) {
+    errors.push("Bin Less than Minimum Kg");
+  } else if (binSize === "120L" && actualWeight < 8) {
+    errors.push("Bin Less than Minimum Kg");
+  }
+
+  const excessKg = Math.max(0, actualWeight - includedWeight);
+
+  // Check for excessive additional kg
+  if (binSize === "660L" && excessKg > 40) {
+    errors.push("Excessive Additional Kg");
+  } else if (binSize === "240L" && excessKg > 20) {
+    errors.push("Excessive Additional Kg");
+  } else if (binSize === "120L" && excessKg > 10) {
+    errors.push("Excessive Additional Kg");
+  }
+
+  if (Math.abs(excessKg - providedExcessKg) > 0.01) {
+    errors.push("Incorrect additional kg rate applied");
+  }
+
+  const excessRate = config.excessRate;
+  const expectedTotalCharge = config.basePrice + excessKg * excessRate;
+  const actualCharge = parseFloat(row["Charge excl GST"] || 0);
+  let netDifference = 0;
+  if (Math.abs(actualCharge - expectedTotalCharge) > 0.01) {
+    netDifference = expectedTotalCharge - actualCharge;
+    const discrepancyType = actualCharge > expectedTotalCharge ? "Overcharge" : "Undercharge";
+    errors.push(`${discrepancyType} - Incorrect total`);
+  }
+
+  return {
+    errors,
+    binSize,
+    netDifference,
+    expectedTotalCharge
   };
-  const factor = factors[binType.toUpperCase()] || 0;
-  return weight * factor;
 }
 
-/**
- * Sort filteredData by date (newest or oldest)
- */
-function sortDataByDate() {
-  filteredData.sort((a, b) => {
-    if (currentDateSort === 'newest') {
-      return b.Date - a.Date;
-    } else {
-      return a.Date - b.Date;
-    }
-  });
+// Check if a row matches the selected weight filter
+function matchesWeightFilter(row) {
+  const binSize = row["Bin Size"];
+  const actualWeight = parseFloat(row["Waste Kg"].replace(/,/g, "")) || 0;
+  if (selectedWeightFilter === 'all') return true;
+  if (binSize === "660L") {
+    if (selectedWeightFilter === 'overweight') return actualWeight > 89;
+    if (selectedWeightFilter === 'underweight') return actualWeight < 49;
+    if (selectedWeightFilter === 'normal') return actualWeight >= 49 && actualWeight <= 89;
+  } else if (binSize === "240L") {
+    if (selectedWeightFilter === 'overweight') return actualWeight > 33;
+    if (selectedWeightFilter === 'underweight') return actualWeight < 13;
+    if (selectedWeightFilter === 'normal') return actualWeight >= 13 && actualWeight <= 33;
+  } else if (binSize === "120L") {
+    if (selectedWeightFilter === 'overweight') return actualWeight > 18;
+    if (selectedWeightFilter === 'underweight') return actualWeight < 8;
+    if (selectedWeightFilter === 'normal') return actualWeight >= 8 && actualWeight <= 18;
+  }
+  return true;
 }
 
-/**
- * Render the table
- */
-function updateTable() {
-  const tableBody = document.querySelector('#dataTable tbody');
-  tableBody.innerHTML = '';
+// Check if a row matches the selected charge filter
+function matchesChargeFilter(row) {
+  if (selectedChargeFilter === 'all') return true;
+  const netDifference = parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+  if (selectedChargeFilter === 'overcharge') return netDifference < 0;
+  if (selectedChargeFilter === 'undercharge') return netDifference > 0;
+  return true;
+}
 
-  const pageData = (entriesPerPage === 'All') ? filteredData : getPageData();
-  pageData.forEach(row => {
-    const tr = document.createElement('tr');
+// Update summary cards in the UI (using formatDecimal for weight values)
+function updateSummaryCards() {
+  document.getElementById("totalRowsAssessed").textContent = formatNumber(summaryStats.totalRows);
+  document.getElementById("total660LBins").textContent = formatNumber(summaryStats.total660L);
+  document.getElementById("total240LBins").textContent = formatNumber(summaryStats.total240LBins);
+  document.getElementById("total120LBins").textContent = formatNumber(summaryStats.total120LBins);
+  document.getElementById("totalErrors").textContent = formatNumber(summaryStats.totalErrors);
+  
+  // Use formatDecimal for weight totals
+  document.getElementById("totalWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg);
+  document.getElementById("totalExcessKg").textContent = formatDecimal(summaryStats.totalExcessKg);
+  document.getElementById("totalCombinedWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg + summaryStats.totalExcessKg);
+  
+  // Total Bins is the sum of 660L, 240L, and 120L bins
+  const totalBins = summaryStats.total660L + summaryStats.total240LBins + summaryStats.total120LBins;
+  document.getElementById("totalBins").textContent = formatNumber(totalBins);
+  
+  document.getElementById("totalChargeExclGST").textContent = formatCurrency(summaryStats.totalChargeExclGST);
+  
+  const overchargesElement = document.getElementById("totalOvercharges");
+  overchargesElement.textContent = formatCurrency(-summaryStats.totalOvercharges);
+  overchargesElement.classList.remove('credit-negative');
+  overchargesElement.classList.add('credit-positive');
+  
+  const underchargesElement = document.getElementById("totalUndercharges");
+  underchargesElement.textContent = formatCurrency(summaryStats.totalUndercharges);
+  underchargesElement.classList.remove('credit-positive');
+  underchargesElement.classList.add('credit-negative');
+  
+  const netCharge = summaryStats.totalChargeExclGST - summaryStats.totalOvercharges + summaryStats.totalUndercharges;
+  const totalNetChargeElement = document.getElementById("totalNetCharge");
+  totalNetChargeElement.textContent = formatCurrency(netCharge);
+  totalNetChargeElement.classList.remove('credit-positive', 'credit-negative');
+  if (netCharge < summaryStats.totalChargeExclGST) {
+    totalNetChargeElement.classList.add('credit-positive');
+  } else if (netCharge > summaryStats.totalChargeExclGST) {
+    totalNetChargeElement.classList.add('credit-negative');
+  }
+}
 
-    // Handle Clinical Barcode vs. Location
-    let clinicalBarcode = '';
-    let location = '';
-    let displaySite = getSiteDisplayName(row.Site);
+// Evaluate the entire sheet and update summaryStats
+function evaluateSheet(sheet) {
+  const discrepancies = [];
+  // Reset summaryStats
+  summaryStats = {
+    totalRows: sheet.length,
+    total660L: 0,
+    total240LBins: 0,
+    total120LBins: 0,
+    totalErrors: 0,
+    totalOvercharges: 0,
+    totalUndercharges: 0,
+    totalBinsOverweight: 0,
+    totalBinsUnderweight: 0,
+    totalChargeExclGST: 0,
+    totalWasteKg: 0,
+    totalExcessKg: 0,
+    totalNetCharge: 0
+  };
 
-    // If site is "Murenda" (displayed as "Murenda"), we move "Scan" to "Location"
-    if (row.Site === 'Murenda') {
-      location = row["Clinical Barcode Scan"] || '';
-      clinicalBarcode = '';
-    } else if (row["Bin Type"]?.toUpperCase() === 'CLINICAL') {
-      clinicalBarcode = row["Clinical Barcode Scan"] || '';
+  sheet.forEach((row, index) => {
+    const serviceDesc = row["Service Description"] || "";
+    const wasteKg = parseFloat(row["Waste Kg"] || 0);
+    const providedExcessKg = parseFloat(row["Excess kg"] || 0);
+    const actualCharge = parseFloat(row["Charge excl GST"] || 0);
+
+    // Accumulate totals for waste and excess weights
+    summaryStats.totalWasteKg += wasteKg;
+    summaryStats.totalExcessKg += providedExcessKg;
+    summaryStats.totalChargeExclGST += actualCharge;
+
+    // Count bins and weight thresholds
+    if (serviceDesc.includes("660L")) {
+      summaryStats.total660L++;
+      if (wasteKg > 89) {
+        summaryStats.totalBinsOverweight++;
+      } else if (wasteKg < 49) {
+        summaryStats.totalBinsUnderweight++;
+      }
+    } else if (serviceDesc.includes("240L")) {
+      summaryStats.total240LBins = summaryStats.total240LBins + 1;
+      if (wasteKg > 33) {
+        summaryStats.totalBinsOverweight++;
+      } else if (wasteKg < 13) {
+        summaryStats.totalBinsUnderweight++;
+      }
+    } else if (serviceDesc.includes("Collect 120L Clinical Waste Bin")) {
+      summaryStats.total120LBins = summaryStats.total120LBins + 1;
+      if (wasteKg > 18) {
+        summaryStats.totalBinsOverweight++;
+      } else if (wasteKg < 8) {
+        summaryStats.totalBinsUnderweight++;
+      }
     }
 
-    tr.innerHTML = `
-      <td><input type="checkbox" class="rowSelector"></td>
-      <td>${displaySite}</td>
-      <td>${row.Date ? row.Date.toLocaleDateString('en-GB') : 'Invalid Date'}</td>
-      <td>${row.Time}</td>
-      <td>${formatNumber(row["Weight (Gross)"])}</td>
-      <td>${formatNumber(row["Weight (Net)"])}</td>
-      <td>${row["Bin Size"]}</td>
-      <td>${row["Bin Type"]}</td>
-      <td>${clinicalBarcode}</td>
-      <td>${location}</td>
-      <td>$${formatNumber(row["Estimated $"])}</td>
-      <td>${formatNumber(row.Emissions)}</td>
-    `;
-    tableBody.appendChild(tr);
+    // Build discrepancy row and include Site Name (from "Task Site Name")
+    const { errors, binSize, netDifference, expectedTotalCharge } = validateRow(row);
+    if (errors.length > 0) {
+      const nonWeightErrors = errors.filter(
+        error => error !== "Bin Less than Minimum Kg" && error !== "Excessive Additional Kg"
+      );
+      if (nonWeightErrors.length > 0) {
+        summaryStats.totalErrors++;
+      }
+      if (netDifference > 0) {
+        summaryStats.totalUndercharges += netDifference;
+      } else {
+        summaryStats.totalOvercharges += Math.abs(netDifference);
+      }
+      discrepancies.push({
+        Row: index + 2,
+        "Bin Size": binSize || "N/A",
+        "Service Description": row["Service Description"] || "N/A",
+        "Site Name": row["Task Site Name"] ? row["Task Site Name"].trim() : "N/A",
+        "Contract Unit Price Charged": formatCurrency(parseFloat(row["Contract Unit Price"]) || 0),
+        "Waste Kg": formatNumber(wasteKg),
+        "Excess kg": formatNumber(providedExcessKg),
+        "Charge excl GST ($)": formatCurrency(actualCharge),
+        "Expected Charge ($)": formatCurrency(expectedTotalCharge),
+        "Net Over (-$) | Undercharge ($)": formatCurrency(netDifference),
+        "Discrepancy": errors.join("; "),
+      });
+    }
   });
+  updateSummaryCards();
+  return discrepancies;
+}
 
-  updateTotals();
-  updatePagination();
+// Populate the Site Name dropdown with unique values from rawData
+function populateSiteNameFilter() {
+  const siteNameSet = new Set();
+  rawData.forEach(row => {
+    if (row["Task Site Name"]) {
+      siteNameSet.add(row["Task Site Name"].trim());
+    }
+  });
+  const siteNames = Array.from(siteNameSet).sort();
+  const siteNameFilter = document.getElementById("siteNameFilter");
+  if (siteNameFilter) {
+    siteNameFilter.innerHTML = "";
+    const defaultOption = document.createElement("option");
+    defaultOption.value = "all";
+    defaultOption.textContent = "All Sites";
+    siteNameFilter.appendChild(defaultOption);
+    siteNames.forEach(site => {
+      const option = document.createElement("option");
+      option.value = site;
+      option.textContent = site;
+      siteNameFilter.appendChild(option);
+    });
+  }
+}
+
+// Process the uploaded file
+function processFile(file) {
+  originalFilename = file.name;
+  const reader = new FileReader();
+  reader.onload = function (e) {
+    const data = new Uint8Array(e.target.result);
+    const workbook = XLSX.read(data, { type: "array" });
+    const sheetName = workbook.SheetNames[0];
+    const worksheet = workbook.Sheets[sheetName];
+    const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
+    rawData = jsonData;
+    // Populate Site Name dropdown based on raw data
+    populateSiteNameFilter();
+    discrepancyData = evaluateSheet(jsonData);
+    applyFiltersAndSearch();
+  };
+  reader.readAsArrayBuffer(file);
+}
+
+// Apply filters (including the new Site Name filter) and search
+function applyFiltersAndSearch() {
+  filteredData = discrepancyData.filter((row) => {
+    if (selectedBinSize !== 'all' && row["Bin Size"] !== selectedBinSize) return false;
+    if (selectedSiteName !== 'all' && row["Site Name"] !== selectedSiteName) return false;
+    if (!matchesWeightFilter(row)) return false;
+    if (!matchesChargeFilter(row)) return false;
+    if (searchTerm && !Object.values(row).some(value =>
+      value?.toString().toLowerCase().includes(searchTerm.toLowerCase())
+    )) return false;
+    return true;
+  });
+  currentPage = 1;
+  updateUI();
   updateRecordCount();
 }
 
-/**
- * Get data for current page
- */
-function getPageData() {
-  if (entriesPerPage === 'All') return filteredData;
-  const start = (currentPage - 1) * entriesPerPage;
-  const end = start + entriesPerPage;
-  return filteredData.slice(start, end);
-}
-
-/**
- * Update the totals row
- */
-function updateTotals() {
-  const totals = filteredData.reduce((acc, row) => {
-    acc["Weight (Gross)"] += parseFloat(row["Weight (Gross)"]) || 0;
-    acc["Weight (Net)"] += parseFloat(row["Weight (Net)"]) || 0;
-    acc["Estimated $"] += parseFloat(row["Estimated $"]) || 0;
-    acc.Emissions += parseFloat(row.Emissions) || 0;
-    return acc;
-  }, { "Weight (Gross)": 0, "Weight (Net)": 0, "Estimated $": 0, Emissions: 0 });
-
-  const totalRow = document.getElementById('totalRow');
-  totalRow.innerHTML = `
-    <td colspan="4"><strong>Total</strong></td>
-    <td>${formatNumber(totals["Weight (Gross)"])}</td>
-    <td>${formatNumber(totals["Weight (Net)"])}</td>
-    <td colspan="4"></td>
-    <td>$${formatNumber(totals["Estimated $"])}</td>
-    <td>${formatNumber(totals.Emissions)}</td>
-  `;
-}
-
-/**
- * Pagination controls
- */
-function updatePagination() {
-  const paginationElement = document.getElementById('pagination');
-  paginationElement.innerHTML = '';
-
-  if (entriesPerPage === 'All') return;
-
-  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
-
-  // Back
-  const backButton = document.createElement('button');
-  backButton.innerHTML = '&larr;';
-  backButton.disabled = (currentPage === 1);
-  backButton.addEventListener('click', () => {
-    if (currentPage > 1) {
-      currentPage--;
-      updateTable();
-    }
-  });
-  paginationElement.appendChild(backButton);
-
-  // Page indicator
-  const pageIndicator = document.createElement('span');
-  pageIndicator.textContent = `Page ${currentPage} of ${totalPages}`;
-  pageIndicator.style.margin = '0 10px';
-  paginationElement.appendChild(pageIndicator);
-
-  // Forward
-  const forwardButton = document.createElement('button');
-  forwardButton.innerHTML = '&rarr;';
-  forwardButton.disabled = (currentPage === totalPages);
-  forwardButton.addEventListener('click', () => {
-    if (currentPage < totalPages) {
-      currentPage++;
-      updateTable();
-    }
-  });
-  paginationElement.appendChild(forwardButton);
-}
-
-/**
- * "Showing X to Y of Z entries"
- */
+// Update record count display
 function updateRecordCount() {
-  const recordCountElement = document.getElementById('recordCount');
-  const totalEntries = filteredData.length;
-
-  if (entriesPerPage === 'All') {
-    recordCountElement.textContent = `Showing all ${totalEntries} entries`;
+  const recordCount = document.getElementById("recordCount");
+  const total = filteredData.length;
+  if (entriesPerPage === "All") {
+    recordCount.textContent = `Showing all ${formatNumber(total)} entries`;
   } else {
     const start = (currentPage - 1) * entriesPerPage + 1;
-    const end = Math.min(currentPage * entriesPerPage, totalEntries);
-    recordCountElement.textContent = `Showing ${start} to ${end} of ${totalEntries} entries`;
+    const end = Math.min(currentPage * entriesPerPage, total);
+    recordCount.textContent = `Showing ${formatNumber(start)} to ${formatNumber(end)} of ${formatNumber(total)} entries`;
   }
 }
 
-/**
- * Populate Bin Size + Bin Type filters
- */
-function populateFilters() {
-  const binSizes = [...new Set(filteredData.map(row => row["Bin Size"]))].filter(Boolean);
-  const binTypes = [...new Set(filteredData.map(row => row["Bin Type"]))].filter(Boolean);
-
-  const binSizeFilterDropdown = document.getElementById('binSizeFilterDropdown');
-  const binTypeFilterDropdown = document.getElementById('binTypeFilterDropdown');
-
-  binSizeFilterDropdown.innerHTML = binSizes.map(size => `
-    <label><input type="checkbox" value="${size}" checked> ${size}</label>
-  `).join('');
-
-  binTypeFilterDropdown.innerHTML = binTypes.map(type => `
-    <label><input type="checkbox" value="${type}" checked> ${type}</label>
-  `).join('');
-
-  binSizeFilterDropdown.addEventListener('change', applyFilters);
-  binTypeFilterDropdown.addEventListener('change', applyFilters);
-}
-
-/**
- * Apply bin size & bin type filters
- */
-function applyFilters() {
-  const selectedBinSizes = Array.from(document.querySelectorAll('#binSizeFilterDropdown input:checked'))
-    .map(input => input.value);
-  const selectedBinTypes = Array.from(document.querySelectorAll('#binTypeFilterDropdown input:checked'))
-    .map(input => input.value);
-
-  const startDate = new Date(document.getElementById('startDate').value);
-  const endDate   = new Date(document.getElementById('endDate').value);
-  startDate.setHours(0, 0, 0, 0);
-  endDate.setHours(23, 59, 59, 999);
-
-  filteredData = allData.filter(row => {
-    if (!row.Date) return false;
-    return (
-      row.Date >= startDate &&
-      row.Date <= endDate &&
-      selectedBinSizes.includes(row["Bin Size"]) &&
-      selectedBinTypes.includes(row["Bin Type"]) &&
-      !HIDDEN_SITES.includes(row.Site)
-    );
-  });
-
-  sortDataByDate();
-  currentPage = 1;
-  updateTable();
-}
-
-/**
- * Format a number with commas and 2 decimals
- */
-function formatNumber(num) {
-  if (isNaN(num)) return '0.00';
-  let formatted = parseFloat(num).toFixed(2);
-  let parts = formatted.split('.');
-  parts[0] = parts[0].replace(/\B(?=(\d{3})+(?!\d))/g, ",");
-  return parts.join('.');
-}
-
-/**
- * Copy selected rows to clipboard (tab-delimited)
- */
-function copySelectedRows() {
-  const selectedRows = getSelectedRows();
-  if (selectedRows.length === 0) {
-    alert('No rows selected.');
-    return;
-  }
-
-  const headers = getTableHeaders().join('\t');
-  const rowsContent = selectedRows.map(row => {
-    const rowCopy = { ...row };
-    rowCopy.Site = getSiteDisplayName(rowCopy.Site);
-
-    // If site is "Murenda" => move Scan data to Location
-    if (row.Site === 'Murenda') {
-      rowCopy["Location"] = row["Clinical Barcode Scan"] || '';
-      rowCopy["Clinical Barcode Scan"] = '';
-    } else if (row["Bin Type"]?.toUpperCase() !== 'CLINICAL') {
-      rowCopy["Clinical Barcode Scan"] = '';
+// Update the UI: show/hide table and no-results message
+function updateUI() {
+  const resultsTable = document.getElementById("resultsTable");
+  const noResultsMessage = document.getElementById("noResultsMessage");
+  const tableControls = document.getElementById("tableControls");
+  const hasBaseData = discrepancyData.length > 0;
+  const hasFilteredData = filteredData.length > 0;
+  if (tableControls) {
+    if (hasBaseData) {
+      tableControls.classList.remove("hidden");
+    } else {
+      tableControls.classList.add("hidden");
     }
+  }
+  if (!hasFilteredData) {
+    if (resultsTable) resultsTable.classList.add("hidden");
+    if (noResultsMessage) {
+      noResultsMessage.classList.remove("hidden");
+      if (hasBaseData && (searchTerm || selectedBinSize !== 'all' || selectedSiteName !== 'all' || selectedWeightFilter !== 'all' || selectedChargeFilter !== 'all')) {
+        noResultsMessage.innerHTML = `
+          <p>No results found for your search.</p>
+          <button id="clearFilters" class="button primary">Clear All Filters</button>
+        `;
+        const clearFiltersButton = document.getElementById("clearFilters");
+        if (clearFiltersButton) {
+          const newButton = clearFiltersButton.cloneNode(true);
+          clearFiltersButton.parentNode.replaceChild(newButton, clearFiltersButton);
+          newButton.addEventListener("click", () => {
+            document.getElementById("searchInput").value = "";
+            document.getElementById("binSizeFilter").value = "all";
+            document.getElementById("siteNameFilter").value = "all";
+            document.getElementById("weightFilter").value = "all";
+            document.getElementById("chargeFilter").value = "all";
+            searchTerm = "";
+            selectedBinSize = "all";
+            selectedSiteName = "all";
+            selectedWeightFilter = "all";
+            selectedChargeFilter = "all";
+            applyFiltersAndSearch();
+          });
+        }
+      } else {
+        noResultsMessage.innerHTML = `
+          <img src="https://i.imgur.com/0OUg0tX.png" alt="Success" class="success-image">
+          <p>No discrepancies found!</p>
+        `;
+      }
+    }
+  } else {
+    if (resultsTable) resultsTable.classList.remove("hidden");
+    if (noResultsMessage) noResultsMessage.classList.add("hidden");
+    updateTable();
+  }
+}
 
-    return Object.values(rowCopy).join('\t');
-  }).join('\n');
-
-  const clipboardContent = `${headers}\n${rowsContent}`;
-
-  navigator.clipboard.writeText(clipboardContent)
-    .then(() => {
-      alert('Selected data copied to clipboard.');
-    })
-    .catch(err => {
-      console.error('Failed to copy:', err);
-      alert('Error: Could not copy to clipboard.');
+// Update the results table using a fixed column order
+function updateTable() {
+  const tableBody = document.querySelector("#results tbody");
+  const totalsRow = document.querySelector("#totalsRow");
+  tableBody.innerHTML = "";
+  let totalChargeExclGST = 0;
+  let totalExpectedCharge = 0;
+  let totalNetOverUndercharge = 0;
+  const columns = ["Row", "Bin Size", "Service Description", "Site Name", "Contract Unit Price Charged", "Waste Kg", "Excess kg", "Charge excl GST ($)", "Expected Charge ($)", "Net Over (-$) | Undercharge ($)", "Discrepancy"];
+  const pageData = getPageData();
+  pageData.forEach((row) => {
+    const tr = document.createElement("tr");
+    columns.forEach(col => {
+      const td = document.createElement("td");
+      td.textContent = row[col] || "N/A";
+      if (col === "Discrepancy") td.style.textAlign = "left";
+      tr.appendChild(td);
     });
+    tableBody.appendChild(tr);
+    totalChargeExclGST += parseFloat(row["Charge excl GST ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+    totalExpectedCharge += parseFloat(row["Expected Charge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+    totalNetOverUndercharge += parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+  });
+  totalsRow.innerHTML = `
+    <td colspan="11"><strong>Totals</strong></td>
+    <td>${formatCurrency(totalChargeExclGST)}</td>
+    <td>${formatCurrency(totalExpectedCharge)}</td>
+    <td>${formatCurrency(totalNetOverUndercharge)}</td>
+    <td></td>
+  `;
+  updatePagination();
 }
 
-/**
- * Download selected rows as Excel (still works with CSV-based data)
- * We'll use the XLSX library if you included it, or you can remove it
- * if you prefer a purely CSV-based approach for exporting as well.
- */
-function downloadExcel() {
-  try {
-    const selectedRows = getSelectedRows();
-    if (!selectedRows || selectedRows.length === 0) {
-      alert('No rows selected.');
-      return;
-    }
+// Paginate table data
+function getPageData() {
+  if (entriesPerPage === "All") return filteredData;
+  const start = (currentPage - 1) * entriesPerPage;
+  return filteredData.slice(start, start + entriesPerPage);
+}
 
-    const headers = getTableHeaders();
-    if (!headers || headers.length === 0) {
-      console.error('Headers are missing.');
-      alert('Error: Unable to export. No headers found.');
-      return;
-    }
+// Update pagination controls
+function updatePagination() {
+  const pagination = document.getElementById("pagination");
+  if (!pagination) return;
+  pagination.innerHTML = "";
+  if (entriesPerPage === "All") return;
+  const totalPages = Math.ceil(filteredData.length / entriesPerPage);
+  const prevButton = document.createElement("button");
+  prevButton.textContent = "Previous";
+  prevButton.disabled = currentPage === 1;
+  prevButton.addEventListener("click", () => {
+    currentPage--;
+    updateTable();
+    updateRecordCount();
+  });
+  pagination.appendChild(prevButton);
+  const nextButton = document.createElement("button");
+  nextButton.textContent = "Next";
+  nextButton.disabled = currentPage === totalPages;
+  nextButton.addEventListener("click", () => {
+    currentPage++;
+    updateTable();
+    updateRecordCount();
+  });
+  pagination.appendChild(nextButton);
+}
 
-    // Build 2D array
-    const data = [headers];
-    for (let row of selectedRows) {
-      const rowData = headers.map(header => {
-        if (header === 'Site') {
-          return getSiteDisplayName(row.Site || '');
-        }
-        if (header === 'Date') {
-          return (row[header] instanceof Date)
-            ? row[header].toLocaleDateString('en-GB')
-            : (row[header] || '');
-        }
-        if (header === 'Clinical Barcode Scan') {
-          return (row["Bin Type"]?.toUpperCase() === 'CLINICAL')
-            ? (row[header] || '')
-            : '';
-        }
-        if (header === 'Location') {
-          return (row.Site === 'Murenda')
-            ? (row["Clinical Barcode Scan"] || '')
-            : '';
-        }
-        return row[header] !== undefined ? formatExcelNumber(row[header]) : '';
+// Setup event listeners with defensive checks
+function setupEventListeners() {
+  const binSizeFilterEl = document.getElementById("binSizeFilter");
+  if (binSizeFilterEl) {
+    binSizeFilterEl.addEventListener("change", (e) => {
+      selectedBinSize = e.target.value;
+      applyFiltersAndSearch();
+    });
+  } else {
+    console.warn("Element with id 'binSizeFilter' not found.");
+  }
+
+  const siteNameFilterEl = document.getElementById("siteNameFilter");
+  if (siteNameFilterEl) {
+    siteNameFilterEl.addEventListener("change", (e) => {
+      selectedSiteName = e.target.value;
+      applyFiltersAndSearch();
+    });
+  } else {
+    console.warn("Element with id 'siteNameFilter' not found.");
+  }
+
+  const weightFilterEl = document.getElementById("weightFilter");
+  if (weightFilterEl) {
+    weightFilterEl.addEventListener("change", (e) => {
+      selectedWeightFilter = e.target.value;
+      applyFiltersAndSearch();
+    });
+  } else {
+    console.warn("Element with id 'weightFilter' not found.");
+  }
+
+  const chargeFilterEl = document.getElementById("chargeFilter");
+  if (chargeFilterEl) {
+    chargeFilterEl.addEventListener("change", (e) => {
+      selectedChargeFilter = e.target.value;
+      applyFiltersAndSearch();
+    });
+  } else {
+    console.warn("Element with id 'chargeFilter' not found.");
+  }
+
+  const searchInputEl = document.getElementById("searchInput");
+  if (searchInputEl) {
+    searchInputEl.addEventListener("input", (e) => {
+      searchTerm = e.target.value.toLowerCase();
+      applyFiltersAndSearch();
+    });
+  } else {
+    console.warn("Element with id 'searchInput' not found.");
+  }
+
+  const resetFiltersEl = document.getElementById("resetFilters");
+  if (resetFiltersEl) {
+    resetFiltersEl.addEventListener("click", () => {
+      const inputs = ["searchInput", "binSizeFilter", "siteNameFilter", "weightFilter", "chargeFilter"];
+      inputs.forEach(id => {
+        const el = document.getElementById(id);
+        if (el) el.value = "all"; // for dropdowns, "all"; for searchInput, set to ""
       });
-      data.push(rowData);
-    }
+      document.getElementById("searchInput").value = "";
+      searchTerm = "";
+      selectedBinSize = "all";
+      selectedSiteName = "all";
+      selectedWeightFilter = "all";
+      selectedChargeFilter = "all";
+      applyFiltersAndSearch();
+    });
+  } else {
+    console.warn("Element with id 'resetFilters' not found.");
+  }
 
-    // If you're still using XLSX, ensure it's loaded.
-    // If not, remove this code or replace with your CSV export approach.
-    if (typeof XLSX === 'undefined') {
-      throw new Error('XLSX library is not loaded. Remove this or include SheetJS if you want Excel export.');
-    }
+  const spreadsheetEl = document.getElementById("spreadsheet");
+  if (spreadsheetEl) {
+    spreadsheetEl.addEventListener("change", (e) => {
+      const file = e.target.files[0];
+      if (file) processFile(file);
+    });
+  } else {
+    console.warn("Element with id 'spreadsheet' not found.");
+  }
 
-    const ws = XLSX.utils.aoa_to_sheet(data);
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, "ScalerData");
+  const downloadButton = document.getElementById("downloadResults");
+  if (downloadButton) {
+    const newDownloadButton = downloadButton.cloneNode(true);
+    downloadButton.parentNode.replaceChild(newDownloadButton, downloadButton);
+    newDownloadButton.addEventListener("click", () => {
+      if (filteredData.length === 0) {
+        alert("No data to export.");
+        return;
+      }
+      try {
+        const timestamp = new Date().toISOString().split('T')[0];
+        const originalNameWithoutExt = originalFilename.replace(/\.[^/.]+$/, "");
+        const exportFilename = `${originalNameWithoutExt}_Discrepancy_Report_${timestamp}.xlsx`;
+        const worksheet = XLSX.utils.json_to_sheet(filteredData);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Discrepancies");
+        XLSX.writeFile(workbook, exportFilename);
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('There was an error during export. Please try again.');
+      }
+    });
+  } else {
+    console.warn("Element with id 'downloadResults' not found.");
+  }
 
-    const filename = `ScalerData_${new Date().toISOString().slice(0, 19).replace(/[-T:]/g, "")}.xlsx`;
-    XLSX.writeFile(wb, filename);
-
-  } catch (error) {
-    console.error('Error in downloadExcel function:', error);
-    alert('An error occurred while trying to download the Excel file. See console for details.');
+  const entriesPerPageEl = document.getElementById("entriesPerPage");
+  if (entriesPerPageEl) {
+    entriesPerPageEl.addEventListener("change", (e) => {
+      entriesPerPage = e.target.value === "All" ? "All" : parseInt(e.target.value);
+      currentPage = 1;
+      updateTable();
+      updateRecordCount();
+    });
+  } else {
+    console.warn("Element with id 'entriesPerPage' not found.");
   }
 }
 
-/**
- * Convert numeric strings to real numbers in exported Excel
- */
-function formatExcelNumber(value) {
-  if (typeof value === 'number') return value;
-  const parsed = parseFloat(value);
-  return isNaN(parsed) ? value : parsed;
-}
-
-/**
- * Return the currently checked rows
- */
-function getSelectedRows() {
-  const selectedRows = [];
-  const rowCheckboxes = document.querySelectorAll('#dataTable tbody .rowSelector');
-  rowCheckboxes.forEach((checkbox, index) => {
-    if (checkbox.checked) {
-      selectedRows.push(filteredData[index]);
-    }
-  });
-  return selectedRows;
-}
-
-/**
- * The headers for copying/exporting
- */
-function getTableHeaders() {
-  return [
-    'Site',
-    'Date',
-    'Time',
-    'Weight (Gross)',
-    'Weight (Net)',
-    'Bin Size',
-    'Bin Type',
-    'Clinical Barcode Scan',
-    'Location',
-    'Estimated $',
-    'Emissions'
-  ];
-}
-
-/**
- * "Select All" checkbox logic
- */
-function selectAllRows() {
-  const isChecked = document.getElementById('selectAll').checked;
-  document.querySelectorAll('.rowSelector').forEach(checkbox => {
-    checkbox.checked = isChecked;
-  });
-}
-
-/**
- * Show/hide filter dropdown
- */
-function toggleFilterDropdown(dropdownId, event) {
-  event.stopPropagation();
-  const dropdown = document.getElementById(dropdownId);
-  const isCurrentlyOpen = dropdown.classList.contains('show');
-
-  closeAllDropdowns();
-
-  if (!isCurrentlyOpen) {
-    dropdown.classList.add('show');
-    positionDropdown(dropdown, event.target);
+document.addEventListener('DOMContentLoaded', () => {
+  setupEventListeners();
+  const entriesEl = document.getElementById("entriesPerPage");
+  if (entriesEl) {
+    entriesEl.value = "All";
   }
-}
+});
 
-/**
- * Close all filter dropdowns
- */
-function closeAllDropdowns() {
-  const dropdowns = document.querySelectorAll('.filter-dropdown');
-  dropdowns.forEach(dropdown => dropdown.classList.remove('show'));
-}
-
-/**
- * Position the dropdown near the toggle icon
- */
-function positionDropdown(dropdown, targetElement) {
-  dropdown.style.top = `${targetElement.offsetHeight}px`;
-  dropdown.style.right = '0';
-  dropdown.style.left = 'auto';
-
-  const rect = dropdown.getBoundingClientRect();
-  const viewportWidth = window.innerWidth || document.documentElement.clientWidth;
-  if (rect.right > viewportWidth) {
-    dropdown.style.right = 'auto';
-    dropdown.style.left = '0';
-  }
-}
