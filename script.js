@@ -6,8 +6,10 @@ const BIN_CONFIG = {
 
 // Global variables
 let rawData = [];
-let discrepancyData = []; // All rows with discrepancies as computed in evaluateSheet
-let filteredData = [];    // Subset of discrepancyData after filtering
+// processedData will hold all rows (processed with extra fields) from the spreadsheet.
+let processedData = [];
+// filteredData holds the subset of processedData that meets the current filters.
+let filteredData = [];
 let searchTerm = '';
 let selectedBinSize = 'all';
 let selectedSiteName = 'all';
@@ -47,7 +49,7 @@ function formatCurrency(amount) {
   return `${prefix}${formattedAmount}`;
 }
 
-// Format a decimal number with thousand separators and exactly two decimal places.
+// Format a decimal number with exactly two decimals.
 function formatDecimal(number) {
   return Number(number).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -57,11 +59,12 @@ function formatDecimal(number) {
 
 /* Data Validation */
 
-// Validate a single row from the spreadsheet.
+// Process and validate a single row.
+// Returns an object that includes both raw numeric values and formatted strings.
 function validateRow(row) {
   const errors = [];
   
-  // Validate Customer Details.
+  // Validate customer details.
   const customerGroup = (row["Customer Group"] || "").trim();
   if (customerGroup !== "Eastern Health") {
     errors.push("Incorrect Customer Group");
@@ -84,7 +87,7 @@ function validateRow(row) {
     errors.push("Incorrect Customer ABN");
   }
   
-  // Determine bin type from Service Description.
+  // Determine bin type based on Service Description.
   const serviceDesc = row["Service Description"] || "";
   let binSize = null;
   if (serviceDesc.includes("660L")) {
@@ -104,30 +107,30 @@ function validateRow(row) {
     errors.push("Incorrect contract rate applied");
   }
   
-  // Parse weights.
+  // Parse numeric values.
   const actualWeight = parseFloat(row["Waste Kg"] || 0);
   const providedExcessKg = parseFloat(row["Excess kg"] || 0);
-  // Calculate the total delivered weight.
+  // Calculate total delivered weight.
   const totalDelivered = actualWeight + providedExcessKg;
   
-  // Flag error if Waste Kg and Excess kg are identical (and nonzero)
+  // Flag error if Waste Kg and Excess kg are identical (and nonzero).
   if (actualWeight === providedExcessKg && actualWeight !== 0) {
     errors.push("Waste Kg and Excess kg cannot be identical");
   }
   
-  // Minimum weight check: if total delivered weight is less than the included weight.
+  // Check if total delivered weight is less than the included weight.
   if (totalDelivered < config.includedWeight) {
     errors.push("Bin Less than Minimum Kg");
   }
-  // Additional error: if Waste Kg is less than the included weight but Excess kg is nonzero.
+  // Flag error if Waste Kg is less than the included weight but Excess kg > 0.
   if (actualWeight < config.includedWeight && providedExcessKg > 0) {
     errors.push("Excess kg should be zero when Waste Kg is less than included weight");
   }
   
-  // Calculate the excess based on the total delivered weight.
+  // Calculate expected excess (using total delivered weight minus included weight).
   const excessCalculated = Math.max(0, totalDelivered - config.includedWeight);
   
-  // Maximum weight check using excessCalculated.
+  // Maximum weight check.
   if (binSize === "660L" && excessCalculated > 40) {
     errors.push("Excessive Additional Kg");
   } else if (binSize === "240L" && excessCalculated > 20) {
@@ -136,7 +139,7 @@ function validateRow(row) {
     errors.push("Excessive Additional Kg");
   }
   
-  // Check provided excess kg matches calculated excess.
+  // Check that the provided excess kg matches the calculated value.
   if (Math.abs(excessCalculated - providedExcessKg) > 0.01) {
     errors.push("Incorrect additional kg rate applied");
   }
@@ -163,9 +166,9 @@ function validateRow(row) {
 
 function matchesWeightFilter(row) {
   const binSize = row["Bin Size"];
-  // Use total delivered weight = Waste Kg + Excess kg.
-  const waste = parseFloat(row["Waste Kg"].replace(/,/g, "")) || 0;
-  const excess = parseFloat(row["Excess kg"].replace(/,/g, "")) || 0;
+  // Use total delivered weight = rawWasteKg + rawExcessKg.
+  const waste = row["rawWasteKg"] || 0;
+  const excess = row["rawExcessKg"] || 0;
   const totalDelivered = waste + excess;
   
   if (selectedWeightFilter === 'all') return true;
@@ -187,14 +190,14 @@ function matchesWeightFilter(row) {
 
 function matchesChargeFilter(row) {
   if (selectedChargeFilter === 'all') return true;
-  const netDifference = parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+  const netDifference = row["rawNet"] || 0;
   if (selectedChargeFilter === 'overcharge') return netDifference < 0;
   if (selectedChargeFilter === 'undercharge') return netDifference > 0;
   return true;
 }
 
-/* Recalculate Summary Stats from Filtered Data */
-
+/* Recalculate Summary Statistics from Filtered Data */
+// Note: We use the raw values stored in each processed row.
 function recalcFilteredSummaryStats() {
   let stats = {
     totalRows: filteredData.length,
@@ -219,14 +222,13 @@ function recalcFilteredSummaryStats() {
     else if (row["Bin Size"] === "240L") stats.total240LBins++;
     else if (row["Bin Size"] === "120L") stats.total120LBins++;
     
-    let waste = parseFloat((row["Waste Kg"] || "0").replace(/,/g, ""));
-    let excess = parseFloat((row["Excess kg"] || "0").replace(/,/g, ""));
-    let charge = parseFloat((row["Charge excl GST ($)"] || "0").replace(/[^0-9.-]+/g, ""));
-    stats.totalWasteKg += isNaN(waste) ? 0 : waste;
-    stats.totalExcessKg += isNaN(excess) ? 0 : excess;
-    stats.totalChargeExclGST += isNaN(charge) ? 0 : charge;
+    let waste = row["rawWasteKg"] || 0;
+    let excess = row["rawExcessKg"] || 0;
+    let charge = row["rawCharge"] || 0;
+    stats.totalWasteKg += waste;
+    stats.totalExcessKg += excess;
+    stats.totalChargeExclGST += charge;
     
-    // Use total delivered weight for overweight/underweight checks.
     const totalDelivered = waste + excess;
     if (row["Bin Size"] === "660L") {
       if (totalDelivered < 49) stats.totalBinsUnderweight++;
@@ -239,17 +241,14 @@ function recalcFilteredSummaryStats() {
       else if (totalDelivered > 18) stats.totalBinsOverweight++;
     }
     
-    let net = parseFloat((row["Net Over (-$) | Undercharge ($)"] || "0").replace(/[^0-9.-]+/g, ""));
-    if (!isNaN(net)) {
-      if (net < 0) stats.totalOvercharges += Math.abs(net);
-      else if (net > 0) stats.totalUndercharges += net;
-    }
+    let net = row["rawNet"] || 0;
+    if (net < 0) stats.totalOvercharges += Math.abs(net);
+    else if (net > 0) stats.totalUndercharges += net;
   });
   return stats;
 }
 
 /* Update Summary Cards in the UI */
-
 function updateSummaryCards() {
   document.getElementById("totalRowsAssessed").textContent = formatNumber(summaryStats.totalRows);
   document.getElementById("totalErrors").textContent = formatNumber(summaryStats.totalErrors);
@@ -275,26 +274,10 @@ function updateSummaryCards() {
   document.getElementById("totalNetCharge").textContent = formatCurrency(netCharge);
 }
 
-/* Build Discrepancy Data by Evaluating the Sheet */
-
+/* Process the Spreadsheet and Build Processed Data */
+// Process every row (not only errors) and store raw and formatted values.
 function evaluateSheet(sheet) {
-  const discrepancies = [];
-  // Reset summaryStats for full dataset.
-  summaryStats = {
-    totalRows: sheet.length,
-    totalErrors: 0,
-    total660L: 0,
-    total240LBins: 0,
-    total120LBins: 0,
-    totalBinsOverweight: 0,
-    totalBinsUnderweight: 0,
-    totalChargeExclGST: 0,
-    totalWasteKg: 0,
-    totalExcessKg: 0,
-    totalOvercharges: 0,
-    totalUndercharges: 0,
-    totalNetCharge: 0
-  };
+  const processedRows = [];
   
   sheet.forEach((row, index) => {
     const serviceDesc = row["Service Description"] || "";
@@ -302,67 +285,38 @@ function evaluateSheet(sheet) {
     const providedExcessKg = parseFloat(row["Excess kg"] || 0);
     const actualCharge = parseFloat(row["Charge excl GST"] || 0);
     
-    summaryStats.totalWasteKg += wasteKg;
-    summaryStats.totalExcessKg += providedExcessKg;
-    summaryStats.totalChargeExclGST += actualCharge;
-    
-    // Use total delivered weight for bin count thresholds.
-    const totalDelivered = wasteKg + providedExcessKg;
-    if (serviceDesc.includes("660L")) {
-      summaryStats.total660L++;
-      if (totalDelivered < 49) summaryStats.totalBinsUnderweight++;
-      else if (totalDelivered > 89) summaryStats.totalBinsOverweight++;
-    } else if (serviceDesc.includes("240L")) {
-      summaryStats.total240LBins++;
-      if (totalDelivered < 13) summaryStats.totalBinsUnderweight++;
-      else if (totalDelivered > 33) summaryStats.totalBinsOverweight++;
-    } else if (serviceDesc.includes("Collect 120L Clinical Waste Bin")) {
-      summaryStats.total120LBins++;
-      if (totalDelivered < 8) summaryStats.totalBinsUnderweight++;
-      else if (totalDelivered > 18) summaryStats.totalBinsOverweight++;
-    }
-    
     const result = validateRow(row);
-    if (result.errors.length > 0) {
-      // Count errors (excluding weight threshold issues if desired)
-      if (result.errors.filter(err => err !== "Bin Less than Minimum Kg" && err !== "Excessive Additional Kg").length > 0) {
-        summaryStats.totalErrors++;
-      }
-      if (result.netDifference > 0) {
-        summaryStats.totalUndercharges += result.netDifference;
-      } else {
-        summaryStats.totalOvercharges += Math.abs(result.netDifference);
-      }
-      
-      // Add Site Name from "Task Site Name"
-      const siteName = row["Task Site Name"] ? row["Task Site Name"].trim() : "N/A";
-      
-      discrepancies.push({
-        "Row": index + 2,
-        "Site Name": siteName,
-        "Bin Size": result.binSize || "N/A",
-        "Service Description": row["Service Description"] || "N/A",
-        "Contract Unit Price Charged": formatCurrency(parseFloat(row["Contract Unit Price"]) || 0),
-        "Waste Kg": formatNumber(wasteKg),
-        "Excess kg": formatNumber(providedExcessKg),
-        "Charge excl GST ($)": formatCurrency(actualCharge),
-        "Expected Charge ($)": formatCurrency(result.expectedTotalCharge),
-        "Net Over (-$) | Undercharge ($)": formatCurrency(result.netDifference),
-        "Discrepancy": result.errors.join("; ")
-      });
-    }
+    const siteName = row["Task Site Name"] ? row["Task Site Name"].trim() : "N/A";
+    
+    processedRows.push({
+      "Row": index + 2,
+      "Site Name": siteName,
+      "Bin Size": result.binSize || "N/A",
+      "Service Description": row["Service Description"] || "N/A",
+      "Contract Unit Price Charged": formatCurrency(parseFloat(row["Contract Unit Price"]) || 0),
+      "Waste Kg": formatNumber(wasteKg),
+      "rawWasteKg": wasteKg,
+      "Excess kg": formatNumber(providedExcessKg),
+      "rawExcessKg": providedExcessKg,
+      "Charge excl GST ($)": formatCurrency(actualCharge),
+      "rawCharge": actualCharge,
+      "Expected Charge ($)": formatCurrency(result.expectedTotalCharge),
+      "rawExpectedCharge": result.expectedTotalCharge,
+      "Net Over (-$) | Undercharge ($)": formatCurrency(result.netDifference),
+      "rawNet": result.netDifference,
+      "Discrepancy": result.errors.join("; ")
+    });
   });
-  return discrepancies;
+  return processedRows;
 }
 
 /* Table Building Functions */
-
 function updateTable() {
   const tableBody = document.querySelector("#results tbody");
   const totalsRow = document.querySelector("#totalsRow");
   tableBody.innerHTML = "";
   
-  // Define the fixed column order.
+  // Fixed column order.
   const columns = [
     "Row",
     "Site Name",
@@ -379,7 +333,7 @@ function updateTable() {
   
   const pageData = getPageData();
   pageData.forEach((row, idx) => {
-    // Set row number if not provided.
+    // Update row number based on page.
     row["Row"] = idx + 1 + ((currentPage - 1) * (entriesPerPage === "All" ? pageData.length : entriesPerPage));
     const tr = document.createElement("tr");
     columns.forEach(col => {
@@ -396,14 +350,14 @@ function updateTable() {
     tableBody.appendChild(tr);
   });
   
-  // Calculate totals for numeric columns from filteredData.
+  // Compute totals for numeric columns from filteredData.
   let totalChargeExclGST = 0;
   let totalExpectedCharge = 0;
   let totalNet = 0;
   filteredData.forEach(row => {
-    totalChargeExclGST += parseFloat((row["Charge excl GST ($)"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
-    totalExpectedCharge += parseFloat((row["Expected Charge ($)"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
-    totalNet += parseFloat((row["Net Over (-$) | Undercharge ($)"] || "0").replace(/[^0-9.-]+/g, "")) || 0;
+    totalChargeExclGST += row["rawCharge"] || 0;
+    totalExpectedCharge += row["rawExpectedCharge"] || 0;
+    totalNet += row["rawNet"] || 0;
   });
   
   totalsRow.innerHTML = `
@@ -464,17 +418,18 @@ function updateRecordCount() {
 }
 
 /* UI Update */
-
 function updateUI() {
   const resultsTable = document.getElementById("resultsTable");
   const noResultsMessage = document.getElementById("noResultsMessage");
   const tableControls = document.getElementById("tableControls");
-  const hasBaseData = discrepancyData.length > 0;
+  const hasBaseData = processedData.length > 0;
   const hasFilteredData = filteredData.length > 0;
+  
   if (tableControls) {
     if (hasBaseData) tableControls.classList.remove("hidden");
     else tableControls.classList.add("hidden");
   }
+  
   if (!hasFilteredData) {
     if (resultsTable) resultsTable.classList.add("hidden");
     if (noResultsMessage) {
@@ -517,7 +472,6 @@ function updateUI() {
 }
 
 /* Populate Site Name Dropdown */
-
 function populateSiteNameFilter() {
   const siteNameSet = new Set();
   rawData.forEach(row => {
@@ -543,7 +497,6 @@ function populateSiteNameFilter() {
 }
 
 /* File Processing */
-
 function processFile(file) {
   originalFilename = file.name;
   const reader = new FileReader();
@@ -555,16 +508,16 @@ function processFile(file) {
     const jsonData = XLSX.utils.sheet_to_json(worksheet, { raw: false });
     rawData = jsonData;
     populateSiteNameFilter();
-    discrepancyData = evaluateSheet(jsonData);
+    processedData = evaluateSheet(jsonData);
     applyFiltersAndSearch();
   };
   reader.readAsArrayBuffer(file);
 }
 
 /* Filtering & Recalculation */
-
 function applyFiltersAndSearch() {
-  filteredData = discrepancyData.filter((row) => {
+  // Filter processedData (all rows) rather than only discrepancies.
+  filteredData = processedData.filter((row) => {
     if (selectedBinSize !== 'all' && row["Bin Size"] !== selectedBinSize) return false;
     if (selectedSiteName !== 'all' && row["Site Name"] !== selectedSiteName) return false;
     if (!matchesWeightFilter(row)) return false;
@@ -582,7 +535,6 @@ function applyFiltersAndSearch() {
 }
 
 /* Setup Event Listeners */
-
 function setupEventListeners() {
   const binSizeFilterEl = document.getElementById("binSizeFilter");
   if (binSizeFilterEl) {
@@ -683,4 +635,3 @@ document.addEventListener('DOMContentLoaded', () => {
     entriesEl.value = "All";
   }
 });
-
