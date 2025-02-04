@@ -446,31 +446,69 @@ function updateTable() {
   const tableBody = document.querySelector("#results tbody");
   const totalsRow = document.querySelector("#totalsRow");
   tableBody.innerHTML = "";
-  let totalChargeExclGST = 0;
-  let totalExpectedCharge = 0;
-  let totalNetOverUndercharge = 0;
-  const columns = ["Row", "Bin Size", "Service Description", "Site Name", "Contract Unit Price Charged", "Waste Kg", "Excess kg", "Charge excl GST ($)", "Expected Charge ($)", "Net Over (-$) | Undercharge ($)", "Discrepancy"];
+  
+  // Fixed column order as per your requirement.
+  const columns = [
+    "Row",
+    "Site Name",
+    "Bin Size",
+    "Service Description",
+    "Contract Unit Price Charged",
+    "Waste Kg",
+    "Excess kg",
+    "Charge excl GST ($)",
+    "Expected Charge ($)",
+    "Net Over (-$) | Undercharge ($)",
+    "Discrepancy"
+  ];
+  
+  // Create table rows for the current page data.
   const pageData = getPageData();
   pageData.forEach((row) => {
     const tr = document.createElement("tr");
     columns.forEach(col => {
       const td = document.createElement("td");
       td.textContent = row[col] || "N/A";
-      if (col === "Discrepancy") td.style.textAlign = "left";
+      // Center-align cells in the "Net Over (-$) | Undercharge ($)" column.
+      if (col === "Net Over (-$) | Undercharge ($)") {
+        td.style.textAlign = "center";
+      }
+      // Left-align the Discrepancy column (if needed).
+      if (col === "Discrepancy") {
+        td.style.textAlign = "left";
+      }
       tr.appendChild(td);
     });
     tableBody.appendChild(tr);
-    totalChargeExclGST += parseFloat(row["Charge excl GST ($)"].replace(/[^0-9.-]+/g, "")) || 0;
-    totalExpectedCharge += parseFloat(row["Expected Charge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
-    totalNetOverUndercharge += parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
   });
+  
+  // Compute totals over all filtered rows (not just the current page).
+  let totalWaste = 0;
+  let totalExcess = 0;
+  let totalCharge = 0;
+  let totalExpected = 0;
+  let totalNet = 0;
+  
+  filteredData.forEach(row => {
+    totalWaste += parseFloat(row["Waste Kg"].replace(/,/g, "")) || 0;
+    totalExcess += parseFloat(row["Excess kg"].replace(/,/g, "")) || 0;
+    totalCharge += parseFloat(row["Charge excl GST ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+    totalExpected += parseFloat(row["Expected Charge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+    totalNet += parseFloat(row["Net Over (-$) | Undercharge ($)"].replace(/[^0-9.-]+/g, "")) || 0;
+  });
+  
+  // Build the totals row.
+  // First cell spans columns 1 to 5; then one cell per total value; final cell for Discrepancy is blank.
   totalsRow.innerHTML = `
-    <td colspan="11"><strong>Totals</strong></td>
-    <td>${formatCurrency(totalChargeExclGST)}</td>
-    <td>${formatCurrency(totalExpectedCharge)}</td>
-    <td>${formatCurrency(totalNetOverUndercharge)}</td>
+    <td colspan="5"><strong>Totals</strong></td>
+    <td>${formatDecimal(totalWaste)}</td>
+    <td>${formatDecimal(totalExcess)}</td>
+    <td>${formatCurrency(totalCharge)}</td>
+    <td>${formatCurrency(totalExpected)}</td>
+    <td>${formatCurrency(totalNet)}</td>
     <td></td>
   `;
+  
   updatePagination();
 }
 
