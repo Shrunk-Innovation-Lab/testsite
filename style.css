@@ -582,3 +582,13 @@ button:disabled {
         grid-template-columns: 1fr;
     }
 }
+
+/* Center-align data in the 10th column (Net Over (-$) | Undercharge ($)) in the table body */
+#results tbody td:nth-child(10) {
+  text-align: center;
+}
+
+/* Left-align header for the 11th column (Discrepancy) */
+#results thead th:nth-child(11) {
+  text-align: left;
+}
