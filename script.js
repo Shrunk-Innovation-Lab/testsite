@@ -6,10 +6,8 @@ const BIN_CONFIG = {
 
 // Global variables
 let rawData = [];
-// processedData will hold all rows (processed with extra fields) from the spreadsheet.
-let processedData = [];
-// filteredData holds the subset of processedData that meets the current filters.
-let filteredData = [];
+let processedData = []; // All rows processed from the spreadsheet.
+let filteredData = [];  // Subset of processedData after filtering.
 let searchTerm = '';
 let selectedBinSize = 'all';
 let selectedSiteName = 'all';
@@ -35,21 +33,15 @@ let summaryStats = {
 };
 
 /* Helper Functions */
-
-// Format integer numbers with thousand separators.
 function formatNumber(number) {
   return number.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ",");
 }
-
-// Format currency values with two decimals and thousand separators.
 function formatCurrency(amount) {
   const absAmount = Math.abs(amount);
   const prefix = amount < 0 ? '-$' : '$';
   const formattedAmount = absAmount.toFixed(2).replace(/\B(?=(\d{3})+(?!\d))/g, ",");
   return `${prefix}${formattedAmount}`;
 }
-
-// Format a decimal number with exactly two decimals.
 function formatDecimal(number) {
   return Number(number).toLocaleString(undefined, {
     minimumFractionDigits: 2,
@@ -58,13 +50,13 @@ function formatDecimal(number) {
 }
 
 /* Data Validation */
-
-// Process and validate a single row.
-// Returns an object that includes both raw numeric values and formatted strings.
+// In this function, the expected charge is computed using ONLY the provided Excess kg value.
+// If Waste Kg and Excess kg are identical (and nonzero), an error is flagged and the net difference
+// is set to negative of the Charge excl GST.
 function validateRow(row) {
   const errors = [];
   
-  // Validate customer details.
+  // Validate Customer Details.
   const customerGroup = (row["Customer Group"] || "").trim();
   if (customerGroup !== "Eastern Health") {
     errors.push("Incorrect Customer Group");
@@ -75,8 +67,8 @@ function validateRow(row) {
   }
   const customerNo = (row["Customer No."] || "").trim();
   const validCustomerNos = [
-    "C-001148", "C-002810", "C-001352", "C-001234",
-    "C-011883", "C-001469", "C-002811", "C-001693",
+    "C-001148", "C-002810", "C-001352", "C-001234", 
+    "C-011883", "C-001469", "C-002811", "C-001693", 
     "C-027713", "C-027790"
   ];
   if (!validCustomerNos.includes(customerNo)) {
@@ -107,51 +99,34 @@ function validateRow(row) {
     errors.push("Incorrect contract rate applied");
   }
   
-  // Parse numeric values.
+  // Parse weight values.
   const actualWeight = parseFloat(row["Waste Kg"] || 0);
   const providedExcessKg = parseFloat(row["Excess kg"] || 0);
-  // Calculate total delivered weight.
-  const totalDelivered = actualWeight + providedExcessKg;
   
-  // Flag error if Waste Kg and Excess kg are identical (and nonzero).
+  // Calculate expected total charge using providedExcessKg only.
+  const expectedTotalCharge = config.basePrice + (providedExcessKg * config.excessRate);
+  
+  // Flag if Waste Kg and Excess kg are identical (and nonzero).
+  let netDifference = 0;
   if (actualWeight === providedExcessKg && actualWeight !== 0) {
     errors.push("Waste Kg and Excess kg cannot be identical");
-  }
-  
-  // Check if total delivered weight is less than the included weight.
-  if (totalDelivered < config.includedWeight) {
-    errors.push("Bin Less than Minimum Kg");
-  }
-  // Flag error if Waste Kg is less than the included weight but Excess kg > 0.
-  if (actualWeight < config.includedWeight && providedExcessKg > 0) {
-    errors.push("Excess kg should be zero when Waste Kg is less than included weight");
-  }
-  
-  // Calculate expected excess (using total delivered weight minus included weight).
-  const excessCalculated = Math.max(0, totalDelivered - config.includedWeight);
-  
-  // Maximum weight check.
-  if (binSize === "660L" && excessCalculated > 40) {
-    errors.push("Excessive Additional Kg");
-  } else if (binSize === "240L" && excessCalculated > 20) {
-    errors.push("Excessive Additional Kg");
-  } else if (binSize === "120L" && excessCalculated > 10) {
-    errors.push("Excessive Additional Kg");
-  }
-  
-  // Check that the provided excess kg matches the calculated value.
-  if (Math.abs(excessCalculated - providedExcessKg) > 0.01) {
-    errors.push("Incorrect additional kg rate applied");
-  }
-  
-  const excessRate = config.excessRate;
-  const expectedTotalCharge = config.basePrice + excessCalculated * excessRate;
-  const actualCharge = parseFloat(row["Charge excl GST"] || 0);
-  let netDifference = 0;
-  if (Math.abs(actualCharge - expectedTotalCharge) > 0.01) {
-    netDifference = expectedTotalCharge - actualCharge;
-    const discrepancyType = actualCharge > expectedTotalCharge ? "Overcharge" : "Undercharge";
-    errors.push(`${discrepancyType} - Incorrect total`);
+    // In this error case, include the Charge excl GST as an overcharge.
+    netDifference = -parseFloat(row["Charge excl GST"] || 0);
+  } else {
+    // Check if Waste Kg is less than included weight.
+    if (actualWeight < config.includedWeight) {
+      errors.push("Bin Less than Minimum Kg");
+    }
+    // Flag error if Waste Kg is less than included weight but Excess kg is nonzero.
+    if (actualWeight < config.includedWeight && providedExcessKg > 0) {
+      errors.push("Excess kg should be zero when Waste Kg is less than included weight");
+    }
+    // Normal net difference calculation.
+    if (Math.abs(parseFloat(row["Charge excl GST"] || 0) - expectedTotalCharge) > 0.01) {
+      netDifference = expectedTotalCharge - parseFloat(row["Charge excl GST"] || 0);
+      const discrepancyType = parseFloat(row["Charge excl GST"] || 0) > expectedTotalCharge ? "Overcharge" : "Undercharge";
+      errors.push(`${discrepancyType} - Incorrect total`);
+    }
   }
   
   return {
@@ -163,10 +138,8 @@ function validateRow(row) {
 }
 
 /* Filter Matching Functions */
-
 function matchesWeightFilter(row) {
   const binSize = row["Bin Size"];
-  // Use total delivered weight = rawWasteKg + rawExcessKg.
   const waste = row["rawWasteKg"] || 0;
   const excess = row["rawExcessKg"] || 0;
   const totalDelivered = waste + excess;
@@ -197,7 +170,6 @@ function matchesChargeFilter(row) {
 }
 
 /* Recalculate Summary Statistics from Filtered Data */
-// Note: We use the raw values stored in each processed row.
 function recalcFilteredSummaryStats() {
   let stats = {
     totalRows: filteredData.length,
@@ -274,11 +246,9 @@ function updateSummaryCards() {
   document.getElementById("totalNetCharge").textContent = formatCurrency(netCharge);
 }
 
-/* Process the Spreadsheet and Build Processed Data */
-// Process every row (not only errors) and store raw and formatted values.
+/* Evaluate the Sheet and Build Processed Data */
 function evaluateSheet(sheet) {
   const processedRows = [];
-  
   sheet.forEach((row, index) => {
     const serviceDesc = row["Service Description"] || "";
     const wasteKg = parseFloat(row["Waste Kg"] || 0);
@@ -316,7 +286,6 @@ function updateTable() {
   const totalsRow = document.querySelector("#totalsRow");
   tableBody.innerHTML = "";
   
-  // Fixed column order.
   const columns = [
     "Row",
     "Site Name",
@@ -333,7 +302,6 @@ function updateTable() {
   
   const pageData = getPageData();
   pageData.forEach((row, idx) => {
-    // Update row number based on page.
     row["Row"] = idx + 1 + ((currentPage - 1) * (entriesPerPage === "All" ? pageData.length : entriesPerPage));
     const tr = document.createElement("tr");
     columns.forEach(col => {
@@ -350,7 +318,6 @@ function updateTable() {
     tableBody.appendChild(tr);
   });
   
-  // Compute totals for numeric columns from filteredData.
   let totalChargeExclGST = 0;
   let totalExpectedCharge = 0;
   let totalNet = 0;
@@ -424,12 +391,10 @@ function updateUI() {
   const tableControls = document.getElementById("tableControls");
   const hasBaseData = processedData.length > 0;
   const hasFilteredData = filteredData.length > 0;
-  
   if (tableControls) {
     if (hasBaseData) tableControls.classList.remove("hidden");
     else tableControls.classList.add("hidden");
   }
-  
   if (!hasFilteredData) {
     if (resultsTable) resultsTable.classList.add("hidden");
     if (noResultsMessage) {
@@ -516,7 +481,6 @@ function processFile(file) {
 
 /* Filtering & Recalculation */
 function applyFiltersAndSearch() {
-  // Filter processedData (all rows) rather than only discrepancies.
   filteredData = processedData.filter((row) => {
     if (selectedBinSize !== 'all' && row["Bin Size"] !== selectedBinSize) return false;
     if (selectedSiteName !== 'all' && row["Site Name"] !== selectedSiteName) return false;
@@ -610,6 +574,29 @@ function setupEventListeners() {
         const worksheet = XLSX.utils.json_to_sheet(filteredData);
         const workbook = XLSX.utils.book_new();
         XLSX.utils.book_append_sheet(workbook, worksheet, "Discrepancies");
+        XLSX.writeFile(workbook, exportFilename);
+      } catch (error) {
+        console.error('Export error:', error);
+        alert('There was an error during export. Please try again.');
+      }
+    });
+  }
+  // New: Export Valid Rows Button event listener.
+  const downloadValidButton = document.getElementById("downloadValidResults");
+  if (downloadValidButton) {
+    downloadValidButton.addEventListener("click", () => {
+      const validRows = filteredData.filter(row => !row["Discrepancy"] || row["Discrepancy"].trim() === "");
+      if (validRows.length === 0) {
+        alert("No valid rows to export.");
+        return;
+      }
+      try {
+        const timestamp = new Date().toISOString().split('T')[0];
+        const originalNameWithoutExt = originalFilename.replace(/\.[^/.]+$/, "");
+        const exportFilename = `${originalNameWithoutExt}_Valid_Rows_${timestamp}.xlsx`;
+        const worksheet = XLSX.utils.json_to_sheet(validRows);
+        const workbook = XLSX.utils.book_new();
+        XLSX.utils.book_append_sheet(workbook, worksheet, "Valid Rows");
         XLSX.writeFile(workbook, exportFilename);
       } catch (error) {
         console.error('Export error:', error);
