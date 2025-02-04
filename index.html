@@ -1,221 +1,241 @@
 <!DOCTYPE html>
 <html lang="en">
-<head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Discrepancy Report</title>
-  <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png" />
-  <link rel="shortcut icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png" />
-  <link rel="stylesheet" href="style.css" />
-  <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
-  <script src="script.js" defer></script>
-</head>
-<body>
-  <header>
-    <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo" />
-<h2 style="margin-right: 20px;">Clinical Waste Discrepancy Report</h2>
-  </header>
- 
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>WastEye</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png" />
+    <link rel="shortcut icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png" />
+    <link rel="stylesheet" href="style.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/xlsx/0.18.5/xlsx.full.min.js"></script>
+    <script src="script.js" defer></script>
+    <style>
+      /* Additional inline CSS to add margins/padding */
+      .container {
+        max-width: 1400px;
+        margin: 20px auto;
+        padding: 0 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <header>
+        <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo" />
+        <h2 style="margin-right: 20px;">Clinical Waste Discrepancy Report</h2>
+      </header>
 
-    <!-- File Upload Section -->
-    <div class="upload-section">
-      <div class="upload-container" id="dropZone">
-        <input type="file" id="spreadsheet" accept=".xlsx, .xls" class="file-input" />
-        <div class="upload-content">
-          <svg class="upload-icon" viewBox="0 0 24 24" width="24" height="24">
-            <path fill="currentColor" d="M11 14.9861C11 15.5384 11.4477 15.9861 12 15.9861C12.5523 15.9861 13 15.5384 13 14.9861V7.82831L16.2428 11.0711L17.657 9.65685L12.0001 4L6.34326 9.65685L7.75748 11.0711L11 7.82854V14.9861Z"/>
-            <path fill="currentColor" d="M4 14H6V18H18V14H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V14Z"/>
-          </svg>
-          <p class="upload-text">
-            Drag and drop Excel file here<br />or click to browse
-          </p>
+      <!-- File Upload Section -->
+      <div class="upload-section">
+        <div class="upload-container" id="dropZone">
+          <input type="file" id="spreadsheet" accept=".xlsx, .xls" class="file-input" />
+          <div class="upload-content">
+            <svg class="upload-icon" viewBox="0 0 24 24" width="24" height="24">
+              <path
+                fill="currentColor"
+                d="M11 14.9861C11 15.5384 11.4477 15.9861 12 15.9861C12.5523 15.9861 13 15.5384 13 14.9861V7.82831L16.2428 11.0711L17.657 9.65685L12.0001 4L6.34326 9.65685L7.75748 11.0711L11 7.82854V14.9861Z"
+              />
+              <path
+                fill="currentColor"
+                d="M4 14H6V18H18V14H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V14Z"
+              />
+            </svg>
+            <p class="upload-text">
+              Drag and drop Excel file here<br />or click to browse
+            </p>
+          </div>
         </div>
       </div>
-    </div>
 
-    <!-- Summary Cards Section -->
+      <!-- Summary Cards Section -->
       <div class="summary-cards">
-    <div class="summary-card">
-        <h3></h3>
-        <p id=""></p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Rows Assessed</h3>
-        <p id="totalRowsAssessed">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Rows With Errors</h3>
-        <p id="totalErrors">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total 660L Bins</h3>
-        <p id="total660LBins">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total 240L Bins</h3>
-        <p id="total240LBins">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total 120L Bins</h3>
-        <p id="total120LBins">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Bins</h3>
-        <p id="totalBins">0</p>
-      </div>
         <div class="summary-card">
-        <h3></h3>
-        <p id=""></p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Bins Overweight</h3>
-        <p id="totalBinsOverweight">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Bins Underweight</h3>
-        <p id="totalBinsUnderweight">0</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Waste Kg</h3>
-        <p id="totalWasteKg">0.00</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Excess Kg</h3>
-        <p id="totalExcessKg">0.00</p>
-      </div>
-      <div class="summary-card">
-        <h3>Combined Waste Kg</h3>
-        <p id="totalCombinedWasteKg">0.00</p>
-      </div>
-<div class="summary-card">
-        <h3></h3>
-        <p id=""></p>
-      </div>
-      <div class="summary-card">
-        <h3></h3>
-        <p id=""></p>
-      </div>
-      <div class="summary-card">
-        <h3></h3>
-        <p id=""></p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Invoice Charge</h3>
-        <p id="totalChargeExclGST">$0.00</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Overcharges</h3>
-        <p id="totalOvercharges" class="credit-negative">$0.00</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Undercharges</h3>
-        <p id="totalUndercharges" class="credit-positive">$0.00</p>
-      </div>
-      <div class="summary-card">
-        <h3>Total Charges (Adjusted)</h3>
-        <p id="totalNetCharge">$0.00</p>
-      </div>
-        <div class="summary-card">
-        <h3></h3>
-        <p id=""></p>
-      </div>
-    </div>
-
-    <!-- Table Controls -->
-    <div id="tableControls" class="table-controls hidden">
-      <div class="left-controls">
-        <div class="search-box">
-          <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"/>
-          </svg>
-          <input type="text" id="searchInput" placeholder="Search..." />
+          <h3>Total Rows Assessed</h3>
+          <p id="totalRowsAssessed">0</p>
         </div>
-        <button id="resetFilters" class="button secondary">Reset Filters</button>
+        <div class="summary-card">
+          <h3>Total Rows With Errors</h3>
+          <p id="totalErrors">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total 660L Bins</h3>
+          <p id="total660LBins">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total 240L Bins</h3>
+          <p id="total240LBins">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total 120L Bins</h3>
+          <p id="total120LBins">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Bins</h3>
+          <p id="totalBins">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Bins Overweight</h3>
+          <p id="totalBinsOverweight">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Bins Underweight</h3>
+          <p id="totalBinsUnderweight">0</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Waste Kg</h3>
+          <p id="totalWasteKg">0.00</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Excess Kg</h3>
+          <p id="totalExcessKg">0.00</p>
+        </div>
+        <div class="summary-card">
+          <h3>Combined Waste Kg</h3>
+          <p id="totalCombinedWasteKg">0.00</p>
+        </div>
+<div class="summary-card">
+          <h3></h3>
+          <p id=""></p>
+        </div>
+        <div class="summary-card">
+          <h3></h3>
+          <p id=""></p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Invoice Charge</h3>
+          <p id="totalChargeExclGST">$0.00</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Overcharges</h3>
+          <p id="totalOvercharges" class="credit-negative">$0.00</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Undercharges</h3>
+          <p id="totalUndercharges" class="credit-positive">$0.00</p>
+        </div>
+        <div class="summary-card">
+          <h3>Total Charges (Adjusted)</h3>
+          <p id="totalNetCharge">$0.00</p>
+        </div>
+        <div class="summary-card">
+          <h3></h3>
+          <p id=""></p>
+        </div>
       </div>
 
-      <div class="center-controls">
-        <select id="binSizeFilter" class="select-control">
-          <option value="all">All Sizes</option>
-          <option value="660L">660L</option>
-          <option value="240L">240L</option>
-          <option value="120L">120L</option>
-        </select>
-        <select id="entriesPerPage" class="select-control">
-          <option value="All" selected>All entries</option>
-          <option value="25">25 entries</option>
-          <option value="50">50 entries</option>
-          <option value="100">100 entries</option>
-        </select>
+      <!-- Table Controls -->
+      <div id="tableControls" class="table-controls hidden">
+        <div class="left-controls">
+          <div class="search-box">
+            <svg class="search-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                d="M10 18a7.952 7.952 0 0 0 4.897-1.688l4.396 4.396 1.414-1.414-4.396-4.396A7.952 7.952 0 0 0 18 10c0-4.411-3.589-8-8-8s-8 3.589-8 8 3.589 8 8 8zm0-14c3.309 0 6 2.691 6 6s-2.691 6-6 6-6-2.691-6-6 2.691-6 6-6z"
+              />
+            </svg>
+            <input type="text" id="searchInput" placeholder="Search..." />
+          </div>
+          <button id="resetFilters" class="button secondary">Reset Filters</button>
+        </div>
+
+        <div class="center-controls">
+          <select id="binSizeFilter" class="select-control">
+            <option value="all">All Sizes</option>
+            <option value="660L">660L</option>
+            <option value="240L">240L</option>
+            <option value="120L">120L</option>
+          </select>
+          <!-- New dropdown for Site Name -->
+          <select id="siteNameFilter" class="select-control">
+            <option value="all">All Sites</option>
+            <!-- Options will be populated dynamically -->
+          </select>
+          <select id="entriesPerPage" class="select-control">
+            <option value="All" selected>All entries</option>
+            <option value="25">25 entries</option>
+            <option value="50">50 entries</option>
+            <option value="100">100 entries</option>
+          </select>
+        </div>
+
+        <div class="center-controls">
+          <select id="weightFilter" class="select-control">
+            <option value="all">All Weights</option>
+            <option value="overweight">Overweight Only</option>
+            <option value="underweight">Underweight Only</option>
+            <option value="normal">Normal Weight Only</option>
+          </select>
+          <select id="chargeFilter" class="select-control">
+            <option value="all">All Charges</option>
+            <option value="overcharge">Overcharges Only</option>
+            <option value="undercharge">Undercharges Only</option>
+          </select>
+        </div>
+
+        <div class="right-controls">
+          <button id="downloadResults" class="button primary">
+            <svg class="export-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
+              <path
+                fill="currentColor"
+                d="M11 14.9861C11 15.5384 11.4477 15.9861 12 15.9861C12.5523 15.9861 13 15.5384 13 14.9861V7.82831L16.2428 11.0711L17.657 9.65685L12.0001 4L6.34326 9.65685L7.75748 11.0711L11 7.82854V14.9861Z"
+              />
+              <path
+                fill="currentColor"
+                d="M4 14H6V18H18V14H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V14Z"
+              />
+            </svg>
+            Export to Excel
+          </button>
+        </div>
       </div>
 
-      <div class="center-controls">
-        <select id="weightFilter" class="select-control">
-          <option value="all">All Weights</option>
-          <option value="overweight">Overweight Only</option>
-          <option value="underweight">Underweight Only</option>
-          <option value="normal">Normal Weight Only</option>
-        </select>
-        <select id="chargeFilter" class="select-control">
-          <option value="all">All Charges</option>
-          <option value="overcharge">Overcharges Only</option>
-          <option value="undercharge">Undercharges Only</option>
-        </select>
+      <!-- No Results Message -->
+      <div id="noResultsMessage" class="no-results hidden"></div>
+
+      <!-- Results Table -->
+      <div id="resultsTable" class="table-wrapper hidden">
+        <table id="results">
+          <thead>
+            <tr>
+              <th>Row</th>
+              <th>Site Name</th>
+              <th>Bin Size</th>
+              <th>Service Description</th>
+              <th>Contract Unit Price Charged</th>
+              <th>Waste Kg</th>
+              <th>Excess kg</th>
+              <th>Charge excl GST ($)</th>
+              <th>Expected Charge ($)</th>
+              <th>Net Over (-$) | Undercharge ($)</th>
+              <th>Discrepancy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <!-- Dynamic content inserted via JavaScript -->
+          </tbody>
+          <tfoot>
+            <tr id="totalsRow">
+              <!-- Totals row: first cell spans columns 1–5, then one cell per total -->
+              <td colspan="5"><strong>Totals</strong></td>
+              <td id="totWasteKg"></td>
+              <td id="totExcessKg"></td>
+              <td id="totChargeExclGST"></td>
+              <td id="totExpectedCharge"></td>
+              <td id="totNet"></td>
+              <td></td>
+            </tr>
+          </tfoot>
+        </table>
       </div>
 
-      <div class="right-controls">
-        <button id="downloadResults" class="button primary">
-          <svg class="export-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24">
-            <path fill="currentColor" d="M11 14.9861C11 15.5384 11.4477 15.9861 12 15.9861C12.5523 15.9861 13 15.5384 13 14.9861V7.82831L16.2428 11.0711L17.657 9.65685L12.0001 4L6.34326 9.65685L7.75748 11.0711L11 7.82854V14.9861Z"/>
-            <path fill="currentColor" d="M4 14H6V18H18V14H20V18C20 19.1046 19.1046 20 18 20H6C4.89543 20 4 19.1046 4 18V14Z"/>
-          </svg>
-          Export to Excel
-        </button>
+      <!-- Pagination Section -->
+      <div class="table-footer">
+        <div id="recordCount">Showing all entries</div>
+        <div id="pagination" class="pagination"></div>
       </div>
     </div>
 
-    <!-- No Results Message -->
-    <div id="noResultsMessage" class="no-results hidden"></div>
-
-    <!-- Results Table -->
-    <div id="resultsTable" class="table-wrapper hidden">
-      <table id="results">
-        <thead>
-          <tr>
-            <th>Row</th>
-            <th>Bin Size</th>
-            <th>Service Description</th>
-            <th>Contract Unit Price Charged</th>
-            <th>Waste Kg</th>
-            <th>Excess kg</th>
-            <th>Charge excl GST ($)</th>
-            <th>Expected Charge ($)</th>
-            <th>Net Over (-$) | Undercharge ($)</th>
-            <th>Discrepancy</th>
-          </tr>
-        </thead>
-        <tbody>
-          <!-- Dynamic content inserted via JavaScript -->
-        </tbody>
-        <tfoot>
-          <tr id="totalsRow">
-            <td colspan="6"><strong>Totals</strong></td>
-            <td></td>
-            <td></td>
-            <td></td>
-            <td></td>
-          </tr>
-        </tfoot>
-      </table>
-    </div>
-
-    <!-- Pagination Section -->
-    <div class="table-footer">
-      <div id="recordCount">Showing all entries</div>
-      <div id="pagination" class="pagination"></div>
-    </div>
-  </div>
-  <footer>
-    2025 | Shrunk Innovation Group Pty Ltd | All Rights Reserved
-  </footer>
-</body>
+    <footer>
+      2025 | Shrunk Innovation Group Pty Ltd | All Rights Reserved
+    </footer>
+  </body>
 </html>
