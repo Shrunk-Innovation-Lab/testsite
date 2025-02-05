@@ -26,7 +26,8 @@ let summaryStats = {
   totalBinsUnderweight: 0,
   totalChargeExclGST: 0,
   totalWasteKg: 0,
-  totalExcessKg: 0,
+  totalExcessKgCorrected: 0,  // Corrected value (excludes rows with "Waste Kg and Excess kg cannot be identical")
+  totalExcessKgRaw: 0,        // Raw value from the invoice "Excess kg" column
   totalOvercharges: 0,
   totalUndercharges: 0,
   totalNetCharge: 0
@@ -180,7 +181,8 @@ function recalcFilteredSummaryStats() {
     totalBinsOverweight: 0,
     totalBinsUnderweight: 0,
     totalWasteKg: 0,
-    totalExcessKg: 0,
+    totalExcessKgCorrected: 0, // Corrected value: excludes rows with "Waste Kg and Excess kg cannot be identical"
+    totalExcessKgRaw: 0,       // Raw value from the invoice's "Excess kg" column
     totalChargeExclGST: 0,
     totalOvercharges: 0,
     totalUndercharges: 0,
@@ -198,19 +200,20 @@ function recalcFilteredSummaryStats() {
     else if (row["Bin Size"] === "120L") stats.total120LBins++;
     
     let waste = row["rawWasteKg"] || 0;
-    // For Total Excess Kg, use the value directly from the "Excess kg" column.
-    let excess = row["rawExcessKg"] || 0;
-    // If the row has the error "Waste Kg and Excess kg cannot be identical" (case-insensitive),
-    // remove its excess value.
+    // Raw excess as given on the invoice.
+    let rawExcess = row["rawExcessKg"] || 0;
+    // Corrected excess: if the discrepancy error is present (case-insensitive), then use 0.
+    let correctedExcess = rawExcess;
     if (row["Discrepancy"] && row["Discrepancy"].toLowerCase().includes("waste kg and excess kg cannot be identical")) {
-      excess = 0;
+      correctedExcess = 0;
     }
     let charge = row["rawCharge"] || 0;
     stats.totalWasteKg += waste;
-    stats.totalExcessKg += excess;
+    stats.totalExcessKgRaw += rawExcess;
+    stats.totalExcessKgCorrected += correctedExcess;
     stats.totalChargeExclGST += charge;
     
-    const totalDelivered = waste + excess;
+    const totalDelivered = waste + rawExcess; // Use raw value for bin calculation.
     if (row["Bin Size"] === "660L") {
       if (totalDelivered < 49) stats.totalBinsUnderweight++;
       else if (totalDelivered > 89) stats.totalBinsOverweight++;
@@ -246,7 +249,10 @@ function updateSummaryCards() {
   document.getElementById("totalBinsUnderweight").textContent = formatNumber(summaryStats.totalBinsUnderweight);
   
   document.getElementById("totalWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg);
-  document.getElementById("totalExcessKg").textContent = formatDecimal(summaryStats.totalExcessKg);
+  // Rename the current total to "Total Excess Kg Corrected"
+  document.getElementById("totalExcessKgCorrected").textContent = formatDecimal(summaryStats.totalExcessKgCorrected);
+  // New summary card for raw excess value: "Total Excess Kg"
+  document.getElementById("totalExcessKg").textContent = formatDecimal(summaryStats.totalExcessKgRaw);
   
   document.getElementById("totalChargeExclGST").textContent = formatCurrency(summaryStats.totalChargeExclGST);
   document.getElementById("totalOvercharges").textContent = formatCurrency(-summaryStats.totalOvercharges);
@@ -348,7 +354,7 @@ function updateTable() {
   totalsRow.innerHTML = `
     <td colspan="5"><strong>Totals</strong></td>
     <td>${formatDecimal(summaryStats.totalWasteKg)}</td>
-    <td>${formatDecimal(summaryStats.totalExcessKg)}</td>
+    <td>${formatDecimal(summaryStats.totalExcessKgCorrected)}</td>
     <td>${formatCurrency(totalChargeExclGST)}</td>
     <td>${formatCurrency(totalExpectedCharge)}</td>
     <td>${formatCurrency(totalNet)}</td>
@@ -640,5 +646,6 @@ document.addEventListener('DOMContentLoaded', () => {
     entriesEl.value = "All";
   }
 });
+
 
 
