@@ -50,9 +50,9 @@ function formatDecimal(number) {
 }
 
 /* Data Validation */
-// In this function, the expected charge is computed using ONLY the provided Excess kg value.
+// Expected charge is computed using ONLY the provided Excess kg value.
 // If Waste Kg and Excess kg are identical (and nonzero), an error is flagged and the net difference
-// is set to negative of the Charge excl GST.
+// is computed as (Charge excl GST - base price) multiplied by -1.
 function validateRow(row) {
   const errors = [];
   
@@ -110,8 +110,8 @@ function validateRow(row) {
   let netDifference = 0;
   if (actualWeight === providedExcessKg && actualWeight !== 0) {
     errors.push("Waste Kg and Excess kg cannot be identical");
-    // In this error case, include the Charge excl GST as an overcharge.
-    netDifference = -parseFloat(row["Charge excl GST"] || 0);
+    // Calculate netDifference as: (Charge excl GST - base price) then make negative.
+    netDifference = -(parseFloat(row["Charge excl GST"] || 0) - config.basePrice);
   } else {
     // Check if Waste Kg is less than included weight.
     if (actualWeight < config.includedWeight) {
@@ -184,7 +184,7 @@ function recalcFilteredSummaryStats() {
     totalChargeExclGST: 0,
     totalOvercharges: 0,
     totalUndercharges: 0,
-    totalCorrect: 0  // New property: count of correct rows
+    totalCorrect: 0  // Count of correct rows
   };
   
   filteredData.forEach(row => {
@@ -198,7 +198,13 @@ function recalcFilteredSummaryStats() {
     else if (row["Bin Size"] === "120L") stats.total120LBins++;
     
     let waste = row["rawWasteKg"] || 0;
+    // For Total Excess Kg, use the value directly from the "Excess kg" column.
     let excess = row["rawExcessKg"] || 0;
+    // If the row has the error "Waste Kg and Excess kg cannot be identical" (case-insensitive),
+    // remove its excess value.
+    if (row["Discrepancy"] && row["Discrepancy"].toLowerCase().includes("waste kg and excess kg cannot be identical")) {
+      excess = 0;
+    }
     let charge = row["rawCharge"] || 0;
     stats.totalWasteKg += waste;
     stats.totalExcessKg += excess;
@@ -241,7 +247,6 @@ function updateSummaryCards() {
   
   document.getElementById("totalWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg);
   document.getElementById("totalExcessKg").textContent = formatDecimal(summaryStats.totalExcessKg);
-  document.getElementById("totalCombinedWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg + summaryStats.totalExcessKg);
   
   document.getElementById("totalChargeExclGST").textContent = formatCurrency(summaryStats.totalChargeExclGST);
   document.getElementById("totalOvercharges").textContent = formatCurrency(-summaryStats.totalOvercharges);
@@ -635,4 +640,5 @@ document.addEventListener('DOMContentLoaded', () => {
     entriesEl.value = "All";
   }
 });
+
 
