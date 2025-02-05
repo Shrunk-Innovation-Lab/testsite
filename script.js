@@ -26,8 +26,8 @@ let summaryStats = {
   totalBinsUnderweight: 0,
   totalChargeExclGST: 0,
   totalWasteKg: 0,
-  totalExcessKgCorrected: 0,  // Corrected value (excludes rows with "Waste Kg and Excess kg cannot be identical")
-  totalExcessKgRaw: 0,        // Raw value from the invoice "Excess kg" column
+  totalExcessKgCorrected: 0, // Corrected value (excludes rows with "Waste Kg and Excess kg cannot be identical")
+  totalExcessKgRaw: 0,       // Raw value from the invoice's "Excess kg" column
   totalOvercharges: 0,
   totalUndercharges: 0,
   totalNetCharge: 0
@@ -52,8 +52,8 @@ function formatDecimal(number) {
 
 /* Data Validation */
 // Expected charge is computed using ONLY the provided Excess kg value.
-// If Waste Kg and Excess kg are identical (and nonzero), an error is flagged and the net difference
-// is computed as (Charge excl GST - base price) multiplied by -1.
+// If Waste Kg and Excess kg are identical (and nonzero), an error is flagged,
+// and the expected total charge is overridden to the bin’s base price.
 function validateRow(row) {
   const errors = [];
   
@@ -105,13 +105,13 @@ function validateRow(row) {
   const providedExcessKg = parseFloat(row["Excess kg"] || 0);
   
   // Calculate expected total charge using providedExcessKg only.
-  const expectedTotalCharge = config.basePrice + (providedExcessKg * config.excessRate);
+  let expectedTotalCharge = config.basePrice + (providedExcessKg * config.excessRate);
   
-  // Flag if Waste Kg and Excess kg are identical (and nonzero).
+  // If Waste Kg equals Excess kg (and nonzero), flag error and override expectedTotalCharge.
   let netDifference = 0;
   if (actualWeight === providedExcessKg && actualWeight !== 0) {
     errors.push("Waste Kg and Excess kg cannot be identical");
-    // Calculate netDifference as: (Charge excl GST - base price) then make negative.
+    expectedTotalCharge = config.basePrice; // Override to base price.
     netDifference = -(parseFloat(row["Charge excl GST"] || 0) - config.basePrice);
   } else {
     // Check if Waste Kg is less than included weight.
@@ -181,8 +181,8 @@ function recalcFilteredSummaryStats() {
     totalBinsOverweight: 0,
     totalBinsUnderweight: 0,
     totalWasteKg: 0,
-    totalExcessKgCorrected: 0, // Corrected value: excludes rows with "Waste Kg and Excess kg cannot be identical"
-    totalExcessKgRaw: 0,       // Raw value from the invoice's "Excess kg" column
+    totalExcessKgCorrected: 0, // Corrected value: excludes rows with error.
+    totalExcessKgRaw: 0,       // Raw value from the invoice.
     totalChargeExclGST: 0,
     totalOvercharges: 0,
     totalUndercharges: 0,
@@ -200,9 +200,9 @@ function recalcFilteredSummaryStats() {
     else if (row["Bin Size"] === "120L") stats.total120LBins++;
     
     let waste = row["rawWasteKg"] || 0;
-    // Raw excess as given on the invoice.
+    // Raw excess always from the invoice.
     let rawExcess = row["rawExcessKg"] || 0;
-    // Corrected excess: if the discrepancy error is present (case-insensitive), then use 0.
+    // Corrected excess: if the row's discrepancy (case-insensitive) contains the error, then use 0.
     let correctedExcess = rawExcess;
     if (row["Discrepancy"] && row["Discrepancy"].toLowerCase().includes("waste kg and excess kg cannot be identical")) {
       correctedExcess = 0;
@@ -213,7 +213,7 @@ function recalcFilteredSummaryStats() {
     stats.totalExcessKgCorrected += correctedExcess;
     stats.totalChargeExclGST += charge;
     
-    const totalDelivered = waste + rawExcess; // Use raw value for bin calculation.
+    const totalDelivered = waste + rawExcess; // For bin calculations, use raw values.
     if (row["Bin Size"] === "660L") {
       if (totalDelivered < 49) stats.totalBinsUnderweight++;
       else if (totalDelivered > 89) stats.totalBinsOverweight++;
@@ -251,7 +251,7 @@ function updateSummaryCards() {
   document.getElementById("totalWasteKg").textContent = formatDecimal(summaryStats.totalWasteKg);
   // Rename the current total to "Total Excess Kg Corrected"
   document.getElementById("totalExcessKgCorrected").textContent = formatDecimal(summaryStats.totalExcessKgCorrected);
-  // New summary card for raw excess value: "Total Excess Kg"
+  // New summary card for the raw excess value from the invoice: "Total Excess Kg"
   document.getElementById("totalExcessKg").textContent = formatDecimal(summaryStats.totalExcessKgRaw);
   
   document.getElementById("totalChargeExclGST").textContent = formatCurrency(summaryStats.totalChargeExclGST);
