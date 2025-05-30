@@ -64,10 +64,14 @@
         .cursor-default { cursor: default; }
         .cursor-crosshair { cursor: crosshair; }
          /* Custom style for SVG icons in buttons if needed */
-        .tool-button svg {
-            width: 1em; /* Adjust as needed */
-            height: 1em; /* Adjust as needed */
-            fill: currentColor; /* Inherit color from button text */
+        .tool-button svg, .toolbar-action-button svg { /* Added .toolbar-action-button for consistency */
+            width: 1em; 
+            height: 1em; 
+            fill: currentColor; 
+        }
+        .disabled-button {
+            opacity: 0.5;
+            cursor: not-allowed !important;
         }
     </style>
 </head>
@@ -154,19 +158,21 @@
                     
                     <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
 
-                    <button id="tool-undo" title="Undo" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-undo"></i></button>
-                    <button id="tool-redo" title="Redo" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-redo"></i></button>
+                    <button id="tool-undo" title="Undo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-undo"></i></button>
+                    <button id="tool-redo" title="Redo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-redo"></i></button>
                     
                     <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
-                    <button id="tool-clear" title="Clear Markups" class="text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-3 py-1.5 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 flex-shrink-0 flex items-center">
-                        <i class="fas fa-trash"></i><span class="hidden md:inline ml-1.5">Clear</span>
+                    <button id="tool-delete-selected" title="Delete Selected" class="toolbar-action-button text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-red-400 dark:border-red-500 dark:hover:bg-gray-600 dark:focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
+                        <i class="fas fa-eraser"></i> </button>
+                    <button id="tool-clear" title="Clear All Markups" class="toolbar-action-button text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-3 py-1.5 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 flex-shrink-0 flex items-center">
+                        <i class="fas fa-trash"></i><span class="hidden md:inline ml-1.5">Clear All</span>
                     </button>
                     
                     <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
                     
-                    <button id="zoom-in" title="Zoom In" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-search-plus"></i></button>
-                    <button id="zoom-out" title="Zoom Out" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-search-minus"></i></button>
-                    <button id="zoom-reset" title="Reset Zoom/Fit" class="text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-expand-arrows-alt"></i></button>
+                    <button id="zoom-in" title="Zoom In" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoom-out" title="Zoom Out" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-search-minus"></i></button>
+                    <button id="zoom-reset" title="Reset Zoom/Fit" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-expand-arrows-alt"></i></button>
                 </div>
                 <div id="canvas-container" class="flex-1 p-4 flex justify-center items-center overflow-auto relative bg-gray-200 dark:bg-slate-700">
                     <canvas id="drawingCanvas" class="border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800">Your browser does not support the canvas element.</canvas>
@@ -230,6 +236,7 @@
         const loadTriggerButton = document.getElementById('tool-load-trigger');
         const saveButton = document.getElementById('tool-save');
         const clearButton = document.getElementById('tool-clear');
+        const deleteSelectedButton = document.getElementById('tool-delete-selected'); // New button
         const zoomInButton = document.getElementById('zoom-in');
         const zoomOutButton = document.getElementById('zoom-out');
         const zoomResetButton = document.getElementById('zoom-reset');
@@ -254,7 +261,7 @@
 
 
         // Application State
-        let activeTool = 'select'; // Default to select tool
+        let activeTool = 'select'; 
         let currentColor = colorPicker.value;
         let currentLineWidth = parseInt(lineWidthPicker.value);
         const HIGHLIGHTER_WIDTH_MULTIPLIER = 4; 
@@ -288,7 +295,7 @@
             setActiveTool(activeTool); 
             resizeCanvas(); 
             addMarkupToHistory(); 
-            updateUndoRedoButtons();
+            updateToolbarStates(); // Changed from updateUndoRedoButtons
             showSystemMessage("Welcome!", "Select a substation or load an image to begin. Use the pointer tool to move/resize shapes.");
             window.addEventListener('resize', resizeCanvasAndRedraw);
         }
@@ -423,8 +430,7 @@
                 const colorPaletteButton = e.target.closest('.color-palette-button');
                 if (colorPaletteButton && colorPaletteButton.dataset.color) {
                     currentColor = colorPaletteButton.dataset.color;
-                    colorPicker.value = currentColor; // Sync main color picker
-                    // Visually mark active color palette button
+                    colorPicker.value = currentColor; 
                     document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
                     colorPaletteButton.classList.add('active');
                 }
@@ -432,7 +438,6 @@
 
             colorPicker.addEventListener('input', (e) => {
                 currentColor = e.target.value;
-                // Deselect any active palette button if custom color is chosen
                 document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
             });
             lineWidthPicker.addEventListener('change', (e) => currentLineWidth = parseInt(e.target.value));
@@ -441,6 +446,7 @@
             imageLoader.addEventListener('change', handleImageUpload);
             saveButton.addEventListener('click', saveMarkup);
             clearButton.addEventListener('click', clearAllMarkups);
+            deleteSelectedButton.addEventListener('click', deleteSelectedMarkup); // Listener for new button
             undoButton.addEventListener('click', undo);
             redoButton.addEventListener('click', redo);
 
@@ -471,7 +477,7 @@
             }
             markupHistory.push(JSON.parse(JSON.stringify(markups))); 
             historyIndex = markupHistory.length - 1;
-            updateUndoRedoButtons();
+            updateToolbarStates();
         }
         function undo() {
             if (historyIndex > 0) {
@@ -479,7 +485,7 @@
                 markups = JSON.parse(JSON.stringify(markupHistory[historyIndex]));
                 selectedMarkupIndex = -1; 
                 redrawCanvas();
-                updateUndoRedoButtons();
+                updateToolbarStates();
             }
         }
         function redo() {
@@ -488,12 +494,19 @@
                 markups = JSON.parse(JSON.stringify(markupHistory[historyIndex]));
                 selectedMarkupIndex = -1; 
                 redrawCanvas();
-                updateUndoRedoButtons();
+                updateToolbarStates();
             }
         }
-        function updateUndoRedoButtons() {
+        function updateToolbarStates() { // Renamed and updated
             undoButton.disabled = historyIndex <= 0;
             redoButton.disabled = historyIndex >= markupHistory.length - 1;
+            deleteSelectedButton.disabled = !(selectedMarkupIndex !== -1 && activeTool === 'select');
+
+            if (deleteSelectedButton.disabled) {
+                deleteSelectedButton.classList.add('disabled-button');
+            } else {
+                deleteSelectedButton.classList.remove('disabled-button');
+            }
         }
 
         function setActiveTool(tool) {
@@ -512,6 +525,7 @@
                 selectedMarkupIndex = -1; 
                 redrawCanvas();
             }
+            updateToolbarStates(); // Update delete button state when tool changes
         }
         
         function showGenericInputDialog(title, defaultValue, callback) {
@@ -587,7 +601,7 @@
 
                 if (activeTool === 'stamp') {
                     isDrawing = false; 
-                    showGenericInputDialog("Enter Stamp Text", "DRAFT", (stampText) => { // Default to DRAFT
+                    showGenericInputDialog("Enter Stamp Text", "DRAFT", (stampText) => { 
                         if (stampText) { 
                             markups.push({ type: 'stamp', text: stampText, color: currentColor, x: startX, y: startY, fontSize: calculateFontSize(currentLineWidth) });
                             addMarkupToHistory(); redrawCanvas();
@@ -611,6 +625,7 @@
                 }
             }
             redrawCanvas();
+            updateToolbarStates(); // Update button states after mousedown
         }
 
         function handleMouseMove(e) {
@@ -723,6 +738,7 @@
             isResizing = false;
             resizeHandle = null;
             redrawCanvas();
+            updateToolbarStates(); // Update button states after action
         }
         function handleMouseOut(e){
             if (isDrawing || isDragging || isResizing) {
@@ -825,7 +841,7 @@
                 ctx.fillStyle = document.documentElement.classList.contains('dark') ? "#111827" : "#f9fafb"; 
                 ctx.fillRect(0,0, initialCanvasWidth, initialCanvasHeight);
                 ctx.fillStyle = "#9ca3af"; ctx.font = "20px Arial"; ctx.textAlign = "center";
-                ctx.fillText("No drawing loaded. Select a file or load your own.", initialCanvasWidth / 2, initialCanvasHeight / 2); // Updated text
+                ctx.fillText("No drawing loaded. Select a file or load your own.", initialCanvasWidth / 2, initialCanvasHeight / 2);
             }
 
             markups.forEach((markup, index) => {
@@ -984,9 +1000,24 @@
             if (markups.length > 0 || selectedMarkupIndex !== -1) {
                 markups = []; selectedMarkupIndex = -1;
                 addMarkupToHistory(); redrawCanvas();
-                showSystemMessage("Cleared", "Markups have been cleared.");
+                showSystemMessage("Cleared", "All markups have been cleared."); // Clarified message
             } else showSystemMessage("Info", "No markups to clear.");
+            updateToolbarStates(); // Ensure delete selected button is disabled
         }
+
+        function deleteSelectedMarkup() {
+            if (selectedMarkupIndex !== -1 && activeTool === 'select') {
+                markups.splice(selectedMarkupIndex, 1);
+                selectedMarkupIndex = -1;
+                addMarkupToHistory();
+                redrawCanvas();
+                updateToolbarStates();
+                showSystemMessage("Deleted", "Selected markup has been deleted.");
+            } else {
+                showSystemMessage("Info", "No markup selected to delete, or select tool not active.", true);
+            }
+        }
+
 
         function applyZoom(factor, clientX, clientY) {
             const newZoomLevel = zoomLevel * factor;
