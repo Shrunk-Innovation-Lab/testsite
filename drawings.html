@@ -213,7 +213,12 @@
         </div>
     </div>
 
-    <script>
+    <script type="module">
+        import * as pdfjsLib from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
+        // Set workerSrc directly and ensure the path is correct.
+        pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
+
+
         // Mock Data (Simulating file system)
         const APP_DATA = {
             substations: [ 
@@ -269,6 +274,7 @@
         let isDrawing = false; 
         let startX, startY, currentX, currentY;
         let backgroundImage = null;
+        let currentDrawingPath = ''; // Initialized to empty string
         
         let markups = []; 
         let markupHistory = []; 
@@ -923,25 +929,51 @@
                 showSystemMessage("Loaded", `Drawing "${fileName || 'image'}" loaded successfully.`);
             };
             backgroundImage.onerror = () => {
-                backgroundImage = null; currentDrawingPath = null;
+                backgroundImage = null; currentDrawingPath = ''; // Set to empty string on error
                 markups = []; markupHistory = []; historyIndex = -1; selectedMarkupIndex = -1;
                 addMarkupToHistory(); resizeCanvas(); resetZoomAndPan(); redrawCanvas(); 
                 showSystemMessage("Error", `Failed to load drawing: ${fileName || filePath}.`, true);
             };
             backgroundImage.src = filePath;
         }
-        function handleImageUpload(event) {
+        async function handleImageUpload(event) { 
             const file = event.target.files[0];
-            if (file) {
-                if (file.type === "application/pdf") {
-                    const pdfPlaceholderUrl = `https://placehold.co/800x600/E2E8F0/4A5568?text=PDF+Preview+Not+Available`;
-                    loadDrawing(pdfPlaceholderUrl, file.name + " (Preview Not Available)");
-                    showSystemMessage("PDF Selected", "Direct PDF rendering is not yet supported. A placeholder is shown.", false);
-                    event.target.value = null; // Reset file input
-                    return;
-                }
+            if (!file) return;
+
+            if (file.type === "application/pdf") {
+                showSystemMessage("Processing PDF...", `Loading ${file.name}. Please wait.`);
                 const reader = new FileReader();
-                reader.onload = (e) => loadDrawing(e.target.result, file.name); 
+                reader.onload = async (e_reader) => {
+                    try {
+                        const pdfData = new Uint8Array(e_reader.target.result);
+                        const pdfDoc = await pdfjsLib.getDocument({data: pdfData}).promise;
+                        const page = await pdfDoc.getPage(1); 
+                        
+                        const desiredWidth = 1200; 
+                        const viewport = page.getViewport({ scale: 1 });
+                        const scale = desiredWidth / viewport.width;
+                        const scaledViewport = page.getViewport({ scale: scale });
+
+                        const offscreenCanvas = document.createElement('canvas');
+                        offscreenCanvas.width = scaledViewport.width;
+                        offscreenCanvas.height = scaledViewport.height;
+                        const offscreenCtx = offscreenCanvas.getContext('2d');
+
+                        await page.render({ canvasContext: offscreenCtx, viewport: scaledViewport }).promise;
+                        
+                        loadDrawing(offscreenCanvas.toDataURL(), file.name + " (Page 1)");
+                        
+                    } catch (error) {
+                        console.error("Error processing PDF:", error);
+                        showSystemMessage("Error", "Could not process PDF: " + error.message, true);
+                        const pdfPlaceholderUrl = `https://placehold.co/800x600/E2E8F0/4A5568?text=PDF+Load+Error`;
+                        loadDrawing(pdfPlaceholderUrl, file.name + " (Load Error)");
+                    }
+                };
+                reader.readAsArrayBuffer(file);
+            } else { 
+                const reader = new FileReader();
+                reader.onload = (e_reader) => loadDrawing(e_reader.target.result, file.name); 
                 reader.readAsDataURL(file);
             }
             event.target.value = null; 
@@ -971,7 +1003,7 @@
                     for (let i = 1; i < markup.points.length; i++) tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
                     tempCtx.stroke();
                 } else if (markup.type === 'highlighter') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor; // lineWidth is already multiplied
+                    tempCtx.lineWidth = markup.lineWidth * scaleFactor; 
                     tempCtx.lineCap = 'square'; 
                     tempCtx.globalAlpha = 0.3; 
                     tempCtx.beginPath();
