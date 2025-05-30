@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Drawing Markup Station - Electranet</title>
+    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/g8yWq0Ys.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <style>
@@ -64,7 +65,7 @@
         .cursor-default { cursor: default; }
         .cursor-crosshair { cursor: crosshair; }
          /* Custom style for SVG icons in buttons if needed */
-        .tool-button svg, .toolbar-action-button svg { /* Added .toolbar-action-button for consistency */
+        .tool-button svg, .toolbar-action-button svg { 
             width: 1em; 
             height: 1em; 
             fill: currentColor; 
@@ -120,7 +121,7 @@
                     <button id="tool-load-trigger" title="Load Image" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-1.5 dark:focus:ring-blue-800 flex-shrink-0 flex items-center">
                         <i class="fas fa-folder-open"></i><span class="hidden md:inline ml-1.5">Load</span>
                     </button>
-                    <input type="file" id="imageLoader" class="hidden" accept="image/*">
+                    <input type="file" id="imageLoader" class="hidden" accept="image/*,application/pdf"> 
                     <button id="tool-save" title="Save Markup" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-1.5 dark:focus:ring-blue-800 flex-shrink-0 flex items-center">
                         <i class="fas fa-save"></i><span class="hidden md:inline ml-1.5">Save</span>
                     </button>
@@ -236,7 +237,7 @@
         const loadTriggerButton = document.getElementById('tool-load-trigger');
         const saveButton = document.getElementById('tool-save');
         const clearButton = document.getElementById('tool-clear');
-        const deleteSelectedButton = document.getElementById('tool-delete-selected'); // New button
+        const deleteSelectedButton = document.getElementById('tool-delete-selected'); 
         const zoomInButton = document.getElementById('zoom-in');
         const zoomOutButton = document.getElementById('zoom-out');
         const zoomResetButton = document.getElementById('zoom-reset');
@@ -295,7 +296,7 @@
             setActiveTool(activeTool); 
             resizeCanvas(); 
             addMarkupToHistory(); 
-            updateToolbarStates(); // Changed from updateUndoRedoButtons
+            updateToolbarStates(); 
             showSystemMessage("Welcome!", "Select a substation or load an image to begin. Use the pointer tool to move/resize shapes.");
             window.addEventListener('resize', resizeCanvasAndRedraw);
         }
@@ -446,7 +447,7 @@
             imageLoader.addEventListener('change', handleImageUpload);
             saveButton.addEventListener('click', saveMarkup);
             clearButton.addEventListener('click', clearAllMarkups);
-            deleteSelectedButton.addEventListener('click', deleteSelectedMarkup); // Listener for new button
+            deleteSelectedButton.addEventListener('click', deleteSelectedMarkup); 
             undoButton.addEventListener('click', undo);
             redoButton.addEventListener('click', redo);
 
@@ -497,7 +498,7 @@
                 updateToolbarStates();
             }
         }
-        function updateToolbarStates() { // Renamed and updated
+        function updateToolbarStates() { 
             undoButton.disabled = historyIndex <= 0;
             redoButton.disabled = historyIndex >= markupHistory.length - 1;
             deleteSelectedButton.disabled = !(selectedMarkupIndex !== -1 && activeTool === 'select');
@@ -525,7 +526,7 @@
                 selectedMarkupIndex = -1; 
                 redrawCanvas();
             }
-            updateToolbarStates(); // Update delete button state when tool changes
+            updateToolbarStates(); 
         }
         
         function showGenericInputDialog(title, defaultValue, callback) {
@@ -625,7 +626,7 @@
                 }
             }
             redrawCanvas();
-            updateToolbarStates(); // Update button states after mousedown
+            updateToolbarStates(); 
         }
 
         function handleMouseMove(e) {
@@ -738,7 +739,7 @@
             isResizing = false;
             resizeHandle = null;
             redrawCanvas();
-            updateToolbarStates(); // Update button states after action
+            updateToolbarStates(); 
         }
         function handleMouseOut(e){
             if (isDrawing || isDragging || isResizing) {
@@ -932,6 +933,13 @@
         function handleImageUpload(event) {
             const file = event.target.files[0];
             if (file) {
+                if (file.type === "application/pdf") {
+                    const pdfPlaceholderUrl = `https://placehold.co/800x600/E2E8F0/4A5568?text=PDF+Preview+Not+Available`;
+                    loadDrawing(pdfPlaceholderUrl, file.name + " (Preview Not Available)");
+                    showSystemMessage("PDF Selected", "Direct PDF rendering is not yet supported. A placeholder is shown.", false);
+                    event.target.value = null; // Reset file input
+                    return;
+                }
                 const reader = new FileReader();
                 reader.onload = (e) => loadDrawing(e.target.result, file.name); 
                 reader.readAsDataURL(file);
@@ -1000,9 +1008,9 @@
             if (markups.length > 0 || selectedMarkupIndex !== -1) {
                 markups = []; selectedMarkupIndex = -1;
                 addMarkupToHistory(); redrawCanvas();
-                showSystemMessage("Cleared", "All markups have been cleared."); // Clarified message
+                showSystemMessage("Cleared", "All markups have been cleared."); 
             } else showSystemMessage("Info", "No markups to clear.");
-            updateToolbarStates(); // Ensure delete selected button is disabled
+            updateToolbarStates(); 
         }
 
         function deleteSelectedMarkup() {
