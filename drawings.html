@@ -28,6 +28,10 @@
             color: white;
             border-color: #203136; /* New Electranet Dark Blue/Gray */
         }
+        .color-palette-button.active {
+            border-color: #203136; /* Electranet Dark Blue/Gray for active border */
+            box-shadow: 0 0 0 2px #203136; /* Ring effect for active color */
+        }
         #drawingCanvas {
             /* Default cursor is set dynamically by the active tool */
         }
@@ -122,8 +126,14 @@
                     <button id="tool-text" title="Text" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="text"><i class="fas fa-font"></i></button>
 
                     <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
-
-                    <input type="color" id="tool-color" title="Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 dark:border-gray-600 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0">
+                    
+                    <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #FF0000;" data-color="#FF0000" title="Red"></button>
+                    <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #000000;" data-color="#000000" title="Black"></button>
+                    <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #FFFF00;" data-color="#FFFF00" title="Yellow"></button>
+                    <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #0000FF;" data-color="#0000FF" title="Blue"></button>
+                    <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #008000;" data-color="#008000" title="Green"></button>
+                    
+                    <input type="color" id="tool-color" title="Custom Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 dark:border-gray-600 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1">
                     <select id="tool-linewidth" title="Line Width/Font Size Base" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 h-8 p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-shrink-0">
                         <option value="1">1px (S)</option>
                         <option value="2">2px (S)</option>
@@ -239,8 +249,8 @@
         let activeTool = 'select'; // Default to select tool
         let currentColor = colorPicker.value;
         let currentLineWidth = parseInt(lineWidthPicker.value);
-        const HIGHLIGHTER_WIDTH_MULTIPLIER = 4; // Highlighter width = currentLineWidth * this
-        let isDrawing = false; // For new shapes
+        const HIGHLIGHTER_WIDTH_MULTIPLIER = 4; 
+        let isDrawing = false; 
         let startX, startY, currentX, currentY;
         let backgroundImage = null;
         
@@ -255,13 +265,12 @@
         let initialCanvasWidth = 800; 
         let initialCanvasHeight = 600;
 
-        // State for moving/resizing
         let selectedMarkupIndex = -1;
-        let isDragging = false; // For moving selected shape
-        let isResizing = false; // For resizing selected shape
-        let resizeHandle = null; // e.g., 'tl', 'tr', 'bl', 'br', 't', 'b', 'l', 'r', 'p1', 'p2'
-        let HANDLE_SIZE = 8; // Base handle size, will be scaled by zoomLevel for drawing
-        let dragOffsetX, dragOffsetY; // Offset for dragging shape
+        let isDragging = false; 
+        let isResizing = false; 
+        let resizeHandle = null; 
+        let HANDLE_SIZE = 8; 
+        let dragOffsetX, dragOffsetY; 
 
 
         // --- Initialization ---
@@ -403,9 +412,21 @@
                 if (button && button.dataset.tool) {
                     setActiveTool(button.dataset.tool);
                 }
+                const colorPaletteButton = e.target.closest('.color-palette-button');
+                if (colorPaletteButton && colorPaletteButton.dataset.color) {
+                    currentColor = colorPaletteButton.dataset.color;
+                    colorPicker.value = currentColor; // Sync main color picker
+                    // Visually mark active color palette button
+                    document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
+                    colorPaletteButton.classList.add('active');
+                }
             });
 
-            colorPicker.addEventListener('input', (e) => currentColor = e.target.value);
+            colorPicker.addEventListener('input', (e) => {
+                currentColor = e.target.value;
+                // Deselect any active palette button if custom color is chosen
+                document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
+            });
             lineWidthPicker.addEventListener('change', (e) => currentLineWidth = parseInt(e.target.value));
 
             loadTriggerButton.addEventListener('click', () => imageLoader.click());
@@ -473,7 +494,6 @@
             const activeBtn = document.getElementById(`tool-${tool}`);
             if (activeBtn) activeBtn.classList.add('active');
             
-            // Set canvas cursor based on the active tool
             if (tool === 'select') {
                 canvas.className = 'cursor-default border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
             } else if (['pen', 'highlighter', 'line', 'rect', 'circle', 'stamp', 'text'].includes(tool)) {
@@ -637,7 +657,7 @@
                     markup.cx = newPosX;
                     markup.cy = newPosY;
                 } else if (markup.type === 'line') {
-                    const dxOriginal = markup.x2 - markup.x1; // Original length/orientation
+                    const dxOriginal = markup.x2 - markup.x1; 
                     const dyOriginal = markup.y2 - markup.y1;
                     markup.x1 = newPosX; 
                     markup.y1 = newPosY;
@@ -684,7 +704,7 @@
                 else if (activeTool === 'circle') { const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)); if (radius > 1) { markups.push({ type: 'circle', color: currentColor, lineWidth: currentLineWidth, cx: startX, cy: startY, radius: radius }); actionTaken = true; } }
                 else if (activeTool === 'pen' || activeTool === 'highlighter') { 
                     if (markups.length > 0 && markups[markups.length -1].points.length > 1) actionTaken = true; 
-                    else if (markups.length > 0 && markups[markups.length -1].points.length <= 1 ) markups.pop(); // Remove single point "stroke"
+                    else if (markups.length > 0 && markups[markups.length -1].points.length <= 1 ) markups.pop(); 
                 }
                 if (actionTaken) addMarkupToHistory();
             } else if (isDragging || isResizing) { 
@@ -805,12 +825,11 @@
             }
 
             markups.forEach((markup, index) => {
-                // Set base styles
                 ctx.strokeStyle = markup.color;
                 ctx.fillStyle = markup.color;
-                ctx.lineCap = 'round'; // Default line cap
-                ctx.lineJoin = 'round'; // Default line join
-                ctx.globalAlpha = 1.0; // Default alpha
+                ctx.lineCap = 'round'; 
+                ctx.lineJoin = 'round'; 
+                ctx.globalAlpha = 1.0; 
 
                 if (markup.type === 'pen') { 
                     ctx.lineWidth = markup.lineWidth; 
@@ -818,8 +837,8 @@
                     for (let i = 1; i < markup.points.length; i++) ctx.lineTo(markup.points[i].x, markup.points[i].y);
                     ctx.stroke();
                 } else if (markup.type === 'highlighter') { 
-                    ctx.lineWidth = markup.lineWidth; // Already multiplied when created
-                    ctx.lineCap = 'square'; // Specific for highlighter
+                    ctx.lineWidth = markup.lineWidth; 
+                    ctx.lineCap = 'square'; 
                     ctx.globalAlpha = 0.3; 
                     ctx.beginPath(); ctx.moveTo(markup.points[0].x, markup.points[0].y);
                     for (let i = 1; i < markup.points.length; i++) ctx.lineTo(markup.points[i].x, markup.points[i].y);
@@ -840,8 +859,8 @@
                     ctx.font = `${markup.fontSize || 16}px Arial`; ctx.textAlign = "left"; ctx.textBaseline = "top";
                     ctx.fillText(markup.text, markup.x, markup.y);
                 }
-                ctx.globalAlpha = 1.0; // Reset alpha for next markup
-                ctx.lineCap = 'round'; // Reset lineCap for next markup
+                ctx.globalAlpha = 1.0; 
+                ctx.lineCap = 'round'; 
             });
 
             if (selectedMarkupIndex !== -1 && activeTool === 'select') {
