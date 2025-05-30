@@ -167,7 +167,7 @@
         </div>
 
         <footer style="background-color: #203136;" class="text-gray-300 text-sm text-center p-3">
-            2025 | Wayout Group Pty Ltd | All Rights Reserved
+            @2025 | Shrunk Innovation Group | All Rights Reserved
         </footer>
 
         <div id="messageBox" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center p-4">
@@ -812,11 +812,10 @@
             ctx.scale(zoomLevel, zoomLevel);
 
             if (backgroundImage) { 
-                const imgAspectRatio = backgroundImage.naturalWidth / backgroundImage.naturalHeight;
-                let drawWidth = initialCanvasWidth; let drawHeight = initialCanvasWidth / imgAspectRatio;
-                if (drawHeight > initialCanvasHeight) { drawHeight = initialCanvasHeight; drawWidth = drawHeight * imgAspectRatio; }
-                const offsetX = (initialCanvasWidth - drawWidth) / 2; const offsetY = (initialCanvasHeight - drawHeight) / 2;
-                ctx.drawImage(backgroundImage, offsetX, offsetY, drawWidth, drawHeight);
+                // The canvas (initialCanvasWidth, initialCanvasHeight) is already sized
+                // by resizeCanvas to fit the image's aspect ratio within the container.
+                // So, we draw the image to fill this canvas.
+                ctx.drawImage(backgroundImage, 0, 0, initialCanvasWidth, initialCanvasHeight);
             } else { 
                 ctx.fillStyle = document.documentElement.classList.contains('dark') ? "#111827" : "#f9fafb"; // gray-900 or gray-50
                 ctx.fillRect(0,0, initialCanvasWidth, initialCanvasHeight);
@@ -895,7 +894,10 @@
             backgroundImage.onload = () => {
                 currentDrawingPath = filePath;
                 markups = []; markupHistory = []; historyIndex = -1; selectedMarkupIndex = -1;
-                addMarkupToHistory(); resizeCanvas(); resetZoomAndPan(); redrawCanvas();
+                addMarkupToHistory(); 
+                resizeCanvas(); // This will set initialCanvasWidth/Height based on image and container
+                resetZoomAndPan(); // This will set zoom=1, pan=0 based on the new canvas size
+                redrawCanvas();
                 showSystemMessage("Loaded", `Drawing "${fileName || 'image'}" loaded successfully.`);
             };
             backgroundImage.onerror = () => {
@@ -1000,15 +1002,12 @@
             applyZoom(delta > 0 ? 1 / 1.1 : 1.1, event.clientX, event.clientY);
         }
         function resetZoomAndPan(doRedraw = true) {
-            zoomLevel = 1; panX = 0; panY = 0;
-            if (backgroundImage) {
-                const canvasAspectRatio = initialCanvasWidth / initialCanvasHeight;
-                const imageAspectRatio = backgroundImage.naturalWidth / backgroundImage.naturalHeight;
-                zoomLevel = (imageAspectRatio > canvasAspectRatio) ? (initialCanvasWidth / backgroundImage.naturalWidth) : (initialCanvasHeight / backgroundImage.naturalHeight);
-                zoomLevel = Math.min(zoomLevel, 1); 
-                panX = (initialCanvasWidth - (backgroundImage.naturalWidth * zoomLevel)) / 2;
-                panY = (initialCanvasHeight - (backgroundImage.naturalHeight * zoomLevel)) / 2;
-            }
+            // When an image is loaded, resizeCanvas is called first, setting initialCanvasWidth/Height
+            // to the image's aspect ratio, fitted to the container.
+            // So, resetting zoom just means setting zoomLevel to 1 relative to this already-fitted canvas.
+            zoomLevel = 1; 
+            panX = 0; 
+            panY = 0;
             if (doRedraw) redrawCanvas();
         }
         
