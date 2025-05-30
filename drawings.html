@@ -659,11 +659,10 @@
                         const handle = getHandleAtPosition(pos.x, pos.y);
                         if (handle) {
                             const selectedMarkup = markups[selectedMarkupIndex];
-                            if (selectedMarkup.type === 'rect') {
+                            if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') { // Added text/stamp
                                 if (handle === 'tl' || handle === 'br') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr' || handle === 'bl') newCursorClass = 'cursor-nesw-resize';
-                                else if (handle === 't' || handle === 'b') newCursorClass = 'cursor-ns-resize';
-                                else if (handle === 'l' || handle === 'r') newCursorClass = 'cursor-ew-resize';
+                                // Removed t,b,l,r for text/stamp as only corner resize makes sense for font
                             } else if (selectedMarkup.type === 'circle') {
                                 if (handle === 'tl_circle' || handle === 'br_circle') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr_circle' || handle === 'bl_circle') newCursorClass = 'cursor-nesw-resize';
@@ -735,6 +734,20 @@
                 } else if (markup.type === 'line' || markup.type === 'arrow') { 
                     if (resizeHandle === 'p1') { markup.x1 = currentX; markup.y1 = currentY; }
                     else if (resizeHandle === 'p2') { markup.x2 = currentX; markup.y2 = currentY; }
+                } else if (markup.type === 'text' || markup.type === 'stamp') {
+                    // Calculate distance from original drag start to current mouse position
+                    const dx = currentX - startX;
+                    const dy = currentY - startY;
+                    // Use a simple scaling factor based on diagonal distance change
+                    const originalDist = Math.sqrt(Math.pow(startX - markup.x, 2) + Math.pow(startY - markup.y, 2));
+                    const currentDist = Math.sqrt(Math.pow(currentX - markup.x, 2) + Math.pow(currentY - markup.y, 2));
+                    
+                    if (originalDist > 0) { // Avoid division by zero
+                        const scaleFactor = currentDist / originalDist;
+                        markup.fontSize = (markup.originalFontSize || markup.fontSize) * scaleFactor;
+                        if (markup.fontSize < 5) markup.fontSize = 5; // Min font size
+                        if (markup.fontSize > 200) markup.fontSize = 200; // Max font size
+                    }
                 }
             }
             redrawCanvas(); 
@@ -754,7 +767,13 @@
                 }
                 if (actionTaken) addMarkupToHistory();
             } else if (isDragging || isResizing) { 
-                if (selectedMarkupIndex !== -1) addMarkupToHistory(); 
+                if (selectedMarkupIndex !== -1) {
+                    const markup = markups[selectedMarkupIndex];
+                    if (markup.type === 'text' || markup.type === 'stamp') {
+                        delete markup.originalFontSize; // Clean up temporary property
+                    }
+                    addMarkupToHistory(); 
+                }
             }
             isDrawing = false;
             isDragging = false;
@@ -792,16 +811,26 @@
                         if (Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY)) < padding) return i;
                     }
                 } else if (markup.type === 'text' || markup.type === 'stamp') {
-                    ctx.font = markup.type === 'stamp' ? `${markup.fontSize || 20}px Arial Black` : `${markup.fontSize || 16}px Arial`;
+                    const tempFont = markup.type === 'stamp' ? `${markup.fontSize || 20}px Arial Black` : `${markup.fontSize || 16}px Arial`;
+                    ctx.save(); // Save context state
+                    ctx.font = tempFont; // Apply font for accurate measurement
                     const textMetrics = ctx.measureText(markup.text);
+                    ctx.restore(); // Restore context state
                     const textWidth = textMetrics.width;
                     const textHeight = markup.fontSize || (markup.type === 'stamp' ? 20 : 16); 
                     
                     if (markup.type === 'stamp') {
-                        const stampPadding = padding * 1.5;
-                         if (x >= markup.x - textWidth/2 - stampPadding && x <= markup.x + textWidth/2 + stampPadding &&
-                            y >= markup.y - textHeight/2 - stampPadding && y <= markup.y + textHeight/2 + stampPadding) return i;
-                    } else { 
+                        // For stamps, hit detection is based on center and approximate bounding box
+                        // (considering it's drawn centered and possibly rotated)
+                        const angle = -Math.PI / 12; // Rotation angle
+                        const cos = Math.cos(angle);
+                        const sin = Math.sin(angle);
+                        // Transform click point to stamp's local coordinate system
+                        const localX = (x - markup.x) * cos - (y - markup.y) * sin;
+                        const localY = (x - markup.x) * sin + (y - markup.y) * cos;
+                        if (localX >= -textWidth / 2 - padding && localX <= textWidth / 2 + padding &&
+                            localY >= -textHeight / 2 - padding && localY <= textHeight / 2 + padding) return i;
+                    } else { // For regular text (top-left aligned)
                         if (x >= markup.x - padding && x <= markup.x + textWidth + padding &&
                             y >= markup.y - padding && y <= markup.y + textHeight + padding) return i;
                     }
@@ -845,9 +874,28 @@
                 handles.push({ x: cx + radius, y: cy - radius, type: 'tr_circle' });
                 handles.push({ x: cx - radius, y: cy + radius, type: 'bl_circle' });
                 handles.push({ x: cx + radius, y: cy + radius, type: 'br_circle' });
-            } else if (markup.type === 'line' || markup.type === 'arrow') { // Added arrow
+            } else if (markup.type === 'line' || markup.type === 'arrow') { 
                 handles.push({ x: markup.x1, y: markup.y1, type: 'p1' });
                 handles.push({ x: markup.x2, y: markup.y2, type: 'p2' });
+            } else if (markup.type === 'text' || markup.type === 'stamp') {
+                const tempFont = markup.type === 'stamp' ? `${markup.fontSize || 20}px Arial Black` : `${markup.fontSize || 16}px Arial`;
+                ctx.save();
+                ctx.font = tempFont;
+                const textMetrics = ctx.measureText(markup.text);
+                ctx.restore();
+                const textWidth = textMetrics.width;
+                const textHeight = markup.fontSize || (markup.type === 'stamp' ? 20 : 16);
+                let x = markup.x;
+                let y = markup.y;
+                // For stamps, adjust bounding box based on centered drawing
+                if (markup.type === 'stamp') {
+                    x = markup.x - textWidth / 2;
+                    y = markup.y - textHeight / 2;
+                }
+                handles.push({ x: x, y: y, type: 'tl_text' });
+                handles.push({ x: x + textWidth, y: y, type: 'tr_text' });
+                handles.push({ x: x, y: y + textHeight, type: 'bl_text' });
+                handles.push({ x: x + textWidth, y: y + textHeight, type: 'br_text' });
             }
             return handles;
         }
@@ -877,6 +925,11 @@
             ctx.scale(zoomLevel, zoomLevel);
 
             if (backgroundImage) { 
+                const smoothingEnabled = zoomLevel <= 1.1; 
+                ctx.imageSmoothingEnabled = smoothingEnabled;
+                ctx.mozImageSmoothingEnabled = smoothingEnabled;
+                ctx.webkitImageSmoothingEnabled = smoothingEnabled;
+                ctx.msImageSmoothingEnabled = smoothingEnabled;
                 ctx.drawImage(backgroundImage, 0, 0, initialCanvasWidth, initialCanvasHeight);
             } else { 
                 ctx.fillStyle = document.documentElement.classList.contains('dark') ? "#111827" : "#f9fafb"; 
@@ -938,10 +991,27 @@
                 ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]); 
 
                 const handles = getShapeHandles(selectedMarkup);
+                // Draw bounding box based on type
                 if (selectedMarkup.type === 'rect') {
                     ctx.strokeRect(selectedMarkup.x, selectedMarkup.y, selectedMarkup.width, selectedMarkup.height);
                 } else if (selectedMarkup.type === 'circle') {
                     ctx.strokeRect(selectedMarkup.cx - selectedMarkup.radius, selectedMarkup.cy - selectedMarkup.radius, selectedMarkup.radius * 2, selectedMarkup.radius * 2);
+                } else if (selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
+                    const tempFont = selectedMarkup.type === 'stamp' ? `${selectedMarkup.fontSize || 20}px Arial Black` : `${selectedMarkup.fontSize || 16}px Arial`;
+                    ctx.save();
+                    ctx.font = tempFont;
+                    const textMetrics = ctx.measureText(selectedMarkup.text);
+                    ctx.restore();
+                    const textWidth = textMetrics.width;
+                    const textHeight = selectedMarkup.fontSize || (selectedMarkup.type === 'stamp' ? 20 : 16);
+                    let boxX = selectedMarkup.x;
+                    let boxY = selectedMarkup.y;
+                    if (selectedMarkup.type === 'stamp') { // Adjust for centered stamp
+                        boxX = selectedMarkup.x - textWidth / 2;
+                        boxY = selectedMarkup.y - textHeight / 2;
+                        // Note: This doesn't account for stamp rotation in bounding box
+                    }
+                    ctx.strokeRect(boxX, boxY, textWidth, textHeight);
                 }
                 
                 ctx.setLineDash([]); 
@@ -987,7 +1057,6 @@
                 reader.onload = async (e_reader) => {
                     try {
                         const pdfData = new Uint8Array(e_reader.target.result);
-                        // Use the getDocument function directly from the import
                         const pdfDoc = await getDocument({data: pdfData}).promise;
                         const page = await pdfDoc.getPage(1); 
                         
