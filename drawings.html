@@ -137,6 +137,7 @@
                     <button id="tool-arrow" title="Arrow" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
                     <button id="tool-rect" title="Rectangle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="rect"><i class="far fa-square"></i></button>
                     <button id="tool-circle" title="Circle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="circle"><i class="far fa-circle"></i></button>
+                    {/* <button id="tool-cloud" title="Revision Cloud" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="cloud"><i class="fas fa-cloud"></i></button> */}
                     <button id="tool-stamp" title="Stamp" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="stamp"><i class="fas fa-stamp"></i></button>
                     <button id="tool-text" title="Text" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="text"><i class="fas fa-font"></i></button>
 
@@ -219,7 +220,7 @@
         import { getDocument, GlobalWorkerOptions } from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
         GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
 
-        // Mock Data (Simulating file system) - Restored fuller version
+        // Mock Data (Simulating file system)
         const APP_DATA = {
             substations: [
                 {
@@ -560,7 +561,7 @@
             
             if (tool === 'select') {
                 canvas.className = 'cursor-default border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
-            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'cloud', 'stamp', 'text'].includes(tool)) { 
+            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'stamp', 'text'].includes(tool)) { // Removed 'cloud'
                 canvas.className = 'cursor-crosshair border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
             }
 
@@ -615,7 +616,7 @@
                         selectedMarkupIndex = clickedMarkupIndex;
                         isDragging = true;
                         const selectedMarkup = markups[selectedMarkupIndex];
-                        if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp' || selectedMarkup.type === 'cloud') {
+                        if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp' /*|| selectedMarkup.type === 'cloud'*/) { // Cloud removed for now
                             dragOffsetX = pos.x - selectedMarkup.x;
                             dragOffsetY = pos.y - selectedMarkup.y;
                         } else if (selectedMarkup.type === 'circle') {
@@ -684,11 +685,11 @@
                         const handle = getHandleAtPosition(pos.x, pos.y);
                         if (handle) {
                             const selectedMarkup = markups[selectedMarkupIndex];
-                            if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
+                            if (selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/ || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
                                 if (handle === 'tl' || handle === 'br' || handle === 'tl_text' || handle === 'br_text') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr' || handle === 'bl' || handle === 'tr_text' || handle === 'bl_text') newCursorClass = 'cursor-nesw-resize';
-                                else if ((selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud') && (handle === 't' || handle === 'b')) newCursorClass = 'cursor-ns-resize';
-                                else if ((selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud') && (handle === 'l' || handle === 'r')) newCursorClass = 'cursor-ew-resize';
+                                else if ((selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/) && (handle === 't' || handle === 'b')) newCursorClass = 'cursor-ns-resize';
+                                else if ((selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/) && (handle === 'l' || handle === 'r')) newCursorClass = 'cursor-ew-resize';
                             } else if (selectedMarkup.type === 'circle') {
                                 if (handle === 'tl_circle' || handle === 'br_circle') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr_circle' || handle === 'bl_circle') newCursorClass = 'cursor-nesw-resize';
@@ -720,7 +721,7 @@
                 const newPosX = currentX - dragOffsetX;
                 const newPosY = currentY - dragOffsetY;
 
-                if (markup.type === 'rect' || markup.type === 'text' || markup.type === 'stamp' || markup.type === 'cloud') {
+                if (markup.type === 'rect' || markup.type === 'text' || markup.type === 'stamp' /*|| markup.type === 'cloud'*/) {
                     markup.x = newPosX;
                     markup.y = newPosY;
                 } else if (markup.type === 'circle') {
@@ -736,7 +737,7 @@
                 }
             } else if (isResizing && selectedMarkupIndex !== -1) { 
                 const markup = markups[selectedMarkupIndex];
-                if (markup.type === 'rect' || markup.type === 'cloud') {
+                if (markup.type === 'rect' /*|| markup.type === 'cloud'*/) {
                     if (resizeHandle === 'tl') { markup.width += markup.x - currentX; markup.height += markup.y - currentY; markup.x = currentX; markup.y = currentY; }
                     else if (resizeHandle === 'tr') { markup.width = currentX - markup.x; markup.height += markup.y - currentY; markup.y = currentY; }
                     else if (resizeHandle === 'bl') { markup.width += markup.x - currentX; markup.height = currentY - markup.y; markup.x = currentX; }
@@ -789,7 +790,7 @@
                 let actionTaken = false;
                 if (activeTool === 'line') { markups.push({ type: 'line', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; }
                 else if (activeTool === 'arrow') { markups.push({ type: 'arrow', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; } 
-                else if (activeTool === 'rect' || activeTool === 'cloud') { markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(currentX - startX), height: Math.abs(currentY - startY) }); actionTaken = true; }
+                else if (activeTool === 'rect' /*|| activeTool === 'cloud'*/) { markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(currentX - startX), height: Math.abs(currentY - startY) }); actionTaken = true; }
                 else if (activeTool === 'circle') { const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)); if (radius > 1) { markups.push({ type: 'circle', color: currentColor, lineWidth: currentLineWidth, cx: startX, cy: startY, radius: radius }); actionTaken = true; } }
                 else if (activeTool === 'pen' || activeTool === 'highlighter') { 
                     if (markups.length > 0 && markups[markups.length -1].points.length > 1) actionTaken = true; 
@@ -822,7 +823,7 @@
             for (let i = markups.length - 1; i >= 0; i--) {
                 const markup = markups[i];
                 const padding = (markup.lineWidth || 5) / zoomLevel / 2 + 3 / zoomLevel; 
-                if (markup.type === 'rect' || markup.type === 'cloud') {
+                if (markup.type === 'rect' /*|| markup.type === 'cloud'*/) { // Cloud removed
                     if (x >= markup.x - padding && x <= markup.x + markup.width + padding &&
                         y >= markup.y - padding && y <= markup.y + markup.height + padding) return i;
                 } else if (markup.type === 'circle') {
@@ -881,7 +882,7 @@
             const handles = [];
             if (!markup) return handles;
 
-            if (markup.type === 'rect' || markup.type === 'cloud') {
+            if (markup.type === 'rect' /*|| markup.type === 'cloud'*/) { // Cloud removed
                 const { x, y, width, height } = markup;
                 handles.push({ x: x, y: y, type: 'tl' }); 
                 handles.push({ x: x + width, y: y, type: 'tr' }); 
@@ -939,54 +940,7 @@
             ctx.restore();
         }
         
-        function drawRevisionCloud(ctx, x, y, width, height, color, lineWidth) {
-            const scallopRadius = Math.max(6, lineWidth * 3.5); // Adjusted for larger, fewer scallops
-            const minScallops = 2; // Minimum number of scallops per side
-
-            ctx.beginPath();
-            ctx.strokeStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.lineJoin = 'round';
-            ctx.lineCap = 'round';
-
-            // Calculate number of scallops for width and height
-            let numScallopsX = Math.max(minScallops, Math.floor(width / (scallopRadius * 1.5)));
-            let numScallopsY = Math.max(minScallops, Math.floor(height / (scallopRadius * 1.5)));
-            
-            let stepX = width / numScallopsX;
-            let stepY = height / numScallopsY;
-
-            // Adjust scallopRadius if steps are too small for it
-            const effectiveScallopRadiusX = Math.min(scallopRadius, stepX / 2);
-            const effectiveScallopRadiusY = Math.min(scallopRadius, stepY / 2);
-
-
-            // Top edge
-            ctx.moveTo(x, y + effectiveScallopRadiusY);
-            for (let i = 0; i < numScallopsX; i++) {
-                ctx.arc(x + i * stepX + stepX / 2, y + effectiveScallopRadiusX, effectiveScallopRadiusX, Math.PI, 0, false);
-            }
-            ctx.lineTo(x + width, y + effectiveScallopRadiusY); // Connect to corner
-
-            // Right edge
-            for (let i = 0; i < numScallopsY; i++) {
-                ctx.arc(x + width - effectiveScallopRadiusY, y + i * stepY + stepY / 2, effectiveScallopRadiusY, 1.5 * Math.PI, 0.5 * Math.PI, false);
-            }
-            ctx.lineTo(x + width - effectiveScallopRadiusY, y + height); // Connect to corner
-
-            // Bottom edge
-            for (let i = 0; i < numScallopsX; i++) {
-                ctx.arc(x + width - i * stepX - stepX / 2, y + height - effectiveScallopRadiusX, effectiveScallopRadiusX, 0, Math.PI, false);
-            }
-            ctx.lineTo(x, y + height - effectiveScallopRadiusX); // Connect to corner
-
-            // Left edge
-            for (let i = 0; i < numScallopsY; i++) {
-                ctx.arc(x + effectiveScallopRadiusY, y + height - i * stepY - stepY / 2, effectiveScallopRadiusY, 0.5 * Math.PI, 1.5 * Math.PI, false);
-            }
-            ctx.closePath();
-            ctx.stroke();
-        }
+        // Revision Cloud drawing function removed as per user request to remove the tool
 
 
         function redrawCanvas() {
@@ -1042,8 +996,6 @@
                 } else if (markup.type === 'rect') { 
                     ctx.lineWidth = markup.lineWidth; 
                     ctx.strokeRect(markup.x, markup.y, markup.width, markup.height);
-                } else if (markup.type === 'cloud') {
-                    drawRevisionCloud(ctx, markup.x, markup.y, markup.width, markup.height, markup.color, markup.lineWidth);
                 } else if (markup.type === 'circle') { 
                     ctx.lineWidth = markup.lineWidth; 
                     ctx.beginPath(); ctx.arc(markup.cx, markup.cy, markup.radius, 0, 2 * Math.PI); ctx.stroke();
@@ -1065,7 +1017,7 @@
                 ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]); 
 
                 const handles = getShapeHandles(selectedMarkup);
-                if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud') {
+                if (selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/) { // Cloud removed
                     ctx.strokeRect(selectedMarkup.x, selectedMarkup.y, selectedMarkup.width, selectedMarkup.height);
                 } else if (selectedMarkup.type === 'circle') {
                     ctx.strokeRect(selectedMarkup.cx - selectedMarkup.radius, selectedMarkup.cy - selectedMarkup.radius, selectedMarkup.radius * 2, selectedMarkup.radius * 2);
@@ -1132,7 +1084,7 @@
                         const pdfDoc = await getDocument({data: pdfData}).promise;
                         const page = await pdfDoc.getPage(1); 
                         
-                        const desiredWidth = 2400; 
+                        const desiredWidth = 2400; // Increased for better zoom on PDFs
                         const viewport = page.getViewport({ scale: 1 });
                         const scale = desiredWidth / viewport.width;
                         const scaledViewport = page.getViewport({ scale: scale });
@@ -1203,8 +1155,6 @@
                 } else if (markup.type === 'rect') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
                     tempCtx.strokeRect(markup.x * scaleFactor, markup.y * scaleFactor, markup.width * scaleFactor, markup.height * scaleFactor);
-                } else if (markup.type === 'cloud') {
-                    drawRevisionCloud(tempCtx, markup.x * scaleFactor, markup.y * scaleFactor, markup.width * scaleFactor, markup.height * scaleFactor, markup.color, markup.lineWidth * scaleFactor);
                 } else if (markup.type === 'circle') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
                     tempCtx.beginPath(); tempCtx.arc(markup.cx * scaleFactor, markup.cy * scaleFactor, markup.radius * scaleFactor, 0, 2 * Math.PI); tempCtx.stroke();
@@ -1279,8 +1229,11 @@
             messageTitleElement.className = `text-lg font-semibold mb-2 ${isError ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`;
             messageBox.classList.remove('hidden');
         }
-
-        init();
+        
+        // Ensure DOM is fully loaded before initializing
+        document.addEventListener('DOMContentLoaded', () => {
+            init();
+        });
     </script>
 </body>
 </html>
