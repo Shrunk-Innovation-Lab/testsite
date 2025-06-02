@@ -84,13 +84,13 @@
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.7rem center; /* Adjust 0.7rem to control distance from right edge */
+            background-position: right 0.7rem center; 
             background-size: 1.2em 1.2em;
-            padding-right: 2.5rem; /* Ensure text doesn't overlap arrow, adjust as needed */
+            padding-right: 2.5rem; 
         }
     </style>
 </head>
-<body class="bg-white"> 
+<body class="bg-white">
     <div class="flex flex-col h-screen font-sans">
         <header style="background-color: #203136;" class="text-white p-3 shadow-md flex justify-center items-center relative">
             <img src="https://electranet.com.au/wp-content/uploads/2024/09/Electranet-Logo-Neg.svg" alt="Electranet Logo" class="h-10 mr-4 absolute left-3 top-1/2 -translate-y-1/2 sm:relative sm:left-auto sm:top-auto sm:translate-y-0">
@@ -1143,7 +1143,7 @@
                         const pdfDoc = await getDocument({data: pdfData}).promise;
                         const page = await pdfDoc.getPage(1); 
                         
-                        const desiredWidth = 3000; // Increased for better zoom on PDFs
+                        const desiredWidth = 3000; 
                         const viewport = page.getViewport({ scale: 1 });
                         const scale = desiredWidth / viewport.width;
                         const scaledViewport = page.getViewport({ scale: scale });
