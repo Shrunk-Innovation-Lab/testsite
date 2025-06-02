@@ -443,7 +443,6 @@
             }
         }
 
-
         function populateFolders(substationId) {
             folderList.innerHTML = ''; 
             fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
@@ -1207,9 +1206,11 @@
             }
             event.target.value = null; 
         }
+
         function saveMarkup() {
             if (!backgroundImage && markups.length === 0) {
-                showSystemMessage("Nothing to Save", "Please load an image or make some markups first.", true); return;
+                showSystemMessage("Nothing to Save", "Please load an image or make some markups first.", true);
+                return;
             }
             const tempCanvas = document.createElement('canvas'); const tempCtx = tempCanvas.getContext('2d');
             const baseWidth = backgroundImage ? backgroundImage.naturalWidth : initialCanvasWidth;
@@ -1264,11 +1265,33 @@
             });
             const dataURL = tempCanvas.toDataURL('image/png');
             const link = document.createElement('a'); link.href = dataURL;
-            const currentFile = APP_DATA.substations.flatMap(s => s.folders).flatMap(f => f.files).find(f => f.path === currentDrawingPath);
-            link.download = (currentFile ? currentFile.name.replace(/\.[^/.]+$/, "") : "drawing") + "_markup.png";
+
+            // --- Prompt the user for a filename ---
+            const currentFile = APP_DATA.substations
+                .flatMap(s => s.folders)
+                .flatMap(f => f.files)
+                .find(f => f.path === currentDrawingPath);
+
+            const defaultBaseName = currentFile
+                ? currentFile.name.replace(/\.[^/.]+$/, "")
+                : "drawing";
+
+            const userInput = prompt(
+                "Enter filename (without extension):",
+                defaultBaseName + "_markup"
+            );
+            const safeBase =
+                userInput && userInput.trim().length > 0
+                    ? userInput.trim()
+                    : defaultBaseName + "_markup";
+
+            link.download = safeBase + ".png";
+            // --- End prompt logic ---
+
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
             showSystemMessage("Saved", `Markup saved as ${link.download}`);
         }
+
         function clearAllMarkups() { 
             if (markups.length > 0 || selectedMarkupIndex !== -1) {
                 markups = []; selectedMarkupIndex = -1;
