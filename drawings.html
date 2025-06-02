@@ -165,8 +165,8 @@
                             <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FFFF00;" data-color="#FFFF00" title="Yellow"></button>
                             <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #0000FF;" data-color="#0000FF" title="Blue"></button>
                             <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #008000;" data-color="#008000" title="Green"></button>
-                            <input type="color" id="tool-color" title="Custom Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1">
                         </div>
+                         <input type="color" id="tool-color" title="Custom Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1">
                     </div>
                     
                     <select id="tool-linewidth" title="Line Width/Font Size Base" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 h-8 p-1 flex-shrink-0">
@@ -505,8 +505,9 @@
             });
 
             toggleColorPaletteButton.addEventListener('click', () => {
-                colorPaletteGroup.classList.toggle('hidden');
-                if (colorPaletteGroup.classList.contains('hidden')) {
+                const paletteGroup = document.getElementById('color-palette-group'); // Get the div containing the color swatches
+                paletteGroup.classList.toggle('hidden');
+                if (paletteGroup.classList.contains('hidden')) {
                     colorToggleIcon.classList.remove('fa-chevron-down');
                     colorToggleIcon.classList.add('fa-chevron-left');
                 } else {
