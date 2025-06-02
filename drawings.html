@@ -90,7 +90,7 @@
         }
     </style>
 </head>
-<body class="bg-white dark:bg-slate-900">
+<body class="bg-white"> {/* Removed dark:bg-slate-900 */}
     <div class="flex flex-col h-screen font-sans">
         <header style="background-color: #203136;" class="text-white p-3 shadow-md flex justify-center items-center relative">
             <img src="https://electranet.com.au/wp-content/uploads/2024/09/Electranet-Logo-Neg.svg" alt="Electranet Logo" class="h-10 mr-4 absolute left-3 top-1/2 -translate-y-1/2 sm:relative sm:left-auto sm:top-auto sm:translate-y-0">
@@ -98,78 +98,78 @@
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <div class="w-full md:w-72 bg-gray-50 dark:bg-gray-800 p-4 space-y-4 border-r border-gray-200 dark:border-gray-700 overflow-y-auto flex flex-col">
+            <div class="w-full md:w-72 bg-gray-50 p-4 space-y-4 border-r border-gray-200 overflow-y-auto flex flex-col">
                 <div>
-                    <label for="substation-select" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Substation:</label>
-                    <select id="substation-select" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-blue-500 dark:focus:border-blue-500">
+                    <label for="substation-select" class="block mb-2 text-sm font-medium text-gray-900">Substation:</label>
+                    <select id="substation-select" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5">
                         <option value="">Select Substation</option>
                     </select>
                 </div>
                 <div class="flex-grow flex flex-col overflow-hidden">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Folders</h3>
-                    <ul id="folder-list" class="space-y-1 overflow-y-auto text-sm p-1 bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 flex-grow">
-                        <li class="text-gray-500 dark:text-gray-400 p-2">Select a substation to see folders.</li>
+                    <h3 class="text-sm font-semibold text-gray-900 mb-1">Folders</h3>
+                    <ul id="folder-list" class="space-y-1 overflow-y-auto text-sm p-1 bg-white rounded-md border border-gray-300 flex-grow">
+                        <li class="text-gray-500 p-2">Select a substation to see folders.</li>
                     </ul>
                 </div>
                 <div class="flex-grow flex flex-col overflow-hidden">
-                    <h3 class="text-sm font-semibold text-gray-900 dark:text-white mb-1">Files in <span id="current-folder-name" class="font-normal">...</span></h3>
-                    <div id="file-list-container" class="bg-white dark:bg-gray-700 rounded-md border border-gray-300 dark:border-gray-600 flex-grow overflow-y-auto">
-                        <table class="min-w-full divide-y divide-gray-200 dark:divide-gray-600 text-sm">
-                            <thead class="bg-gray-100 dark:bg-gray-700 sticky top-0">
+                    <h3 class="text-sm font-semibold text-gray-900 mb-1">Files in <span id="current-folder-name" class="font-normal">...</span></h3>
+                    <div id="file-list-container" class="bg-white rounded-md border border-gray-300 flex-grow overflow-y-auto">
+                        <table class="min-w-full divide-y divide-gray-200 text-sm">
+                            <thead class="bg-gray-100 sticky top-0">
                                 <tr>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider">Name</th>
-                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 dark:text-gray-400 tracking-wider">Modified</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider">Name</th>
+                                    <th scope="col" class="px-3 py-2 text-left text-xs font-medium text-gray-500 tracking-wider">Modified</th>
                                 </tr>
                             </thead>
-                            <tbody id="file-list" class="bg-white dark:bg-gray-800 divide-y divide-gray-200 dark:divide-gray-700">
-                                <tr><td colspan="2" class="p-3 text-gray-500 dark:text-gray-400">Select a folder to see files.</td></tr>
+                            <tbody id="file-list" class="bg-white divide-y divide-gray-200">
+                                <tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <div class="flex-1 flex flex-col bg-gray-100 dark:bg-slate-800 overflow-hidden">
-                <div id="toolbar" class="bg-gray-100 dark:bg-gray-800 p-2 flex items-center justify-start space-x-1.5 shadow-sm border-b border-gray-300 dark:border-gray-700 flex-nowrap overflow-x-auto">
-                    <button id="tool-select" title="Select/Edit Shape" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="select"><i class="fas fa-mouse-pointer"></i></button>
-                    <button id="tool-load-trigger" title="Load Image" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-1.5 dark:focus:ring-blue-800 flex-shrink-0 flex items-center">
+            <div class="flex-1 flex flex-col bg-gray-100 overflow-hidden">
+                <div id="toolbar" class="bg-gray-100 p-2 flex items-center justify-start space-x-1.5 shadow-sm border-b border-gray-300 flex-nowrap overflow-x-auto">
+                    <button id="tool-select" title="Select/Edit Shape" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="select"><i class="fas fa-mouse-pointer"></i></button>
+                    <button id="tool-load-trigger" title="Load Image" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-1.5 flex-shrink-0 flex items-center">
                         <i class="fas fa-folder-open"></i><span class="hidden md:inline ml-1.5">Load</span>
                     </button>
                     <input type="file" id="imageLoader" class="hidden" accept="image/*,application/pdf"> 
-                    <button id="tool-save" title="Save Markup" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-1.5 dark:focus:ring-blue-800 flex-shrink-0 flex items-center">
+                    <button id="tool-save" title="Save Markup" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-1.5 flex-shrink-0 flex items-center">
                         <i class="fas fa-save"></i><span class="hidden md:inline ml-1.5">Save</span>
                     </button>
 
-                    <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
+                    <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
 
-                    <button id="tool-pen" title="Pen" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="pen"><i class="fas fa-pencil-alt"></i></button>
-                    <button id="tool-highlighter" title="Highlighter" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0 flex justify-center items-center" data-tool="highlighter">
+                    <button id="tool-pen" title="Pen" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="pen"><i class="fas fa-pencil-alt"></i></button>
+                    <button id="tool-highlighter" title="Highlighter" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0 flex justify-center items-center" data-tool="highlighter">
                         <svg fill="currentColor" width="1em" height="1em" viewBox="0 -16 544 544" xmlns="http://www.w3.org/2000/svg"><path d="M0 479.98L99.92 512l35.45-35.45-67.04-67.04L0 479.98zm124.61-240.01a36.592 36.592 0 0 0-10.79 38.1l13.05 42.83-50.93 50.94 96.23 96.23 50.86-50.86 42.74 13.08c13.73 4.2 28.65-.01 38.15-10.78l35.55-41.64-173.34-173.34-41.52 35.44zm403.31-160.7l-63.2-63.2c-20.49-20.49-53.38-21.52-75.12-2.35L190.55 183.68l169.77 169.78L530.27 154.4c19.18-21.74 18.15-54.63-2.35-75.13z"/></svg>
                     </button>
-                    <button id="tool-line" title="Line" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="line"><i class="fas fa-slash"></i></button>
-                    <button id="tool-arrow" title="Arrow" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
-                    <button id="tool-rect" title="Rectangle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="rect"><i class="far fa-square"></i></button>
-                    <button id="tool-circle" title="Circle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="circle"><i class="far fa-circle"></i></button>
-                    <button id="tool-stamp" title="Stamp" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="stamp"><i class="fas fa-stamp"></i></button>
-                    <button id="tool-text" title="Text" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="text"><i class="fas fa-font"></i></button>
+                    <button id="tool-line" title="Line" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="line"><i class="fas fa-slash"></i></button>
+                    <button id="tool-arrow" title="Arrow" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
+                    <button id="tool-rect" title="Rectangle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="rect"><i class="far fa-square"></i></button>
+                    <button id="tool-circle" title="Circle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="circle"><i class="far fa-circle"></i></button>
+                    <button id="tool-stamp" title="Stamp" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="stamp"><i class="fas fa-stamp"></i></button>
+                    <button id="tool-text" title="Text" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="text"><i class="fas fa-font"></i></button>
 
-                    <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
+                    <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
                     
                     <div class="flex items-center space-x-1"> 
-                        <button id="toggle-color-palette" title="Toggle Colors" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0">
+                        <button id="toggle-color-palette" title="Toggle Colors" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0">
                             <i id="color-toggle-icon" class="fas fa-chevron-down"></i>
                         </button>
                         <div id="color-palette-group" class="flex items-center space-x-1.5"> 
-                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #FF0000;" data-color="#FF0000" title="Red"></button>
-                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #000000;" data-color="#000000" title="Black"></button>
-                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #FFFF00;" data-color="#FFFF00" title="Yellow"></button>
-                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #0000FF;" data-color="#0000FF" title="Blue"></button>
-                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 dark:border-gray-600 flex-shrink-0" style="background-color: #008000;" data-color="#008000" title="Green"></button>
-                            <input type="color" id="tool-color" title="Custom Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 dark:border-gray-600 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1">
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FF0000;" data-color="#FF0000" title="Red"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #000000;" data-color="#000000" title="Black"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FFFF00;" data-color="#FFFF00" title="Yellow"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #0000FF;" data-color="#0000FF" title="Blue"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #008000;" data-color="#008000" title="Green"></button>
+                            <input type="color" id="tool-color" title="Custom Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1">
                         </div>
                     </div>
                     
-                    <select id="tool-linewidth" title="Line Width/Font Size Base" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 h-8 p-1 dark:bg-gray-700 dark:border-gray-600 dark:text-white flex-shrink-0">
+                    <select id="tool-linewidth" title="Line Width/Font Size Base" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 h-8 p-1 flex-shrink-0">
                         <option value="1">1px (S)</option>
                         <option value="2">2px (S)</option>
                         <option value="3" selected>3px (M)</option>
@@ -179,26 +179,26 @@
                         <option value="20">20px (XL)</option>
                     </select>
                     
-                    <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
+                    <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
 
-                    <button id="tool-undo" title="Undo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-undo"></i></button>
-                    <button id="tool-redo" title="Redo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-redo"></i></button>
+                    <button id="tool-undo" title="Undo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-undo"></i></button>
+                    <button id="tool-redo" title="Redo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-redo"></i></button>
                     
-                    <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
-                    <button id="tool-delete-selected" title="Delete Selected" class="toolbar-action-button text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-red-400 dark:border-red-500 dark:hover:bg-gray-600 dark:focus:ring-red-600 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
+                    <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
+                    <button id="tool-delete-selected" title="Delete Selected" class="toolbar-action-button text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm p-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
                         <i class="fas fa-eraser"></i> </button>
-                    <button id="tool-clear" title="Clear All Markups" class="toolbar-action-button text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-3 py-1.5 dark:bg-red-500 dark:hover:bg-red-600 dark:focus:ring-red-800 flex-shrink-0 flex items-center">
+                    <button id="tool-clear" title="Clear All Markups" class="toolbar-action-button text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-3 py-1.5 flex-shrink-0 flex items-center">
                         <i class="fas fa-trash"></i><span class="hidden md:inline ml-1.5">Clear All</span>
                     </button>
                     
-                    <span class="border-l border-gray-300 dark:border-gray-600 h-6 mx-1 flex-shrink-0"></span>
+                    <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
                     
-                    <button id="zoom-in" title="Zoom In" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-search-plus"></i></button>
-                    <button id="zoom-out" title="Zoom Out" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-search-minus"></i></button>
-                    <button id="zoom-reset" title="Reset Zoom/Fit" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0"><i class="fas fa-expand-arrows-alt"></i></button>
+                    <button id="zoom-in" title="Zoom In" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoom-out" title="Zoom Out" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"><i class="fas fa-search-minus"></i></button>
+                    <button id="zoom-reset" title="Reset Zoom/Fit" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"><i class="fas fa-expand-arrows-alt"></i></button>
                 </div>
-                <div id="canvas-container" class="flex-1 p-4 flex justify-center items-center overflow-auto relative bg-gray-200 dark:bg-slate-700">
-                    <canvas id="drawingCanvas" class="border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800">Your browser does not support the canvas element.</canvas>
+                <div id="canvas-container" class="flex-1 p-4 flex justify-center items-center overflow-auto relative bg-gray-200">
+                    <canvas id="drawingCanvas" class="border-2 border-gray-400 shadow-lg bg-white">Your browser does not support the canvas element.</canvas>
                 </div>
             </div>
         </div>
@@ -208,11 +208,11 @@
         </footer>
 
         <div id="messageBox" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center p-4">
-            <div class="relative bg-white rounded-lg shadow-xl dark:bg-gray-700 w-full max-w-md p-6">
-                <h3 id="messageTitle" class="text-lg font-semibold text-gray-900 dark:text-white mb-2">Notification</h3>
-                <p id="messageText" class="text-sm text-gray-600 dark:text-gray-300 mb-4"></p>
+            <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <h3 id="messageTitle" class="text-lg font-semibold text-gray-900 mb-2">Notification</h3>
+                <p id="messageText" class="text-sm text-gray-600 mb-4"></p>
                 <div class="text-right">
-                    <button id="messageOkButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-blue-800">
+                    <button id="messageOkButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                         OK
                     </button>
                 </div>
@@ -220,14 +220,14 @@
         </div>
 
         <div id="genericInputModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center p-4">
-            <div class="relative bg-white rounded-lg shadow-xl dark:bg-gray-700 w-full max-w-md p-6">
-                <h3 id="genericInputTitle" class="text-lg font-semibold text-gray-900 dark:text-white mb-4">Input Required</h3>
-                <input type="text" id="genericTextInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white mb-4">
+            <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
+                <h3 id="genericInputTitle" class="text-lg font-semibold text-gray-900 mb-4">Input Required</h3>
+                <input type="text" id="genericTextInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-4">
                 <div class="flex justify-end space-x-3">
-                    <button id="genericInputCancelButton" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5 dark:bg-gray-800 dark:text-white dark:border-gray-600 dark:hover:bg-gray-700 dark:hover:border-gray-600 dark:focus:ring-gray-700">
+                    <button id="genericInputCancelButton" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5">
                         Cancel
                     </button>
-                    <button id="genericInputOkButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:focus:ring-blue-800">
+                    <button id="genericInputOkButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                         OK
                     </button>
                 </div>
@@ -405,14 +405,14 @@
                 });
             } else {
                 console.error("populateSubstations: APP_DATA.substations is not a valid array or APP_DATA is not defined properly.", APP_DATA);
-                folderList.innerHTML = '<li class="text-gray-500 dark:text-gray-400 p-2.5">Error: Could not load substation data.</li>';
+                folderList.innerHTML = '<li class="text-gray-500">Error: Could not load substation data.</li>';
             }
         }
 
 
         function populateFolders(substationId) {
             folderList.innerHTML = ''; 
-            fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500 dark:text-gray-400">Select a folder to see files.</td></tr>';
+            fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
             currentFolderNameSpan.textContent = "...";
 
             const substation = APP_DATA.substations.find(s => s.id === substationId);
@@ -423,16 +423,16 @@
                         li.textContent = folder.name;
                         li.dataset.folderId = folder.id;
                         li.dataset.substationId = substationId;
-                        li.className = 'p-2.5 hover:bg-gray-200 dark:hover:bg-gray-600 rounded-md cursor-pointer text-gray-700 dark:text-gray-200';
+                        li.className = 'p-2.5 hover:bg-gray-200 rounded-md cursor-pointer text-gray-700';
                         folderList.appendChild(li);
                     });
                 } else {
-                     folderList.innerHTML = '<li class="text-gray-500 dark:text-gray-400 p-2.5">No folders in this substation.</li>';
+                     folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders in this substation.</li>';
                 }
             } else if (substation) {
-                 folderList.innerHTML = '<li class="text-gray-500 dark:text-gray-400 p-2.5">No folders available for this substation.</li>';
+                 folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders available for this substation.</li>';
             } else {
-                 folderList.innerHTML = '<li class="text-gray-500 dark:text-gray-400 p-2.5">Select a substation.</li>';
+                 folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation.</li>';
             }
         }
 
@@ -446,21 +446,21 @@
                 if (folder.files.length > 0) {
                     folder.files.forEach(file => {
                         const tr = document.createElement('tr');
-                        tr.className = 'file-item-row hover:bg-gray-100 dark:hover:bg-gray-700';
+                        tr.className = 'file-item-row hover:bg-gray-100';
                         tr.innerHTML = `
-                            <td class="px-3 py-2 whitespace-nowrap text-gray-700 dark:text-gray-200">${file.name}</td>
-                            <td class="px-3 py-2 whitespace-nowrap text-gray-500 dark:text-gray-400">${file.lastModified}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-gray-700">${file.name}</td>
+                            <td class="px-3 py-2 whitespace-nowrap text-gray-500">${file.lastModified}</td>
                         `;
                         tr.dataset.filePath = file.path;
                         tr.dataset.fileName = file.name;
                         fileList.appendChild(tr);
                     });
                 } else {
-                    fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500 dark:text-gray-400">No files in this folder.</td></tr>';
+                    fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">No files in this folder.</td></tr>';
                 }
             } else {
                  currentFolderNameSpan.textContent = "...";
-                 fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500 dark:text-gray-400">Folder not found or no files.</td></tr>';
+                 fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Folder not found or no files.</td></tr>';
             }
         }
 
@@ -468,8 +468,8 @@
             substationSelect.addEventListener('change', (e) => {
                 if (e.target.value) populateFolders(e.target.value);
                 else { 
-                    folderList.innerHTML = '<li class="text-gray-500 dark:text-gray-400 p-2.5">Select a substation to see folders.</li>';
-                    fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500 dark:text-gray-400">Select a folder to see files.</td></tr>';
+                    folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation to see folders.</li>';
+                    fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
                     currentFolderNameSpan.textContent = "...";
                  }
             });
@@ -596,9 +596,9 @@
             if (activeBtn) activeBtn.classList.add('active');
             
             if (tool === 'select') {
-                canvas.className = 'cursor-grab border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800'; 
+                canvas.className = 'cursor-grab border-2 border-gray-400 shadow-lg bg-white'; 
             } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'stamp', 'text'].includes(tool)) { // Cloud removed
-                canvas.className = 'cursor-crosshair border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
+                canvas.className = 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white';
             }
 
             if (tool !== 'select' && selectedMarkupIndex !== -1) {
@@ -678,7 +678,7 @@
                         isPanning = true;
                         panStartX = e.clientX; 
                         panStartY = e.clientY;
-                        canvas.className = 'cursor-grabbing border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
+                        canvas.className = 'cursor-grabbing border-2 border-gray-400 shadow-lg bg-white';
                     }
                 }
             } else { 
@@ -721,7 +721,7 @@
             const worldPos = getMousePos(e); 
             
             if (isPanning) {
-                canvas.className = 'cursor-grabbing border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
+                canvas.className = 'cursor-grabbing border-2 border-gray-400 shadow-lg bg-white';
                 const dx = e.clientX - panStartX;
                 const dy = e.clientY - panStartY;
                 panX += dx;
@@ -759,7 +759,7 @@
 
                     const currentCursorClass = canvas.className.split(' ').find(cls => cls.startsWith('cursor-'));
                     if (currentCursorClass !== newCursorClass) { 
-                        canvas.className = `border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800 ${newCursorClass}`;
+                        canvas.className = `border-2 border-gray-400 shadow-lg bg-white ${newCursorClass}`;
                     }
                 }
                 return;
@@ -868,7 +868,7 @@
             isResizing = false;
             isPanning = false; 
             resizeHandle = null;
-            canvas.className = activeTool === 'select' ? 'cursor-grab border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800' : 'cursor-crosshair border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800'; 
+            canvas.className = activeTool === 'select' ? 'cursor-grab border-2 border-gray-400 shadow-lg bg-white' : 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white'; 
             redrawCanvas();
             updateToolbarStates(); 
         }
@@ -1017,7 +1017,7 @@
             if (backgroundImage) { 
                 ctx.drawImage(backgroundImage, 0, 0, initialCanvasWidth, initialCanvasHeight);
             } else { 
-                ctx.fillStyle = document.documentElement.classList.contains('dark') ? "#111827" : "#f9fafb"; 
+                ctx.fillStyle = "#f9fafb"; 
                 ctx.fillRect(0,0, initialCanvasWidth, initialCanvasHeight);
                 ctx.fillStyle = "#9ca3af"; ctx.font = "20px Arial"; ctx.textAlign = "center";
                 ctx.fillText("No drawing loaded. Select a file or load your own.", initialCanvasWidth / 2, initialCanvasHeight / 2);
@@ -1143,7 +1143,7 @@
                         const pdfDoc = await getDocument({data: pdfData}).promise;
                         const page = await pdfDoc.getPage(1); 
                         
-                        const desiredWidth = 3000; 
+                        const desiredWidth = 3000; // Increased for better zoom on PDFs
                         const viewport = page.getViewport({ scale: 1 });
                         const scale = desiredWidth / viewport.width;
                         const scaledViewport = page.getViewport({ scale: scale });
@@ -1287,7 +1287,7 @@
         function showSystemMessage(title, text, isError = false) {
             messageTitleElement.textContent = title; 
             messageTextElement.textContent = text; 
-            messageTitleElement.className = `text-lg font-semibold mb-2 ${isError ? 'text-red-600 dark:text-red-400' : 'text-gray-900 dark:text-white'}`;
+            messageTitleElement.className = `text-lg font-semibold mb-2 ${isError ? 'text-red-600' : 'text-gray-900'}`;
             messageBox.classList.remove('hidden');
         }
         
