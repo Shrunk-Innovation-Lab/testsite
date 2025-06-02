@@ -139,7 +139,6 @@
                     <button id="tool-arrow" title="Arrow" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
                     <button id="tool-rect" title="Rectangle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="rect"><i class="far fa-square"></i></button>
                     <button id="tool-circle" title="Circle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="circle"><i class="far fa-circle"></i></button>
-                    {/* <button id="tool-cloud" title="Revision Cloud" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="cloud"><i class="fas fa-cloud"></i></button> */}
                     <button id="tool-stamp" title="Stamp" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="stamp"><i class="fas fa-stamp"></i></button>
                     <button id="tool-text" title="Text" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm px-2.5 py-1.5 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:bg-gray-600 dark:focus:ring-gray-600 flex-shrink-0" data-tool="text"><i class="fas fa-font"></i></button>
 
@@ -1025,8 +1024,8 @@
             ctx.translate(panX, panY);
             ctx.scale(zoomLevel, zoomLevel);
 
-            // Always disable image smoothing for max sharpness when zoomed
-            ctx.imageSmoothingEnabled = false;
+            // Apply image smoothing based on zoom level for better clarity
+            ctx.imageSmoothingEnabled = false; // Always disable for max sharpness
             ctx.mozImageSmoothingEnabled = false;
             ctx.webkitImageSmoothingEnabled = false;
             ctx.msImageSmoothingEnabled = false;
