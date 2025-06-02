@@ -63,6 +63,8 @@
         .cursor-ns-resize { cursor: ns-resize; }
         .cursor-ew-resize { cursor: ew-resize; }
         .cursor-move { cursor: move; }
+        .cursor-grab { cursor: grab; }
+        .cursor-grabbing { cursor: grabbing; }
         .cursor-default { cursor: default; }
         .cursor-crosshair { cursor: crosshair; }
          /* Custom style for SVG icons in buttons if needed */
@@ -312,6 +314,8 @@
         let zoomLevel = 1;
         let panX = 0;
         let panY = 0;
+        let isPanning = false; // Initialized
+        let panStartX, panStartY;
         
         let initialCanvasWidth = 800; 
         let initialCanvasHeight = 600;
@@ -560,8 +564,8 @@
             if (activeBtn) activeBtn.classList.add('active');
             
             if (tool === 'select') {
-                canvas.className = 'cursor-default border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
-            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'stamp', 'text'].includes(tool)) { // Removed 'cloud'
+                canvas.className = 'cursor-grab border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800'; 
+            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'cloud', 'stamp', 'text'].includes(tool)) { 
                 canvas.className = 'cursor-crosshair border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
             }
 
@@ -616,7 +620,7 @@
                         selectedMarkupIndex = clickedMarkupIndex;
                         isDragging = true;
                         const selectedMarkup = markups[selectedMarkupIndex];
-                        if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp' /*|| selectedMarkup.type === 'cloud'*/) { // Cloud removed for now
+                        if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp' || selectedMarkup.type === 'cloud') {
                             dragOffsetX = pos.x - selectedMarkup.x;
                             dragOffsetY = pos.y - selectedMarkup.y;
                         } else if (selectedMarkup.type === 'circle') {
@@ -636,15 +640,20 @@
                                 dragOffsetY = pos.y - selectedMarkup.y1;
                             }
                         }
-                    } else {
+                    } else { 
                         selectedMarkupIndex = -1; 
                         isDragging = false;
+                        isPanning = true;
+                        panStartX = e.clientX; 
+                        panStartY = e.clientY;
+                        canvas.className = 'cursor-grabbing border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
                     }
                 }
             } else { 
                 isDrawing = true;
                 isDragging = false;
                 isResizing = false;
+                isPanning = false;
                 selectedMarkupIndex = -1; 
 
                 if (activeTool === 'stamp') {
@@ -677,29 +686,45 @@
         }
 
         function handleMouseMove(e) {
-            const pos = getMousePos(e); 
-            if (!isDrawing && !isDragging && !isResizing) { 
+            const worldPos = getMousePos(e); 
+            
+            if (isPanning) {
+                canvas.className = 'cursor-grabbing border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800';
+                const dx = e.clientX - panStartX;
+                const dy = e.clientY - panStartY;
+                panX += dx;
+                panY += dy;
+                panStartX = e.clientX;
+                panStartY = e.clientY;
+                redrawCanvas();
+                return;
+            }
+
+            if (!isDrawing && !isResizing && !isDragging) { 
                  if (activeTool === 'select') { 
-                    let newCursorClass = 'cursor-default';
+                    let newCursorClass = 'cursor-grab'; 
                     if (selectedMarkupIndex !== -1) {
-                        const handle = getHandleAtPosition(pos.x, pos.y);
+                        const handle = getHandleAtPosition(worldPos.x, worldPos.y);
                         if (handle) {
                             const selectedMarkup = markups[selectedMarkupIndex];
-                            if (selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/ || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
+                            if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
                                 if (handle === 'tl' || handle === 'br' || handle === 'tl_text' || handle === 'br_text') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr' || handle === 'bl' || handle === 'tr_text' || handle === 'bl_text') newCursorClass = 'cursor-nesw-resize';
-                                else if ((selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/) && (handle === 't' || handle === 'b')) newCursorClass = 'cursor-ns-resize';
-                                else if ((selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/) && (handle === 'l' || handle === 'r')) newCursorClass = 'cursor-ew-resize';
+                                else if ((selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud') && (handle === 't' || handle === 'b')) newCursorClass = 'cursor-ns-resize';
+                                else if ((selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud') && (handle === 'l' || handle === 'r')) newCursorClass = 'cursor-ew-resize';
                             } else if (selectedMarkup.type === 'circle') {
                                 if (handle === 'tl_circle' || handle === 'br_circle') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr_circle' || handle === 'bl_circle') newCursorClass = 'cursor-nesw-resize';
                             } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') { 
                                 if (handle === 'p1' || handle === 'p2') newCursorClass = 'cursor-move'; 
                             }
-                        } else if (getMarkupAtPosition(pos.x, pos.y) !== -1) {
+                        } else if (getMarkupAtPosition(worldPos.x, worldPos.y) !== -1) {
                             newCursorClass = 'cursor-move';
                         }
+                    } else if (getMarkupAtPosition(worldPos.x, worldPos.y) !== -1) {
+                         newCursorClass = 'cursor-move';
                     }
+
                     const currentCursorClass = canvas.className.split(' ').find(cls => cls.startsWith('cursor-'));
                     if (currentCursorClass !== newCursorClass) { 
                         canvas.className = `border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800 ${newCursorClass}`;
@@ -709,8 +734,8 @@
             }
 
             e.preventDefault();
-            currentX = pos.x;
-            currentY = pos.y;
+            currentX = worldPos.x;
+            currentY = worldPos.y;
 
             if (isDrawing) { 
                 if (activeTool === 'pen' || activeTool === 'highlighter') {
@@ -721,7 +746,7 @@
                 const newPosX = currentX - dragOffsetX;
                 const newPosY = currentY - dragOffsetY;
 
-                if (markup.type === 'rect' || markup.type === 'text' || markup.type === 'stamp' /*|| markup.type === 'cloud'*/) {
+                if (markup.type === 'rect' || markup.type === 'text' || markup.type === 'stamp' || markup.type === 'cloud') {
                     markup.x = newPosX;
                     markup.y = newPosY;
                 } else if (markup.type === 'circle') {
@@ -737,7 +762,7 @@
                 }
             } else if (isResizing && selectedMarkupIndex !== -1) { 
                 const markup = markups[selectedMarkupIndex];
-                if (markup.type === 'rect' /*|| markup.type === 'cloud'*/) {
+                if (markup.type === 'rect' || markup.type === 'cloud') {
                     if (resizeHandle === 'tl') { markup.width += markup.x - currentX; markup.height += markup.y - currentY; markup.x = currentX; markup.y = currentY; }
                     else if (resizeHandle === 'tr') { markup.width = currentX - markup.x; markup.height += markup.y - currentY; markup.y = currentY; }
                     else if (resizeHandle === 'bl') { markup.width += markup.x - currentX; markup.height = currentY - markup.y; markup.x = currentX; }
@@ -790,7 +815,7 @@
                 let actionTaken = false;
                 if (activeTool === 'line') { markups.push({ type: 'line', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; }
                 else if (activeTool === 'arrow') { markups.push({ type: 'arrow', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; } 
-                else if (activeTool === 'rect' /*|| activeTool === 'cloud'*/) { markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(currentX - startX), height: Math.abs(currentY - startY) }); actionTaken = true; }
+                else if (activeTool === 'rect' || activeTool === 'cloud') { markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(currentX - startX), height: Math.abs(currentY - startY) }); actionTaken = true; }
                 else if (activeTool === 'circle') { const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)); if (radius > 1) { markups.push({ type: 'circle', color: currentColor, lineWidth: currentLineWidth, cx: startX, cy: startY, radius: radius }); actionTaken = true; } }
                 else if (activeTool === 'pen' || activeTool === 'highlighter') { 
                     if (markups.length > 0 && markups[markups.length -1].points.length > 1) actionTaken = true; 
@@ -809,12 +834,14 @@
             isDrawing = false;
             isDragging = false;
             isResizing = false;
+            isPanning = false; 
             resizeHandle = null;
+            canvas.className = activeTool === 'select' ? 'cursor-grab border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800' : 'cursor-crosshair border-2 border-gray-400 dark:border-gray-500 shadow-lg bg-white dark:bg-gray-800'; 
             redrawCanvas();
             updateToolbarStates(); 
         }
         function handleMouseOut(e){
-            if (isDrawing || isDragging || isResizing) {
+            if (isDrawing || isDragging || isResizing || isPanning) { 
                 handleMouseUp(e);
             }
         }
@@ -823,7 +850,7 @@
             for (let i = markups.length - 1; i >= 0; i--) {
                 const markup = markups[i];
                 const padding = (markup.lineWidth || 5) / zoomLevel / 2 + 3 / zoomLevel; 
-                if (markup.type === 'rect' /*|| markup.type === 'cloud'*/) { // Cloud removed
+                if (markup.type === 'rect' || markup.type === 'cloud') {
                     if (x >= markup.x - padding && x <= markup.x + markup.width + padding &&
                         y >= markup.y - padding && y <= markup.y + markup.height + padding) return i;
                 } else if (markup.type === 'circle') {
@@ -882,7 +909,7 @@
             const handles = [];
             if (!markup) return handles;
 
-            if (markup.type === 'rect' /*|| markup.type === 'cloud'*/) { // Cloud removed
+            if (markup.type === 'rect' || markup.type === 'cloud') {
                 const { x, y, width, height } = markup;
                 handles.push({ x: x, y: y, type: 'tl' }); 
                 handles.push({ x: x + width, y: y, type: 'tr' }); 
@@ -940,7 +967,56 @@
             ctx.restore();
         }
         
-        // Revision Cloud drawing function removed as per user request to remove the tool
+        function drawRevisionCloud(ctx, x, y, width, height, color, lineWidth) {
+            const scallopRadius = Math.max(8, lineWidth * 2.5); 
+            const minScallopsPerSide = 2;
+
+            ctx.beginPath();
+            ctx.strokeStyle = color;
+            ctx.lineWidth = lineWidth;
+            ctx.lineJoin = 'round';
+            ctx.lineCap = 'round';
+
+            let currentX = x;
+            let currentY = y;
+
+            // Top edge
+            let numScallopsX = Math.max(minScallopsPerSide, Math.floor(width / (scallopRadius * 1.25)));
+            let stepX = width / numScallopsX;
+            for (let i = 0; i < numScallopsX; i++) {
+                ctx.arc(currentX + stepX / 2, currentY + scallopRadius, scallopRadius, Math.PI, 0, false);
+                currentX += stepX;
+            }
+            currentX = x + width; 
+
+            // Right edge
+            let numScallopsY = Math.max(minScallopsPerSide, Math.floor(height / (scallopRadius * 1.25)));
+            let stepY = height / numScallopsY;
+            currentY = y;
+             for (let i = 0; i < numScallopsY; i++) {
+                ctx.arc(currentX - scallopRadius, currentY + stepY / 2, scallopRadius, 1.5 * Math.PI, 0.5 * Math.PI, false);
+                currentY += stepY;
+            }
+            currentY = y + height;
+
+            // Bottom edge
+            currentX = x + width;
+            for (let i = 0; i < numScallopsX; i++) {
+                ctx.arc(currentX - stepX / 2, currentY - scallopRadius, scallopRadius, 0, Math.PI, false);
+                currentX -= stepX;
+            }
+            currentX = x;
+
+            // Left edge
+            currentY = y + height;
+            for (let i = 0; i < numScallopsY; i++) {
+                ctx.arc(currentX + scallopRadius, currentY - stepY / 2, scallopRadius, 0.5 * Math.PI, 1.5 * Math.PI, false);
+                currentY -= stepY;
+            }
+            
+            ctx.closePath();
+            ctx.stroke();
+        }
 
 
         function redrawCanvas() {
@@ -949,11 +1025,12 @@
             ctx.translate(panX, panY);
             ctx.scale(zoomLevel, zoomLevel);
 
-            const smoothingEnabled = zoomLevel <= 1.1; 
-            ctx.imageSmoothingEnabled = smoothingEnabled;
-            ctx.mozImageSmoothingEnabled = smoothingEnabled;
-            ctx.webkitImageSmoothingEnabled = smoothingEnabled;
-            ctx.msImageSmoothingEnabled = smoothingEnabled;
+            // Always disable image smoothing for max sharpness when zoomed
+            ctx.imageSmoothingEnabled = false;
+            ctx.mozImageSmoothingEnabled = false;
+            ctx.webkitImageSmoothingEnabled = false;
+            ctx.msImageSmoothingEnabled = false;
+
 
             if (backgroundImage) { 
                 ctx.drawImage(backgroundImage, 0, 0, initialCanvasWidth, initialCanvasHeight);
@@ -996,6 +1073,8 @@
                 } else if (markup.type === 'rect') { 
                     ctx.lineWidth = markup.lineWidth; 
                     ctx.strokeRect(markup.x, markup.y, markup.width, markup.height);
+                } else if (markup.type === 'cloud') {
+                    drawRevisionCloud(ctx, markup.x, markup.y, markup.width, markup.height, markup.color, markup.lineWidth);
                 } else if (markup.type === 'circle') { 
                     ctx.lineWidth = markup.lineWidth; 
                     ctx.beginPath(); ctx.arc(markup.cx, markup.cy, markup.radius, 0, 2 * Math.PI); ctx.stroke();
@@ -1017,7 +1096,7 @@
                 ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]); 
 
                 const handles = getShapeHandles(selectedMarkup);
-                if (selectedMarkup.type === 'rect' /*|| selectedMarkup.type === 'cloud'*/) { // Cloud removed
+                if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'cloud') {
                     ctx.strokeRect(selectedMarkup.x, selectedMarkup.y, selectedMarkup.width, selectedMarkup.height);
                 } else if (selectedMarkup.type === 'circle') {
                     ctx.strokeRect(selectedMarkup.cx - selectedMarkup.radius, selectedMarkup.cy - selectedMarkup.radius, selectedMarkup.radius * 2, selectedMarkup.radius * 2);
@@ -1084,7 +1163,7 @@
                         const pdfDoc = await getDocument({data: pdfData}).promise;
                         const page = await pdfDoc.getPage(1); 
                         
-                        const desiredWidth = 2400; // Increased for better zoom on PDFs
+                        const desiredWidth = 3000; // Increased for better zoom on PDFs
                         const viewport = page.getViewport({ scale: 1 });
                         const scale = desiredWidth / viewport.width;
                         const scaledViewport = page.getViewport({ scale: scale });
@@ -1155,6 +1234,8 @@
                 } else if (markup.type === 'rect') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
                     tempCtx.strokeRect(markup.x * scaleFactor, markup.y * scaleFactor, markup.width * scaleFactor, markup.height * scaleFactor);
+                } else if (markup.type === 'cloud') {
+                    drawRevisionCloud(tempCtx, markup.x * scaleFactor, markup.y * scaleFactor, markup.width * scaleFactor, markup.height * scaleFactor, markup.color, markup.lineWidth * scaleFactor);
                 } else if (markup.type === 'circle') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
                     tempCtx.beginPath(); tempCtx.arc(markup.cx * scaleFactor, markup.cy * scaleFactor, markup.radius * scaleFactor, 0, 2 * Math.PI); tempCtx.stroke();
