@@ -1,13 +1,13 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Mobile Drawing Markup Station - Electranet</title>
-    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/g8yWq0Ys.jpg" />
+    <link rel="icon" type="image/jpeg" href="https://i.imgur.com/g8yWq0Ys.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css" />
-
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    
     <style>
         /* Custom scrollbar for webkit browsers */
         ::-webkit-scrollbar {
@@ -25,32 +25,36 @@
         ::-webkit-scrollbar-thumb:hover {
             background: #6b7280; /* gray-500 */
         }
-
         .tool-button.active {
-            background-color: #203136; /* Dark blue/gray */
+            background-color: #203136; /* New Electranet Dark Blue/Gray */
             color: white;
-            border-color: #203136;
+            border-color: #203136; /* New Electranet Dark Blue/Gray */
         }
-
-        /* When a folder is selected in the sidebar */
-        .selected-folder {
-            background-color: #203136; /* pale green */
-            color: #caf5b0;           /* dark text */
+        .color-palette-button.active {
+            border-color: #203136; /* Electranet Dark Blue/Gray for active border */
+            box-shadow: 0 0 0 2px #203136; /* Ring effect for active color */
+        }
+        #drawingCanvas {
+            /* Default cursor is set dynamically by the active tool */
+        }
+        #file-list-container {
+            max-height: 200px; 
+            overflow-y: auto;
+        }
+        .file-item-row:hover {
+            background-color: #f3f4f6; /* gray-100 */
+            cursor: pointer;
+        }
+        .selected-folder > li {
+            background-color: #dde2e3; /* Lighter shade of new blue/gray */
+            color: #203136;
             font-weight: 600;
         }
-
-        /* When a file row is selected */
         .selected-file {
-            background-color: #caf5b0; /* pale green */
+            background-color: #dde2e3; /* Lighter shade of new blue/gray */
         }
         .selected-file td {
-            color: #203136;
-        }
-
-        /* Active color swatch: use pale green instead of black */
-        .color-palette-button.active {
-            border-color: #203136;
-            box-shadow: 0 0 0 2px #203136;
+             color: #203136; 
         }
 
         /* Specific cursors for resize handles (applied via JS) */
@@ -63,20 +67,16 @@
         .cursor-grabbing { cursor: grabbing; }
         .cursor-default { cursor: default; }
         .cursor-crosshair { cursor: crosshair; }
-
-        /* Custom style for SVG icons in buttons if needed */
-        .tool-button svg,
-        .toolbar-action-button svg {
-            width: 1em;
-            height: 1em;
-            fill: currentColor;
+         /* Custom style for SVG icons in buttons if needed */
+        .tool-button svg, .toolbar-action-button svg { 
+            width: 1em; 
+            height: 1em; 
+            fill: currentColor; 
         }
-
         .disabled-button {
             opacity: 0.5;
             cursor: not-allowed !important;
         }
-
         /* Custom arrow for select dropdown */
         #substation-select {
             -webkit-appearance: none;
@@ -84,25 +84,20 @@
             appearance: none;
             background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3E%3Cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='M6 8l4 4 4-4'/%3E%3C/svg%3E");
             background-repeat: no-repeat;
-            background-position: right 0.7rem center;
+            background-position: right 0.7rem center; 
             background-size: 1.2em 1.2em;
-            padding-right: 2.5rem;
+            padding-right: 2.5rem; 
         }
     </style>
 </head>
 <body class="bg-white">
     <div class="flex flex-col h-screen font-sans">
         <header style="background-color: #203136;" class="text-white p-3 shadow-md flex justify-center items-center relative">
-            <img
-                src="https://electranet.com.au/wp-content/uploads/2024/09/Electranet-Logo-Neg.svg"
-                alt="Electranet Logo"
-                class="h-10 mr-4 absolute left-3 top-1/2 -translate-y-1/2 sm:relative sm:left-auto sm:top-auto sm:translate-y-0"
-            />
+            <img src="https://electranet.com.au/wp-content/uploads/2024/09/Electranet-Logo-Neg.svg" alt="Electranet Logo" class="h-10 mr-4 absolute left-3 top-1/2 -translate-y-1/2 sm:relative sm:left-auto sm:top-auto sm:translate-y-0">
             <h1 class="text-xl font-bold text-center flex-grow">MOBILE DRAWING MARKUP STATION</h1>
         </header>
 
         <div class="flex flex-1 overflow-hidden">
-            <!-- Sidebar -->
             <div class="w-full md:w-72 bg-gray-50 p-4 space-y-4 border-r border-gray-200 overflow-y-auto flex flex-col">
                 <div>
                     <label for="substation-select" class="block mb-2 text-sm font-medium text-gray-900">Substation:</label>
@@ -110,18 +105,14 @@
                         <option value="">Select Substation</option>
                     </select>
                 </div>
-
                 <div class="flex-grow flex flex-col overflow-hidden">
                     <h3 class="text-sm font-semibold text-gray-900 mb-1">Folders</h3>
                     <ul id="folder-list" class="space-y-1 overflow-y-auto text-sm p-1 bg-white rounded-md border border-gray-300 flex-grow">
                         <li class="text-gray-500 p-2">Select a substation to see folders.</li>
                     </ul>
                 </div>
-
                 <div class="flex-grow flex flex-col overflow-hidden">
-                    <h3 class="text-sm font-semibold text-gray-900 mb-1">
-                        Files in <span id="current-folder-name" class="font-normal">...</span>
-                    </h3>
+                    <h3 class="text-sm font-semibold text-gray-900 mb-1">Files in <span id="current-folder-name" class="font-normal">...</span></h3>
                     <div id="file-list-container" class="bg-white rounded-md border border-gray-300 flex-grow overflow-y-auto">
                         <table class="min-w-full divide-y divide-gray-200 text-sm">
                             <thead class="bg-gray-100 sticky top-0">
@@ -131,64 +122,31 @@
                                 </tr>
                             </thead>
                             <tbody id="file-list" class="bg-white divide-y divide-gray-200">
-                                <tr>
-                                    <td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td>
-                                </tr>
+                                <tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>
                             </tbody>
                         </table>
                     </div>
                 </div>
             </div>
 
-            <!-- Main Content -->
             <div class="flex-1 flex flex-col bg-gray-100 overflow-hidden">
                 <div id="toolbar" class="bg-gray-100 p-2 flex items-center justify-start space-x-1.5 shadow-sm border-b border-gray-300 flex-nowrap overflow-x-auto">
-                    <!-- Select Tool -->
-                    <button
-                        id="tool-select"
-                        title="Select/Edit Shape"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="select"
-                    >
+                    <button id="tool-select" title="Select/Edit Shape" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="select">
                         <i class="fas fa-mouse-pointer"></i>
                     </button>
-
-                    <!-- Load Image -->
-                    <button
-                        id="tool-load-trigger"
-                        title="Load Image"
-                        style="background-color: #203136;"
-                        class="text-white w-8 h-8 hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="load"
-                    >
+                    <button id="tool-load-trigger" title="Load Image" style="background-color: #203136;" class="text-white w-8 h-8 hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="load">
                         <i class="fas fa-folder-open"></i>
                     </button>
-                    <input type="file" id="imageLoader" class="hidden" accept="image/*,application/pdf" />
-
-                    <!-- Save Markup -->
-                    <button
-                        id="tool-save"
-                        title="Save Markup"
-                        style="background-color: #203136;"
-                        class="text-white w-8 h-8 hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="save"
-                    >
+                    <input type="file" id="imageLoader" class="hidden" accept="image/*,application/pdf"> 
+                    <button id="tool-save" title="Save Markup" style="background-color: #203136;" class="text-white w-8 h-8 hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="save">
                         <i class="fas fa-save"></i>
                     </button>
 
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
 
-                    <!-- Pen Tool -->
-                    <button
-                        id="tool-pen"
-                        title="Pen"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="pen"
-                    >
+                    <button id="tool-pen" title="Pen" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="pen">
                         <i class="fas fa-pencil-alt"></i>
                     </button>
-
-                    <!-- Highlighter Tool -->
                     <button
                         id="tool-highlighter"
                         title="Highlighter"
@@ -196,128 +154,45 @@
                         data-tool="highlighter"
                     >
                         <svg class="w-5 h-5" viewBox="0 -16 544 544" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 479.98L99.92 512l35.45-35.45-67.04-67.04L0 479.98zm124.61-240.01a36.592 36.592 0 0 0-10.79 38.1l13.05 42.83-50.93 50.94 96.23 96.23 50.86-50.86 42.74 13.08c13.73 4.2 28.65-.01 38.15-10.78l35.55-41.64-173.34-173.34-41.52 35.44zm403.31-160.7l-63.2-63.2c-20.49-20.49-53.38-21.52-75.12-2.35L190.55 183.68l169.77 169.78L530.27 154.4c19.18-21.74 18.15-54.63-2.35-75.13z" />
+                            <path d="M0 479.98L99.92 512l35.45-35.45-67.04-67.04L0 479.98zm124.61-240.01a36.592 36.592 0 0 0-10.79 38.1l13.05 42.83-50.93 50.94 96.23 96.23 50.86-50.86 42.74 13.08c13.73 4.2 28.65-.01 38.15-10.78l35.55-41.64-173.34-173.34-41.52 35.44zm403.31-160.7l-63.2-63.2c-20.49-20.49-53.38-21.52-75.12-2.35L190.55 183.68l169.77 169.78L530.27 154.4c19.18-21.74 18.15-54.63-2.35-75.13z"/>
                         </svg>
                     </button>
-
-                    <!-- Line Tool -->
-                    <button
-                        id="tool-line"
-                        title="Line"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="line"
-                    >
+                    <button id="tool-line" title="Line" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="line">
                         <i class="fas fa-slash"></i>
                     </button>
-
-                    <!-- Arrow Tool -->
-                    <button
-                        id="tool-arrow"
-                        title="Arrow"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="arrow"
-                    >
+                    <button id="tool-arrow" title="Arrow" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="arrow">
                         <i class="fas fa-long-arrow-alt-right"></i>
                     </button>
-
-                    <!-- Rectangle Tool -->
-                    <button
-                        id="tool-rect"
-                        title="Rectangle"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="rect"
-                    >
+                    <button id="tool-rect" title="Rectangle" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="rect">
                         <i class="far fa-square"></i>
                     </button>
-
-                    <!-- Circle Tool -->
-                    <button
-                        id="tool-circle"
-                        title="Circle"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="circle"
-                    >
+                    <button id="tool-circle" title="Circle" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="circle">
                         <i class="far fa-circle"></i>
                     </button>
-
-                    <!-- Stamp Tool -->
-                    <button
-                        id="tool-stamp"
-                        title="Stamp"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="stamp"
-                    >
+                    <button id="tool-stamp" title="Stamp" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="stamp">
                         <i class="fas fa-stamp"></i>
                     </button>
-
-                    <!-- Text Tool -->
-                    <button
-                        id="tool-text"
-                        title="Text"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="text"
-                    >
+                    <button id="tool-text" title="Text" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="text">
                         <i class="fas fa-font"></i>
                     </button>
 
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
-
-                    <!-- Color Toggle & Palette -->
-                    <div class="flex items-center space-x-1">
-                        <button
-                            id="toggle-color-palette"
-                            title="Toggle Colors"
-                            class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"
-                        >
+                    
+                    <div class="flex items-center space-x-1"> 
+                        <button id="toggle-color-palette" title="Toggle Colors" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0">
                             <i id="color-toggle-icon" class="fas fa-chevron-left"></i>
                         </button>
-                        <div id="color-palette-group" class="hidden flex items-center space-x-1.5">
-                            <button
-                                class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0"
-                                style="background-color: #FF0000;"
-                                data-color="#FF0000"
-                                title="Red"
-                            ></button>
-                            <button
-                                class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0"
-                                style="background-color: #000000;"
-                                data-color="#000000"
-                                title="Black"
-                            ></button>
-                            <button
-                                class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0"
-                                style="background-color: #FFFF00;"
-                                data-color="#FFFF00"
-                                title="Yellow"
-                            ></button>
-                            <button
-                                class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0"
-                                style="background-color: #0000FF;"
-                                data-color="#0000FF"
-                                title="Blue"
-                            ></button>
-                            <button
-                                class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0"
-                                style="background-color: #008000;"
-                                data-color="#008000"
-                                title="Green"
-                            ></button>
+                        <div id="color-palette-group" class="hidden flex items-center space-x-1.5"> 
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FF0000;" data-color="#FF0000" title="Red"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #000000;" data-color="#000000" title="Black"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FFFF00;" data-color="#FFFF00" title="Yellow"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #0000FF;" data-color="#0000FF" title="Blue"></button>
+                            <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #008000;" data-color="#008000" title="Green"></button>
                         </div>
-                        <input
-                            type="color"
-                            id="tool-color"
-                            title="Custom Color"
-                            value="#FF0000"
-                            class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1"
-                        />
+                         <input type="color" id="tool-color" title="Custom Color" value="#FF0000" class="p-0 h-8 w-8 rounded-md border-2 border-gray-300 cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 flex-shrink-0 ml-1">
                     </div>
-
-                    <!-- Line Width Selector -->
-                    <select
-                        id="tool-linewidth"
-                        title="Line Width/Font Size Base"
-                        class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 h-8 p-1 flex-shrink-0"
-                    >
+                    
+                    <select id="tool-linewidth" title="Line Width/Font Size Base" class="bg-white border border-gray-300 text-gray-900 text-sm rounded-md focus:ring-blue-500 focus:border-blue-500 h-8 p-1 flex-shrink-0">
                         <option value="1">1px (S)</option>
                         <option value="2">2px (S)</option>
                         <option value="3" selected>3px (M)</option>
@@ -326,75 +201,38 @@
                         <option value="12">12px (L)</option>
                         <option value="20">20px (XL)</option>
                     </select>
-
+                    
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
 
-                    <!-- Undo/Redo/Delete/Clear -->
-                    <button
-                        id="tool-undo"
-                        title="Undo"
-                        class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                        disabled
-                    >
+                    <button id="tool-undo" title="Undo" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
                         <i class="fas fa-undo"></i>
                     </button>
-                    <button
-                        id="tool-redo"
-                        title="Redo"
-                        class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                        disabled
-                    >
+                    <button id="tool-redo" title="Redo" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
                         <i class="fas fa-redo"></i>
                     </button>
-
+                    
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
-
-                    <button
-                        id="tool-delete-selected"
-                        title="Delete Selected"
-                        class="toolbar-action-button w-8 h-8 text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0"
-                        disabled
-                    >
+                    <button id="tool-delete-selected" title="Delete Selected" class="toolbar-action-button w-8 h-8 text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
                         <i class="fas fa-eraser"></i>
                     </button>
-                    <button
-                        id="tool-clear"
-                        title="Clear All Markups"
-                        class="toolbar-action-button w-8 h-8 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                    >
+                    <button id="tool-clear" title="Clear All Markups" class="toolbar-action-button w-8 h-8 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-trash"></i>
                     </button>
-
+                    
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
-
-                    <!-- Zoom Controls -->
-                    <button
-                        id="zoom-in"
-                        title="Zoom In"
-                        class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                    >
+                    
+                    <button id="zoom-in" title="Zoom In" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-search-plus"></i>
                     </button>
-                    <button
-                        id="zoom-out"
-                        title="Zoom Out"
-                        class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                    >
+                    <button id="zoom-out" title="Zoom Out" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-search-minus"></i>
                     </button>
-                    <button
-                        id="zoom-reset"
-                        title="Reset Zoom/Fit"
-                        class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                    >
+                    <button id="zoom-reset" title="Reset Zoom/Fit" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
                         <i class="fas fa-expand-arrows-alt"></i>
                     </button>
                 </div>
-
                 <div id="canvas-container" class="flex-1 p-4 flex justify-center items-center overflow-auto relative bg-gray-200">
-                    <canvas id="drawingCanvas" class="border-2 border-gray-400 shadow-lg bg-white">
-                        Your browser does not support the canvas element.
-                    </canvas>
+                    <canvas id="drawingCanvas" class="border-2 border-gray-400 shadow-lg bg-white">Your browser does not support the canvas element.</canvas>
                 </div>
             </div>
         </div>
@@ -403,44 +241,27 @@
             @2025 | Shrunk Innovation Group | All Rights Reserved
         </footer>
 
-        <!-- Notification Modal -->
         <div id="messageBox" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center p-4">
             <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
                 <h3 id="messageTitle" class="text-lg font-semibold text-gray-900 mb-2">Notification</h3>
                 <p id="messageText" class="text-sm text-gray-600 mb-4"></p>
                 <div class="text-right">
-                    <button
-                        id="messageOkButton"
-                        style="background-color: #203136;"
-                        class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                    >
+                    <button id="messageOkButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                         OK
                     </button>
                 </div>
             </div>
         </div>
 
-        <!-- Generic Input Modal -->
         <div id="genericInputModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-50 overflow-y-auto h-full w-full z-50 flex justify-center items-center p-4">
             <div class="relative bg-white rounded-lg shadow-xl w-full max-w-md p-6">
                 <h3 id="genericInputTitle" class="text-lg font-semibold text-gray-900 mb-4">Input Required</h3>
-                <input
-                    type="text"
-                    id="genericTextInput"
-                    class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-4"
-                />
+                <input type="text" id="genericTextInput" class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-blue-500 focus:border-blue-500 block w-full p-2.5 mb-4">
                 <div class="flex justify-end space-x-3">
-                    <button
-                        id="genericInputCancelButton"
-                        class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5"
-                    >
+                    <button id="genericInputCancelButton" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5">
                         Cancel
                     </button>
-                    <button
-                        id="genericInputOkButton"
-                        style="background-color: #203136;"
-                        class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center"
-                    >
+                    <button id="genericInputOkButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
                         OK
                     </button>
                 </div>
@@ -461,29 +282,14 @@
                         {
                             id: "f5_sld", name: "File 5 - Single Line Diagrams",
                             files: [
-                                {
-                                    id: "drawing1_aa",
-                                    name: "310_438_101_001_Rev_AA.png",
-                                    path: "https://placehold.co/1200x800/FFFFFF/000000?text=Angas+Creek+SLD+1",
-                                    lastModified: "12/04/2013 17:45pm"
-                                },
-                                {
-                                    id: "drawing2_c",
-                                    name: "310_438_102_001_Rev_C.png",
-                                    path: "https://placehold.co/1200x800/EEEEEE/000000?text=Angas+Creek+SLD+2",
-                                    lastModified: "18/09/2012 09:14am"
-                                }
+                                { id: "drawing1_aa", name: "310_438_101_001_Rev_AA.png", path: "https://placehold.co/1200x800/FFFFFF/000000?text=Angas+Creek+SLD+1", lastModified: "12/04/2013 17:45pm" },
+                                { id: "drawing2_c", name: "310_438_102_001_Rev_C.png", path: "https://placehold.co/1200x800/EEEEEE/000000?text=Angas+Creek+SLD+2", lastModified: "18/09/2012 09:14am" }
                             ]
                         },
                         {
                             id: "f6_psld", name: "File 6 - Prot. Single Line Diagrams",
                             files: [
-                                {
-                                    id: "drawing3_g",
-                                    name: "PROT_310_438_103_001_Rev_G.png",
-                                    path: "https://placehold.co/1200x800/DDDDDD/000000?text=Angas+Creek+Prot.+SLD+1",
-                                    lastModified: "18/09/2012 10:45am"
-                                }
+                                { id: "drawing3_g", name: "PROT_310_438_103_001_Rev_G.png", path: "https://placehold.co/1200x800/DDDDDD/000000?text=Angas+Creek+Prot.+SLD+1", lastModified: "18/09/2012 10:45am" }
                             ]
                         }
                     ]
@@ -494,39 +300,19 @@
                         {
                             id: "f7_275kv", name: "File 7 - 275kV Schematics",
                             files: [
-                                {
-                                    id: "city_west_schem1",
-                                    name: "CW_275_SCHEM_001.png",
-                                    path: "https://placehold.co/1200x800/CCCCCC/000000?text=City+West+275kV+Schematic+1",
-                                    lastModified: "01/01/2024 10:00am"
-                                }
+                                { id: "city_west_schem1", name: "CW_275_SCHEM_001.png", path: "https://placehold.co/1200x800/CCCCCC/000000?text=City+West+275kV+Schematic+1", lastModified: "01/01/2024 10:00am" }
                             ]
                         },
                         { id: "f8_132kv", name: "File 8 - 132kV Schematics", files: [] }
                     ]
                 },
-                {
-                    id: "ssd282", name: "Ardrossan West - SSD282",
-                    folders: [
-                        {
-                            id: "aw_f1", name: "General Arrangements",
-                            files: [
-                                {
-                                    id: "aw_ga1",
-                                    name: "AW_GA_001.png",
-                                    path: "https://placehold.co/1200x800/BBBBBB/000000?text=Ardrossan+GA1",
-                                    lastModified: "10/05/2022"
-                                }
-                            ]
-                        }
-                    ]
-                },
+                { id: "ssd282", name: "Ardrossan West - SSD282", folders: [{id: "aw_f1", name: "General Arrangements", files: [{id: "aw_ga1", name: "AW_GA_001.png", path: "https://placehold.co/1200x800/BBBBBB/000000?text=Ardrossan+GA1", lastModified: "10/05/2022"}] }] },
                 { id: "ssd310", name: "Baroota - SSD310", folders: [] },
-                { id: "ssd481", name: "Belalie - SSD481", folders: [] }
+                { id: "ssd481", name: "Belalie - SSD481", folders: [] },
             ],
             uploadedFiles: []
         };
-
+        
         // DOM Elements
         const substationSelect = document.getElementById('substation-select');
         const folderList = document.getElementById('folder-list');
@@ -541,7 +327,7 @@
         const loadTriggerButton = document.getElementById('tool-load-trigger');
         const saveButton = document.getElementById('tool-save');
         const clearButton = document.getElementById('tool-clear');
-        const deleteSelectedButton = document.getElementById('tool-delete-selected');
+        const deleteSelectedButton = document.getElementById('tool-delete-selected'); 
         const zoomInButton = document.getElementById('zoom-in');
         const zoomOutButton = document.getElementById('zoom-out');
         const zoomResetButton = document.getElementById('zoom-reset');
@@ -549,10 +335,10 @@
         const toggleColorPaletteButton = document.getElementById('toggle-color-palette');
         const colorPaletteGroup = document.getElementById('color-palette-group');
         const colorToggleIcon = document.getElementById('color-toggle-icon');
-
+        
         const messageBox = document.getElementById('messageBox');
-        const messageTitleElement = document.getElementById('messageTitle');
-        const messageTextElement = document.getElementById('messageText');
+        const messageTitleElement = document.getElementById('messageTitle'); 
+        const messageTextElement = document.getElementById('messageText'); 
         const messageOkButton = document.getElementById('messageOkButton');
 
         const undoButton = document.getElementById('tool-undo');
@@ -566,48 +352,48 @@
         const genericInputCancelButton = document.getElementById('genericInputCancelButton');
         let genericInputCallback = null;
 
-        let activeTool = 'select';
+        let activeTool = 'select'; 
         let currentColor = colorPicker.value;
         let currentLineWidth = parseInt(lineWidthPicker.value);
-        const HIGHLIGHTER_WIDTH_MULTIPLIER = 4;
-        let isDrawing = false;
+        const HIGHLIGHTER_WIDTH_MULTIPLIER = 4; 
+        let isDrawing = false; 
         let startX, startY, currentX, currentY;
         let backgroundImage = null;
-        let currentDrawingPath = '';
-
-        let markups = [];
-        let markupHistory = [];
-        let historyIndex = -1;
+        let currentDrawingPath = ''; 
+        
+        let markups = []; 
+        let markupHistory = []; 
+        let historyIndex = -1; 
 
         let zoomLevel = 1;
         let panX = 0;
         let panY = 0;
-        let isPanning = false;
+        let isPanning = false; 
         let panStartX, panStartY;
-
-        let initialCanvasWidth = 800;
+        
+        let initialCanvasWidth = 800; 
         let initialCanvasHeight = 600;
 
         let selectedMarkupIndex = -1;
-        let isDragging = false;
-        let isResizing = false;
-        let resizeHandle = null;
-        let HANDLE_SIZE = 8;
-        let dragOffsetX, dragOffsetY;
+        let isDragging = false; 
+        let isResizing = false; 
+        let resizeHandle = null; 
+        let HANDLE_SIZE = 8; 
+        let dragOffsetX, dragOffsetY; 
 
         function init() {
-            populateSubstations();
+            populateSubstations(); 
             setupEventListeners();
-            setActiveTool(activeTool);
-            resizeCanvas();
-            addMarkupToHistory();
-            updateToolbarStates();
+            setActiveTool(activeTool); 
+            resizeCanvas(); 
+            addMarkupToHistory(); 
+            updateToolbarStates(); 
             showSystemMessage("Welcome!", "Select a substation or load an image to begin. Use the pointer tool to move/resize shapes.");
             window.addEventListener('resize', resizeCanvasAndRedraw);
         }
 
         function resizeCanvas() {
-            const containerWidth = canvasContainer.clientWidth - 32;
+            const containerWidth = canvasContainer.clientWidth - 32; 
             const containerHeight = canvasContainer.clientHeight - 32;
 
             if (backgroundImage) {
@@ -630,21 +416,21 @@
                     newHeight = containerHeight;
                     newWidth = newHeight * aspectRatio;
                 }
-                canvas.width = Math.max(newWidth, 300);
+                canvas.width = Math.max(newWidth, 300); 
                 canvas.height = Math.max(newHeight, 200);
             }
-            initialCanvasWidth = canvas.width;
+            initialCanvasWidth = canvas.width; 
             initialCanvasHeight = canvas.height;
-            resetZoomAndPan(false);
+            resetZoomAndPan(false); 
         }
-
+        
         function resizeCanvasAndRedraw() {
             resizeCanvas();
             redrawCanvas();
         }
 
         function populateSubstations() {
-            if (APP_DATA && Array.isArray(APP_DATA.substations)) {
+            if (APP_DATA && APP_DATA.substations && Array.isArray(APP_DATA.substations)) {
                 APP_DATA.substations.forEach(substation => {
                     const option = document.createElement('option');
                     option.value = substation.id;
@@ -652,18 +438,19 @@
                     substationSelect.appendChild(option);
                 });
             } else {
-                console.error("Error loading substation data.", APP_DATA);
+                console.error("populateSubstations: APP_DATA.substations is not a valid array or APP_DATA is not defined properly.", APP_DATA);
                 folderList.innerHTML = '<li class="text-gray-500">Error: Could not load substation data.</li>';
             }
         }
 
+
         function populateFolders(substationId) {
-            folderList.innerHTML = '';
+            folderList.innerHTML = ''; 
             fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
             currentFolderNameSpan.textContent = "...";
 
             const substation = APP_DATA.substations.find(s => s.id === substationId);
-            if (substation && Array.isArray(substation.folders)) {
+            if (substation && substation.folders && Array.isArray(substation.folders)) { 
                 if (substation.folders.length > 0) {
                     substation.folders.forEach(folder => {
                         const li = document.createElement('li');
@@ -674,23 +461,21 @@
                         folderList.appendChild(li);
                     });
                 } else {
-                    folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders in this substation.</li>';
+                     folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders in this substation.</li>';
                 }
             } else if (substation) {
-                folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders available for this substation.</li>';
+                 folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders available for this substation.</li>';
             } else {
-                folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation.</li>';
+                 folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation.</li>';
             }
         }
 
         function populateFiles(substationId, folderId) {
-            fileList.innerHTML = '';
+            fileList.innerHTML = ''; 
             const substation = APP_DATA.substations.find(s => s.id === substationId);
-            const folder = substation && Array.isArray(substation.folders)
-                ? substation.folders.find(f => f.id === folderId)
-                : null;
+            const folder = substation && substation.folders ? substation.folders.find(f => f.id === folderId) : null; 
 
-            if (folder && Array.isArray(folder.files)) {
+            if (folder && folder.files && Array.isArray(folder.files)) { 
                 currentFolderNameSpan.textContent = folder.name;
                 if (folder.files.length > 0) {
                     folder.files.forEach(file => {
@@ -708,39 +493,32 @@
                     fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">No files in this folder.</td></tr>';
                 }
             } else {
-                currentFolderNameSpan.textContent = "...";
-                fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Folder not found or no files.</td></tr>';
+                 currentFolderNameSpan.textContent = "...";
+                 fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Folder not found or no files.</td></tr>';
             }
         }
 
         function setupEventListeners() {
             substationSelect.addEventListener('change', (e) => {
-                if (e.target.value) {
-                    populateFolders(e.target.value);
-                } else {
+                if (e.target.value) populateFolders(e.target.value);
+                else { 
                     folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation to see folders.</li>';
                     fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
                     currentFolderNameSpan.textContent = "...";
-                }
+                 }
             });
-
             folderList.addEventListener('click', (e) => {
                 const listItem = e.target.closest('li');
                 if (listItem && listItem.dataset.folderId) {
-                    // Remove selection class from all folders
                     Array.from(folderList.querySelectorAll('li')).forEach(child => child.classList.remove('selected-folder'));
-                    // Add selection class to clicked folder
                     listItem.classList.add('selected-folder');
                     populateFiles(listItem.dataset.substationId, listItem.dataset.folderId);
                 }
             });
-
             fileList.addEventListener('click', (e) => {
                 const row = e.target.closest('tr.file-item-row');
                 if (row && row.dataset.filePath) {
-                    // Remove selection class from all rows
-                    Array.from(fileList.querySelectorAll('tr')).forEach(child => child.classList.remove('selected-file'));
-                    // Add selection class to clicked row
+                     Array.from(fileList.querySelectorAll('tr')).forEach(child => child.classList.remove('selected-file'));
                     row.classList.add('selected-file');
                     loadDrawing(row.dataset.filePath, row.dataset.fileName);
                 }
@@ -754,14 +532,14 @@
                 const colorPaletteButton = e.target.closest('.color-palette-button');
                 if (colorPaletteButton && colorPaletteButton.dataset.color) {
                     currentColor = colorPaletteButton.dataset.color;
-                    colorPicker.value = currentColor;
+                    colorPicker.value = currentColor; 
                     document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
                     colorPaletteButton.classList.add('active');
                 }
             });
 
             toggleColorPaletteButton.addEventListener('click', () => {
-                const paletteGroup = document.getElementById('color-palette-group');
+                const paletteGroup = document.getElementById('color-palette-group'); // Get the div containing the color swatches
                 paletteGroup.classList.toggle('hidden');
                 if (paletteGroup.classList.contains('hidden')) {
                     colorToggleIcon.classList.remove('fa-chevron-down');
@@ -771,6 +549,7 @@
                     colorToggleIcon.classList.add('fa-chevron-down');
                 }
             });
+
 
             colorPicker.addEventListener('input', (e) => {
                 currentColor = e.target.value;
@@ -782,27 +561,27 @@
             imageLoader.addEventListener('change', handleImageUpload);
             saveButton.addEventListener('click', saveMarkup);
             clearButton.addEventListener('click', clearAllMarkups);
-            deleteSelectedButton.addEventListener('click', deleteSelectedMarkup);
+            deleteSelectedButton.addEventListener('click', deleteSelectedMarkup); 
             undoButton.addEventListener('click', undo);
             redoButton.addEventListener('click', redo);
 
             canvas.addEventListener('mousedown', handleMouseDown);
             canvas.addEventListener('mousemove', handleMouseMove);
             canvas.addEventListener('mouseup', handleMouseUp);
-            canvas.addEventListener('mouseout', handleMouseOut);
-            canvas.addEventListener('wheel', handleZoomScroll, { passive: false });
+            canvas.addEventListener('mouseout', handleMouseOut); 
+            canvas.addEventListener('wheel', handleZoomScroll, { passive: false }); 
 
             zoomInButton.addEventListener('click', () => applyZoom(1.2));
             zoomOutButton.addEventListener('click', () => applyZoom(1 / 1.2));
             zoomResetButton.addEventListener('click', () => { resizeCanvas(); resetZoomAndPan(); });
-
+            
             messageOkButton.addEventListener('click', () => messageBox.classList.add('hidden'));
             genericInputOkButton.addEventListener('click', () => {
                 if (genericInputCallback) genericInputCallback(genericTextInput.value);
                 genericInputModal.classList.add('hidden');
             });
             genericInputCancelButton.addEventListener('click', () => {
-                if (genericInputCallback) genericInputCallback(null);
+                if (genericInputCallback) genericInputCallback(null); 
                 genericInputModal.classList.add('hidden');
             });
         }
@@ -811,32 +590,29 @@
             if (historyIndex < markupHistory.length - 1) {
                 markupHistory = markupHistory.slice(0, historyIndex + 1);
             }
-            markupHistory.push(JSON.parse(JSON.stringify(markups)));
+            markupHistory.push(JSON.parse(JSON.stringify(markups))); 
             historyIndex = markupHistory.length - 1;
             updateToolbarStates();
         }
-
         function undo() {
             if (historyIndex > 0) {
                 historyIndex--;
                 markups = JSON.parse(JSON.stringify(markupHistory[historyIndex]));
-                selectedMarkupIndex = -1;
+                selectedMarkupIndex = -1; 
                 redrawCanvas();
                 updateToolbarStates();
             }
         }
-
         function redo() {
             if (historyIndex < markupHistory.length - 1) {
                 historyIndex++;
                 markups = JSON.parse(JSON.stringify(markupHistory[historyIndex]));
-                selectedMarkupIndex = -1;
+                selectedMarkupIndex = -1; 
                 redrawCanvas();
                 updateToolbarStates();
             }
         }
-
-        function updateToolbarStates() {
+        function updateToolbarStates() { 
             undoButton.disabled = historyIndex <= 0;
             redoButton.disabled = historyIndex >= markupHistory.length - 1;
             deleteSelectedButton.disabled = !(selectedMarkupIndex !== -1 && activeTool === 'select');
@@ -853,20 +629,20 @@
             document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
             const activeBtn = document.getElementById(`tool-${tool}`);
             if (activeBtn) activeBtn.classList.add('active');
-
+            
             if (tool === 'select') {
-                canvas.className = 'cursor-grab border-2 border-gray-400 shadow-lg bg-white';
-            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'stamp', 'text'].includes(tool)) {
+                canvas.className = 'cursor-grab border-2 border-gray-400 shadow-lg bg-white'; 
+            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'stamp', 'text'].includes(tool)) { 
                 canvas.className = 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white';
             }
 
             if (tool !== 'select' && selectedMarkupIndex !== -1) {
-                selectedMarkupIndex = -1;
+                selectedMarkupIndex = -1; 
                 redrawCanvas();
             }
-            updateToolbarStates();
+            updateToolbarStates(); 
         }
-
+        
         function showGenericInputDialog(title, defaultValue, callback) {
             genericInputCallback = callback;
             genericInputTitle.textContent = title;
@@ -875,10 +651,7 @@
             genericTextInput.focus();
             genericTextInput.select();
         }
-
-        function calculateFontSize(lineWidth) {
-            return 10 + (lineWidth * 1.5);
-        }
+        function calculateFontSize(lineWidth) { return 10 + (lineWidth * 1.5); }
 
         function getMousePos(event) {
             const rect = canvas.getBoundingClientRect();
@@ -886,9 +659,9 @@
             const clientY = event.touches ? event.touches[0].clientY : event.clientY;
             const canvasX = (clientX - rect.left) * (canvas.width / rect.width);
             const canvasY = (clientY - rect.top) * (canvas.height / rect.height);
-            return {
-                x: (canvasX - panX) / zoomLevel,
-                y: (canvasY - panY) / zoomLevel
+            return { 
+                x: (canvasX - panX) / zoomLevel, 
+                y: (canvasY - panY) / zoomLevel 
             };
         }
 
@@ -899,13 +672,13 @@
             startY = pos.y;
 
             if (activeTool === 'select') {
-                isDrawing = false;
+                isDrawing = false; 
                 const clickedHandle = getHandleAtPosition(pos.x, pos.y);
                 if (selectedMarkupIndex !== -1 && clickedHandle) {
                     isResizing = true;
                     resizeHandle = clickedHandle;
                     const markup = markups[selectedMarkupIndex];
-                    if (markup.type === 'text' || markup.type === 'stamp') {
+                    if (markup.type === 'text' || markup.type === 'stamp') { 
                         markup.originalFontSize = markup.fontSize;
                     }
                 } else {
@@ -920,98 +693,68 @@
                         } else if (selectedMarkup.type === 'circle') {
                             dragOffsetX = pos.x - selectedMarkup.cx;
                             dragOffsetY = pos.y - selectedMarkup.cy;
-                        } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') {
+                        } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') { 
                             const distToP1 = Math.sqrt(Math.pow(pos.x - selectedMarkup.x1, 2) + Math.pow(pos.y - selectedMarkup.y1, 2));
                             const distToP2 = Math.sqrt(Math.pow(pos.x - selectedMarkup.x2, 2) + Math.pow(pos.y - selectedMarkup.y2, 2));
-                            const handleThreshold = (HANDLE_SIZE * 1.5) / zoomLevel;
-
+                            const handleThreshold = (HANDLE_SIZE * 1.5) / zoomLevel; 
+                            
                             if (distToP1 < handleThreshold) {
-                                isResizing = true;
-                                resizeHandle = 'p1';
+                                isResizing = true; resizeHandle = 'p1';
                             } else if (distToP2 < handleThreshold) {
-                                isResizing = true;
-                                resizeHandle = 'p2';
-                            } else {
-                                dragOffsetX = pos.x - selectedMarkup.x1;
+                                isResizing = true; resizeHandle = 'p2';
+                            } else { 
+                                dragOffsetX = pos.x - selectedMarkup.x1; 
                                 dragOffsetY = pos.y - selectedMarkup.y1;
                             }
                         }
-                    } else {
-                        selectedMarkupIndex = -1;
+                    } else { 
+                        selectedMarkupIndex = -1; 
                         isDragging = false;
                         isPanning = true;
-                        panStartX = e.clientX;
+                        panStartX = e.clientX; 
                         panStartY = e.clientY;
                         canvas.className = 'cursor-grabbing border-2 border-gray-400 shadow-lg bg-white';
                     }
                 }
-            } else {
+            } else { 
                 isDrawing = true;
                 isDragging = false;
                 isResizing = false;
                 isPanning = false;
-                selectedMarkupIndex = -1;
+                selectedMarkupIndex = -1; 
 
                 if (activeTool === 'stamp') {
-                    isDrawing = false;
-                    showGenericInputDialog("Enter Stamp Text", "DRAFT", (stampText) => {
-                        if (stampText) {
-                            markups.push({
-                                type: 'stamp',
-                                text: stampText,
-                                color: currentColor,
-                                x: startX,
-                                y: startY,
-                                fontSize: calculateFontSize(currentLineWidth)
-                            });
-                            addMarkupToHistory();
-                            redrawCanvas();
+                    isDrawing = false; 
+                    showGenericInputDialog("Enter Stamp Text", "DRAFT", (stampText) => { 
+                        if (stampText) { 
+                            markups.push({ type: 'stamp', text: stampText, color: currentColor, x: startX, y: startY, fontSize: calculateFontSize(currentLineWidth) });
+                            addMarkupToHistory(); redrawCanvas();
                         }
                     });
-                    return;
+                    return; 
                 } else if (activeTool === 'text') {
                     isDrawing = false;
                     showGenericInputDialog("Enter Text", "", (textInput) => {
                         if (textInput) {
-                            markups.push({
-                                type: 'text',
-                                text: textInput,
-                                color: currentColor,
-                                x: startX,
-                                y: startY,
-                                fontSize: calculateFontSize(currentLineWidth)
-                            });
-                            addMarkupToHistory();
-                            redrawCanvas();
+                             markups.push({ type: 'text', text: textInput, color: currentColor, x: startX, y: startY, fontSize: calculateFontSize(currentLineWidth) });
+                            addMarkupToHistory(); redrawCanvas();
                         }
                     });
                     return;
                 }
-
                 if (activeTool === 'pen') {
-                    markups.push({
-                        type: activeTool,
-                        color: currentColor,
-                        lineWidth: currentLineWidth,
-                        points: [{ x: startX, y: startY }]
-                    });
+                    markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, points: [{ x: startX, y: startY }] });
                 } else if (activeTool === 'highlighter') {
-                    markups.push({
-                        type: activeTool,
-                        color: currentColor,
-                        lineWidth: currentLineWidth * HIGHLIGHTER_WIDTH_MULTIPLIER,
-                        points: [{ x: startX, y: startY }]
-                    });
+                    markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth * HIGHLIGHTER_WIDTH_MULTIPLIER, points: [{ x: startX, y: startY }] });
                 }
             }
-
             redrawCanvas();
-            updateToolbarStates();
+            updateToolbarStates(); 
         }
 
         function handleMouseMove(e) {
-            const worldPos = getMousePos(e);
-
+            const worldPos = getMousePos(e); 
+            
             if (isPanning) {
                 canvas.className = 'cursor-grabbing border-2 border-gray-400 shadow-lg bg-white';
                 const dx = e.clientX - panStartX;
@@ -1024,37 +767,33 @@
                 return;
             }
 
-            if (!isDrawing && !isResizing && !isDragging) {
-                if (activeTool === 'select') {
-                    let newCursorClass = 'cursor-grab';
+            if (!isDrawing && !isResizing && !isDragging) { 
+                 if (activeTool === 'select') { 
+                    let newCursorClass = 'cursor-grab'; 
                     if (selectedMarkupIndex !== -1) {
                         const handle = getHandleAtPosition(worldPos.x, worldPos.y);
                         if (handle) {
                             const selectedMarkup = markups[selectedMarkupIndex];
                             if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
-                                if (handle === 'tl' || handle === 'br' || handle === 'tl_text' || handle === 'br_text')
-                                    newCursorClass = 'cursor-nwse-resize';
-                                else if (handle === 'tr' || handle === 'bl' || handle === 'tr_text' || handle === 'bl_text')
-                                    newCursorClass = 'cursor-nesw-resize';
-                                else if (selectedMarkup.type === 'rect' && (handle === 't' || handle === 'b'))
-                                    newCursorClass = 'cursor-ns-resize';
-                                else if (selectedMarkup.type === 'rect' && (handle === 'l' || handle === 'r'))
-                                    newCursorClass = 'cursor-ew-resize';
+                                if (handle === 'tl' || handle === 'br' || handle === 'tl_text' || handle === 'br_text') newCursorClass = 'cursor-nwse-resize';
+                                else if (handle === 'tr' || handle === 'bl' || handle === 'tr_text' || handle === 'bl_text') newCursorClass = 'cursor-nesw-resize';
+                                else if ((selectedMarkup.type === 'rect') && (handle === 't' || handle === 'b')) newCursorClass = 'cursor-ns-resize';
+                                else if ((selectedMarkup.type === 'rect') && (handle === 'l' || handle === 'r')) newCursorClass = 'cursor-ew-resize';
                             } else if (selectedMarkup.type === 'circle') {
                                 if (handle === 'tl_circle' || handle === 'br_circle') newCursorClass = 'cursor-nwse-resize';
                                 else if (handle === 'tr_circle' || handle === 'bl_circle') newCursorClass = 'cursor-nesw-resize';
-                            } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') {
-                                if (handle === 'p1' || handle === 'p2') newCursorClass = 'cursor-move';
+                            } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') { 
+                                if (handle === 'p1' || handle === 'p2') newCursorClass = 'cursor-move'; 
                             }
                         } else if (getMarkupAtPosition(worldPos.x, worldPos.y) !== -1) {
                             newCursorClass = 'cursor-move';
                         }
                     } else if (getMarkupAtPosition(worldPos.x, worldPos.y) !== -1) {
-                        newCursorClass = 'cursor-move';
+                         newCursorClass = 'cursor-move';
                     }
 
                     const currentCursorClass = canvas.className.split(' ').find(cls => cls.startsWith('cursor-'));
-                    if (currentCursorClass !== newCursorClass) {
+                    if (currentCursorClass !== newCursorClass) { 
                         canvas.className = `border-2 border-gray-400 shadow-lg bg-white ${newCursorClass}`;
                     }
                 }
@@ -1065,11 +804,11 @@
             currentX = worldPos.x;
             currentY = worldPos.y;
 
-            if (isDrawing) {
+            if (isDrawing) { 
                 if (activeTool === 'pen' || activeTool === 'highlighter') {
                     markups[markups.length - 1].points.push({ x: currentX, y: currentY });
                 }
-            } else if (isDragging && selectedMarkupIndex !== -1) {
+            } else if (isDragging && selectedMarkupIndex !== -1) { 
                 const markup = markups[selectedMarkupIndex];
                 const newPosX = currentX - dragOffsetX;
                 const newPosY = currentY - dragOffsetY;
@@ -1080,76 +819,45 @@
                 } else if (markup.type === 'circle') {
                     markup.cx = newPosX;
                     markup.cy = newPosY;
-                } else if (markup.type === 'line' || markup.type === 'arrow') {
-                    const dxOriginal = markup.x2 - markup.x1;
+                } else if (markup.type === 'line' || markup.type === 'arrow') { 
+                    const dxOriginal = markup.x2 - markup.x1; 
                     const dyOriginal = markup.y2 - markup.y1;
-                    markup.x1 = newPosX;
+                    markup.x1 = newPosX; 
                     markup.y1 = newPosY;
                     markup.x2 = markup.x1 + dxOriginal;
                     markup.y2 = markup.y1 + dyOriginal;
                 }
-            } else if (isResizing && selectedMarkupIndex !== -1) {
+            } else if (isResizing && selectedMarkupIndex !== -1) { 
                 const markup = markups[selectedMarkupIndex];
                 if (markup.type === 'rect') {
-                    if (resizeHandle === 'tl') {
-                        markup.width += markup.x - currentX;
-                        markup.height += markup.y - currentY;
-                        markup.x = currentX;
-                        markup.y = currentY;
-                    } else if (resizeHandle === 'tr') {
-                        markup.width = currentX - markup.x;
-                        markup.height += markup.y - currentY;
-                        markup.y = currentY;
-                    } else if (resizeHandle === 'bl') {
-                        markup.width += markup.x - currentX;
-                        markup.height = currentY - markup.y;
-                        markup.x = currentX;
-                    } else if (resizeHandle === 'br') {
-                        markup.width = currentX - markup.x;
-                        markup.height = currentY - markup.y;
-                    } else if (resizeHandle === 't') {
-                        markup.height += markup.y - currentY;
-                        markup.y = currentY;
-                    } else if (resizeHandle === 'b') {
-                        markup.height = currentY - markup.y;
-                    } else if (resizeHandle === 'l') {
-                        markup.width += markup.x - currentX;
-                        markup.x = currentX;
-                    } else if (resizeHandle === 'r') {
-                        markup.width = currentX - markup.x;
-                    }
-                    if (markup.width < 10) markup.width = 10;
-                    if (markup.height < 10) markup.height = 10;
+                    if (resizeHandle === 'tl') { markup.width += markup.x - currentX; markup.height += markup.y - currentY; markup.x = currentX; markup.y = currentY; }
+                    else if (resizeHandle === 'tr') { markup.width = currentX - markup.x; markup.height += markup.y - currentY; markup.y = currentY; }
+                    else if (resizeHandle === 'bl') { markup.width += markup.x - currentX; markup.height = currentY - markup.y; markup.x = currentX; }
+                    else if (resizeHandle === 'br') { markup.width = currentX - markup.x; markup.height = currentY - markup.y; }
+                    else if (resizeHandle === 't') { markup.height += markup.y - currentY; markup.y = currentY; }
+                    else if (resizeHandle === 'b') { markup.height = currentY - markup.y; }
+                    else if (resizeHandle === 'l') { markup.width += markup.x - currentX; markup.x = currentX; }
+                    else if (resizeHandle === 'r') { markup.width = currentX - markup.x; }
+                    if (markup.width < 10) markup.width = 10; 
+                    if (markup.height < 10) markup.height = 10; 
                 } else if (markup.type === 'circle') {
                     let newRadius;
-                    if (resizeHandle === 'tl_circle') {
-                        newRadius = Math.max(Math.abs(markup.cx - currentX), Math.abs(markup.cy - currentY));
-                    } else if (resizeHandle === 'tr_circle') {
-                        newRadius = Math.max(Math.abs(currentX - markup.cx), Math.abs(markup.cy - currentY));
-                    } else if (resizeHandle === 'bl_circle') {
-                        newRadius = Math.max(Math.abs(markup.cx - currentX), Math.abs(currentY - markup.cy));
-                    } else if (resizeHandle === 'br_circle') {
-                        newRadius = Math.max(Math.abs(currentX - markup.cx), Math.abs(currentY - markup.cy));
-                    } else {
-                        newRadius = Math.sqrt(
-                            Math.pow(currentX - markup.cx, 2) +
-                                Math.pow(currentY - markup.cy, 2)
-                        );
+                    if (resizeHandle === 'tl_circle') { newRadius = Math.max(Math.abs(markup.cx - currentX), Math.abs(markup.cy - currentY)); }
+                    else if (resizeHandle === 'tr_circle') { newRadius = Math.max(Math.abs(currentX - markup.cx), Math.abs(markup.cy - currentY)); }
+                    else if (resizeHandle === 'bl_circle') { newRadius = Math.max(Math.abs(markup.cx - currentX), Math.abs(currentY - markup.cy)); }
+                    else if (resizeHandle === 'br_circle') { newRadius = Math.max(Math.abs(currentX - markup.cx), Math.abs(currentY - markup.cy)); }
+                    else { 
+                        newRadius = Math.sqrt(Math.pow(currentX - markup.cx, 2) + Math.pow(currentY - markup.cy, 2));
                     }
                     markup.radius = newRadius > 1 ? newRadius : 1;
-                } else if (markup.type === 'line' || markup.type === 'arrow') {
-                    if (resizeHandle === 'p1') {
-                        markup.x1 = currentX;
-                        markup.y1 = currentY;
-                    } else if (resizeHandle === 'p2') {
-                        markup.x2 = currentX;
-                        markup.y2 = currentY;
-                    }
+                } else if (markup.type === 'line' || markup.type === 'arrow') { 
+                    if (resizeHandle === 'p1') { markup.x1 = currentX; markup.y1 = currentY; }
+                    else if (resizeHandle === 'p2') { markup.x2 = currentX; markup.y2 = currentY; }
                 } else if (markup.type === 'text' || markup.type === 'stamp') {
                     const initialFontSize = markup.originalFontSize || markup.fontSize;
                     let refX = markup.x;
                     let refY = markup.y;
-                    if (markup.type === 'stamp') {
+                    if (markup.type === 'stamp') { 
                         refX = markup.x;
                         refY = markup.y;
                     }
@@ -1157,100 +865,50 @@
                     const distOriginal = Math.sqrt(Math.pow(startX - refX, 2) + Math.pow(startY - refY, 2));
                     const distCurrent = Math.sqrt(Math.pow(currentX - refX, 2) + Math.pow(currentY - refY, 2));
 
-                    if (distOriginal > 1) {
+                    if (distOriginal > 1) { 
                         let scaleFactor = distCurrent / distOriginal;
                         let newFontSize = initialFontSize * scaleFactor;
-                        newFontSize = Math.max(5, Math.min(200, newFontSize));
+                        newFontSize = Math.max(5, Math.min(200, newFontSize)); 
                         markup.fontSize = newFontSize;
                     }
                 }
             }
-
-            redrawCanvas();
+            redrawCanvas(); 
         }
 
         function handleMouseUp(e) {
-            if (isDrawing) {
+            if (isDrawing) { 
                 isDrawing = false;
                 let actionTaken = false;
-                if (activeTool === 'line') {
-                    markups.push({
-                        type: 'line',
-                        color: currentColor,
-                        lineWidth: currentLineWidth,
-                        x1: startX,
-                        y1: startY,
-                        x2: currentX,
-                        y2: currentY
-                    });
-                    actionTaken = true;
-                } else if (activeTool === 'arrow') {
-                    markups.push({
-                        type: 'arrow',
-                        color: currentColor,
-                        lineWidth: currentLineWidth,
-                        x1: startX,
-                        y1: startY,
-                        x2: currentX,
-                        y2: currentY
-                    });
-                    actionTaken = true;
-                } else if (activeTool === 'rect') {
-                    markups.push({
-                        type: activeTool,
-                        color: currentColor,
-                        lineWidth: currentLineWidth,
-                        x: Math.min(startX, currentX),
-                        y: Math.min(startY, currentY),
-                        width: Math.abs(currentX - startX),
-                        height: Math.abs(currentY - startY)
-                    });
-                    actionTaken = true;
-                } else if (activeTool === 'circle') {
-                    const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2));
-                    if (radius > 1) {
-                        markups.push({
-                            type: 'circle',
-                            color: currentColor,
-                            lineWidth: currentLineWidth,
-                            cx: startX,
-                            cy: startY,
-                            radius
-                        });
-                        actionTaken = true;
-                    }
-                } else if (activeTool === 'pen' || activeTool === 'highlighter') {
-                    if (markups.length > 0 && markups[markups.length - 1].points.length > 1) {
-                        actionTaken = true;
-                    } else if (markups.length > 0 && markups[markups.length - 1].points.length <= 1) {
-                        markups.pop();
-                    }
+                if (activeTool === 'line') { markups.push({ type: 'line', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; }
+                else if (activeTool === 'arrow') { markups.push({ type: 'arrow', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; } 
+                else if (activeTool === 'rect') { markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(currentX - startX), height: Math.abs(currentY - startY) }); actionTaken = true; }
+                else if (activeTool === 'circle') { const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)); if (radius > 1) { markups.push({ type: 'circle', color: currentColor, lineWidth: currentLineWidth, cx: startX, cy: startY, radius: radius }); actionTaken = true; } }
+                else if (activeTool === 'pen' || activeTool === 'highlighter') { 
+                    if (markups.length > 0 && markups[markups.length -1].points.length > 1) actionTaken = true; 
+                    else if (markups.length > 0 && markups[markups.length -1].points.length <= 1 ) markups.pop(); 
                 }
                 if (actionTaken) addMarkupToHistory();
-            } else if (isDragging || isResizing) {
+            } else if (isDragging || isResizing) { 
                 if (selectedMarkupIndex !== -1) {
                     const markup = markups[selectedMarkupIndex];
                     if (markup.type === 'text' || markup.type === 'stamp') {
-                        delete markup.originalFontSize;
+                        delete markup.originalFontSize; 
                     }
-                    addMarkupToHistory();
+                    addMarkupToHistory(); 
                 }
             }
             isDrawing = false;
             isDragging = false;
             isResizing = false;
-            isPanning = false;
+            isPanning = false; 
             resizeHandle = null;
-            canvas.className =
-                activeTool === 'select'
-                    ? 'cursor-grab border-2 border-gray-400 shadow-lg bg-white'
-                    : 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white';
+            canvas.className = activeTool === 'select' ? 'cursor-grab border-2 border-gray-400 shadow-lg bg-white' : 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white'; 
             redrawCanvas();
-            updateToolbarStates();
+            updateToolbarStates(); 
         }
-
-        function handleMouseOut(e) {
-            if (isDrawing || isDragging || isResizing || isPanning) {
+        function handleMouseOut(e){
+            if (isDrawing || isDragging || isResizing || isPanning) { 
                 handleMouseUp(e);
             }
         }
@@ -1258,22 +916,17 @@
         function getMarkupAtPosition(x, y) {
             for (let i = markups.length - 1; i >= 0; i--) {
                 const markup = markups[i];
-                const padding = (markup.lineWidth || 5) / zoomLevel / 2 + 3 / zoomLevel;
+                const padding = (markup.lineWidth || 5) / zoomLevel / 2 + 3 / zoomLevel; 
                 if (markup.type === 'rect') {
-                    if (
-                        x >= markup.x - padding &&
-                        x <= markup.x + markup.width + padding &&
-                        y >= markup.y - padding &&
-                        y <= markup.y + markup.height + padding
-                    )
-                        return i;
+                    if (x >= markup.x - padding && x <= markup.x + markup.width + padding &&
+                        y >= markup.y - padding && y <= markup.y + markup.height + padding) return i;
                 } else if (markup.type === 'circle') {
                     const dist = Math.sqrt(Math.pow(x - markup.cx, 2) + Math.pow(y - markup.cy, 2));
                     if (dist <= markup.radius + padding) return i;
-                } else if (markup.type === 'line' || markup.type === 'arrow') {
+                } else if (markup.type === 'line' || markup.type === 'arrow') { 
                     const { x1, y1, x2, y2 } = markup;
                     const lenSq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-                    if (lenSq === 0) {
+                    if (lenSq === 0) { 
                         if (Math.sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1)) < padding) return i;
                     } else {
                         let t = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / lenSq;
@@ -1283,76 +936,63 @@
                         if (Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY)) < padding) return i;
                     }
                 } else if (markup.type === 'text' || markup.type === 'stamp') {
-                    const tempFont =
-                        markup.type === 'stamp'
-                            ? `${markup.fontSize || 20}px Arial Black`
-                            : `${markup.fontSize || 16}px Arial`;
-                    ctx.save();
-                    ctx.font = tempFont;
+                    const tempFont = markup.type === 'stamp' ? `${markup.fontSize || 20}px Arial Black` : `${markup.fontSize || 16}px Arial`;
+                    ctx.save(); 
+                    ctx.font = tempFont; 
                     const textMetrics = ctx.measureText(markup.text);
-                    ctx.restore();
+                    ctx.restore(); 
                     const textWidth = textMetrics.width;
-                    const textHeight = markup.fontSize || (markup.type === 'stamp' ? 20 : 16);
-
+                    const textHeight = markup.fontSize || (markup.type === 'stamp' ? 20 : 16); 
+                    
                     if (markup.type === 'stamp') {
                         const stampPadding = padding * 1.5;
-                        if (
-                            x >= markup.x - textWidth / 2 - stampPadding &&
-                            x <= markup.x + textWidth / 2 + stampPadding &&
-                            y >= markup.y - textHeight / 2 - stampPadding &&
-                            y <= markup.y + textHeight / 2 + stampPadding
-                        )
-                            return i;
-                    } else {
-                        if (
-                            x >= markup.x - padding &&
-                            x <= markup.x + textWidth + padding &&
-                            y >= markup.y - padding &&
-                            y <= markup.y + textHeight + padding
-                        )
-                            return i;
+                         if (x >= markup.x - textWidth/2 - stampPadding && x <= markup.x + textWidth/2 + stampPadding &&
+                            y >= markup.y - textHeight/2 - stampPadding && y <= markup.y + textHeight/2 + stampPadding) return i;
+                    } else { 
+                        if (x >= markup.x - padding && x <= markup.x + textWidth + padding &&
+                            y >= markup.y - padding && y <= markup.y + textHeight + padding) return i;
                     }
                 }
             }
-            return -1;
+            return -1; 
         }
 
         function getHandleAtPosition(mouseX, mouseY) {
             if (selectedMarkupIndex === -1) return null;
             const markup = markups[selectedMarkupIndex];
-            const effectiveHandleRadius = HANDLE_SIZE / 2 / zoomLevel;
+            const effectiveHandleRadius = (HANDLE_SIZE / 2) / zoomLevel; 
 
             const handles = getShapeHandles(markup);
             for (const handle of handles) {
-                const distSq = (mouseX - handle.x) * (mouseX - handle.x) + (mouseY - handle.y) * (mouseY - handle.y);
-                if (distSq <= effectiveHandleRadius * effectiveHandleRadius) {
+                 const distSq = (mouseX - handle.x) * (mouseX - handle.x) + (mouseY - handle.y) * (mouseY - handle.y);
+                 if (distSq <= effectiveHandleRadius * effectiveHandleRadius) {
                     return handle.type;
                 }
             }
             return null;
         }
-
+        
         function getShapeHandles(markup) {
             const handles = [];
             if (!markup) return handles;
 
             if (markup.type === 'rect') {
                 const { x, y, width, height } = markup;
-                handles.push({ x: x, y: y, type: 'tl' });
-                handles.push({ x: x + width, y: y, type: 'tr' });
-                handles.push({ x: x, y: y + height, type: 'bl' });
-                handles.push({ x: x + width, y: y + height, type: 'br' });
-                handles.push({ x: x + width / 2, y: y, type: 't' });
-                handles.push({ x: x + width / 2, y: y + height, type: 'b' });
-                handles.push({ x: x, y: y + height / 2, type: 'l' });
-                handles.push({ x: x + width, y: y + height / 2, type: 'r' });
+                handles.push({ x: x, y: y, type: 'tl' }); 
+                handles.push({ x: x + width, y: y, type: 'tr' }); 
+                handles.push({ x: x, y: y + height, type: 'bl' }); 
+                handles.push({ x: x + width, y: y + height, type: 'br' }); 
+                handles.push({ x: x + width / 2, y: y, type: 't' }); 
+                handles.push({ x: x + width / 2, y: y + height, type: 'b' }); 
+                handles.push({ x: x, y: y + height / 2, type: 'l' }); 
+                handles.push({ x: x + width, y: y + height / 2, type: 'r' }); 
             } else if (markup.type === 'circle') {
                 const { cx, cy, radius } = markup;
                 handles.push({ x: cx - radius, y: cy - radius, type: 'tl_circle' });
                 handles.push({ x: cx + radius, y: cy - radius, type: 'tr_circle' });
                 handles.push({ x: cx - radius, y: cy + radius, type: 'bl_circle' });
                 handles.push({ x: cx + radius, y: cy + radius, type: 'br_circle' });
-            } else if (markup.type === 'line' || markup.type === 'arrow') {
+            } else if (markup.type === 'line' || markup.type === 'arrow') { 
                 handles.push({ x: markup.x1, y: markup.y1, type: 'p1' });
                 handles.push({ x: markup.x2, y: markup.y2, type: 'p2' });
             } else if (markup.type === 'text' || markup.type === 'stamp') {
@@ -1379,7 +1019,7 @@
 
         function drawArrowhead(ctx, fromX, fromY, toX, toY, headLength, color, lineWidth) {
             const angle = Math.atan2(toY - fromY, toX - fromX);
-            const actualHeadLength = Math.min(headLength, Math.sqrt(Math.pow(toX - fromX, 2) + Math.pow(toY - fromY, 2)) / 3);
+            const actualHeadLength = Math.min(headLength, Math.sqrt(Math.pow(toX-fromX,2) + Math.pow(toY-fromY,2))/3); 
 
             ctx.save();
             ctx.strokeStyle = color;
@@ -1393,116 +1033,90 @@
             ctx.fill();
             ctx.restore();
         }
+        
+        // Revision Cloud drawing function removed
+
 
         function redrawCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height);
-            ctx.save();
+            ctx.clearRect(0, 0, canvas.width, canvas.height); 
+            ctx.save(); 
             ctx.translate(panX, panY);
             ctx.scale(zoomLevel, zoomLevel);
 
-            ctx.imageSmoothingEnabled = false;
+            ctx.imageSmoothingEnabled = false; 
             ctx.mozImageSmoothingEnabled = false;
             ctx.webkitImageSmoothingEnabled = false;
             ctx.msImageSmoothingEnabled = false;
 
-            if (backgroundImage) {
+
+            if (backgroundImage) { 
                 ctx.drawImage(backgroundImage, 0, 0, initialCanvasWidth, initialCanvasHeight);
-            } else {
-                ctx.fillStyle = "#f9fafb";
-                ctx.fillRect(0, 0, initialCanvasWidth, initialCanvasHeight);
-                ctx.fillStyle = "#9ca3af";
-                ctx.font = "20px Arial";
-                ctx.textAlign = "center";
+            } else { 
+                ctx.fillStyle = "#f9fafb"; 
+                ctx.fillRect(0,0, initialCanvasWidth, initialCanvasHeight);
+                ctx.fillStyle = "#9ca3af"; ctx.font = "20px Arial"; ctx.textAlign = "center";
                 ctx.fillText("No drawing loaded. Select a file or load your own.", initialCanvasWidth / 2, initialCanvasHeight / 2);
             }
 
             markups.forEach((markup, index) => {
                 ctx.strokeStyle = markup.color;
                 ctx.fillStyle = markup.color;
-                ctx.lineCap = 'round';
-                ctx.lineJoin = 'round';
-                ctx.globalAlpha = 1.0;
+                ctx.lineCap = 'round'; 
+                ctx.lineJoin = 'round'; 
+                ctx.globalAlpha = 1.0; 
 
-                if (markup.type === 'pen') {
-                    ctx.lineWidth = markup.lineWidth;
-                    ctx.beginPath();
-                    ctx.moveTo(markup.points[0].x, markup.points[0].y);
-                    for (let i = 1; i < markup.points.length; i++) {
-                        ctx.lineTo(markup.points[i].x, markup.points[i].y);
-                    }
+                if (markup.type === 'pen') { 
+                    ctx.lineWidth = markup.lineWidth; 
+                    ctx.beginPath(); ctx.moveTo(markup.points[0].x, markup.points[0].y);
+                    for (let i = 1; i < markup.points.length; i++) ctx.lineTo(markup.points[i].x, markup.points[i].y);
                     ctx.stroke();
-                } else if (markup.type === 'highlighter') {
-                    ctx.lineWidth = markup.lineWidth;
-                    ctx.lineCap = 'square';
-                    ctx.globalAlpha = 0.3;
-                    ctx.beginPath();
-                    ctx.moveTo(markup.points[0].x, markup.points[0].y);
-                    for (let i = 1; i < markup.points.length; i++) {
-                        ctx.lineTo(markup.points[i].x, markup.points[i].y);
-                    }
+                } else if (markup.type === 'highlighter') { 
+                    ctx.lineWidth = markup.lineWidth; 
+                    ctx.lineCap = 'square'; 
+                    ctx.globalAlpha = 0.3; 
+                    ctx.beginPath(); ctx.moveTo(markup.points[0].x, markup.points[0].y);
+                    for (let i = 1; i < markup.points.length; i++) ctx.lineTo(markup.points[i].x, markup.points[i].y);
                     ctx.stroke();
-                } else if (markup.type === 'line') {
-                    ctx.lineWidth = markup.lineWidth;
-                    ctx.beginPath();
-                    ctx.moveTo(markup.x1, markup.y1);
-                    ctx.lineTo(markup.x2, markup.y2);
-                    ctx.stroke();
-                } else if (markup.type === 'arrow') {
+                } else if (markup.type === 'line') { 
+                    ctx.lineWidth = markup.lineWidth; 
+                    ctx.beginPath(); ctx.moveTo(markup.x1, markup.y1); ctx.lineTo(markup.x2, markup.y2); ctx.stroke();
+                } else if (markup.type === 'arrow') { 
                     ctx.lineWidth = markup.lineWidth;
                     ctx.beginPath();
                     ctx.moveTo(markup.x1, markup.y1);
                     ctx.lineTo(markup.x2, markup.y2);
                     ctx.stroke();
                     drawArrowhead(ctx, markup.x1, markup.y1, markup.x2, markup.y2, markup.lineWidth * 5, markup.color, markup.lineWidth);
-                } else if (markup.type === 'rect') {
-                    ctx.lineWidth = markup.lineWidth;
+                } else if (markup.type === 'rect') { 
+                    ctx.lineWidth = markup.lineWidth; 
                     ctx.strokeRect(markup.x, markup.y, markup.width, markup.height);
-                } else if (markup.type === 'circle') {
-                    ctx.lineWidth = markup.lineWidth;
-                    ctx.beginPath();
-                    ctx.arc(markup.cx, markup.cy, markup.radius, 0, 2 * Math.PI);
-                    ctx.stroke();
-                } else if (markup.type === 'stamp') {
-                    ctx.font = `${markup.fontSize || 20}px Arial Black`;
-                    ctx.textAlign = "center";
-                    ctx.textBaseline = "middle";
-                    ctx.save();
-                    ctx.translate(markup.x, markup.y);
-                    ctx.rotate(-Math.PI / 12);
-                    ctx.fillText(markup.text, 0, 0);
-                    ctx.restore();
-                } else if (markup.type === 'text') {
-                    ctx.font = `${markup.fontSize || 16}px Arial`;
-                    ctx.textAlign = "left";
-                    ctx.textBaseline = "top";
+                } else if (markup.type === 'circle') { 
+                    ctx.lineWidth = markup.lineWidth; 
+                    ctx.beginPath(); ctx.arc(markup.cx, markup.cy, markup.radius, 0, 2 * Math.PI); ctx.stroke();
+                } else if (markup.type === 'stamp') { 
+                    ctx.font = `${markup.fontSize || 20}px Arial Black`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
+                    ctx.save(); ctx.translate(markup.x, markup.y); ctx.rotate(-Math.PI / 12); ctx.fillText(markup.text, 0, 0); ctx.restore();
+                } else if (markup.type === 'text') { 
+                    ctx.font = `${markup.fontSize || 16}px Arial`; ctx.textAlign = "left"; ctx.textBaseline = "top";
                     ctx.fillText(markup.text, markup.x, markup.y);
                 }
-
-                ctx.globalAlpha = 1.0;
-                ctx.lineCap = 'round';
+                ctx.globalAlpha = 1.0; 
+                ctx.lineCap = 'round'; 
             });
 
             if (selectedMarkupIndex !== -1 && activeTool === 'select') {
                 const selectedMarkup = markups[selectedMarkupIndex];
-                ctx.strokeStyle = '#203136';
-                ctx.lineWidth = 1.5 / zoomLevel;
-                ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]);
+                ctx.strokeStyle = '#203136'; 
+                ctx.lineWidth = 1.5 / zoomLevel; 
+                ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]); 
 
                 const handles = getShapeHandles(selectedMarkup);
                 if (selectedMarkup.type === 'rect') {
                     ctx.strokeRect(selectedMarkup.x, selectedMarkup.y, selectedMarkup.width, selectedMarkup.height);
                 } else if (selectedMarkup.type === 'circle') {
-                    ctx.strokeRect(
-                        selectedMarkup.cx - selectedMarkup.radius,
-                        selectedMarkup.cy - selectedMarkup.radius,
-                        selectedMarkup.radius * 2,
-                        selectedMarkup.radius * 2
-                    );
+                    ctx.strokeRect(selectedMarkup.cx - selectedMarkup.radius, selectedMarkup.cy - selectedMarkup.radius, selectedMarkup.radius * 2, selectedMarkup.radius * 2);
                 } else if (selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
-                    const tempFont =
-                        selectedMarkup.type === 'stamp'
-                            ? `${selectedMarkup.fontSize || 20}px Arial Black`
-                            : `${selectedMarkup.fontSize || 16}px Arial`;
+                    const tempFont = selectedMarkup.type === 'stamp' ? `${selectedMarkup.fontSize || 20}px Arial Black` : `${selectedMarkup.fontSize || 16}px Arial`;
                     ctx.save();
                     ctx.font = tempFont;
                     const textMetrics = ctx.measureText(selectedMarkup.text);
@@ -1511,15 +1125,15 @@
                     const textHeight = selectedMarkup.fontSize || (selectedMarkup.type === 'stamp' ? 20 : 16);
                     let boxX = selectedMarkup.x;
                     let boxY = selectedMarkup.y;
-                    if (selectedMarkup.type === 'stamp') {
+                    if (selectedMarkup.type === 'stamp') { 
                         boxX = selectedMarkup.x - textWidth / 2;
                         boxY = selectedMarkup.y - textHeight / 2;
                     }
                     ctx.strokeRect(boxX, boxY, textWidth, textHeight);
                 }
-
-                ctx.setLineDash([]);
-                ctx.fillStyle = '#203136';
+                
+                ctx.setLineDash([]); 
+                ctx.fillStyle = '#203136'; 
                 const handleRadius = (HANDLE_SIZE / 2) / zoomLevel;
                 handles.forEach(handle => {
                     ctx.beginPath();
@@ -1527,43 +1141,31 @@
                     ctx.fill();
                 });
             }
-
-            ctx.restore();
+            ctx.restore(); 
         }
 
         function loadDrawing(filePath, fileName) {
             showSystemMessage("Loading...", `Loading drawing: ${fileName || 'image'}`);
             backgroundImage = new Image();
-            backgroundImage.crossOrigin = "Anonymous";
+            backgroundImage.crossOrigin = "Anonymous"; 
             backgroundImage.onload = () => {
                 currentDrawingPath = filePath;
-                markups = [];
-                markupHistory = [];
-                historyIndex = -1;
-                selectedMarkupIndex = -1;
-                addMarkupToHistory();
-                resizeCanvas();
-                resetZoomAndPan();
+                markups = []; markupHistory = []; historyIndex = -1; selectedMarkupIndex = -1;
+                addMarkupToHistory(); 
+                resizeCanvas(); 
+                resetZoomAndPan(); 
                 redrawCanvas();
                 showSystemMessage("Loaded", `Drawing "${fileName || 'image'}" loaded successfully.`);
             };
             backgroundImage.onerror = () => {
-                backgroundImage = null;
-                currentDrawingPath = '';
-                markups = [];
-                markupHistory = [];
-                historyIndex = -1;
-                selectedMarkupIndex = -1;
-                addMarkupToHistory();
-                resizeCanvas();
-                resetZoomAndPan();
-                redrawCanvas();
+                backgroundImage = null; currentDrawingPath = ''; 
+                markups = []; markupHistory = []; historyIndex = -1; selectedMarkupIndex = -1;
+                addMarkupToHistory(); resizeCanvas(); resetZoomAndPan(); redrawCanvas(); 
                 showSystemMessage("Error", `Failed to load drawing: ${fileName || filePath}.`, true);
             };
             backgroundImage.src = filePath;
         }
-
-        async function handleImageUpload(event) {
+        async function handleImageUpload(event) { 
             const file = event.target.files[0];
             if (!file) return;
 
@@ -1573,13 +1175,13 @@
                 reader.onload = async (e_reader) => {
                     try {
                         const pdfData = new Uint8Array(e_reader.target.result);
-                        const pdfDoc = await getDocument({ data: pdfData }).promise;
-                        const page = await pdfDoc.getPage(1);
-
-                        const desiredWidth = 3000;
+                        const pdfDoc = await getDocument({data: pdfData}).promise;
+                        const page = await pdfDoc.getPage(1); 
+                        
+                        const desiredWidth = 3000; 
                         const viewport = page.getViewport({ scale: 1 });
                         const scale = desiredWidth / viewport.width;
-                        const scaledViewport = page.getViewport({ scale });
+                        const scaledViewport = page.getViewport({ scale: scale });
 
                         const offscreenCanvas = document.createElement('canvas');
                         offscreenCanvas.width = scaledViewport.width;
@@ -1587,8 +1189,9 @@
                         const offscreenCtx = offscreenCanvas.getContext('2d');
 
                         await page.render({ canvasContext: offscreenCtx, viewport: scaledViewport }).promise;
-
+                        
                         loadDrawing(offscreenCanvas.toDataURL(), file.name + " (Page 1)");
+                        
                     } catch (error) {
                         console.error("Error processing PDF:", error);
                         showSystemMessage("Error", "Could not process PDF: " + error.message, true);
@@ -1597,143 +1200,82 @@
                     }
                 };
                 reader.readAsArrayBuffer(file);
-            } else {
+            } else { 
                 const reader = new FileReader();
-                reader.onload = (e_reader) => loadDrawing(e_reader.target.result, file.name);
+                reader.onload = (e_reader) => loadDrawing(e_reader.target.result, file.name); 
                 reader.readAsDataURL(file);
             }
-            event.target.value = null;
+            event.target.value = null; 
         }
-
         function saveMarkup() {
             if (!backgroundImage && markups.length === 0) {
-                showSystemMessage("Nothing to Save", "Please load an image or make some markups first.", true);
-                return;
+                showSystemMessage("Nothing to Save", "Please load an image or make some markups first.", true); return;
             }
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
+            const tempCanvas = document.createElement('canvas'); const tempCtx = tempCanvas.getContext('2d');
             const baseWidth = backgroundImage ? backgroundImage.naturalWidth : initialCanvasWidth;
             const baseHeight = backgroundImage ? backgroundImage.naturalHeight : initialCanvasHeight;
-            tempCanvas.width = baseWidth;
-            tempCanvas.height = baseHeight;
+            tempCanvas.width = baseWidth; tempCanvas.height = baseHeight;
 
-            if (backgroundImage) {
-                tempCtx.drawImage(backgroundImage, 0, 0, baseWidth, baseHeight);
-            } else {
-                tempCtx.fillStyle = '#FFFFFF';
-                tempCtx.fillRect(0, 0, baseWidth, baseHeight);
-            }
+            if (backgroundImage) tempCtx.drawImage(backgroundImage, 0, 0, baseWidth, baseHeight);
+            else { tempCtx.fillStyle = '#FFFFFF'; tempCtx.fillRect(0, 0, baseWidth, baseHeight); }
 
-            const scaleFactor = baseWidth / initialCanvasWidth;
+            const scaleFactor = baseWidth / initialCanvasWidth; 
             markups.forEach(markup => {
-                tempCtx.strokeStyle = markup.color;
-                tempCtx.fillStyle = markup.color;
-                tempCtx.lineCap = 'round';
-                tempCtx.lineJoin = 'round';
+                tempCtx.strokeStyle = markup.color; tempCtx.fillStyle = markup.color;
+                tempCtx.lineCap = 'round'; tempCtx.lineJoin = 'round';
                 tempCtx.globalAlpha = 1.0;
 
-                if (markup.type === 'pen') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
+                 if (markup.type === 'pen') {
+                    tempCtx.lineWidth = markup.lineWidth * scaleFactor; 
                     tempCtx.beginPath();
                     tempCtx.moveTo(markup.points[0].x * scaleFactor, markup.points[0].y * scaleFactor);
-                    for (let i = 1; i < markup.points.length; i++) {
-                        tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
-                    }
+                    for (let i = 1; i < markup.points.length; i++) tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
                     tempCtx.stroke();
                 } else if (markup.type === 'highlighter') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.lineCap = 'square';
-                    tempCtx.globalAlpha = 0.3;
+                    tempCtx.lineWidth = markup.lineWidth * scaleFactor; 
+                    tempCtx.lineCap = 'square'; 
+                    tempCtx.globalAlpha = 0.3; 
                     tempCtx.beginPath();
                     tempCtx.moveTo(markup.points[0].x * scaleFactor, markup.points[0].y * scaleFactor);
-                    for (let i = 1; i < markup.points.length; i++) {
-                        tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
-                    }
+                    for (let i = 1; i < markup.points.length; i++) tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
                     tempCtx.stroke();
                 } else if (markup.type === 'line') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(markup.x1 * scaleFactor, markup.y1 * scaleFactor);
-                    tempCtx.lineTo(markup.x2 * scaleFactor, markup.y2 * scaleFactor);
-                    tempCtx.stroke();
-                } else if (markup.type === 'arrow') {
+                    tempCtx.beginPath(); tempCtx.moveTo(markup.x1 * scaleFactor, markup.y1 * scaleFactor); tempCtx.lineTo(markup.x2 * scaleFactor, markup.y2 * scaleFactor); tempCtx.stroke();
+                } else if (markup.type === 'arrow') { 
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(markup.x1 * scaleFactor, markup.y1 * scaleFactor);
-                    tempCtx.lineTo(markup.x2 * scaleFactor, markup.y2 * scaleFactor);
-                    tempCtx.stroke();
-                    drawArrowhead(
-                        tempCtx,
-                        markup.x1 * scaleFactor,
-                        markup.y1 * scaleFactor,
-                        markup.x2 * scaleFactor,
-                        markup.y2 * scaleFactor,
-                        (markup.lineWidth * 5) * scaleFactor,
-                        markup.color,
-                        markup.lineWidth * scaleFactor
-                    );
+                    tempCtx.beginPath(); tempCtx.moveTo(markup.x1 * scaleFactor, markup.y1 * scaleFactor); tempCtx.lineTo(markup.x2 * scaleFactor, markup.y2 * scaleFactor); tempCtx.stroke();
+                    drawArrowhead(tempCtx, markup.x1 * scaleFactor, markup.y1 * scaleFactor, markup.x2 * scaleFactor, markup.y2 * scaleFactor, (markup.lineWidth * 5) * scaleFactor, markup.color, markup.lineWidth * scaleFactor);
                 } else if (markup.type === 'rect') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.strokeRect(
-                        markup.x * scaleFactor,
-                        markup.y * scaleFactor,
-                        markup.width * scaleFactor,
-                        markup.height * scaleFactor
-                    );
+                    tempCtx.strokeRect(markup.x * scaleFactor, markup.y * scaleFactor, markup.width * scaleFactor, markup.height * scaleFactor);
                 } else if (markup.type === 'circle') {
                     tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.arc(
-                        markup.cx * scaleFactor,
-                        markup.cy * scaleFactor,
-                        markup.radius * scaleFactor,
-                        0,
-                        2 * Math.PI
-                    );
-                    tempCtx.stroke();
+                    tempCtx.beginPath(); tempCtx.arc(markup.cx * scaleFactor, markup.cy * scaleFactor, markup.radius * scaleFactor, 0, 2 * Math.PI); tempCtx.stroke();
                 } else if (markup.type === 'stamp') {
                     const stampFontSize = (markup.fontSize || 20) * scaleFactor;
-                    tempCtx.font = `${stampFontSize}px Arial Black`;
-                    tempCtx.textAlign = "center";
-                    tempCtx.textBaseline = "middle";
-                    tempCtx.save();
-                    tempCtx.translate(markup.x * scaleFactor, markup.y * scaleFactor);
-                    tempCtx.rotate(-Math.PI / 12);
-                    tempCtx.fillText(markup.text, 0, 0);
-                    tempCtx.restore();
+                    tempCtx.font = `${stampFontSize}px Arial Black`; tempCtx.textAlign = "center"; tempCtx.textBaseline = "middle";
+                    tempCtx.save(); tempCtx.translate(markup.x * scaleFactor, markup.y * scaleFactor); tempCtx.rotate(-Math.PI / 12); tempCtx.fillText(markup.text, 0, 0); tempCtx.restore();
                 } else if (markup.type === 'text') {
                     const textFontSize = (markup.fontSize || 16) * scaleFactor;
-                    tempCtx.font = `${textFontSize}px Arial`;
-                    tempCtx.textAlign = "left";
-                    tempCtx.textBaseline = "top";
+                    tempCtx.font = `${textFontSize}px Arial`; tempCtx.textAlign = "left"; tempCtx.textBaseline = "top";
                     tempCtx.fillText(markup.text, markup.x * scaleFactor, markup.y * scaleFactor);
                 }
             });
-
             const dataURL = tempCanvas.toDataURL('image/png');
-            const link = document.createElement('a');
-            link.href = dataURL;
-            const currentFile = APP_DATA.substations.flatMap(s => s.folders)
-                .flatMap(f => f.files)
-                .find(f => f.path === currentDrawingPath);
+            const link = document.createElement('a'); link.href = dataURL;
+            const currentFile = APP_DATA.substations.flatMap(s => s.folders).flatMap(f => f.files).find(f => f.path === currentDrawingPath);
             link.download = (currentFile ? currentFile.name.replace(/\.[^/.]+$/, "") : "drawing") + "_markup.png";
-            document.body.appendChild(link);
-            link.click();
-            document.body.removeChild(link);
+            document.body.appendChild(link); link.click(); document.body.removeChild(link);
             showSystemMessage("Saved", `Markup saved as ${link.download}`);
         }
-
-        function clearAllMarkups() {
+        function clearAllMarkups() { 
             if (markups.length > 0 || selectedMarkupIndex !== -1) {
-                markups = [];
-                selectedMarkupIndex = -1;
-                addMarkupToHistory();
-                redrawCanvas();
-                showSystemMessage("Cleared", "All markups have been cleared.");
-            } else {
-                showSystemMessage("Info", "No markups to clear.");
-            }
-            updateToolbarStates();
+                markups = []; selectedMarkupIndex = -1;
+                addMarkupToHistory(); redrawCanvas();
+                showSystemMessage("Cleared", "All markups have been cleared."); 
+            } else showSystemMessage("Info", "No markups to clear.");
+            updateToolbarStates(); 
         }
 
         function deleteSelectedMarkup() {
@@ -1749,14 +1291,13 @@
             }
         }
 
+
         function applyZoom(factor, clientX, clientY) {
             const newZoomLevel = zoomLevel * factor;
-            if (newZoomLevel < 0.05 || newZoomLevel > 20) return;
+            if (newZoomLevel < 0.05 || newZoomLevel > 20) return; 
             const rect = canvas.getBoundingClientRect();
-            const mouseXOnCanvas =
-                (clientX !== undefined ? clientX : rect.left + rect.width / 2) - rect.left;
-            const mouseYOnCanvas =
-                (clientY !== undefined ? clientY : rect.top + rect.height / 2) - rect.top;
+            const mouseXOnCanvas = (clientX !== undefined ? clientX : rect.left + rect.width / 2) - rect.left;
+            const mouseYOnCanvas = (clientY !== undefined ? clientY : rect.top + rect.height / 2) - rect.top;
             const worldMouseX = (mouseXOnCanvas - panX) / zoomLevel;
             const worldMouseY = (mouseYOnCanvas - panY) / zoomLevel;
             panX = mouseXOnCanvas - worldMouseX * newZoomLevel;
@@ -1764,29 +1305,26 @@
             zoomLevel = newZoomLevel;
             redrawCanvas();
         }
-
         function handleZoomScroll(event) {
-            event.preventDefault();
-            const delta = Math.sign(event.deltaY);
+            event.preventDefault(); 
+            const delta = Math.sign(event.deltaY); 
             applyZoom(delta > 0 ? 1 / 1.1 : 1.1, event.clientX, event.clientY);
         }
-
         function resetZoomAndPan(doRedraw = true) {
-            zoomLevel = 1;
-            panX = 0;
+            zoomLevel = 1; 
+            panX = 0; 
             panY = 0;
             if (doRedraw) redrawCanvas();
         }
-
+        
         function showSystemMessage(title, text, isError = false) {
-            messageTitleElement.textContent = title;
-            messageTextElement.textContent = text;
-            messageTitleElement.className = `text-lg font-semibold mb-2 ${
-                isError ? 'text-red-600' : 'text-gray-900'
-            }`;
+            messageTitleElement.textContent = title; 
+            messageTextElement.textContent = text; 
+            messageTitleElement.className = `text-lg font-semibold mb-2 ${isError ? 'text-red-600' : 'text-gray-900'}`;
             messageBox.classList.remove('hidden');
         }
-
+        
+        // Ensure DOM is fully loaded before initializing
         document.addEventListener('DOMContentLoaded', () => {
             init();
         });
