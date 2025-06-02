@@ -1266,7 +1266,13 @@
             const dataURL = tempCanvas.toDataURL('image/png');
             const link = document.createElement('a'); link.href = dataURL;
 
-            // --- Prompt the user for a filename ---
+            // === BEGIN: default-filename + date logic ===
+            const today = new Date();
+            const yyyy = today.getFullYear();
+            const mm = String(today.getMonth() + 1).padStart(2, '0');
+            const dd = String(today.getDate()).padStart(2, '0');
+            const dateStr = `${yyyy}${mm}${dd}`;
+
             const currentFile = APP_DATA.substations
                 .flatMap(s => s.folders)
                 .flatMap(f => f.files)
@@ -1276,17 +1282,19 @@
                 ? currentFile.name.replace(/\.[^/.]+$/, "")
                 : "drawing";
 
+            const defaultFilename = `${defaultBaseName}_markup_${dateStr}`;
+
             const userInput = prompt(
                 "Enter filename (without extension):",
-                defaultBaseName + "_markup"
+                defaultFilename
             );
             const safeBase =
                 userInput && userInput.trim().length > 0
                     ? userInput.trim()
-                    : defaultBaseName + "_markup";
+                    : defaultFilename;
 
             link.download = safeBase + ".png";
-            // --- End prompt logic ---
+            // === END: default-filename + date logic ===
 
             document.body.appendChild(link); link.click(); document.body.removeChild(link);
             showSystemMessage("Saved", `Markup saved as ${link.download}`);
