@@ -750,7 +750,6 @@
 
             <form id="prdForm" onsubmit="return false;"> 
                 <div class="form-content">
-                    <!-- Sections will be rendered here by JS -->
                     <!-- Section 1: Product Overview -->
                     <div class="section active" data-section="1">
                         <div class="section-header">
@@ -1050,7 +1049,7 @@
         // --- API & Data Functions ---
         const getApiUrl = () => {
             // Hardcoded Google Apps Script URL
-            return 'https://script.google.com/a/macros/shrunk.ai/s/AKfycbw79j9P68Dfwe-0_Aj5N057g2AhJJz663qJ7hdq3SRt13C1BnkoBxJ-g1KFxf_oXCjnYQ/exec';
+            return 'https://script.google.com/a/macros/shrunk.ai/s/AKfycbx5FqtfTTKg_4GO4_6Jxs1a5829_x6qwr-waEOQTssz9JtZdwNyrSr5dg8Lre7KOQ_fVg/exec';
         }
 
         const getFormDataObject = () => {
@@ -1198,7 +1197,7 @@
         window.navigateToSection = (sectionNumber) => { currentSection = sectionNumber; showSection(currentSection); }
         
         // --- API Handlers ---
-        window.handleSaveDraft = () => { const apiUrl = getApiUrl(); if (apiUrl) { showModal('saveDraftModal'); gebi('draftNameInput').value = gebi('productName').value || `Draft ${new Date().toLocaleDateString()}`; } }
+        window.handleSaveDraft = () => { if (getApiUrl()) { showModal('saveDraftModal'); gebi('draftNameInput').value = gebi('productName').value || `Draft ${new Date().toLocaleDateString()}`; } }
         window.confirmSaveDraft = async () => {
             const apiUrl = getApiUrl(); if (!apiUrl) return;
             const draftName = gebi('draftNameInput').value.trim(); if (!draftName) return showAppMessage("Draft name cannot be empty.", "error");
