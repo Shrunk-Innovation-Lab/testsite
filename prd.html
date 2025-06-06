@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <title>PRD Studio - Product Requirements Document Generator</title>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+    <!-- jsPDF is not needed as Google Apps Script handles PDF creation -->
     <style>
         * {
             margin: 0;
@@ -86,6 +86,27 @@
             font-size: 1rem; 
             font-weight: 500;
         }
+        
+        #api-setup {
+            margin-top: 16px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+        }
+        #api-setup input {
+            width: 100%;
+            padding: 8px;
+            border: 1px solid #d1d5db;
+            border-radius: 6px;
+            font-size: 12px;
+        }
+         #api-setup label {
+            font-size: 14px;
+            font-weight: 500;
+            margin-bottom: 4px;
+            display: block;
+        }
+
 
         /* Form Container */
         .form-container {
@@ -405,14 +426,14 @@
         /* Navigation */
         .form-navigation {
             display: flex;
-            flex-wrap: wrap; /* Allow wrapping for smaller screens */
+            flex-wrap: wrap; 
             justify-content: space-between; 
             align-items: center;
             margin-top: 40px;
             padding: 24px 32px;
             background: #f9fafb;
             border-top: 1px solid #e5e7eb;
-            gap: 10px; /* Add gap for wrapped items */
+            gap: 10px; 
         }
         .form-actions-left {
             display: flex;
@@ -422,7 +443,6 @@
         .nav-buttons {
             display: flex;
             gap: 12px;
-             /* margin-left: auto; Removed to allow better wrapping */
         }
 
         .btn {
@@ -470,9 +490,9 @@
         .message-box {
             padding: 16px;
             border-radius: 8px;
-            margin: 16px auto; /* Centered and with margin */
-            max-width: 600px; /* Limit width */
-            display: none; /* Hidden by default */
+            margin: 16px auto; 
+            max-width: 600px; 
+            display: none; 
             align-items: center;
             gap: 12px;
             font-size: 14px;
@@ -506,7 +526,7 @@
             width: 100%;
             height: 100%;
             background: rgba(0, 0, 0, 0.5);
-            z-index: 100; /* Ensure modal is on top */
+            z-index: 100; 
             align-items: center;
             justify-content: center;
             padding: 16px;
@@ -519,9 +539,9 @@
         .modal-content {
             background: white;
             border-radius: 16px;
-            padding: 24px; /* Adjusted padding */
+            padding: 24px; 
             max-width: 500px;
-            width: 100%; /* Full width on small screens, constrained by max-width */
+            width: 100%; 
             box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.25);
             text-align: center;
         }
@@ -584,53 +604,6 @@
             margin: 0 auto 20px;
             font-size: 24px;
             color: white; 
-        }
-
-        /* Preview Section */
-        .preview-section {
-            background: white;
-            border-radius: 16px;
-            padding: 32px;
-            margin-top: 32px;
-            box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
-            border: 1px solid rgba(0, 0, 0, 0.05);
-            display: none;
-        }
-
-        .preview-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between; 
-            margin-bottom: 24px;
-            padding-bottom: 16px;
-            border-bottom: 1px solid #e5e7eb;
-        }
-
-        .preview-title {
-            font-size: 1.5rem;
-            font-weight: 700;
-            color: #111827;
-        }
-
-        .preview-content {
-            background: #f9fafb;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            padding: 24px;
-            font-family: 'JetBrains Mono', 'Courier New', monospace;
-            font-size: 13px;
-            line-height: 1.6;
-            white-space: pre-wrap;
-            max-height: 500px;
-            overflow-y: auto;
-        }
-
-        .preview-actions {
-            display: flex;
-            gap: 12px;
-            justify-content: center;
-            margin-top: 24px;
-            flex-wrap: wrap; 
         }
 
         /* Footer */
@@ -759,14 +732,16 @@
         <header class="header">
             <div class="header-content">
                 <div class="logo-section"> 
-                    <div class="logo">
-                    </div>
+                    <div class="logo"></div>
                 </div>
                 <div class="brand-text">
                     <h1 class="brand-title">PRD Studio</h1> 
                     <p class="brand-subtitle">Compress your ideas into comprehensive Product Requirements Documents</p>
                 </div>
-                 <div id="userInfo" class="text-xs text-gray-500 mt-2"></div>
+                <div id="api-setup">
+                    <label for="appsScriptUrl">Google Apps Script URL</label>
+                    <input type="text" id="appsScriptUrl" placeholder="Paste your deployed web app URL here">
+                </div>
             </div>
         </header>
 
@@ -800,6 +775,7 @@
 
             <form id="prdForm" onsubmit="return false;"> 
                 <div class="form-content">
+                    <!-- Sections will be rendered here by JS -->
                     <!-- Section 1: Product Overview -->
                     <div class="section active" data-section="1">
                         <div class="section-header">
@@ -925,45 +901,21 @@
                             <div class="form-group col-span-full">
                                 <label class="form-label">Non-Functional Requirements</label>
                                 <div class="checkbox-grid">
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="performance" id="nfr-performance">
-                                        <label class="checkbox-label" for="nfr-performance">Performance</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="security" id="nfr-security">
-                                        <label class="checkbox-label" for="nfr-security">Security</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="scalability" id="nfr-scalability">
-                                        <label class="checkbox-label" for="nfr-scalability">Scalability</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="usability" id="nfr-usability">
-                                        <label class="checkbox-label" for="nfr-usability">Usability</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="accessibility" id="nfr-accessibility">
-                                        <label class="checkbox-label" for="nfr-accessibility">Accessibility</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="compatibility" id="nfr-compatibility">
-                                        <label class="checkbox-label" for="nfr-compatibility">Compatibility</label>
-                                    </div>
-                                     <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="maintainability" id="nfr-maintainability">
-                                        <label class="checkbox-label" for="nfr-maintainability">Maintainability</label>
-                                    </div>
-                                     <div class="checkbox-item">
-                                        <input type="checkbox" name="nfr[]" value="reliability" id="nfr-reliability">
-                                        <label class="checkbox-label" for="nfr-reliability">Reliability</label>
-                                    </div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="performance" id="nfr-performance"><label class="checkbox-label" for="nfr-performance">Performance</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="security" id="nfr-security"><label class="checkbox-label" for="nfr-security">Security</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="scalability" id="nfr-scalability"><label class="checkbox-label" for="nfr-scalability">Scalability</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="usability" id="nfr-usability"><label class="checkbox-label" for="nfr-usability">Usability</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="accessibility" id="nfr-accessibility"><label class="checkbox-label" for="nfr-accessibility">Accessibility</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="compatibility" id="nfr-compatibility"><label class="checkbox-label" for="nfr-compatibility">Compatibility</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="maintainability" id="nfr-maintainability"><label class="checkbox-label" for="nfr-maintainability">Maintainability</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="nfr[]" value="reliability" id="nfr-reliability"><label class="checkbox-label" for="nfr-reliability">Reliability</label></div>
                                 </div>
                             </div>
                         </div>
 
                         <div class="feature-highlight">
                             <div class="feature-title">⚖️ Feature Prioritization</div>
-                            <div class="feature-description">Use High for must-have features, Medium for should-have features, and Low for nice-to-have features. This helps with development planning.</div>
+                            <div class="feature-description">Use High for must-have features, Medium for should-have features, and Low for nice-to-have features.</div>
                         </div>
                     </div>
 
@@ -978,36 +930,18 @@
                             <div class="form-group col-span-full">
                                 <label class="form-label">Target Platforms</label>
                                 <div class="checkbox-grid">
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="platforms[]" value="web" id="platform-web">
-                                        <label class="checkbox-label" for="platform-web">Web Browser</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="platforms[]" value="ios" id="platform-ios">
-                                        <label class="checkbox-label" for="platform-ios">iOS</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="platforms[]" value="android" id="platform-android">
-                                        <label class="checkbox-label" for="platform-android">Android</label>
-                                    </div>
-                                    <div class="checkbox-item">
-                                        <input type="checkbox" name="platforms[]" value="desktop" id="platform-desktop">
-                                        <label class="checkbox-label" for="platform-desktop">Desktop (Windows)</label>
-                                    </div>
-                                     <div class="checkbox-item">
-                                        <input type="checkbox" name="platforms[]" value="macos" id="platform-macos">
-                                        <label class="checkbox-label" for="platform-macos">Desktop (macOS)</label>
-                                    </div>
-                                     <div class="checkbox-item">
-                                        <input type="checkbox" name="platforms[]" value="linux" id="platform-linux">
-                                        <label class="checkbox-label" for="platform-linux">Desktop (Linux)</label>
-                                    </div>
+                                    <div class="checkbox-item"><input type="checkbox" name="platforms[]" value="web" id="platform-web"><label class="checkbox-label" for="platform-web">Web Browser</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="platforms[]" value="ios" id="platform-ios"><label class="checkbox-label" for="platform-ios">iOS</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="platforms[]" value="android" id="platform-android"><label class="checkbox-label" for="platform-android">Android</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="platforms[]" value="desktop" id="platform-desktop"><label class="checkbox-label" for="platform-desktop">Desktop (Windows)</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="platforms[]" value="macos" id="platform-macos"><label class="checkbox-label" for="platform-macos">Desktop (macOS)</label></div>
+                                    <div class="checkbox-item"><input type="checkbox" name="platforms[]" value="linux" id="platform-linux"><label class="checkbox-label" for="platform-linux">Desktop (Linux)</label></div>
                                 </div>
                             </div>
                             
                             <div class="form-group col-span-full">
                                 <label class="form-label" for="technologyStack">Technology Stack</label>
-                                <textarea class="form-input form-textarea" id="technologyStack" name="technologyStack" placeholder="Preferred technologies, frameworks, databases, programming languages, etc."></textarea>
+                                <textarea class="form-input form-textarea" id="technologyStack" name="technologyStack" placeholder="Preferred technologies, frameworks, databases, etc."></textarea>
                             </div>
                             
                             <div class="form-group col-span-full">
@@ -1020,13 +954,13 @@
                             
                             <div class="form-group col-span-full">
                                 <label class="form-label" for="technicalConstraints">Technical Constraints</label>
-                                <textarea class="form-input form-textarea" id="technicalConstraints" name="technicalConstraints" placeholder="Any technical limitations, compliance requirements (e.g., GDPR, HIPAA), or constraints"></textarea>
+                                <textarea class="form-input form-textarea" id="technicalConstraints" name="technicalConstraints" placeholder="Any technical limitations, compliance requirements, etc."></textarea>
                             </div>
                         </div>
 
                         <div class="feature-highlight">
                             <div class="feature-title">🔧 Technical Planning</div>
-                            <div class="feature-description">Consider scalability, maintainability, and team expertise when choosing your technology stack. Document any constraints early.</div>
+                            <div class="feature-description">Consider scalability, maintainability, and team expertise when choosing your technology stack.</div>
                         </div>
                     </div>
 
@@ -1072,7 +1006,7 @@
 
                         <div class="feature-highlight">
                             <div class="feature-title">📊 Success Measurement</div>
-                            <div class="feature-description">Define clear, measurable acceptance criteria. Consider both quantitative metrics and qualitative outcomes.</div>
+                            <div class="feature-description">Define clear, measurable acceptance criteria.</div>
                         </div>
                     </div>
                 </div>
@@ -1095,8 +1029,8 @@
                         <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextSection()">
                             Next →
                         </button>
-                        <button type="button" class="btn btn-primary" id="generateBtn" onclick="generatePRD()" style="display: none;">
-                            📄 Generate PRD
+                        <button type="button" class="btn btn-primary" id="generateBtn" onclick="handleSaveFinal()" style="display: none;">
+                            📤 Save Final PDF to Drive
                         </button>
                     </div>
                 </div>
@@ -1109,819 +1043,288 @@
              <span id="messageBoxText"></span> 
         </div>
 
-
-        <!-- Preview Section -->
-        <div class="preview-section" id="previewSection">
-            <div class="preview-header">
-                <h2 class="preview-title">Generated PRD Preview</h2>
-            </div>
-            <div class="preview-content" id="previewContent" aria-live="polite">
-            </div>
-            <div class="preview-actions">
-                <button class="btn btn-primary" onclick="downloadPRDAsPDF()">
-                    📥 Download PDF
-                </button>
-                <button class="btn btn-secondary" onclick="copyToClipboard()">
-                    📋 Copy Markdown
-                </button>
-                <button class="btn btn-secondary" onclick="editPRD()">
-                    ✏️ Edit PRD
-                </button>
-            </div>
-        </div>
-
         <!-- Footer -->
         <footer class="footer">
-            © <span id="currentYear">2025</span> | <a href="#" onclick="return false;">Shrunk Innovation Group Pty Ltd</a> | All Rights Reserved
+            © <span id="currentYear"></span> | <a href="#" onclick="return false;">Shrunk Innovation Group Pty Ltd</a> | All Rights Reserved
         </footer>
     </div>
 
-    <!-- Save Draft Modal -->
-    <div class="modal" id="saveDraftModal">
-        <div class="modal-content">
-            <h3>Save Draft</h3>
-            <p>Enter a name for your draft:</p>
-            <input type="text" id="draftNameInput" class="modal-input" placeholder="e.g., My Awesome Project Draft">
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="hideModal('saveDraftModal')">Cancel</button>
-                <button type="button" class="btn btn-primary" onclick="confirmSaveDraft()">Save</button>
-            </div>
-        </div>
-    </div>
+    <!-- Modals (Save, Load, Loading) -->
+    <div class="modal" id="saveDraftModal"><div class="modal-content"><h3>Save Draft</h3><p>Enter a name for your draft. If it exists, it will be overwritten.</p><input type="text" id="draftNameInput" class="modal-input" placeholder="e.g., My Project Draft"><div class="modal-buttons"><button type="button" class="btn btn-secondary" onclick="hideModal('saveDraftModal')">Cancel</button><button type="button" class="btn btn-primary" onclick="confirmSaveDraft()">Save</button></div></div></div>
+    <div class="modal" id="loadDraftModal"><div class="modal-content"><h3>Load Draft</h3><p>Select a draft to load. This will overwrite current form content.</p><div id="draftsListContainer" class="drafts-list"></div><div id="noDraftsMessage" style="display:none;margin-top:10px;color:#6b7280;">No drafts found.</div><div class="modal-buttons"><button type="button" class="btn btn-secondary" onclick="hideModal('loadDraftModal')">Cancel</button></div></div></div>
+    <div class="modal" id="loadingSpinnerModal"><div class="modal-content"><div class="modal-icon">⏳</div><h3 id="loadingSpinnerText">Processing...</h3><div class="spinner"></div></div></div>
 
-    <!-- Load Draft Modal -->
-    <div class="modal" id="loadDraftModal">
-        <div class="modal-content">
-            <h3>Load Draft</h3>
-            <p>Select a draft to load. This will overwrite current form content.</p>
-            <div id="draftsListContainer" class="drafts-list">
-                <p>Loading drafts...</p>
-            </div>
-             <div id="noDraftsMessage" style="display:none; margin-top:10px; color: #6b7280;">No drafts found.</div>
-            <div class="modal-buttons">
-                <button type="button" class="btn btn-secondary" onclick="hideModal('loadDraftModal')">Cancel</button>
-            </div>
-        </div>
-    </div>
-
-
-    <!-- Loading Modal (General Purpose) -->
-    <div class="modal" id="loadingSpinnerModal"> 
-        <div class="modal-content">
-            <div class="modal-icon">⏳</div>
-            <h3 id="loadingSpinnerText">Processing...</h3>
-            <div class="spinner"></div>
-        </div>
-    </div>
-
-    <script type="module">
-        // Firebase SDK imports
-        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
-        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
-        import { getFirestore, doc, setDoc, getDoc, collection, getDocs, deleteDoc, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
-
-        // Global Firebase variables
-        let db, auth, userId, appId;
-        let isAuthReady = false;
-
-        // --- Firebase Configuration and Initialization ---
-        async function initializeFirebase() {
-            // These __variables are expected to be injected by the Canvas environment
-            appId = typeof __app_id !== 'undefined' ? __app_id : 'prd-studio-default-appid'; // Default for local testing
-            const firebaseConfigStr = typeof __firebase_config !== 'undefined' ? __firebase_config : null;
-            
-            if (!firebaseConfigStr) {
-                console.error("Firebase config not found. Drafts will not work.");
-                showAppMessage("Firebase config not found. Draft functionality disabled.", "error");
-                isAuthReady = true; // Allow app to proceed without firebase if config missing
-                return;
-            }
-
-            try {
-                const firebaseConfig = JSON.parse(firebaseConfigStr);
-                const app = initializeApp(firebaseConfig);
-                db = getFirestore(app);
-                auth = getAuth(app);
-                // setLogLevel('debug'); // Uncomment for Firestore logging
-
-                onAuthStateChanged(auth, async (user) => {
-                    if (user) {
-                        userId = user.uid;
-                        console.log("User authenticated with UID:", userId);
-                         gebi('userInfo').textContent = `User ID: ${userId.substring(0,8)}...`;
-                    } else {
-                        // No user is signed in. Try to sign in.
-                        console.log("No user signed in, attempting auth...");
-                        try {
-                            if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
-                                console.log("Attempting sign in with custom token...");
-                                await signInWithCustomToken(auth, __initial_auth_token);
-                            } else {
-                                console.log("Attempting anonymous sign in...");
-                                await signInAnonymously(auth);
-                            }
-                        } catch (error) {
-                            console.error("Firebase Authentication Error:", error);
-                            showAppMessage(`Authentication Error: ${error.message}. Drafts may not work.`, "error");
-                            userId = `local-${crypto.randomUUID()}`; // Fallback local user ID
-                             gebi('userInfo').textContent = `Local Mode (User ID: ${userId.substring(0,8)}...)`;
-                        }
-                    }
-                    isAuthReady = true;
-                    loadDraftsForModal(); // Load drafts once auth is ready
-                });
-
-            } catch (error) {
-                console.error("Error initializing Firebase:", error);
-                showAppMessage("Error initializing Firebase. Drafts disabled.", "error");
-                isAuthReady = true; // Allow app to proceed
-                 userId = `local-${crypto.randomUUID()}`; // Fallback local user ID
-                gebi('userInfo').textContent = `Local Mode (Error Init)`;
-
-            }
-        }
-
-
+    <script>
         // --- App State and Core Logic ---
         let currentSection = 1;
         const totalSections = 5;
-        let generatedPRD = ''; 
 
-        function gebi(id) { return document.getElementById(id); } 
+        const gebi = (id) => document.getElementById(id);
 
         function showAppMessage(message, type = 'info') {
-            const messageBox = gebi('appMessageBox');
-            const iconSpan = gebi('messageBoxIcon');
-            const textSpan = gebi('messageBoxText');
-
-            messageBox.className = 'message-box'; 
-            if (type === 'success') {
-                messageBox.classList.add('message-box-success');
-                iconSpan.textContent = '🎉';
-            } else if (type === 'error') {
-                 messageBox.classList.add('message-box-error');
-                iconSpan.textContent = '❌';
-            } else { 
-                messageBox.classList.add('message-box-info');
-                iconSpan.textContent = 'ℹ️';
-            }
-            textSpan.textContent = message;
-            messageBox.style.display = 'flex';
-
-            setTimeout(() => {
-                messageBox.style.display = 'none';
-            }, 5000);
+            const box = gebi('appMessageBox'), icon = gebi('messageBoxIcon'), text = gebi('messageBoxText');
+            box.className = 'message-box'; 
+            if (type === 'success') { box.classList.add('message-box-success'); icon.textContent = '🎉'; } 
+            else if (type === 'error') { box.classList.add('message-box-error'); icon.textContent = '❌'; } 
+            else { box.classList.add('message-box-info'); icon.textContent = 'ℹ️'; }
+            text.textContent = message;
+            box.style.display = 'flex';
+            setTimeout(() => { box.style.display = 'none'; }, 5000);
         }
-
+        
         // --- Dynamic Item Management ---
-        function createDynamicItem(contentHTML, removeItemFnName) {
-            const newItem = document.createElement('div');
-            newItem.className = 'dynamic-item';
-            newItem.innerHTML = `
-                <div class="dynamic-item-content">
-                    ${contentHTML}
-                </div>
-                <button type="button" class="remove-btn" aria-label="Remove item">×</button>
-            `;
-            newItem.querySelector('.remove-btn').onclick = function() { 
-                // Get the actual function from window scope
-                if (typeof window[removeItemFnName] === 'function') {
-                    window[removeItemFnName](this); 
-                } else {
-                    this.parentElement.remove(); // Default remove if specific fn not found
-                }
-            };
+        function createDynamicItem(contentHTML) {
+            const newItem = document.createElement('div'); newItem.className = 'dynamic-item';
+            newItem.innerHTML = `<div class="dynamic-item-content">${contentHTML}</div><button type="button" class="remove-btn" aria-label="Remove item" onclick="this.parentElement.remove()">×</button>`;
             return newItem;
         }
-        
-        function addDynamicItem(containerId, contentHTML, callbackFnName, dataToPopulate = null) {
-            const container = gebi(containerId);
-            if (!container) { return; }
-
-            const newItem = createDynamicItem(contentHTML, 'removeItem'); // Generic remove
-            container.appendChild(newItem);
-
-            if (dataToPopulate) {
-                const inputs = newItem.querySelectorAll('.form-input, .form-textarea, .form-select, input[type="hidden"]');
-                inputs.forEach(input => {
-                    if (dataToPopulate.hasOwnProperty(input.name.replace('[]',''))) {
-                        input.value = dataToPopulate[input.name.replace('[]','')];
-                    } else if (input.name && dataToPopulate.hasOwnProperty(input.name)) {
-                         input.value = dataToPopulate[input.name];
+        function addDynamicItem(containerId, contentHTML, callbackFn) { const container = gebi(containerId); if (container) { const newItem = createDynamicItem(contentHTML); container.appendChild(newItem); if (callbackFn) callbackFn(newItem); } }
+        window.addUserStory = (data = {}) => addDynamicItem('userStories', `<input type="text" class="form-input" value="${data.userStory || ''}" placeholder="As a [user type]..." name="userStory[]"><input type="text" class="form-input" value="${data.userGoal || ''}" placeholder="I want to [goal]..." name="userGoal[]"><input type="text" class="form-input" value="${data.userBenefit || ''}" placeholder="So that [benefit]..." name="userBenefit[]">`);
+        window.addBusinessObjective = (data = {}) => addDynamicItem('businessObjectives', `<input type="text" class="form-input" value="${data.businessObjective || ''}" placeholder="Enter business objective" name="businessObjective[]">`);
+        window.addSuccessMetric = (data = {}) => addDynamicItem('successMetrics', `<input type="text" class="form-input" value="${data.metricName || ''}" placeholder="Metric name" name="metricName[]"><input type="text" class="form-input" value="${data.metricTarget || ''}" placeholder="Target value" name="metricTarget[]">`);
+        window.addCoreFeature = (data = {}) => addDynamicItem('coreFeatures', `<input type="text" class="form-input" value="${data.featureName || ''}" placeholder="Feature name" name="featureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="featureDescription[]">${data.featureDescription || ''}</textarea><label class="form-label">Priority</label><div class="priority-grid"><div class="priority-option ${data.featurePriority === 'high' ? 'selected' : ''}" data-priority="high">High</div><div class="priority-option ${!data.featurePriority || data.featurePriority === 'medium' ? 'selected' : ''}" data-priority="medium">Medium</div><div class="priority-option ${data.featurePriority === 'low' ? 'selected' : ''}" data-priority="low">Low</div></div><input type="hidden" name="featurePriority[]" value="${data.featurePriority || 'medium'}">`, setupPrioritySelectorsForItem);
+        window.setupPrioritySelectorsForItem = (item) => { const grid = item.querySelector('.priority-grid'); const opts = grid.querySelectorAll('.priority-option'); const input = item.querySelector('input[type="hidden"]'); opts.forEach(opt => opt.onclick = () => { opts.forEach(o => o.classList.remove('selected')); opt.classList.add('selected'); input.value = opt.dataset.priority; }); };
+        window.addFutureFeature = (data = {}) => addDynamicItem('futureFeatures', `<input type="text" class="form-input" value="${data.futureFeatureName || ''}" placeholder="Future feature name" name="futureFeatureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="futureFeatureDescription[]">${data.futureFeatureDescription || ''}</textarea>`);
+        window.addIntegration = (data = {}) => addDynamicItem('integrations', `<input type="text" class="form-input" value="${data.integrationName || ''}" placeholder="System/Service name" name="integrationName[]"><input type="text" class="form-input" value="${data.integrationType || ''}" placeholder="Integration type" name="integrationType[]"><textarea class="form-input form-textarea" placeholder="Integration purpose" name="integrationPurpose[]">${data.integrationPurpose || ''}</textarea>`);
+        window.addAcceptanceCriteria = (data = {}) => addDynamicItem('acceptanceCriteria', `<textarea class="form-input form-textarea" placeholder="Describe successful completion" name="acceptanceCriteria[]">${data.acceptanceCriteria || ''}</textarea>`);
+        window.addRisk = (data = {}) => addDynamicItem('risks', `<input type="text" class="form-input" value="${data.riskDescription || ''}" placeholder="Risk description" name="riskDescription[]"><input type="text" class="form-input" value="${data.riskMitigation || ''}" placeholder="Mitigation strategy" name="riskMitigation[]">`);
+        const clearAllDynamicLists = () => ['userStories', 'businessObjectives', 'successMetrics', 'coreFeatures', 'futureFeatures', 'integrations', 'acceptanceCriteria', 'risks'].forEach(id => { gebi(id).innerHTML = ''; });
+        const initializeDefaultDynamicItems = () => {
+            const itemMap = {
+                'userStories': 'addUserStory',
+                'businessObjectives': 'addBusinessObjective',
+                'successMetrics': 'addSuccessMetric',
+                'coreFeatures': 'addCoreFeature',
+                'futureFeatures': 'addFutureFeature',
+                'integrations': 'addIntegration',
+                'acceptanceCriteria': 'addAcceptanceCriteria',
+                'risks': 'addRisk'
+            };
+            for (const containerId in itemMap) {
+                if (gebi(containerId) && gebi(containerId).children.length === 0) {
+                    const functionName = itemMap[containerId];
+                    if (typeof window[functionName] === 'function') {
+                        window[functionName]();
+                    } else {
+                        console.error(`Initialization function ${functionName} not found.`);
                     }
-                    // For priority
-                    if (input.name === 'featurePriority[]' && dataToPopulate.featurePriority) {
-                         input.value = dataToPopulate.featurePriority;
-                         const priorityGrid = newItem.querySelector('.priority-grid');
-                         if(priorityGrid) {
-                            priorityGrid.querySelectorAll('.priority-option').forEach(opt => {
-                                opt.classList.remove('selected');
-                                if(opt.dataset.priority === dataToPopulate.featurePriority) {
-                                    opt.classList.add('selected');
-                                }
-                            });
-                         }
-                    }
-                });
-            }
-            
-            if (typeof window[callbackFnName] === 'function') {
-                 window[callbackFnName](newItem); // Pass newItem for context if needed
-            }
-        }
-        
-        window.removeItem = function(button) { // Make it global for inline onclick
-            button.parentElement.remove();
-        }
-
-
-        window.addUserStory = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="userStory-${uniqueId}" class="sr-only">User Story</label>
-                <input type="text" class="form-input" id="userStory-${uniqueId}" value="${data?.userStory || ''}" placeholder="As a [user type]..." name="userStory[]">
-                <label for="userGoal-${uniqueId}" class="sr-only">User Goal</label>
-                <input type="text" class="form-input" id="userGoal-${uniqueId}" value="${data?.userGoal || ''}" placeholder="I want to [goal]..." name="userGoal[]">
-                <label for="userBenefit-${uniqueId}" class="sr-only">User Benefit</label>
-                <input type="text" class="form-input" id="userBenefit-${uniqueId}" value="${data?.userBenefit || ''}" placeholder="So that [benefit]..." name="userBenefit[]">
-            `;
-            addDynamicItem('userStories', content, null, data);
-        }
-
-        window.addBusinessObjective = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="businessObjective-${uniqueId}" class="sr-only">Business Objective</label>
-                <input type="text" class="form-input" id="businessObjective-${uniqueId}" value="${data?.businessObjective || ''}" placeholder="Enter business objective" name="businessObjective[]">
-            `;
-            addDynamicItem('businessObjectives', content, null, data);
-        }
-
-        window.addSuccessMetric = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="metricName-${uniqueId}" class="sr-only">Metric Name</label>
-                <input type="text" class="form-input" id="metricName-${uniqueId}" value="${data?.metricName || ''}" placeholder="Metric name (e.g., User Engagement)" name="metricName[]">
-                <label for="metricTarget-${uniqueId}" class="sr-only">Metric Target</label>
-                <input type="text" class="form-input" id="metricTarget-${uniqueId}" value="${data?.metricTarget || ''}" placeholder="Target value (e.g., Increase by 20%)" name="metricTarget[]">
-            `;
-            addDynamicItem('successMetrics', content, null, data);
-        }
-
-        window.addCoreFeature = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="featureName-${uniqueId}" class="sr-only">Feature Name</label>
-                <input type="text" class="form-input" id="featureName-${uniqueId}" value="${data?.featureName || ''}" placeholder="Feature name" name="featureName[]">
-                <label for="featureDescription-${uniqueId}" class="sr-only">Feature Description</label>
-                <textarea class="form-input form-textarea" id="featureDescription-${uniqueId}" placeholder="Feature description" name="featureDescription[]">${data?.featureDescription || ''}</textarea>
-                <label class="form-label">Priority</label>
-                <div class="priority-grid">
-                    <div class="priority-option ${data?.featurePriority === 'high' ? 'selected' : ''}" data-priority="high" role="radio" aria-checked="${data?.featurePriority === 'high'}" tabindex="0">High Priority</div>
-                    <div class="priority-option ${data?.featurePriority === 'medium' || !data?.featurePriority ? 'selected' : ''}" data-priority="medium" role="radio" aria-checked="${data?.featurePriority === 'medium' || !data?.featurePriority}" tabindex="0">Medium Priority</div>
-                    <div class="priority-option ${data?.featurePriority === 'low' ? 'selected' : ''}" data-priority="low" role="radio" aria-checked="${data?.featurePriority === 'low'}" tabindex="0">Low Priority</div>
-                </div>
-                <input type="hidden" name="featurePriority[]" value="${data?.featurePriority || 'medium'}">
-            `;
-            addDynamicItem('coreFeatures', content, 'setupPrioritySelectorsForItem', data);
-        }
-        
-        window.setupPrioritySelectorsForItem = function(itemElement) {
-            const grid = itemElement.querySelector('.priority-grid');
-            if (!grid) return;
-            const options = grid.querySelectorAll('.priority-option');
-            const hiddenInput = itemElement.querySelector('input[type="hidden"][name="featurePriority[]"]');
-            
-            options.forEach(option => {
-                option.onclick = function() { 
-                    options.forEach(opt => opt.classList.remove('selected'));
-                    this.classList.add('selected');
-                    if (hiddenInput) hiddenInput.value = this.dataset.priority;
-                };
-                 option.onkeydown = function(e) {
-                    if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); this.click(); }
-                };
-            });
-        }
-
-
-        window.addFutureFeature = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="futureFeatureName-${uniqueId}" class="sr-only">Future Feature Name</label>
-                <input type="text" class="form-input" id="futureFeatureName-${uniqueId}" value="${data?.futureFeatureName || ''}" placeholder="Future feature name" name="futureFeatureName[]">
-                <label for="futureFeatureDescription-${uniqueId}" class="sr-only">Future Feature Description</label>
-                <textarea class="form-input form-textarea" id="futureFeatureDescription-${uniqueId}" placeholder="Feature description" name="futureFeatureDescription[]">${data?.futureFeatureDescription || ''}</textarea>
-            `;
-            addDynamicItem('futureFeatures', content, null, data);
-        }
-
-        window.addIntegration = function(data = null) {
-             const uniqueId = Date.now();
-            const content = `
-                <label for="integrationName-${uniqueId}" class="sr-only">Integration Name</label>
-                <input type="text" class="form-input" id="integrationName-${uniqueId}" value="${data?.integrationName || ''}" placeholder="System/Service name" name="integrationName[]">
-                <label for="integrationType-${uniqueId}" class="sr-only">Integration Type</label>
-                <input type="text" class="form-input" id="integrationType-${uniqueId}" value="${data?.integrationType || ''}" placeholder="Integration type (API, Webhook, etc.)" name="integrationType[]">
-                <label for="integrationPurpose-${uniqueId}" class="sr-only">Integration Purpose</label>
-                <textarea class="form-input form-textarea" id="integrationPurpose-${uniqueId}" placeholder="Integration purpose and details" name="integrationPurpose[]">${data?.integrationPurpose || ''}</textarea>
-            `;
-            addDynamicItem('integrations', content, null, data);
-        }
-
-        window.addAcceptanceCriteria = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="acceptanceCriteria-${uniqueId}" class="sr-only">Acceptance Criteria</label>
-                <textarea class="form-input form-textarea" id="acceptanceCriteria-${uniqueId}" placeholder="Describe what constitutes successful completion" name="acceptanceCriteria[]">${data?.acceptanceCriteria || ''}</textarea>
-            `;
-            addDynamicItem('acceptanceCriteria', content, null, data);
-        }
-
-        window.addRisk = function(data = null) {
-            const uniqueId = Date.now();
-            const content = `
-                <label for="riskDescription-${uniqueId}" class="sr-only">Risk Description</label>
-                <input type="text" class="form-input" id="riskDescription-${uniqueId}" value="${data?.riskDescription || ''}" placeholder="Risk description" name="riskDescription[]">
-                <label for="riskMitigation-${uniqueId}" class="sr-only">Risk Mitigation</label>
-                <input type="text" class="form-input" id="riskMitigation-${uniqueId}" value="${data?.riskMitigation || ''}" placeholder="Mitigation strategy" name="riskMitigation[]">
-            `;
-            addDynamicItem('risks', content, null, data);
-        }
-        
-        function initializeDefaultDynamicItems() {
-            if (gebi('userStories').children.length === 0) addUserStory();
-            if (gebi('businessObjectives').children.length === 0) addBusinessObjective();
-            if (gebi('successMetrics').children.length === 0) addSuccessMetric();
-            if (gebi('coreFeatures').children.length === 0) addCoreFeature();
-            if (gebi('futureFeatures').children.length === 0) addFutureFeature();
-            if (gebi('integrations').children.length === 0) addIntegration();
-            if (gebi('acceptanceCriteria').children.length === 0) addAcceptanceCriteria();
-            if (gebi('risks').children.length === 0) addRisk();
-        }
-        
-        function clearDynamicItems(containerId) {
-            const container = gebi(containerId);
-            if (container) container.innerHTML = '';
-        }
-
-        function clearAllDynamicLists() {
-            const dynamicContainers = ['userStories', 'businessObjectives', 'successMetrics', 'coreFeatures', 'futureFeatures', 'integrations', 'acceptanceCriteria', 'risks'];
-            dynamicContainers.forEach(clearDynamicItems);
-        }
-
-
-        // --- Form Navigation ---
-        function validateCurrentSection() { return true; } // No validation for now
-
-        window.nextSection = function() {
-            if (!validateCurrentSection()) return; 
-            if (currentSection < totalSections) {
-                currentSection++;
-                showSection(currentSection);
-            }
-        }
-
-        window.previousSection = function() {
-            if (currentSection > 1) {
-                currentSection--;
-                showSection(currentSection);
-            }
-        }
-        
-        window.navigateToSection = function(sectionNumber) {
-            currentSection = sectionNumber;
-            showSection(currentSection);
-        }
-
-        function showSection(sectionNumber) {
-            document.querySelectorAll('.section').forEach(section => section.classList.remove('active'));
-            const currentSectionElem = document.querySelector(`.section[data-section="${sectionNumber}"]`);
-            if (currentSectionElem) currentSectionElem.classList.add('active');
-            
-            document.querySelectorAll('.step').forEach((step) => {
-                const stepNum = parseInt(step.dataset.step);
-                step.classList.remove('active', 'completed', 'inactive');
-                const stepNumberDiv = step.querySelector('.step-number');
-                stepNumberDiv.classList.remove('active', 'completed', 'inactive'); 
-
-                if (stepNum < sectionNumber) {
-                    step.classList.add('completed'); stepNumberDiv.classList.add('completed');
-                } else if (stepNum === sectionNumber) {
-                    step.classList.add('active'); stepNumberDiv.classList.add('active');
-                } else {
-                    step.classList.add('inactive'); stepNumberDiv.classList.add('inactive');
-                }
-            });
-            updateNavigation();
-            window.scrollTo({ top: gebi('prdForm').offsetTop - 20, behavior: 'smooth' }); 
-        }
-
-        function updateNavigation() {
-            gebi('prevBtn').disabled = currentSection === 1;
-            gebi('nextBtn').style.display = currentSection === totalSections ? 'none' : 'inline-flex';
-            gebi('generateBtn').style.display = currentSection === totalSections ? 'inline-flex' : 'none';
-        }
-        
-        // --- Draft Management ---
-        window.handleSaveDraft = async function() {
-            if (!isAuthReady || !db) {
-                showAppMessage("Drafts functionality is not available (Firebase not ready).", "error");
-                return;
-            }
-            showModal('saveDraftModal');
-            gebi('draftNameInput').value = gebi('productName').value || `Draft ${new Date().toLocaleDateString()}`;
-            gebi('draftNameInput').focus();
-        }
-
-        window.confirmSaveDraft = async function() {
-            const draftName = gebi('draftNameInput').value.trim();
-            if (!draftName) {
-                showAppMessage("Draft name cannot be empty.", "error");
-                return;
-            }
-
-            showModalSpinner("Saving draft...");
-            const formData = new FormData(gebi('prdForm'));
-            const prdDataObject = {};
-            
-            for (let [key, value] of formData.entries()) {
-                const cleanKey = key.replace('[]', ''); // Remove [] for array keys
-                if (key.endsWith('[]')) {
-                    if (!prdDataObject[cleanKey]) {
-                        prdDataObject[cleanKey] = [];
-                    }
-                    prdDataObject[cleanKey].push(value);
-                } else {
-                    prdDataObject[key] = value;
                 }
             }
-            // Ensure checkbox arrays are present even if empty
-            ['nfr', 'platforms'].forEach(key => {
-                if (!prdDataObject[key]) prdDataObject[key] = [];
-            });
+        };
 
-
-            try {
-                const draftRef = doc(db, "artifacts", appId, "users", userId, "prd_drafts", draftName);
-                await setDoc(draftRef, { ...prdDataObject, lastSaved: serverTimestamp() });
-                hideModal('saveDraftModal');
-                hideModalSpinner();
-                showAppMessage(`Draft "${draftName}" saved successfully!`, "success");
-                loadDraftsForModal(); // Refresh list
-            } catch (error) {
-                console.error("Error saving draft:", error);
-                hideModalSpinner();
-                showAppMessage(`Error saving draft: ${error.message}`, "error");
-            }
-        }
-        
-        window.showLoadDraftModal = async function() {
-            if (!isAuthReady || !db) {
-                showAppMessage("Drafts functionality is not available (Firebase not ready).", "error");
-                return;
-            }
-            await loadDraftsForModal(); // Ensure list is fresh
-            showModal('loadDraftModal');
+        // --- API & Data Functions ---
+        const getApiUrl = () => {
+            const url = gebi('appsScriptUrl').value.trim();
+            if (!url) { showAppMessage("Please enter your Google Apps Script URL.", "error"); return null; }
+            return url;
         }
 
-        async function loadDraftsForModal() {
-             if (!isAuthReady || !userId || !db) {
-                gebi('draftsListContainer').innerHTML = '<p>Drafts unavailable (auth not ready).</p>';
-                return;
-            }
-            const listContainer = gebi('draftsListContainer');
-            const noDraftsMsg = gebi('noDraftsMessage');
-            listContainer.innerHTML = '<p>Loading drafts...</p>';
-            noDraftsMsg.style.display = 'none';
-
-            try {
-                const draftsCol = collection(db, "artifacts", appId, "users", userId, "prd_drafts");
-                const draftSnapshot = await getDocs(draftsCol);
-                if (draftSnapshot.empty) {
-                    listContainer.innerHTML = '';
-                    noDraftsMsg.style.display = 'block';
-                    return;
-                }
-                listContainer.innerHTML = ''; // Clear previous
-                draftSnapshot.forEach((docSnap) => {
-                    const draftName = docSnap.id;
-                    const item = document.createElement('div');
-                    item.className = 'drafts-list-item';
-                    item.innerHTML = `
-                        <span>${draftName}</span>
-                        <div>
-                            <button type="button" class="btn btn-sm btn-primary" style="padding: 4px 8px; font-size:12px; margin-right: 5px;">Load</button>
-                            <button type="button" class="draft-delete-btn">Delete</button>
-                        </div>
-                    `;
-                    item.querySelector('.btn-primary').onclick = () => loadSelectedDraft(draftName);
-                    item.querySelector('.draft-delete-btn').onclick = (e) => { e.stopPropagation(); confirmDeleteDraft(draftName); };
-                    listContainer.appendChild(item);
-                });
-            } catch (error) {
-                console.error("Error loading drafts:", error);
-                listContainer.innerHTML = '<p>Error loading drafts.</p>';
-                showAppMessage(`Error loading drafts: ${error.message}`, "error");
-            }
-        }
-        
-        async function loadSelectedDraft(draftName) {
-            if (!isAuthReady || !db) return;
-            showModalSpinner(`Loading draft "${draftName}"...`);
-            hideModal('loadDraftModal');
-            try {
-                const draftRef = doc(db, "artifacts", appId, "users", userId, "prd_drafts", draftName);
-                const docSnap = await getDoc(draftRef);
-
-                if (docSnap.exists()) {
-                    const draftData = docSnap.data();
-                    // 1. Reset the form
-                    gebi('prdForm').reset();
-                    clearAllDynamicLists();
-
-                    // 2. Populate simple fields
-                    for (const key in draftData) {
-                        if (!key.endsWith('[]') && !Array.isArray(draftData[key]) && gebi(key)) {
-                            gebi(key).value = draftData[key];
-                        } else if (gebi(key) && gebi(key).type === 'checkbox' && Array.isArray(draftData[key])) {
-                            // This case is unlikely with current form structure but good to have
-                        }
-                    }
-                    
-                    // 3. Populate checkboxes (NFRs, Platforms)
-                    ['nfr', 'platforms'].forEach(chkKey => {
-                        if (draftData[chkKey] && Array.isArray(draftData[chkKey])) {
-                            document.querySelectorAll(`input[name="${chkKey}[]"]`).forEach(chk => {
-                                chk.checked = draftData[chkKey].includes(chk.value);
-                            });
-                        }
-                    });
-
-                    // 4. Populate dynamic lists
-                    // User Stories
-                    if(draftData.userStory) draftData.userStory.forEach((_, i) => addUserStory({ userStory: draftData.userStory[i], userGoal: draftData.userGoal?.[i], userBenefit: draftData.userBenefit?.[i] }));
-                    // Business Objectives
-                    if(draftData.businessObjective) draftData.businessObjective.forEach(obj => addBusinessObjective({ businessObjective: obj }));
-                    // Success Metrics
-                    if(draftData.metricName) draftData.metricName.forEach((_, i) => addSuccessMetric({ metricName: draftData.metricName[i], metricTarget: draftData.metricTarget?.[i] }));
-                    // Core Features
-                    if(draftData.featureName) draftData.featureName.forEach((_, i) => addCoreFeature({ featureName: draftData.featureName[i], featureDescription: draftData.featureDescription?.[i], featurePriority: draftData.featurePriority?.[i] }));
-                    // Future Features
-                    if(draftData.futureFeatureName) draftData.futureFeatureName.forEach((_, i) => addFutureFeature({ futureFeatureName: draftData.futureFeatureName[i], futureFeatureDescription: draftData.futureFeatureDescription?.[i] }));
-                    // Integrations
-                    if(draftData.integrationName) draftData.integrationName.forEach((_, i) => addIntegration({ integrationName: draftData.integrationName[i], integrationType: draftData.integrationType?.[i], integrationPurpose: draftData.integrationPurpose?.[i] }));
-                    // Acceptance Criteria
-                    if(draftData.acceptanceCriteria) draftData.acceptanceCriteria.forEach(ac => addAcceptanceCriteria({ acceptanceCriteria: ac }));
-                    // Risks
-                    if(draftData.riskDescription) draftData.riskDescription.forEach((_, i) => addRisk({ riskDescription: draftData.riskDescription[i], riskMitigation: draftData.riskMitigation?.[i] }));
-
-
-                    showAppMessage(`Draft "${draftName}" loaded.`, "success");
-                    currentSection = 1;
-                    showSection(1); // Go to first section
-                } else {
-                    showAppMessage(`Draft "${draftName}" not found.`, "error");
-                }
-            } catch (error) {
-                console.error("Error loading draft:", error);
-                showAppMessage(`Error loading draft: ${error.message}`, "error");
-            }
-            hideModalSpinner();
-        }
-
-        function confirmDeleteDraft(draftName) {
-            // Using custom modal for confirm is better, but for now, simple confirm
-            if (confirm(`Are you sure you want to delete the draft "${draftName}"? This cannot be undone.`)) {
-                deleteSelectedDraft(draftName);
-            }
-        }
-
-        async function deleteSelectedDraft(draftName) {
-            if (!isAuthReady || !db) return;
-            showModalSpinner(`Deleting draft "${draftName}"...`);
-            try {
-                const draftRef = doc(db, "artifacts", appId, "users", userId, "prd_drafts", draftName);
-                await deleteDoc(draftRef);
-                showAppMessage(`Draft "${draftName}" deleted.`, "success");
-                loadDraftsForModal(); // Refresh the list in the modal
-            } catch (error) {
-                console.error("Error deleting draft:", error);
-                showAppMessage(`Error deleting draft: ${error.message}`, "error");
-            }
-            hideModalSpinner();
-        }
-
-
-        // --- PRD Generation & PDF Export ---
-        window.generatePRD = function() {
-            showModalSpinner("Generating PRD...");
-            setTimeout(() => {
-                const formData = new FormData(gebi('prdForm'));
-                generatedPRD = createPRDDocument(formData);
-                gebi('previewContent').textContent = generatedPRD;
-                gebi('previewSection').style.display = 'block';
-                showAppMessage('PRD Generated Successfully! You can now download it as PDF.', 'success');
-                hideModalSpinner();
-                gebi('previewSection').scrollIntoView({ behavior: 'smooth' });
-            }, 500); // Shorter timeout for generation, PDF takes time
-        }
-        
-        function createPRDDocument(formData) {
+        const getFormDataObject = () => {
             const data = {};
-            for (let [key, value] of formData.entries()) {
+            new FormData(gebi('prdForm')).forEach((value, key) => {
                 const cleanKey = key.replace('[]', '');
-                if (key.endsWith('[]')) { 
+                if (key.endsWith('[]')) {
                     if (!data[cleanKey]) data[cleanKey] = [];
-                    data[cleanKey].push(value.trim() || 'N/A');
-                } else {
-                    data[key] = value.trim() || 'N/A';
-                }
-            }
-             const arrayKeysEnsure = ['userStory', 'userGoal', 'userBenefit', 'businessObjective', 'metricName', 'metricTarget', 'featureName', 'featureDescription', 'featurePriority', 'futureFeatureName', 'futureFeatureDescription', 'nfr', 'platforms', 'integrationName', 'integrationType', 'integrationPurpose', 'acceptanceCriteria', 'riskDescription', 'riskMitigation'];
-            arrayKeysEnsure.forEach(key => {
-                if (!data[key]) data[key] = [];
-                if (!Array.isArray(data[key])) data[key] = [data[key]];
-                if (data[key].length === 0 && (key === 'userStory' || key === 'featureName' || key === 'nfr' || key === 'platforms')) data[key].push('N/A'); // Ensure N/A for specific empty arrays
-                else if (data[key].length === 0) data[key] = ['N/A']; // Default for others
+                    data[cleanKey].push(value);
+                } else { data[cleanKey] = value; }
             });
+            ['nfr', 'platforms'].forEach(k => { if (!data[k]) data[k] = []; });
+            return data;
+        };
 
-
-            const buildList = (items, prefix = "- ") => (items && items.length > 0 && !(items.length === 1 && items[0] === 'N/A')) ? items.map(item => `${prefix}${item || 'N/A'}`).join('\n') : `${prefix}N/A`;
-            const buildPairedList = (items1, items2, label1, label2) => {
+        const createPRDMarkdown = () => {
+             const data = getFormDataObject();
+             const buildList = (items, prefix = "- ") => (items && items.length > 0 && !(items.length === 1 && items[0] === 'N/A')) ? items.map(item => `${prefix}${item || 'N/A'}`).join('\n') : `${prefix}N/A`;
+             const buildPairedList = (items1, items2, label1, label2) => {
                  if (!items1 || items1.length === 0 || (items1.length === 1 && items1[0] === 'N/A')) return '- N/A';
                  return items1.map((item1, index) => `- **${label1 || item1 || 'N/A'}:** ${items2?.[index] || 'N/A'}`).join('\n');
-            }
-            
-            let prd = `# Product Requirements Document (PRD)\n\n`;
-            prd += `## 1. Product Overview\n\n`;
-            prd += `**Product Name:** ${data.productName}\n`;
-            prd += `**Product Type:** ${data.productType}\n`;
-            prd += `**Document Version:** 1.0\n`;
-            prd += `**Last Updated:** ${new Date().toLocaleDateString()}\n\n`;
-            prd += `### 1.1 Product Vision\n${data.productVision}\n\n`;
-            prd += `### 1.2 Problem Statement\n${data.problemStatement}\n\n`;
-            prd += `### 1.3 Solution Overview\n${data.solutionOverview}\n\n`;
-            prd += `---\n## 2. Target Users & Business Goals\n\n`;
-            prd += `### 2.1 Primary Target Users\n${data.primaryUsers}\n\n`;
-            prd += `### 2.2 Secondary Target Users\n${data.secondaryUsers}\n\n`;
-            prd += `### 2.3 User Stories\n`;
-            if (data.userStory && data.userStory.length > 0 && !(data.userStory.length === 1 && data.userStory[0] === 'N/A')) {
-                 data.userStory.forEach((story, index) => {
-                    prd += `**US${index + 1}:** As a ${story || '[User Type N/A]'}, I want to ${data.userGoal?.[index] || '[Goal N/A]'}, so that ${data.userBenefit?.[index] || '[Benefit N/A]'}.\n`;
-                });
-            } else { prd += `- N/A\n`; }
-            prd += `\n### 2.4 Business Objectives\n${buildList(data.businessObjective)}\n\n`;
-            prd += `### 2.5 Success Metrics\n${buildPairedList(data.metricName, data.metricTarget, '', 'Target')}\n\n`;
-            prd += `---\n## 3. Features & Requirements\n\n`;
-            prd += `### 3.1 Core Features\n`;
-             if (data.featureName && data.featureName.length > 0 && !(data.featureName.length === 1 && data.featureName[0] === 'N/A')) {
-                data.featureName.forEach((feature, index) => {
-                    prd += `**F${index + 1}: ${feature || 'N/A'}**\n`;
-                    prd += `  - **Description:** ${data.featureDescription?.[index] || 'N/A'}\n`;
-                    prd += `  - **Priority:** ${data.featurePriority?.[index] || 'Medium'}\n\n`;
-                });
-            } else { prd += `- N/A\n\n`; }
-            prd += `### 3.2 Future Features / Enhancements\n`;
-            if (data.futureFeatureName && data.futureFeatureName.length > 0 && !(data.futureFeatureName.length === 1 && data.futureFeatureName[0] === 'N/A')) {
-                 data.futureFeatureName.forEach((feature, index) => {
-                    prd += `**FF${index + 1}: ${feature || 'N/A'}**\n`;
-                    prd += `  - **Description:** ${data.futureFeatureDescription?.[index] || 'N/A'}\n\n`;
-                });
-            } else { prd += `- N/A\n\n`; }
-            prd += `### 3.3 Non-Functional Requirements (NFRs)\n${buildList(data.nfr.map(n => n.charAt(0).toUpperCase() + n.slice(1)))}\n\n`;
-            prd += `---\n## 4. Technical Specifications\n\n`;
-            prd += `### 4.1 Target Platforms\n${buildList(data.platforms.map(p => p.charAt(0).toUpperCase() + p.slice(1)))}\n\n`;
-            prd += `### 4.2 Technology Stack (Proposed/Preferred)\n${data.technologyStack}\n\n`;
-            prd += `### 4.3 Integration Requirements\n`;
-            if (data.integrationName && data.integrationName.length > 0 && !(data.integrationName.length === 1 && data.integrationName[0] === 'N/A')) {
-                data.integrationName.forEach((integration, index) => {
-                    prd += `**INT${index + 1}: ${integration || 'N/A'}**\n`;
-                    prd += `  - **Type:** ${data.integrationType?.[index] || 'N/A'}\n`;
-                    prd += `  - **Purpose:** ${data.integrationPurpose?.[index] || 'N/A'}\n\n`;
-                });
-            } else { prd += `- N/A\n\n`; }
-            prd += `### 4.4 Technical Constraints\n${data.technicalConstraints}\n\n`;
-            prd += `---\n## 5. Success Criteria & Timeline\n\n`;
-            prd += `### 5.1 Project Timeline (Estimated)\n${data.projectTimeline}\n\n`;
-            prd += `### 5.2 Target Launch Date (Estimated)\n${data.launchDate}\n\n`;
-            prd += `### 5.3 Acceptance Criteria\n${buildList(data.acceptanceCriteria)}\n\n`;
-            prd += `### 5.4 Risks & Mitigation Strategies\n`;
-            if (data.riskDescription && data.riskDescription.length > 0 && !(data.riskDescription.length === 1 && data.riskDescription[0] === 'N/A')) {
-                 data.riskDescription.forEach((risk, index) => {
-                    prd += `**R${index + 1}: ${risk || 'N/A'}**\n`;
-                    prd += `  - **Mitigation:** ${data.riskMitigation?.[index] || 'N/A'}\n\n`;
-                });
-            } else { prd += `- N/A\n\n`; }
-            prd += `---\n## 6. Additional Notes & Assumptions\n${data.additionalNotes}\n\n`;
-            prd += `---\n**Document Owner:** (e.g., Product Management Team)\n`;
-            prd += `**Key Stakeholders:** (e.g., Engineering Lead, Design Lead, QA Lead, Marketing Manager)\n`;
-            prd += `**Generated by:** PRD Studio`;
-            return prd;
+             }
+             
+             let prd = `# Product Requirements Document (PRD)\n\n`;
+             prd += `## 1. Product Overview\n\n`;
+             prd += `**Product Name:** ${data.productName}\n`;
+             prd += `**Product Type:** ${data.productType}\n`;
+             prd += `**Document Version:** 1.0\n`;
+             prd += `**Last Updated:** ${new Date().toLocaleDateString()}\n\n`;
+             prd += `### 1.1 Product Vision\n${data.productVision}\n\n`;
+             prd += `### 1.2 Problem Statement\n${data.problemStatement}\n\n`;
+             prd += `### 1.3 Solution Overview\n${data.solutionOverview}\n\n`;
+             prd += `---\n## 2. Target Users & Business Goals\n\n`;
+             prd += `### 2.1 Primary Target Users\n${data.primaryUsers}\n\n`;
+             prd += `### 2.2 Secondary Target Users\n${data.secondaryUsers}\n\n`;
+             prd += `### 2.3 User Stories\n`;
+             if (data.userStory && data.userStory.length > 0 && !(data.userStory.length === 1 && data.userStory[0] === 'N/A')) {
+                  data.userStory.forEach((story, index) => {
+                     prd += `**US${index + 1}:** As a ${story || '[User Type N/A]'}, I want to ${data.userGoal?.[index] || '[Goal N/A]'}, so that ${data.userBenefit?.[index] || '[Benefit N/A]'}.\n`;
+                 });
+             } else { prd += `- N/A\n`; }
+             prd += `\n### 2.4 Business Objectives\n${buildList(data.businessObjective)}\n\n`;
+             prd += `### 2.5 Success Metrics\n${buildPairedList(data.metricName, data.metricTarget, '', 'Target')}\n\n`;
+             prd += `---\n## 3. Features & Requirements\n\n`;
+             prd += `### 3.1 Core Features\n`;
+              if (data.featureName && data.featureName.length > 0 && !(data.featureName.length === 1 && data.featureName[0] === 'N/A')) {
+                 data.featureName.forEach((feature, index) => {
+                     prd += `**F${index + 1}: ${feature || 'N/A'}**\n`;
+                     prd += `  - **Description:** ${data.featureDescription?.[index] || 'N/A'}\n`;
+                     prd += `  - **Priority:** ${data.featurePriority?.[index] || 'Medium'}\n\n`;
+                 });
+             } else { prd += `- N/A\n\n`; }
+             prd += `### 3.2 Future Features / Enhancements\n`;
+             if (data.futureFeatureName && data.futureFeatureName.length > 0 && !(data.futureFeatureName.length === 1 && data.futureFeatureName[0] === 'N/A')) {
+                  data.futureFeatureName.forEach((feature, index) => {
+                     prd += `**FF${index + 1}: ${feature || 'N/A'}**\n`;
+                     prd += `  - **Description:** ${data.futureFeatureDescription?.[index] || 'N/A'}\n\n`;
+                 });
+             } else { prd += `- N/A\n\n`; }
+             prd += `### 3.3 Non-Functional Requirements (NFRs)\n${buildList(data.nfr.map(n => n.charAt(0).toUpperCase() + n.slice(1)))}\n\n`;
+             prd += `---\n## 4. Technical Specifications\n\n`;
+             prd += `### 4.1 Target Platforms\n${buildList(data.platforms.map(p => p.charAt(0).toUpperCase() + p.slice(1)))}\n\n`;
+             prd += `### 4.2 Technology Stack (Proposed/Preferred)\n${data.technologyStack}\n\n`;
+             prd += `### 4.3 Integration Requirements\n`;
+             if (data.integrationName && data.integrationName.length > 0 && !(data.integrationName.length === 1 && data.integrationName[0] === 'N/A')) {
+                 data.integrationName.forEach((integration, index) => {
+                     prd += `**INT${index + 1}: ${integration || 'N/A'}**\n`;
+                     prd += `  - **Type:** ${data.integrationType?.[index] || 'N/A'}\n`;
+                     prd += `  - **Purpose:** ${data.integrationPurpose?.[index] || 'N/A'}\n\n`;
+                 });
+             } else { prd += `- N/A\n\n`; }
+             prd += `### 4.4 Technical Constraints\n${data.technicalConstraints}\n\n`;
+             prd += `---\n## 5. Success Criteria & Timeline\n\n`;
+             prd += `### 5.1 Project Timeline (Estimated)\n${data.projectTimeline}\n\n`;
+             prd += `### 5.2 Target Launch Date (Estimated)\n${data.launchDate}\n\n`;
+             prd += `### 5.3 Acceptance Criteria\n${buildList(data.acceptanceCriteria)}\n\n`;
+             prd += `### 5.4 Risks & Mitigation Strategies\n`;
+             if (data.riskDescription && data.riskDescription.length > 0 && !(data.riskDescription.length === 1 && data.riskDescription[0] === 'N/A')) {
+                  data.riskDescription.forEach((risk, index) => {
+                     prd += `**R${index + 1}: ${risk || 'N/A'}**\n`;
+                     prd += `  - **Mitigation:** ${data.riskMitigation?.[index] || 'N/A'}\n\n`;
+                 });
+             } else { prd += `- N/A\n\n`; }
+             prd += `---\n## 6. Additional Notes & Assumptions\n${data.additionalNotes}\n\n`;
+             prd += `---\n**Document Owner:** (e.g., Product Management Team)\n`;
+             prd += `**Key Stakeholders:** (e.g., Engineering Lead, Design Lead, QA Lead, Marketing Manager)\n`;
+             prd += `**Generated by:** PRD Studio`;
+             return prd;
         }
 
-        window.downloadPRDAsPDF = function() {
-            if (!generatedPRD) { showAppMessage('No PRD generated yet to download.', 'error'); return; }
-            showModalSpinner("Generating PDF...");
-
-            const { jsPDF } = window.jspdf;
-            const doc = new jsPDF();
-            
-            const margin = 15;
-            let yPosition = margin;
-            const pageHeight = doc.internal.pageSize.height;
-            const pageWidth = doc.internal.pageSize.width;
-            const contentWidth = pageWidth - 2 * margin;
-
-            function addText(text, fontSize, style, yOffset = 7) {
-                if (yPosition + yOffset > pageHeight - margin) {
-                    doc.addPage();
-                    yPosition = margin;
+        const populateFormFromData = (draftData) => {
+            gebi('prdForm').reset();
+            clearAllDynamicLists();
+            for (const key in draftData) {
+                if (Array.isArray(draftData[key])) {
+                    if (key === 'userStory') draftData[key].forEach((_, i) => addUserStory({ userStory: draftData.userStory[i], userGoal: draftData.userGoal?.[i], userBenefit: draftData.userBenefit?.[i] }));
+                    else if (key === 'businessObjective') draftData[key].forEach(v => addBusinessObjective({ businessObjective: v }));
+                    else if (key === 'metricName') draftData[key].forEach((_, i) => addSuccessMetric({ metricName: draftData.metricName[i], metricTarget: draftData.metricTarget?.[i] }));
+                    else if (key === 'featureName') draftData[key].forEach((_, i) => addCoreFeature({ featureName: draftData.featureName[i], featureDescription: draftData.featureDescription?.[i], featurePriority: draftData.featurePriority?.[i] }));
+                    else if (key === 'futureFeatureName') draftData[key].forEach((_, i) => addFutureFeature({ futureFeatureName: draftData.futureFeatureName[i], futureFeatureDescription: draftData.futureFeatureDescription?.[i] }));
+                    else if (key === 'integrationName') draftData[key].forEach((_, i) => addIntegration({ integrationName: draftData.integrationName[i], integrationType: draftData.integrationType?.[i], integrationPurpose: draftData.integrationPurpose?.[i] }));
+                    else if (key === 'acceptanceCriteria') draftData[key].forEach(v => addAcceptanceCriteria({ acceptanceCriteria: v }));
+                    else if (key === 'riskDescription') draftData[key].forEach((_, i) => addRisk({ riskDescription: draftData.riskDescription[i], riskMitigation: draftData.riskMitigation?.[i] }));
+                    else if (key === 'nfr' || key === 'platforms') {
+                        document.querySelectorAll(`input[name="${key}[]"]`).forEach(chk => { chk.checked = draftData[key].includes(chk.value); });
+                    }
+                } else if (gebi(key)) {
+                    gebi(key).value = draftData[key];
                 }
-                doc.setFontSize(fontSize);
-                doc.setFont(undefined, style);
-                const splitText = doc.splitTextToSize(text, contentWidth);
-                doc.text(splitText, margin, yPosition);
-                yPosition += (splitText.length * (fontSize * 0.352778)) + (yOffset / 2) ; // Approximate line height
             }
+        };
 
-            const lines = generatedPRD.split('\n');
-            lines.forEach(line => {
-                if (line.startsWith('# ')) { addText(line.substring(2), 18, 'bold', 10); }
-                else if (line.startsWith('## ')) { addText(line.substring(3), 16, 'bold', 9); }
-                else if (line.startsWith('### ')) { addText(line.substring(4), 14, 'bold', 8); }
-                else if (line.startsWith('**') && line.includes(':**')) { // Field labels like **Product Name:**
-                    const parts = line.split(':**');
-                    const label = parts[0].substring(2);
-                    const value = parts[1] ? parts[1].trim() : '';
-                    doc.setFontSize(10);
-                    doc.setFont(undefined, 'bold');
-                    doc.text(`${label}:`, margin, yPosition);
-                    const labelWidth = doc.getTextWidth(`${label}: `) + 2;
-                    doc.setFont(undefined, 'normal');
-                    const valueText = doc.splitTextToSize(value, contentWidth - labelWidth);
-                    doc.text(valueText, margin + labelWidth, yPosition);
-                    yPosition += (valueText.length * (10 * 0.352778)) + 2;
-
-
-                } else if (line.startsWith('- **')) { // List items like - **Metric:** Target
-                     addText(line.substring(2), 10, 'normal', 5); // Treat as normal text for simplicity
-                }
-                 else if (line.startsWith('- ')) { addText(`  • ${line.substring(2)}`, 10, 'normal', 5); }
-                else if (line.trim() === '---') { 
-                    if (yPosition + 5 > pageHeight - margin) { doc.addPage(); yPosition = margin; }
-                    doc.setLineWidth(0.2); doc.line(margin, yPosition, pageWidth - margin, yPosition); yPosition += 5;
-                }
-                else if (line.trim() !== '') { addText(line, 10, 'normal', 5); }
-                else { yPosition += 3; } // Small gap for empty lines
-            });
-            
-            const productName = (gebi('productName').value.trim() || 'PRD').replace(/\s+/g, '_');
-            doc.save(`${productName}_Product_Requirements_Document.pdf`);
-            hideModalSpinner();
-            showAppMessage('PDF download initiated.', 'success');
-        }
-
-
-        window.copyToClipboard = function() {
-            if (!generatedPRD) { showAppMessage('No PRD Markdown generated yet to copy.', 'error'); return; }
-            const textArea = document.createElement("textarea");
-            textArea.value = generatedPRD;
-            textArea.style.position = "fixed"; document.body.appendChild(textArea);
-            textArea.focus(); textArea.select();
+        // --- Navigation ---
+        const updateNavigation = () => { gebi('prevBtn').disabled = currentSection === 1; gebi('nextBtn').style.display = currentSection === totalSections ? 'none' : 'inline-flex'; gebi('generateBtn').style.display = currentSection === totalSections ? 'inline-flex' : 'none'; };
+        const showSection = (sectionNumber) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); const el = document.querySelector(`[data-section="${sectionNumber}"]`); if (el) el.classList.add('active'); document.querySelectorAll('.step').forEach(step => { step.classList.remove('active', 'completed', 'inactive'); if (parseInt(step.dataset.step) < sectionNumber) step.classList.add('completed'); else if (parseInt(step.dataset.step) === sectionNumber) step.classList.add('active'); else step.classList.add('inactive'); }); updateNavigation(); window.scrollTo({ top: gebi('prdForm').offsetTop - 20, behavior: 'smooth' }); };
+        window.nextSection = () => { if (currentSection < totalSections) { currentSection++; showSection(currentSection); } }
+        window.previousSection = () => { if (currentSection > 1) { currentSection--; showSection(currentSection); } }
+        window.navigateToSection = (sectionNumber) => { currentSection = sectionNumber; showSection(currentSection); }
+        
+        // --- API Handlers ---
+        window.handleSaveDraft = () => { if (getApiUrl()) { showModal('saveDraftModal'); gebi('draftNameInput').value = gebi('productName').value || `Draft ${new Date().toLocaleDateString()}`; } }
+        window.confirmSaveDraft = async () => {
+            const apiUrl = getApiUrl(); if (!apiUrl) return;
+            const draftName = gebi('draftNameInput').value.trim(); if (!draftName) return showAppMessage("Draft name cannot be empty.", "error");
+            showModalSpinner("Saving draft...");
+            const payload = { action: 'saveDraft', fileName: draftName, data: getFormDataObject() };
             try {
-                if (document.execCommand('copy')) showAppMessage('PRD Markdown copied to clipboard!', 'success');
-                else showAppMessage('Failed to copy PRD Markdown.', 'error');
-            } catch (err) { showAppMessage('Error copying PRD Markdown.', 'error'); }
-            document.body.removeChild(textArea);
+                // Using POST for all mutations. The backend script will handle the redirect for us.
+                const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                hideModal('saveDraftModal'); showAppMessage(`Draft "${draftName}" saved successfully!`, "success");
+            } catch (error) { showAppMessage(`Error saving draft: ${error.message}`, "error"); }
+            hideModalSpinner();
         }
-
-        window.editPRD = function() {
-            gebi('previewSection').style.display = 'none';
-            gebi('appMessageBox').style.display = 'none'; 
-            showSection(1); 
-            gebi('prdForm').scrollIntoView({ behavior: 'smooth' });
+        window.showLoadDraftModal = async () => {
+            const apiUrl = getApiUrl(); if (!apiUrl) return;
+            showModal('loadDraftModal');
+            const listContainer = gebi('draftsListContainer'), noDraftsMsg = gebi('noDraftsMessage');
+            listContainer.innerHTML = '<p>Loading drafts...</p>'; noDraftsMsg.style.display = 'none';
+            try {
+                const response = await fetch(`${apiUrl}?action=listDrafts`);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                if (!result.drafts || result.drafts.length === 0) { listContainer.innerHTML = ''; noDraftsMsg.style.display = 'block'; return; }
+                listContainer.innerHTML = '';
+                result.drafts.forEach(draft => {
+                    const item = document.createElement('div');
+                    item.className = 'drafts-list-item';
+                    item.innerHTML = `<span>${draft.name}</span><div><button class="btn btn-sm btn-primary" style="padding:4px 8px;font-size:12px;margin-right:5px;">Load</button><button class="draft-delete-btn">Delete</button></div>`;
+                    item.querySelector('.btn-primary').onclick = () => loadSelectedDraft(draft.id);
+                    item.querySelector('.draft-delete-btn').onclick = (e) => { e.stopPropagation(); confirmDeleteDraft(draft.id, draft.name); };
+                    listContainer.appendChild(item);
+                });
+            } catch (error) { listContainer.innerHTML = '<p>Error loading drafts.</p>'; showAppMessage(`Error: ${error.message}`, "error"); }
+        }
+        async function loadSelectedDraft(fileId) {
+            const apiUrl = getApiUrl(); if (!apiUrl) return;
+            showModalSpinner(`Loading draft...`); hideModal('loadDraftModal');
+            try {
+                const response = await fetch(`${apiUrl}?action=loadDraft&fileId=${fileId}`);
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                populateFormFromData(result.data);
+                showAppMessage(`Draft loaded successfully.`, "success");
+            } catch (error) { showAppMessage(`Error loading draft: ${error.message}`, "error"); }
+            hideModalSpinner();
+        }
+        function confirmDeleteDraft(fileId, fileName) { if (confirm(`Are you sure you want to delete the draft "${fileName}"?`)) { deleteSelectedDraft(fileId); } }
+        async function deleteSelectedDraft(fileId) {
+            const apiUrl = getApiUrl(); if (!apiUrl) return;
+            showModalSpinner(`Deleting draft...`);
+            const payload = { action: 'deleteDraft', fileId: fileId };
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                showAppMessage(`Draft deleted.`, "success");
+                await showLoadDraftModal(); // Refresh list inside the modal
+            } catch (error) { showAppMessage(`Error deleting draft: ${error.message}`, "error"); }
+            hideModalSpinner();
+        }
+        window.handleSaveFinal = async () => {
+            const apiUrl = getApiUrl(); if (!apiUrl) return;
+            const finalName = gebi('productName').value.trim() || `Final-PRD-${Date.now()}`;
+            if (!confirm(`This will save a final PDF named "${finalName}.pdf" to your Google Drive. Continue?`)) return;
+            showModalSpinner("Saving final PDF to Google Drive...");
+            const payload = { action: 'saveFinalPdf', fileName: finalName, markdown: createPRDMarkdown() };
+            try {
+                const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
+                const result = await response.json();
+                if (result.status !== 'success') throw new Error(result.message);
+                showAppMessage(`Final PDF saved to Google Drive!`, "success");
+            } catch (error) { showAppMessage(`Error saving final PDF: ${error.message}`, "error"); }
+            hideModalSpinner();
         }
 
         // Modal helpers
-        window.showModal = function(modalId) { gebi(modalId).classList.add('active'); }
-        window.hideModal = function(modalId) { gebi(modalId).classList.remove('active'); }
-        
-        function showModalSpinner(text = "Processing...") {
-            gebi('loadingSpinnerText').textContent = text;
-            showModal('loadingSpinnerModal');
-        }
-        function hideModalSpinner() {
-            hideModal('loadingSpinnerModal');
-        }
+        window.showModal = (modalId) => gebi(modalId).classList.add('active');
+        window.hideModal = (modalId) => gebi(modalId).classList.remove('active');
+        const showModalSpinner = (text = "Processing...") => { gebi('loadingSpinnerText').textContent = text; showModal('loadingSpinnerModal'); }
+        const hideModalSpinner = () => hideModal('loadingSpinnerModal');
 
 
         // --- Initialization ---
-        document.addEventListener('DOMContentLoaded', async function() {
+        document.addEventListener('DOMContentLoaded', () => {
             gebi('currentYear').textContent = new Date().getFullYear();
-            await initializeFirebase(); // Initialize Firebase first
             initializeDefaultDynamicItems(); 
-             document.querySelectorAll('.dynamic-item').forEach(item => setupPrioritySelectorsForItem(item));
             updateNavigation();
             showSection(currentSection); 
         });
