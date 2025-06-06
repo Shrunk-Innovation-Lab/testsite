@@ -86,7 +86,7 @@
             font-size: 1rem; 
             font-weight: 500;
         }
-
+        
         /* Form Container */
         .form-container {
             background: white;
@@ -717,7 +717,6 @@
                     <h1 class="brand-title">PRD Studio</h1> 
                     <p class="brand-subtitle">Compress your ideas into comprehensive Product Requirements Documents</p>
                 </div>
-                <!-- API Setup Input Removed -->
             </div>
         </header>
 
@@ -751,6 +750,7 @@
 
             <form id="prdForm" onsubmit="return false;"> 
                 <div class="form-content">
+                    <!-- Sections will be rendered here by JS -->
                     <!-- Section 1: Product Overview -->
                     <div class="section active" data-section="1">
                         <div class="section-header">
@@ -1173,7 +1173,7 @@
         window.addUserStory = (data = {}) => addDynamicItem('userStories', `<input type="text" class="form-input" value="${data.userStory || ''}" placeholder="As a [user type]..." name="userStory[]"><input type="text" class="form-input" value="${data.userGoal || ''}" placeholder="I want to [goal]..." name="userGoal[]"><input type="text" class="form-input" value="${data.userBenefit || ''}" placeholder="So that [benefit]..." name="userBenefit[]">`);
         window.addBusinessObjective = (data = {}) => addDynamicItem('businessObjectives', `<input type="text" class="form-input" value="${data.businessObjective || ''}" placeholder="Enter business objective" name="businessObjective[]">`);
         window.addSuccessMetric = (data = {}) => addDynamicItem('successMetrics', `<input type="text" class="form-input" value="${data.metricName || ''}" placeholder="Metric name" name="metricName[]"><input type="text" class="form-input" value="${data.metricTarget || ''}" placeholder="Target value" name="metricTarget[]">`);
-        window.addCoreFeature = (data = {}) => addDynamicItem('coreFeatures', `<input type="text" class="form-input" value="${data.featureName || ''}" placeholder="Feature name" name="featureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="featureDescription[]">${data.featureDescription || ''}</textarea><label class="form-label">Priority</label><div class="priority-grid"><div class="priority-option ${data.featurePriority === 'high' ? 'selected' : ''}" data-priority="high">High</div><div class="priority-option ${!data.featurePriority || data.featurePriority === 'medium' ? 'selected' : ''}" data-priority="medium">Medium</div><div class="priority-option ${data.featurePriority === 'low' ? 'selected' : ''}" data-priority="low">Low</div></div><input type="hidden" name="featurePriority[]" value="${data.featurePriority || 'medium'}">`, setupPrioritySelectorsForItem);
+        window.addCoreFeature = (data = {}) => addDynamicItem('coreFeatures', `<input type="text" class="form-input" value="${data.featureName || ''}" placeholder="Feature name" name="featureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="featureDescription[]">${data.featureDescription || ''}</textarea><label class="form-label">Priority</label><div class="priority-grid"><div class="priority-option ${data.featurePriority === 'high' ? 'selected' : ''}" data-priority="high">High Priority</div><div class="priority-option ${!data.featurePriority || data.featurePriority === 'medium' ? 'selected' : ''}" data-priority="medium">Medium Priority</div><div class="priority-option ${data.featurePriority === 'low' ? 'selected' : ''}" data-priority="low">Low Priority</div></div><input type="hidden" name="featurePriority[]" value="${data.featurePriority || 'medium'}">`, setupPrioritySelectorsForItem);
         window.setupPrioritySelectorsForItem = (item) => { const grid = item.querySelector('.priority-grid'); const opts = grid.querySelectorAll('.priority-option'); const input = item.querySelector('input[type="hidden"]'); opts.forEach(opt => opt.onclick = () => { opts.forEach(o => o.classList.remove('selected')); opt.classList.add('selected'); input.value = opt.dataset.priority; }); };
         window.addFutureFeature = (data = {}) => addDynamicItem('futureFeatures', `<input type="text" class="form-input" value="${data.futureFeatureName || ''}" placeholder="Future feature name" name="futureFeatureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="futureFeatureDescription[]">${data.futureFeatureDescription || ''}</textarea>`);
         window.addIntegration = (data = {}) => addDynamicItem('integrations', `<input type="text" class="form-input" value="${data.integrationName || ''}" placeholder="System/Service name" name="integrationName[]"><input type="text" class="form-input" value="${data.integrationType || ''}" placeholder="Integration type" name="integrationType[]"><textarea class="form-input form-textarea" placeholder="Integration purpose" name="integrationPurpose[]">${data.integrationPurpose || ''}</textarea>`);
@@ -1181,24 +1181,11 @@
         window.addRisk = (data = {}) => addDynamicItem('risks', `<input type="text" class="form-input" value="${data.riskDescription || ''}" placeholder="Risk description" name="riskDescription[]"><input type="text" class="form-input" value="${data.riskMitigation || ''}" placeholder="Mitigation strategy" name="riskMitigation[]">`);
         const clearAllDynamicLists = () => ['userStories', 'businessObjectives', 'successMetrics', 'coreFeatures', 'futureFeatures', 'integrations', 'acceptanceCriteria', 'risks'].forEach(id => { gebi(id).innerHTML = ''; });
         const initializeDefaultDynamicItems = () => {
-            const itemMap = {
-                'userStories': 'addUserStory',
-                'businessObjectives': 'addBusinessObjective',
-                'successMetrics': 'addSuccessMetric',
-                'coreFeatures': 'addCoreFeature',
-                'futureFeatures': 'addFutureFeature',
-                'integrations': 'addIntegration',
-                'acceptanceCriteria': 'addAcceptanceCriteria',
-                'risks': 'addRisk'
-            };
+            const itemMap = { 'userStories': 'addUserStory', 'businessObjectives': 'addBusinessObjective', 'successMetrics': 'addSuccessMetric', 'coreFeatures': 'addCoreFeature', 'futureFeatures': 'addFutureFeature', 'integrations': 'addIntegration', 'acceptanceCriteria': 'addAcceptanceCriteria', 'risks': 'addRisk' };
             for (const containerId in itemMap) {
                 if (gebi(containerId) && gebi(containerId).children.length === 0) {
                     const functionName = itemMap[containerId];
-                    if (typeof window[functionName] === 'function') {
-                        window[functionName]();
-                    } else {
-                        console.error(`Initialization function ${functionName} not found.`);
-                    }
+                    if (typeof window[functionName] === 'function') { window[functionName](); }
                 }
             }
         };
@@ -1211,7 +1198,7 @@
         window.navigateToSection = (sectionNumber) => { currentSection = sectionNumber; showSection(currentSection); }
         
         // --- API Handlers ---
-        window.handleSaveDraft = () => { if (getApiUrl()) { showModal('saveDraftModal'); gebi('draftNameInput').value = gebi('productName').value || `Draft ${new Date().toLocaleDateString()}`; } }
+        window.handleSaveDraft = () => { const apiUrl = getApiUrl(); if (apiUrl) { showModal('saveDraftModal'); gebi('draftNameInput').value = gebi('productName').value || `Draft ${new Date().toLocaleDateString()}`; } }
         window.confirmSaveDraft = async () => {
             const apiUrl = getApiUrl(); if (!apiUrl) return;
             const draftName = gebi('draftNameInput').value.trim(); if (!draftName) return showAppMessage("Draft name cannot be empty.", "error");
