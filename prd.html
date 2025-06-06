@@ -86,27 +86,6 @@
             font-size: 1rem; 
             font-weight: 500;
         }
-        
-        #api-setup {
-            margin-top: 16px;
-            width: 100%;
-            max-width: 600px;
-            text-align: center;
-        }
-        #api-setup input {
-            width: 100%;
-            padding: 8px;
-            border: 1px solid #d1d5db;
-            border-radius: 6px;
-            font-size: 12px;
-        }
-         #api-setup label {
-            font-size: 14px;
-            font-weight: 500;
-            margin-bottom: 4px;
-            display: block;
-        }
-
 
         /* Form Container */
         .form-container {
@@ -738,10 +717,7 @@
                     <h1 class="brand-title">PRD Studio</h1> 
                     <p class="brand-subtitle">Compress your ideas into comprehensive Product Requirements Documents</p>
                 </div>
-                <div id="api-setup">
-                    <label for="appsScriptUrl">Google Apps Script URL</label>
-                    <input type="text" id="appsScriptUrl" placeholder="Paste your deployed web app URL here">
-                </div>
+                <!-- API Setup Input Removed -->
             </div>
         </header>
 
@@ -775,7 +751,6 @@
 
             <form id="prdForm" onsubmit="return false;"> 
                 <div class="form-content">
-                    <!-- Sections will be rendered here by JS -->
                     <!-- Section 1: Product Overview -->
                     <div class="section active" data-section="1">
                         <div class="section-header">
@@ -1072,51 +1047,10 @@
             setTimeout(() => { box.style.display = 'none'; }, 5000);
         }
         
-        // --- Dynamic Item Management ---
-        function createDynamicItem(contentHTML) {
-            const newItem = document.createElement('div'); newItem.className = 'dynamic-item';
-            newItem.innerHTML = `<div class="dynamic-item-content">${contentHTML}</div><button type="button" class="remove-btn" aria-label="Remove item" onclick="this.parentElement.remove()">×</button>`;
-            return newItem;
-        }
-        function addDynamicItem(containerId, contentHTML, callbackFn) { const container = gebi(containerId); if (container) { const newItem = createDynamicItem(contentHTML); container.appendChild(newItem); if (callbackFn) callbackFn(newItem); } }
-        window.addUserStory = (data = {}) => addDynamicItem('userStories', `<input type="text" class="form-input" value="${data.userStory || ''}" placeholder="As a [user type]..." name="userStory[]"><input type="text" class="form-input" value="${data.userGoal || ''}" placeholder="I want to [goal]..." name="userGoal[]"><input type="text" class="form-input" value="${data.userBenefit || ''}" placeholder="So that [benefit]..." name="userBenefit[]">`);
-        window.addBusinessObjective = (data = {}) => addDynamicItem('businessObjectives', `<input type="text" class="form-input" value="${data.businessObjective || ''}" placeholder="Enter business objective" name="businessObjective[]">`);
-        window.addSuccessMetric = (data = {}) => addDynamicItem('successMetrics', `<input type="text" class="form-input" value="${data.metricName || ''}" placeholder="Metric name" name="metricName[]"><input type="text" class="form-input" value="${data.metricTarget || ''}" placeholder="Target value" name="metricTarget[]">`);
-        window.addCoreFeature = (data = {}) => addDynamicItem('coreFeatures', `<input type="text" class="form-input" value="${data.featureName || ''}" placeholder="Feature name" name="featureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="featureDescription[]">${data.featureDescription || ''}</textarea><label class="form-label">Priority</label><div class="priority-grid"><div class="priority-option ${data.featurePriority === 'high' ? 'selected' : ''}" data-priority="high">High</div><div class="priority-option ${!data.featurePriority || data.featurePriority === 'medium' ? 'selected' : ''}" data-priority="medium">Medium</div><div class="priority-option ${data.featurePriority === 'low' ? 'selected' : ''}" data-priority="low">Low</div></div><input type="hidden" name="featurePriority[]" value="${data.featurePriority || 'medium'}">`, setupPrioritySelectorsForItem);
-        window.setupPrioritySelectorsForItem = (item) => { const grid = item.querySelector('.priority-grid'); const opts = grid.querySelectorAll('.priority-option'); const input = item.querySelector('input[type="hidden"]'); opts.forEach(opt => opt.onclick = () => { opts.forEach(o => o.classList.remove('selected')); opt.classList.add('selected'); input.value = opt.dataset.priority; }); };
-        window.addFutureFeature = (data = {}) => addDynamicItem('futureFeatures', `<input type="text" class="form-input" value="${data.futureFeatureName || ''}" placeholder="Future feature name" name="futureFeatureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="futureFeatureDescription[]">${data.futureFeatureDescription || ''}</textarea>`);
-        window.addIntegration = (data = {}) => addDynamicItem('integrations', `<input type="text" class="form-input" value="${data.integrationName || ''}" placeholder="System/Service name" name="integrationName[]"><input type="text" class="form-input" value="${data.integrationType || ''}" placeholder="Integration type" name="integrationType[]"><textarea class="form-input form-textarea" placeholder="Integration purpose" name="integrationPurpose[]">${data.integrationPurpose || ''}</textarea>`);
-        window.addAcceptanceCriteria = (data = {}) => addDynamicItem('acceptanceCriteria', `<textarea class="form-input form-textarea" placeholder="Describe successful completion" name="acceptanceCriteria[]">${data.acceptanceCriteria || ''}</textarea>`);
-        window.addRisk = (data = {}) => addDynamicItem('risks', `<input type="text" class="form-input" value="${data.riskDescription || ''}" placeholder="Risk description" name="riskDescription[]"><input type="text" class="form-input" value="${data.riskMitigation || ''}" placeholder="Mitigation strategy" name="riskMitigation[]">`);
-        const clearAllDynamicLists = () => ['userStories', 'businessObjectives', 'successMetrics', 'coreFeatures', 'futureFeatures', 'integrations', 'acceptanceCriteria', 'risks'].forEach(id => { gebi(id).innerHTML = ''; });
-        const initializeDefaultDynamicItems = () => {
-            const itemMap = {
-                'userStories': 'addUserStory',
-                'businessObjectives': 'addBusinessObjective',
-                'successMetrics': 'addSuccessMetric',
-                'coreFeatures': 'addCoreFeature',
-                'futureFeatures': 'addFutureFeature',
-                'integrations': 'addIntegration',
-                'acceptanceCriteria': 'addAcceptanceCriteria',
-                'risks': 'addRisk'
-            };
-            for (const containerId in itemMap) {
-                if (gebi(containerId) && gebi(containerId).children.length === 0) {
-                    const functionName = itemMap[containerId];
-                    if (typeof window[functionName] === 'function') {
-                        window[functionName]();
-                    } else {
-                        console.error(`Initialization function ${functionName} not found.`);
-                    }
-                }
-            }
-        };
-
         // --- API & Data Functions ---
         const getApiUrl = () => {
-            const url = gebi('appsScriptUrl').value.trim();
-            if (!url) { showAppMessage("Please enter your Google Apps Script URL.", "error"); return null; }
-            return url;
+            // Hardcoded Google Apps Script URL
+            return 'https://script.google.com/a/macros/shrunk.ai/s/AKfycbw79j9P68Dfwe-0_Aj5N057g2AhJJz663qJ7hdq3SRt13C1BnkoBxJ-g1KFxf_oXCjnYQ/exec';
         }
 
         const getFormDataObject = () => {
@@ -1229,6 +1163,46 @@
             }
         };
 
+        // --- Dynamic Item Management ---
+        function createDynamicItem(contentHTML) {
+            const newItem = document.createElement('div'); newItem.className = 'dynamic-item';
+            newItem.innerHTML = `<div class="dynamic-item-content">${contentHTML}</div><button type="button" class="remove-btn" aria-label="Remove item" onclick="this.parentElement.remove()">×</button>`;
+            return newItem;
+        }
+        function addDynamicItem(containerId, contentHTML, callbackFn) { const container = gebi(containerId); if (container) { const newItem = createDynamicItem(contentHTML); container.appendChild(newItem); if (callbackFn) callbackFn(newItem); } }
+        window.addUserStory = (data = {}) => addDynamicItem('userStories', `<input type="text" class="form-input" value="${data.userStory || ''}" placeholder="As a [user type]..." name="userStory[]"><input type="text" class="form-input" value="${data.userGoal || ''}" placeholder="I want to [goal]..." name="userGoal[]"><input type="text" class="form-input" value="${data.userBenefit || ''}" placeholder="So that [benefit]..." name="userBenefit[]">`);
+        window.addBusinessObjective = (data = {}) => addDynamicItem('businessObjectives', `<input type="text" class="form-input" value="${data.businessObjective || ''}" placeholder="Enter business objective" name="businessObjective[]">`);
+        window.addSuccessMetric = (data = {}) => addDynamicItem('successMetrics', `<input type="text" class="form-input" value="${data.metricName || ''}" placeholder="Metric name" name="metricName[]"><input type="text" class="form-input" value="${data.metricTarget || ''}" placeholder="Target value" name="metricTarget[]">`);
+        window.addCoreFeature = (data = {}) => addDynamicItem('coreFeatures', `<input type="text" class="form-input" value="${data.featureName || ''}" placeholder="Feature name" name="featureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="featureDescription[]">${data.featureDescription || ''}</textarea><label class="form-label">Priority</label><div class="priority-grid"><div class="priority-option ${data.featurePriority === 'high' ? 'selected' : ''}" data-priority="high">High</div><div class="priority-option ${!data.featurePriority || data.featurePriority === 'medium' ? 'selected' : ''}" data-priority="medium">Medium</div><div class="priority-option ${data.featurePriority === 'low' ? 'selected' : ''}" data-priority="low">Low</div></div><input type="hidden" name="featurePriority[]" value="${data.featurePriority || 'medium'}">`, setupPrioritySelectorsForItem);
+        window.setupPrioritySelectorsForItem = (item) => { const grid = item.querySelector('.priority-grid'); const opts = grid.querySelectorAll('.priority-option'); const input = item.querySelector('input[type="hidden"]'); opts.forEach(opt => opt.onclick = () => { opts.forEach(o => o.classList.remove('selected')); opt.classList.add('selected'); input.value = opt.dataset.priority; }); };
+        window.addFutureFeature = (data = {}) => addDynamicItem('futureFeatures', `<input type="text" class="form-input" value="${data.futureFeatureName || ''}" placeholder="Future feature name" name="futureFeatureName[]"><textarea class="form-input form-textarea" placeholder="Feature description" name="futureFeatureDescription[]">${data.futureFeatureDescription || ''}</textarea>`);
+        window.addIntegration = (data = {}) => addDynamicItem('integrations', `<input type="text" class="form-input" value="${data.integrationName || ''}" placeholder="System/Service name" name="integrationName[]"><input type="text" class="form-input" value="${data.integrationType || ''}" placeholder="Integration type" name="integrationType[]"><textarea class="form-input form-textarea" placeholder="Integration purpose" name="integrationPurpose[]">${data.integrationPurpose || ''}</textarea>`);
+        window.addAcceptanceCriteria = (data = {}) => addDynamicItem('acceptanceCriteria', `<textarea class="form-input form-textarea" placeholder="Describe successful completion" name="acceptanceCriteria[]">${data.acceptanceCriteria || ''}</textarea>`);
+        window.addRisk = (data = {}) => addDynamicItem('risks', `<input type="text" class="form-input" value="${data.riskDescription || ''}" placeholder="Risk description" name="riskDescription[]"><input type="text" class="form-input" value="${data.riskMitigation || ''}" placeholder="Mitigation strategy" name="riskMitigation[]">`);
+        const clearAllDynamicLists = () => ['userStories', 'businessObjectives', 'successMetrics', 'coreFeatures', 'futureFeatures', 'integrations', 'acceptanceCriteria', 'risks'].forEach(id => { gebi(id).innerHTML = ''; });
+        const initializeDefaultDynamicItems = () => {
+            const itemMap = {
+                'userStories': 'addUserStory',
+                'businessObjectives': 'addBusinessObjective',
+                'successMetrics': 'addSuccessMetric',
+                'coreFeatures': 'addCoreFeature',
+                'futureFeatures': 'addFutureFeature',
+                'integrations': 'addIntegration',
+                'acceptanceCriteria': 'addAcceptanceCriteria',
+                'risks': 'addRisk'
+            };
+            for (const containerId in itemMap) {
+                if (gebi(containerId) && gebi(containerId).children.length === 0) {
+                    const functionName = itemMap[containerId];
+                    if (typeof window[functionName] === 'function') {
+                        window[functionName]();
+                    } else {
+                        console.error(`Initialization function ${functionName} not found.`);
+                    }
+                }
+            }
+        };
+
         // --- Navigation ---
         const updateNavigation = () => { gebi('prevBtn').disabled = currentSection === 1; gebi('nextBtn').style.display = currentSection === totalSections ? 'none' : 'inline-flex'; gebi('generateBtn').style.display = currentSection === totalSections ? 'inline-flex' : 'none'; };
         const showSection = (sectionNumber) => { document.querySelectorAll('.section').forEach(s => s.classList.remove('active')); const el = document.querySelector(`[data-section="${sectionNumber}"]`); if (el) el.classList.add('active'); document.querySelectorAll('.step').forEach(step => { step.classList.remove('active', 'completed', 'inactive'); if (parseInt(step.dataset.step) < sectionNumber) step.classList.add('completed'); else if (parseInt(step.dataset.step) === sectionNumber) step.classList.add('active'); else step.classList.add('inactive'); }); updateNavigation(); window.scrollTo({ top: gebi('prdForm').offsetTop - 20, behavior: 'smooth' }); };
@@ -1244,7 +1218,6 @@
             showModalSpinner("Saving draft...");
             const payload = { action: 'saveDraft', fileName: draftName, data: getFormDataObject() };
             try {
-                // Using POST for all mutations. The backend script will handle the redirect for us.
                 const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
                 const result = await response.json();
                 if (result.status !== 'success') throw new Error(result.message);
