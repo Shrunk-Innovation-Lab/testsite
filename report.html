@@ -3,335 +3,728 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Southlands Shopping Centre - Waste Assessment Report</title>
+    <title>Erskine Park Shopping Centre - Waste Infrastructure Assessment Report</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <script src="https://unpkg.com/react@18/umd/react.development.js"></script>
-    <script src="https://unpkg.com/react-dom@18/umd/react-dom.development.js"></script>
-    <script src="https://unpkg.com/recharts@2.8.0/lib/index.js"></script>
-    <script src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
-    <script src="https://unpkg.com/lucide-react@0.263.1/dist/umd/lucide-react.js"></script>
+    <style>
+        /* A simple style to mimic the active tab for the first section, since there's no JS */
+        .section-title {
+            font-size: 2.25rem; /* 4xl */
+            font-weight: 700;
+            color: #1f2937; /* gray-800 */
+            margin-bottom: 2rem;
+            padding-bottom: 1rem;
+            border-bottom: 2px solid #e5e7eb; /* gray-200 */
+        }
+    </style>
 </head>
 <body>
-    <div id="root"></div>
 
-    <script type="text/babel">
-        const { useState } = React;
-        const { BarChart, Bar, XAxis, YAxis, CartesianGrid, Tooltip, Legend, ResponsiveContainer, PieChart, Pie, Cell, LineChart, Line, Area, AreaChart } = Recharts;
-        const { TrendingDown, Recycle, AlertTriangle, CheckCircle, DollarSign, Calendar, MapPin, Trash2, Award, Shield, Droplets, Construction } = LucideReact;
+<div class="min-h-screen bg-gradient-to-br from-slate-50 to-green-50 p-6">
+    <div class="max-w-7xl mx-auto">
+        <div class="flex justify-start mb-4">
+            <img 
+                src="https://i.imgur.com/iB983sa.png" 
+                alt="Shrunk Innovation Group" 
+                class="h-12 w-auto"
+                title="source: imgur.com"
+            />
+        </div>
 
-        const SouthlandsWasteReport = () => {
-            const [activeTab, setActiveTab] = useState('overview');
+        <div class="text-center mb-12">
+            <div class="flex items-center justify-center mb-4">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-green-600 mr-3"><path d="M20 10c0 6-8 12-8 12s-8-6-8-12a8 8 0 0 1 16 0Z"/><circle cx="12" cy="10" r="3"/></svg>
+                <h1 class="text-4xl font-bold text-gray-800">
+                    Erskine Park Shopping Centre
+                </h1>
+            </div>
+            <p class="text-gray-600 text-lg mb-2">
+                Waste Infrastructure Assessment Report - May 2025
+            </p>
+            <div class="inline-flex items-center bg-green-100 text-green-800 px-6 py-3 rounded-full font-medium text-lg">
+                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 mr-2"><path d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6"/><path d="M18 9h1.5a2.5 2.5 0 0 0 0-5H18"/><path d="M4 11.5a2.5 2.5 0 0 1 0-5H6"/><path d="M20 11.5a2.5 2.5 0 0 0 0-5H18"/><path d="M9 12l2 2 4-4"/><path d="M12 17.5v-5.5"/><path d="M8.5 17.5h7"/><path d="M12 22a7 7 0 0 0 7-7V9.5a2.5 2.5 0 0 0-2.5-2.5h-9A2.5 2.5 0 0 0 5 9.5V15a7 7 0 0 0 7 7z"/></svg>
+                $10,204 Annual Savings Identified
+            </div>
+        </div>
 
-            // Current waste data
-            const currentWasteData = [
-                { stream: 'General Waste', volume: 42, density: 61.53, cost: 69837 },
-                { stream: 'Paper & Cardboard', volume: 42, density: 14.86, cost: 15659 }
-            ];
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Executive Summary</h2>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-6">
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-green-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Annual Savings</p>
+                            <p class="text-2xl font-bold text-green-600">$10,204</p>
+                            <p class="text-gray-500 text-sm mt-1">Net cost reduction</p>
+                            <div class="flex items-center mt-2 text-green-600">
+                                <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 mr-1"><path d="M2.5 2.5h3l10.5 10.5h-3l-5.5-5.5v-3l-2.5 2.5v5h5l2.5-2.5h3L18.5 21.5"/><path d="m21.5 2.5-19 19"/></svg>
+                                <span class="text-sm font-medium">22% cost reduction</span>
+                            </div>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-green-500"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-blue-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Waste Diversion</p>
+                            <p class="text-2xl font-bold text-blue-600">60%</p>
+                            <p class="text-gray-500 text-sm mt-1">Additional materials to be recovered</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-blue-500"><path d="M7 19H4.6c-.9-.9-1.6-2-1.6-3.2C3 12.5 4.8 11 7 11h1"/><path d="m21 16-4-4 4-4"/><path d="M14 16.5v-1.8c0-1.3 1.2-2.4 2.7-2.7l.3-.1c.6-.1 1-.4 1.2-1l.5-1.5c.2-.5.1-1.1-.3-1.5l-.2-.3c-.3-.4-.8-.6-1.3-.5l-1.3.2c-1.2.3-2.5-.2-3.3-1.2l-.2-.3c-.3-.4-.4-1-.3-1.5l.2-1.3c.1-.5.4-1 .9-1.2l1.9-.8c.6-.2 1.2-.2 1.8.1l6.6 2.8c.5.2.9.7 1.1 1.2l1.4 3.9c.2.6.2 1.2 0 1.8l-1.4 3.9c-.2.5-.6 1-1.1 1.2l-6.6 2.8c-.6.3-1.2.3-1.8.1l-1.9-.8c-.5-.2-1-.7-1.1-1.2l-.2-1.3c-.1-.5 0-1.1.3-1.5l.2-.3c.8-1 2.1-1.5 3.3-1.2l1.3.2c.5.1 1 .4 1.3.8l.2.3c.4.4.5 1 .3 1.5l-.5 1.5c-.2.6-.6 1-1.2 1.1l-.3.1c-1.5.3-2.7 1.4-2.7 2.7v1.8"/><path d="M7 11H5.4c-1.2 0-2.4.5-3.2 1.3"/></svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-gray-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Current Annual Cost</p>
+                            <p class="text-2xl font-bold text-gray-600">$46,617</p>
+                            <p class="text-gray-500 text-sm mt-1">Total waste management spend</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-gray-500"><path d="M3 6h18"/><path d="M19 6v14a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V6"/><path d="M8 6V4a2 2 0 0 1 2-2h4a2 2 0 0 1 2 2v2"/><line x1="10" x2="10" y1="11" y2="17"/><line x1="14" x2="14" y1="11" y2="17"/></svg>
+                    </div>
+                </div>
+                <div class="bg-white rounded-xl shadow-lg p-6 border-l-4 border-orange-500">
+                    <div class="flex items-center justify-between">
+                        <div>
+                            <p class="text-gray-600 text-sm font-medium">Infrastructure Investment</p>
+                            <p class="text-2xl font-bold text-orange-600">$6k-10k</p>
+                            <p class="text-gray-500 text-sm mt-1">One-time CapEx requirement</p>
+                        </div>
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-8 h-8 text-orange-500"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4"/><path d="M4 6V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M12 14V9"/><path d="M12 9H9"/></svg>
+                    </div>
+                </div>
+            </div>
 
-            // Financial comparison data
-            const financialComparison = [
-                { category: 'General Waste', current: 69837, proposed: 48255, savings: 21582 },
-                { category: 'Paper & Cardboard', current: 15659, proposed: 7829, savings: 7830 },
-                { category: 'New Streams', current: 0, proposed: 5500, savings: 0 }
-            ];
+            <div class="bg-white rounded-xl shadow-lg p-8">
+                <h3 class="text-2xl font-bold text-gray-800 mb-4">Assessment Overview</h3>
+                <div class="prose prose-lg text-gray-700">
+                    <p class="mb-4">
+                        This targeted waste audit of Erskine Park Shopping Centre identifies significant inefficiencies 
+                        in current waste services, infrastructure deficiencies, and opportunities for service optimization 
+                        and cost reduction.
+                    </p>
+                    <p class="mb-4">
+                        The audit revealed <strong>service overcapacity</strong>, <strong>stream contamination</strong>, and 
+                        <strong>inadequate infrastructure</strong> resulting in elevated operating costs and operational risks.
+                    </p>
+                    <p>
+                        Through waste stream separation, infrastructure upgrades, and bin service optimization, the site 
+                        could achieve net savings of approximately <strong class="text-green-600">$10,204 annually</strong> 
+                        while preparing for incoming EPA regulatory requirements.
+                    </p>
+                </div>
+            </div>
 
-            // Waste composition current vs proposed
-            const wasteCompositionCurrent = [
-                { name: 'Food Organics (to landfill)', value: 35, color: '#DC2626' },
-                { name: 'Mixed Recyclables (to landfill)', value: 25, color: '#F59E0B' },
-                { name: 'Paper & Cardboard (recycled)', value: 20, color: '#3B82F6' },
-                { name: 'General Waste', value: 20, color: '#6B7280' }
-            ];
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+                    <div class="flex items-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-red-600 mr-2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                        <h4 class="font-semibold text-red-800">Security Issues</h4>
+                    </div>
+                    <p class="text-red-700 text-sm">
+                        Unsecured bins exposed to public dumping, vandalism, and unauthorized access
+                    </p>
+                </div>
+                <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+                    <div class="flex items-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-yellow-600 mr-2"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                        <h4 class="font-semibold text-yellow-800">Weather Exposure</h4>
+                    </div>
+                    <p class="text-yellow-700 text-sm">
+                        Rainwater ingress causing overweight loads and collection failures
+                    </p>
+                </div>
+                <div class="bg-blue-50 border-l-4 border-blue-500 p-6 rounded-lg">
+                    <div class="flex items-center mb-3">
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-blue-600 mr-2"><path d="M7 19H4.6c-.9-.9-1.6-2-1.6-3.2C3 12.5 4.8 11 7 11h1"/><path d="m21 16-4-4 4-4"/><path d="M14 16.5v-1.8c0-1.3 1.2-2.4 2.7-2.7l.3-.1c.6-.1 1-.4 1.2-1l.5-1.5c.2-.5.1-1.1-.3-1.5l-.2-.3c-.3-.4-.8-.6-1.3-.5l-1.3.2c-1.2.3-2.5-.2-3.3-1.2l-.2-.3c-.3-.4-.4-1-.3-1.5l.2-1.3c.1-.5.4-1 .9-1.2l1.9-.8c.6-.2 1.2-.2 1.8.1l6.6 2.8c.5.2.9.7 1.1 1.2l1.4 3.9c.2.6.2 1.2 0 1.8l-1.4 3.9c-.2.5-.6 1-1.1 1.2l-6.6 2.8c-.6.3-1.2.3-1.8.1l-1.9-.8c-.5-.2-1-.7-1.1-1.2l-.2-1.3c-.1-.5 0-1.1.3-1.5l.2-.3c.8-1 2.1-1.5 3.3-1.2l1.3.2c.5.1 1 .4 1.3.8l.2.3c.4.4.5 1 .3 1.5l-.5 1.5c-.2.6-.6 1-1.2 1.1l-.3.1c-1.5.3-2.7 1.4-2.7 2.7v1.8"/><path d="M7 11H5.4c-1.2 0-2.4.5-3.2 1.3"/></svg>
+                        <h4 class="font-semibold text-blue-800">Waste Contamination</h4>
+                    </div>
+                    <p class="text-blue-700 text-sm">
+                        60% of general waste consists of recoverable organics and recyclables
+                    </p>
+                </div>
+            </div>
+        </div>
 
-            const wasteCompositionProposed = [
-                { name: 'Food Organics (to organics facility)', value: 35, color: '#10B981' },
-                { name: 'Mixed Recyclables (to recycling)', value: 25, color: '#059669' },
-                { name: 'Paper & Cardboard (recycled)', value: 20, color: '#3B82F6' },
-                { name: 'General Waste', value: 20, color: '#6B7280' }
-            ];
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Current State</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Current Waste Profile</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left font-semibold text-gray-700">Waste Stream</th>
+                                <th class="px-4 py-3 text-center font-semibold text-gray-700">Weekly Volume (m³)</th>
+                                <th class="px-4 py-3 text-center font-semibold text-gray-700">Density (kg/m³)</th>
+                                <th class="px-4 py-3 text-right font-semibold text-gray-700">Annual Spend</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-3 font-medium text-gray-800">General Waste</td>
+                                <td class="px-4 py-3 text-center">24</td>
+                                <td class="px-4 py-3 text-center">74.18</td>
+                                <td class="px-4 py-3 text-right font-semibold">$39,906</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-3 font-medium text-gray-800">Paper & Cardboard</td>
+                                <td class="px-4 py-3 text-center">18</td>
+                                <td class="px-4 py-3 text-center">26.67</td>
+                                <td class="px-4 py-3 text-right font-semibold">$6,711</td>
+                            </tr>
+                            <tr class="border-t-2 border-gray-300 bg-gray-50">
+                                <td class="px-4 py-3 font-bold text-gray-800">Total</td>
+                                <td class="px-4 py-3 text-center font-bold">42</td>
+                                <td class="px-4 py-3 text-center">-</td>
+                                <td class="px-4 py-3 text-right font-bold text-lg">$46,617</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Key Observations</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                    <div class="bg-red-50 border border-red-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-red-800 mb-2">General Waste Issues</h4>
+                        <ul class="text-red-700 text-sm space-y-1">
+                            <li>• High organic content (bread, food waste)</li>
+                            <li>• Contains recyclables and empty containers</li>
+                            <li>• Contaminated by rainwater</li>
+                        </ul>
+                    </div>
+                    <div class="bg-yellow-50 border border-yellow-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-yellow-800 mb-2">Cardboard Stream</h4>
+                        <ul class="text-yellow-700 text-sm space-y-1">
+                            <li>• Under-utilized during servicing</li>
+                            <li>• Often collected half-full</li>
+                            <li>• Weather damaged materials</li>
+                        </ul>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-200 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-800 mb-2">Infrastructure</h4>
+                        <ul class="text-blue-700 text-sm space-y-1">
+                            <li>• No enclosure or weather protection</li>
+                            <li>• Public dumping occurring</li>
+                            <li>• Vehicle access issues</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Current Waste Stream Composition</h3>
+                <div class="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center">
+                    <div>
+                        <h4 class="text-lg font-semibold text-gray-700 text-center mb-4">Material Distribution</h4>
+                        <div class="p-4 border rounded-lg text-center bg-gray-50">
+                            <p class="text-gray-500">A dynamic chart would display here.</p>
+                            <svg width="200" height="200" viewBox="0 0 200 200" class="mx-auto mt-4">
+                                <circle cx="100" cy="100" r="90" fill="#f3f4f6"/>
+                                <path d="M100 10 A 90 90 0 0 1 186.5 145 L 100 100 Z" fill="#DC2626" />
+                                <path d="M186.5 145 A 90 90 0 0 1 21.2 161.8 L 100 100 Z" fill="#F59E0B" />
+                                <path d="M21.2 161.8 A 90 90 0 0 1 45.3 48.6 L 100 100 Z" fill="#3B82F6" />
+                                <path d="M45.3 48.6 A 90 90 0 0 1 100 10 L 100 100 Z" fill="#6B7280" />
+                                <circle cx="100" cy="100" r="40" fill="white"/>
+                            </svg>
+                        </div>
+                    </div>
+                    <div class="space-y-4">
+                        <h4 class="text-lg font-semibold text-gray-700">Composition Analysis</h4>
+                        <div class="space-y-3">
+                            <div class="flex items-center p-3 bg-red-50 rounded-lg">
+                                <div class="w-4 h-4 bg-red-600 rounded mr-3 flex-shrink-0"></div>
+                                <div>
+                                    <p class="font-medium text-red-800">Food Organics (35%)</p>
+                                    <p class="text-sm text-red-700">Bread, food waste - going to landfill</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-yellow-50 rounded-lg">
+                                <div class="w-4 h-4 bg-yellow-500 rounded mr-3 flex-shrink-0"></div>
+                                <div>
+                                    <p class="font-medium text-yellow-800">Mixed Recyclables (25%)</p>
+                                    <p class="text-sm text-yellow-700">Containers, metals - going to landfill</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-blue-50 rounded-lg">
+                                <div class="w-4 h-4 bg-blue-600 rounded mr-3 flex-shrink-0"></div>
+                                <div>
+                                    <p class="font-medium text-blue-800">Paper & Cardboard (20%)</p>
+                                    <p class="text-sm text-blue-700">Already being recycled</p>
+                                </div>
+                            </div>
+                            <div class="flex items-center p-3 bg-gray-50 rounded-lg">
+                                <div class="w-4 h-4 bg-gray-600 rounded mr-3 flex-shrink-0"></div>
+                                <div>
+                                    <p class="font-medium text-gray-800">General Waste (20%)</p>
+                                    <p class="text-sm text-gray-700">True general waste</p>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // Implementation timeline data
-            const timelineData = [
-                { phase: 'Preparation', timeframe: 'July-Aug 2025', activities: 'Finalise service changes, tenant briefing, signage rollout', status: 'upcoming' },
-                { phase: 'Implementation', timeframe: 'Aug 2025', activities: 'Bin changes, stream launch, training', status: 'upcoming' },
-                { phase: 'Monitoring', timeframe: 'Aug-Oct 2025', activities: 'Track weights, contamination, performance', status: 'upcoming' },
-                { phase: 'Review', timeframe: 'Jan 2026', activities: 'Evaluate outcomes, refine services', status: 'upcoming' }
-            ];
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Issues & Risks</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Critical Issues Identified</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <div class="flex items-start space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mt-1 text-red-600"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+                            <div>
+                                <h4 class="font-semibold text-red-800">Unsecured Infrastructure</h4>
+                                <p class="text-sm mt-1 text-red-700">Bins located in open-air public areas subject to dumping, rainwater ingress, and vehicle access issues. Creates operational and financial risks.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-red-50 border-l-4 border-red-500 p-4">
+                        <div class="flex items-start space-x-3">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mt-1 text-red-600"><path d="M12 22a7 7 0 0 0 7-7c0-2-1-3.9-3-5.5s-3.5-4-4-6.5c-.5 2.5-2 4.9-4 6.5C6 11.1 5 13 5 15a7 7 0 0 0 7 7z"/></svg>
+                            <div>
+                                <h4 class="font-semibold text-red-800">Weather Contamination</h4>
+                                <p class="text-sm mt-1 text-red-700">Lack of enclosure leads to rainwater ingress, causing overweight loads, collection failures, and additional fees.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <div class="flex items-start space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mt-1 text-yellow-600"><path d="M7 19H4.6c-.9-.9-1.6-2-1.6-3.2C3 12.5 4.8 11 7 11h1"/><path d="m21 16-4-4 4-4"/><path d="M14 16.5v-1.8c0-1.3 1.2-2.4 2.7-2.7l.3-.1c.6-.1 1-.4 1.2-1l.5-1.5c.2-.5.1-1.1-.3-1.5l-.2-.3c-.3-.4-.8-.6-1.3-.5l-1.3.2c-1.2.3-2.5-.2-3.3-1.2l-.2-.3c-.3-.4-.4-1-.3-1.5l.2-1.3c.1-.5.4-1 .9-1.2l1.9-.8c.6-.2 1.2-.2 1.8.1l6.6 2.8c.5.2.9.7 1.1 1.2l1.4 3.9c.2.6.2 1.2 0 1.8l-1.4 3.9c-.2.5-.6 1-1.1 1.2l-6.6 2.8c-.6.3-1.2.3-1.8.1l-1.9-.8c-.5-.2-1-.7-1.1-1.2l-.2-1.3c-.1-.5 0-1.1.3-1.5l.2-.3c.8-1 2.1-1.5 3.3-1.2l1.3.2c.5.1 1 .4 1.3.8l.2.3c.4.4.5 1 .3 1.5l-.5 1.5c-.2.6-.6 1-1.2 1.1l-.3.1c-1.5.3-2.7 1.4-2.7 2.7v1.8"/><path d="M7 11H5.4c-1.2 0-2.4.5-3.2 1.3"/></svg>
+                            <div>
+                                <h4 class="font-semibold text-yellow-800">Stream Contamination</h4>
+                                <p class="text-sm mt-1 text-yellow-700">General Waste includes food waste, recyclables, and empty oil containers that should be diverted to appropriate streams.</p>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-4">
+                        <div class="flex items-start space-x-3">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-5 h-5 mt-1 text-yellow-600"><rect width="18" height="18" x="3" y="4" rx="2" ry="2"/><line x1="16" x2="16" y1="2" y2="6"/><line x1="8" x2="8" y1="2" y2="6"/><line x1="3" x2="21" y1="10" y2="10"/></svg>
+                            <div>
+                                <h4 class="font-semibold text-yellow-800">Service Inconsistency</h4>
+                                <p class="text-sm mt-1 text-yellow-700">Missed pickups due to obstructed bin access and unclear scheduling with service provider.</p>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Infrastructure Assessment</h3>
+                <div class="space-y-6">
+                    <div class="bg-red-50 border-l-4 border-red-500 p-6 rounded-lg">
+                        <div class="flex items-start">
+                            <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-red-600 mr-3 mt-1"><path d="m21.73 18-8-14a2 2 0 0 0-3.46 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.73-3Z"/><line x1="12" x2="12" y1="9" y2="13"/><line x1="12" x2="12.01" y1="17" y2="17"/></svg>
+                            <div>
+                                <h4 class="font-semibold text-red-800 mb-2">Critical Infrastructure Deficiencies</h4>
+                                <ul class="text-red-700 space-y-2">
+                                    <li>• <strong>No weather protection:</strong> Bins exposed to rain, causing weight issues and collection failures</li>
+                                    <li>• <strong>Public access:</strong> Unauthorized dumping increases costs and contamination</li>
+                                    <li>• <strong>Vehicle access problems:</strong> Obstructed collection routes cause missed services</li>
+                                    <li>• <strong>Aged oil collection:</strong> Rusted, waterlogged drum creates health and safety risks</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="bg-yellow-50 border-l-4 border-yellow-500 p-6 rounded-lg">
+                        <div class="flex items-start">
+                           <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-6 h-6 text-yellow-600 mr-3 mt-1"><line x1="12" x2="12" y1="2" y2="22"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                            <div>
+                                <h4 class="font-semibold text-yellow-800 mb-2">Financial Impact of Current Issues</h4>
+                                <ul class="text-yellow-700 space-y-2">
+                                    <li>• Overweight charges from rainwater contamination</li>
+                                    <li>• Excessive collection frequency due to over-servicing</li>
+                                    <li>• Additional costs from contaminated materials going to landfill</li>
+                                    <li>• Service failure compensation and management time</li>
+                                </ul>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-            // New streams data
-            const newStreamsData = [
-                { stream: 'Organics Recycling', volume: 2.1, frequency: '3x/week', bins: '1x660L + 1x120L', cost: 3000 },
-                { stream: 'Mixed Recycling', volume: 1.1, frequency: '1x/week', bins: '1x1100L', cost: 2500 }
-            ];
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Risk Assessment Matrix</h3>
+                <div class="grid grid-cols-1 md:grid-cols-3 gap-4">
+                    <div class="bg-red-100 border border-red-300 rounded-lg p-4 text-center">
+                        <h4 class="font-semibold text-red-800">High Risk</h4>
+                        <p class="text-2xl font-bold text-red-600 my-2">3</p>
+                        <p class="text-sm text-red-700">Critical infrastructure & security issues</p>
+                    </div>
+                    <div class="bg-yellow-100 border border-yellow-300 rounded-lg p-4 text-center">
+                        <h4 class="font-semibold text-yellow-800">Medium Risk</h4>
+                        <p class="text-2xl font-bold text-yellow-600 my-2">2</p>
+                        <p class="text-sm text-yellow-700">Service delivery & contamination</p>
+                    </div>
+                    <div class="bg-green-100 border border-green-300 rounded-lg p-4 text-center">
+                        <h4 class="font-semibold text-green-800">Low Risk</h4>
+                        <p class="text-2xl font-bold text-green-600 my-2">0</p>
+                        <p class="text-sm text-green-700">Current operational practices</p>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-            // Tenant data
-            const tenantData = [
-                { name: "Southlands Takeaway", type: "Food & Beverage", wasteGen: "High", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Sav's Pizza", type: "Food & Beverage", wasteGen: "High", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Noodle Paradise", type: "Food & Beverage", wasteGen: "High", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Fibonacci Coffee", type: "Food & Beverage", wasteGen: "High", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Donut King", type: "Food & Beverage", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Med", mixedRecycling: "Med" },
-                { name: "Southlands Bakery", type: "Food & Beverage", wasteGen: "Med", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Subway", type: "Food & Beverage", wasteGen: "Med", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Red Spoon Thai", type: "Food & Beverage", wasteGen: "Med", generalWaste: "Med", cardboard: "Low", organics: "High", mixedRecycling: "Med" },
-                { name: "Dolce Bella", type: "Food & Beverage", wasteGen: "Med", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Med" },
-                { name: "Sushi Bar", type: "Food & Beverage", wasteGen: "Med", generalWaste: "Med", cardboard: "Med", organics: "Med", mixedRecycling: "Med" },
-                { name: "K&A Quality Meats", type: "Grocery", wasteGen: "High", generalWaste: "Med", cardboard: "Med", organics: "High", mixedRecycling: "Low" },
-                { name: "Fade Master Barber", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Mary's Acupuncture", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Salon Solace", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Nail Gallery", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Bella Dental", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Physioinq", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Southlands Family Doctors", type: "Health & Beauty", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Southlands Real Estate", type: "Office", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Westflowers", type: "Retail", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Med", mixedRecycling: "Low" },
-                { name: "MrFone", type: "Retail", wasteGen: "Low", generalWaste: "Low", cardboard: "Low", organics: "Low", mixedRecycling: "Low" },
-                { name: "Priceline Pharmacy", type: "Retail", wasteGen: "Med", generalWaste: "Med", cardboard: "High", organics: "Low", mixedRecycling: "Low" },
-                { name: "Newsagency", type: "Retail", wasteGen: "Med", generalWaste: "Low", cardboard: "High", organics: "Low", mixedRecycling: "Low" },
-                { name: "CTC Tobacco", type: "Retail", wasteGen: "Med", generalWaste: "Low", cardboard: "Med", organics: "Low", mixedRecycling: "Low" },
-                { name: "Home Spot", type: "Retail", wasteGen: "Med", generalWaste: "Med", cardboard: "High", organics: "Low", mixedRecycling: "Low" }
-            ];
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Recommendations</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">A. Bin Optimization Strategy</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-blue-800 mb-3">Current Configuration</h4>
+                        <ul class="text-blue-700 space-y-2">
+                            <li>• 2 × 3m³ General Waste bins (daily collection)</li>
+                            <li>• 2 × 3m³ Cardboard bins (daily collection)</li>
+                            <li>• Under-utilized capacity</li>
+                            <li>• Weather-damaged contents</li>
+                        </ul>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-4">
+                        <h4 class="font-semibold text-green-800 mb-3">Proposed Configuration</h4>
+                        <ul class="text-green-700 space-y-2">
+                            <li>• 1 × 4.5m³ General Waste bin (4x/week collection)</li>
+                            <li>• 1 × 4.5m³ Cardboard bin (3x/week collection)</li>
+                            <li>• Better capacity utilization</li>
+                            <li>• Weather-protected environment</li>
+                        </ul>
+                    </div>
+                </div>
+                <div class="mt-4 bg-gray-50 rounded-lg p-4">
+                    <p class="text-gray-700">
+                        <strong>Rationale:</strong> Bin weights suggest consolidation is viable without operational risk once coupled with new stream implementation and infrastructure protection.
+                    </p>
+                </div>
+            </div>
 
-            const TabButton = ({ id, label, active, onClick }) => (
-                React.createElement('button', {
-                    onClick: () => onClick(id),
-                    className: `px-6 py-3 rounded-lg font-medium transition-all ${active ? 'bg-blue-600 text-white shadow-lg' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'}`
-                }, label)
-            );
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">B. New Waste Streams</h3>
+                <div class="space-y-6">
+                    <div class="border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-semibold text-gray-800">Organics Recycling</h4>
+                            <span class="text-lg font-bold text-green-600">$3,000/year</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div><span class="font-medium text-gray-600">Volume:</span><span class="ml-2">1.98 m³/week</span></div>
+                            <div><span class="font-medium text-gray-600">Frequency:</span><span class="ml-2">3x/week</span></div>
+                            <div><span class="font-medium text-gray-600">Equipment:</span><span class="ml-2">1x660L</span></div>
+                            <div><span class="font-medium text-gray-600">Source:</span><span class="ml-2">8+ food outlets</span></div>
+                        </div>
+                    </div>
+                    <div class="border rounded-lg p-4">
+                        <div class="flex items-center justify-between mb-3">
+                            <h4 class="font-semibold text-gray-800">Mixed Recycling</h4>
+                            <span class="text-lg font-bold text-green-600">$2,500/year</span>
+                        </div>
+                        <div class="grid grid-cols-1 md:grid-cols-4 gap-4 text-sm">
+                            <div><span class="font-medium text-gray-600">Volume:</span><span class="ml-2">1.1 m³/week</span></div>
+                            <div><span class="font-medium text-gray-600">Frequency:</span><span class="ml-2">1x/week</span></div>
+                            <div><span class="font-medium text-gray-600">Equipment:</span><span class="ml-2">1x1100L</span></div>
+                            <div><span class="font-medium text-gray-600">Source:</span><span class="ml-2">All tenancies</span></div>
+                        </div>
+                    </div>
+                </div>
+                <div class="mt-4 bg-green-50 rounded-lg p-4">
+                    <p class="text-green-800">
+                        <strong>Impact:</strong> Visual observations reveal over 60% of General Waste is recoverable. These streams reduce weight and cost while improving EPA compliance.
+                    </p>
+                </div>
+            </div>
 
-            const MetricCard = ({ icon: Icon, title, value, subtitle, color = 'blue', trend = null }) => (
-                React.createElement('div', {
-                    className: `bg-white rounded-xl shadow-lg p-6 border-l-4 border-${color}-500`
-                }, [
-                    React.createElement('div', { className: 'flex items-center justify-between' }, [
-                        React.createElement('div', {}, [
-                            React.createElement('p', { className: 'text-gray-600 text-sm font-medium' }, title),
-                            React.createElement('p', { className: `text-2xl font-bold text-${color}-600` }, value),
-                            subtitle && React.createElement('p', { className: 'text-gray-500 text-sm mt-1' }, subtitle),
-                            trend && React.createElement('div', { className: `flex items-center mt-2 text-${trend.color}-600` }, [
-                                React.createElement(TrendingDown, { className: 'w-4 h-4 mr-1' }),
-                                React.createElement('span', { className: 'text-sm font-medium' }, trend.text)
-                            ])
-                        ]),
-                        React.createElement(Icon, { className: `w-8 h-8 text-${color}-500` })
-                    ])
-                ])
-            );
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">C. Infrastructure Upgrades</h3>
+                <div class="space-y-4">
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Fenced, Roofed Waste Enclosure</h4>
+                            <p class="text-sm mt-1 text-gray-600">Reduces public access and rainwater ingress</p>
+                        </div>
+                        <div class="text-right"><span class="font-bold text-blue-600 text-lg">$6,000 - 9,800</span></div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Oil Collection System</h4>
+                            <p class="text-sm mt-1 text-gray-600">Replace rusted drum, establish collection</p>
+                        </div>
+                        <div class="text-right"><span class="font-bold text-blue-600 text-lg">$500 - 800</span></div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Signage & Equipment</h4>
+                            <p class="text-sm mt-1 text-gray-600">Bin signage, tenant training materials</p>
+                        </div>
+                        <div class="text-right"><span class="font-bold text-blue-600 text-lg">$1,000 - 1,500</span></div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-gray-50">
+                        <div>
+                            <h4 class="font-semibold text-gray-800">Smart Metering Technology</h4>
+                            <p class="text-sm mt-1 text-gray-600">Monitor performance and optimize services</p>
+                        </div>
+                        <div class="text-right"><span class="font-bold text-blue-600 text-lg">$2,000 - 3,000</span></div>
+                    </div>
+                    <div class="flex items-center justify-between p-4 rounded-lg bg-blue-100 border-2 border-blue-300">
+                        <div>
+                            <h4 class="font-semibold text-blue-900 text-lg">TOTAL INFRASTRUCTURE UPGRADE</h4>
+                            <p class="text-sm mt-1 text-blue-700">Complete infrastructure transformation</p>
+                        </div>
+                        <div class="text-right"><span class="font-bold text-blue-900 text-xl">$9,500 - 15,100</span></div>
+                    </div>
+                </div>
+                <div class="mt-6 bg-blue-50 border-l-4 border-blue-500 p-4 rounded-lg">
+                    <h4 class="font-semibold text-blue-800 mb-2">Priority Infrastructure Investment</h4>
+                    <p class="text-blue-700">
+                        The fenced, roofed waste enclosure is the highest priority investment, addressing security, weather protection, and operational efficiency issues simultaneously.
+                    </p>
+                </div>
+            </div>
+        </div>
 
-            return React.createElement('div', { className: 'min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 p-6' }, [
-                React.createElement('div', { className: 'max-w-7xl mx-auto' }, [
-                    // Logo
-                    React.createElement('div', { className: 'flex justify-start mb-4' }, [
-                        React.createElement('img', {
-                            src: 'https://i.imgur.com/iB983sa.png',
-                            alt: 'Shrunk Innovation Group',
-                            className: 'h-12 w-auto',
-                            title: 'source: imgur.com'
-                        })
-                    ]),
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Financial Impact</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Financial Impact Analysis</h3>
+                <div class="p-4 border rounded-lg text-center bg-gray-50">
+                    <p class="text-gray-500">A dynamic chart would display here, visually comparing current and proposed costs.</p>
+                </div>
+            </div>
 
-                    // Header
-                    React.createElement('div', { className: 'text-center mb-8' }, [
-                        React.createElement('div', { className: 'flex items-center justify-center mb-4' }, [
-                            React.createElement(MapPin, { className: 'w-8 h-8 text-blue-600 mr-3' }),
-                            React.createElement('h1', { className: 'text-4xl font-bold text-gray-800' }, 'Southlands Shopping Centre')
-                        ]),
-                        React.createElement('p', { className: 'text-gray-600 text-lg mb-2' }, 'Waste Infrastructure Assessment Report - May 2025'),
-                        React.createElement('div', { className: 'inline-flex items-center bg-green-100 text-green-800 px-6 py-3 rounded-full font-medium text-lg' }, [
-                            React.createElement(Award, { className: 'w-6 h-6 mr-2' }),
-                            '$23,912 Annual Savings Identified'
-                        ])
-                    ]),
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Detailed Financial Breakdown</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-4 py-3 text-left font-semibold text-gray-700">Stream</th>
+                                <th class="px-4 py-3 text-right font-semibold text-gray-700">Current Cost</th>
+                                <th class="px-4 py-3 text-right font-semibold text-gray-700">Proposed Cost</th>
+                                <th class="px-4 py-3 text-right font-semibold text-gray-700">Annual Savings</th>
+                                <th class="px-4 py-3 text-center font-semibold text-gray-700">% Reduction</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t">
+                                <td class="px-4 py-3 font-medium text-gray-800">General Waste</td>
+                                <td class="px-4 py-3 text-right">$39,906</td>
+                                <td class="px-4 py-3 text-right">$27,560</td>
+                                <td class="px-4 py-3 text-right font-semibold text-green-600">$12,346</td>
+                                <td class="px-4 py-3 text-center">31%</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-3 font-medium text-gray-800">Paper & Cardboard</td>
+                                <td class="px-4 py-3 text-right">$6,711</td>
+                                <td class="px-4 py-3 text-right">$3,380</td>
+                                <td class="px-4 py-3 text-right font-semibold text-green-600">$3,331</td>
+                                <td class="px-4 py-3 text-center">50%</td>
+                            </tr>
+                            <tr class="border-t">
+                                <td class="px-4 py-3 font-medium text-gray-800">New Streams</td>
+                                <td class="px-4 py-3 text-right">$0</td>
+                                <td class="px-4 py-3 text-right">$5,500</td>
+                                <td class="px-4 py-3 text-right font-semibold text-green-600">-</td>
+                                <td class="px-4 py-3 text-center">-</td>
+                            </tr>
+                            <tr class="border-t-2 border-gray-300 bg-green-50">
+                                <td class="px-4 py-3 font-bold text-gray-800">Net Savings</td>
+                                <td class="px-4 py-3 text-right font-bold">$46,617</td>
+                                <td class="px-4 py-3 text-right font-bold">$36,440</td>
+                                <td class="px-4 py-3 text-right font-bold text-green-600 text-lg">$10,204</td>
+                                <td class="px-4 py-3 text-center font-bold text-green-600">22%</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
 
-                    // Navigation Tabs
-                    React.createElement('div', { className: 'flex justify-center mb-8' }, [
-                        React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-2 flex gap-2 flex-wrap' }, [
-                            React.createElement(TabButton, {
-                                id: 'overview',
-                                label: 'Executive Summary',
-                                active: activeTab === 'overview',
-                                onClick: setActiveTab
-                            }),
-                            React.createElement(TabButton, {
-                                id: 'current',
-                                label: 'Current State',
-                                active: activeTab === 'current',
-                                onClick: setActiveTab
-                            }),
-                            React.createElement(TabButton, {
-                                id: 'financial',
-                                label: 'Financial Impact',
-                                active: activeTab === 'financial',
-                                onClick: setActiveTab
-                            })
-                        ])
-                    ]),
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Investment Analysis</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div class="bg-blue-50 rounded-lg p-6">
+                        <h4 class="font-semibold text-blue-800 mb-4">Infrastructure Investment</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between"><span class="text-blue-700">Waste Enclosure:</span><span class="font-semibold">$6,000 - $9,800</span></div>
+                            <div class="flex justify-between"><span class="text-blue-700">Additional Equipment:</span><span class="font-semibold">$3,500 - $5,300</span></div>
+                            <div class="border-t pt-2 flex justify-between font-bold"><span class="text-blue-800">Total CapEx:</span><span>$9,500 - $15,100</span></div>
+                        </div>
+                    </div>
+                    <div class="bg-green-50 rounded-lg p-6">
+                        <h4 class="font-semibold text-green-800 mb-4">Return on Investment</h4>
+                        <div class="space-y-3">
+                            <div class="flex justify-between"><span class="text-green-700">Annual Savings:</span><span class="font-semibold">$10,204</span></div>
+                            <div class="flex justify-between"><span class="text-green-700">Payback Period:</span><span class="font-semibold">11-18 months</span></div>
+                            <div class="border-t pt-2 flex justify-between font-bold"><span class="text-green-800">5-Year Net Benefit:</span><span>$35,920 - $41,520</span></div>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    // Content
-                    activeTab === 'overview' && React.createElement('div', { className: 'space-y-8' }, [
-                        // Key Metrics
-                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-6' }, [
-                            React.createElement(MetricCard, {
-                                icon: DollarSign,
-                                title: 'Annual Savings',
-                                value: '$23,912',
-                                subtitle: 'Net cost reduction',
-                                color: 'green',
-                                trend: { text: '28% cost reduction', color: 'green' }
-                            }),
-                            React.createElement(MetricCard, {
-                                icon: Recycle,
-                                title: 'Waste Diversion',
-                                value: '60%',
-                                subtitle: 'Additional materials to be recovered',
-                                color: 'blue'
-                            }),
-                            React.createElement(MetricCard, {
-                                icon: Trash2,
-                                title: 'Current Annual Cost',
-                                value: '$85,496',
-                                subtitle: 'Total waste management spend',
-                                color: 'gray'
-                            }),
-                            React.createElement(MetricCard, {
-                                icon: CheckCircle,
-                                title: 'EPA Compliance',
-                                value: 'Ready',
-                                subtitle: 'Organics separation planned',
-                                color: 'green'
-                            })
-                        ]),
+            <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div class="bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 text-center">
+                    <h4 class="text-lg font-semibold mb-2">Annual Savings</h4>
+                    <p class="text-3xl font-bold">$10,204</p>
+                    <p class="text-green-100 text-sm">22% cost reduction</p>
+                </div>
+                <div class="bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center">
+                    <h4 class="text-lg font-semibold mb-2">Waste Diverted</h4>
+                    <p class="text-3xl font-bold">60%</p>
+                    <p class="text-blue-100 text-sm">From landfill to recycling</p>
+                </div>
+                <div class="bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 text-center">
+                    <h4 class="text-lg font-semibold mb-2">Payback Period</h4>
+                    <p class="text-3xl font-bold">11-18</p>
+                    <p class="text-purple-100 text-sm">Months to break even</p>
+                </div>
+            </div>
+        </div>
 
-                        // Executive Summary Text
-                        React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-8' }, [
-                            React.createElement('h3', { className: 'text-2xl font-bold text-gray-800 mb-4' }, 'Assessment Overview'),
-                            React.createElement('div', { className: 'prose prose-lg text-gray-700' }, [
-                                React.createElement('p', { className: 'mb-4' }, 'This comprehensive waste infrastructure assessment of Southlands Shopping Centre reveals significant opportunities to reduce waste service costs, introduce new waste streams, and ensure compliance with incoming EPA organics mandates.'),
-                                React.createElement('p', { className: 'mb-4' }, 'The assessment identified over-servicing, inadequate diversion of recyclables and organics, and service reliability issues as the primary challenges affecting operational efficiency and cost effectiveness.'),
-                                React.createElement('p', {}, [
-                                    'By implementing the proposed strategic changes, Southlands is positioned to save approximately ',
-                                    React.createElement('strong', { className: 'text-green-600' }, '$23,912 annually'),
-                                    ', while enhancing waste room operations, tenant participation, and service reliability.'
-                                ])
-                            ])
-                        ])
-                    ]),
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Tenant Analysis</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Tenant Waste Generation Analysis</h3>
+                <p class="text-gray-600 mb-6">
+                    Analysis of all 25 tenancies at Erskine Park Shopping Centre showing expected waste generation patterns and stream-specific volumes to optimize collection strategies.
+                </p>
+                <div class="grid grid-cols-1 md:grid-cols-4 gap-4 mb-6">
+                    <div class="bg-blue-50 rounded-lg p-4 text-center"><h4 class="font-semibold text-blue-800">Total Tenancies</h4><p class="text-2xl font-bold text-blue-600">25</p></div>
+                    <div class="bg-green-50 rounded-lg p-4 text-center"><h4 class="font-semibold text-green-800">Food & Beverage</h4><p class="text-2xl font-bold text-green-600">8</p><p class="text-sm text-green-700">High organics producers</p></div>
+                    <div class="bg-purple-50 rounded-lg p-4 text-center"><h4 class="font-semibold text-purple-800">Health & Beauty</h4><p class="text-2xl font-bold text-purple-600">9</p><p class="text-sm text-purple-700">Low waste generators</p></div>
+                    <div class="bg-orange-50 rounded-lg p-4 text-center"><h4 class="font-semibold text-orange-800">Retail & Office</h4><p class="text-2xl font-bold text-orange-600">8</p><p class="text-sm text-orange-700">Mixed waste patterns</p></div>
+                </div>
+            </div>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Detailed Tenant Waste Profile</h3>
+                <div class="overflow-x-auto">
+                    <table class="w-full text-sm">
+                        <thead>
+                            <tr class="bg-gray-50">
+                                <th class="px-3 py-3 text-left font-semibold text-gray-700">Tenancy Name</th>
+                                <th class="px-3 py-3 text-center font-semibold text-gray-700">Shop Type</th>
+                                <th class="px-3 py-3 text-center font-semibold text-gray-700">Expected Waste</th>
+                                <th class="px-3 py-3 text-center font-semibold text-gray-700">General Waste</th>
+                                <th class="px-3 py-3 text-center font-semibold text-gray-700">Cardboard</th>
+                                <th class="px-3 py-3 text-center font-semibold text-gray-700">Organics</th>
+                                <th class="px-3 py-3 text-center font-semibold text-gray-700">Mixed Recycling</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr class="border-t hover:bg-gray-50">
+                                <td class="px-3 py-3 font-medium text-gray-800">Erskine's Little Leaders</td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">Childcare</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">High</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">High</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Med</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">Med</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">Med</span></td>
+                            </tr>
+                            <tr class="border-t hover:bg-gray-50">
+                                <td class="px-3 py-3 font-medium text-gray-800">Daksha Cakes & Pastries</td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Food & Beverage</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">Low</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">Low</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">Low</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">Low</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">Low</span></td>
+                            </tr>
+                            <tr class="border-t hover:bg-gray-50">
+                                <td class="px-3 py-3 font-medium text-gray-800">Domino's</td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">Food & Beverage</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium bg-red-100 text-red-800">High</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">High</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Med</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-green-100 text-green-800">High</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-blue-100 text-blue-800">Med</span></td>
+                            </tr>
+                             <tr class="border-t hover:bg-gray-50">
+                                <td class="px-3 py-3 font-medium text-gray-800">Terry White Chemmart</td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-orange-100 text-orange-800">Retail</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">Med</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-yellow-100 text-yellow-800">Med</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-red-100 text-red-800">High</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">Low</span></td>
+                                <td class="px-3 py-3 text-center"><span class="px-2 py-1 rounded-full text-xs bg-gray-100 text-gray-800">Low</span></td>
+                            </tr>
+                            </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
 
-                    activeTab === 'current' && React.createElement('div', { className: 'space-y-8' }, [
-                        // Current Waste Overview
-                        React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6' }, [
-                            React.createElement('h3', { className: 'text-xl font-bold text-gray-800 mb-4' }, 'Current Waste Profile'),
-                            React.createElement('div', { className: 'overflow-x-auto' }, [
-                                React.createElement('table', { className: 'w-full' }, [
-                                    React.createElement('thead', {}, [
-                                        React.createElement('tr', { className: 'bg-gray-50' }, [
-                                            React.createElement('th', { className: 'px-4 py-3 text-left font-semibold text-gray-700' }, 'Waste Stream'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-center font-semibold text-gray-700' }, 'Weekly Volume (m³)'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-center font-semibold text-gray-700' }, 'Density (kg/m³)'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-right font-semibold text-gray-700' }, 'Annual Spend')
-                                        ])
-                                    ]),
-                                    React.createElement('tbody', {}, [
-                                        ...currentWasteData.map((item, index) => 
-                                            React.createElement('tr', { key: index, className: 'border-t' }, [
-                                                React.createElement('td', { className: 'px-4 py-3 font-medium text-gray-800' }, item.stream),
-                                                React.createElement('td', { className: 'px-4 py-3 text-center' }, item.volume),
-                                                React.createElement('td', { className: 'px-4 py-3 text-center' }, item.density),
-                                                React.createElement('td', { className: 'px-4 py-3 text-right font-semibold' }, `$${item.cost.toLocaleString()}`)
-                                            ])
-                                        ),
-                                        React.createElement('tr', { className: 'border-t-2 border-gray-300 bg-gray-50' }, [
-                                            React.createElement('td', { className: 'px-4 py-3 font-bold text-gray-800' }, 'Total'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-center font-bold' }, '84'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-center' }, '-'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-right font-bold text-lg' }, '$85,496')
-                                        ])
-                                    ])
-                                ])
-                            ])
-                        ])
-                    ]),
+        <div class="space-y-8 mb-12">
+            <h2 class="section-title">Implementation</h2>
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-6">Implementation Timeline</h3>
+                <div class="space-y-6">
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-blue-600 font-bold">1</span></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Preparation</h4><span class="text-sm font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Sept-Oct 2025</span>
+                            </div>
+                            <p class="text-gray-600">Site enclosure works, bin order, signage design</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-blue-600 font-bold">2</span></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Implementation</h4><span class="text-sm font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Nov 2025</span>
+                            </div>
+                            <p class="text-gray-600">New services launch, bin changes, tenant briefing</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-blue-600 font-bold">3</span></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Monitoring</h4><span class="text-sm font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Dec 2025-Jan 2026</span>
+                            </div>
+                            <p class="text-gray-600">Track weights, contamination, usage patterns</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start space-x-4">
+                        <div class="flex-shrink-0 w-12 h-12 bg-blue-100 rounded-full flex items-center justify-center"><span class="text-blue-600 font-bold">4</span></div>
+                        <div class="flex-1">
+                            <div class="flex items-center justify-between mb-2">
+                                <h4 class="font-semibold text-gray-800">Review</h4><span class="text-sm font-medium text-blue-600 bg-blue-100 px-3 py-1 rounded-full">Jan 2026 onwards</span>
+                            </div>
+                            <p class="text-gray-600">Adjust frequencies based on metering data</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
 
-                    activeTab === 'financial' && React.createElement('div', { className: 'space-y-8' }, [
-                        // Savings Breakdown
-                        React.createElement('div', { className: 'bg-white rounded-xl shadow-lg p-6' }, [
-                            React.createElement('h3', { className: 'text-xl font-bold text-gray-800 mb-4' }, 'Detailed Financial Breakdown'),
-                            React.createElement('div', { className: 'overflow-x-auto' }, [
-                                React.createElement('table', { className: 'w-full' }, [
-                                    React.createElement('thead', {}, [
-                                        React.createElement('tr', { className: 'bg-gray-50' }, [
-                                            React.createElement('th', { className: 'px-4 py-3 text-left font-semibold text-gray-700' }, 'Stream'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-right font-semibold text-gray-700' }, 'Current Cost'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-right font-semibold text-gray-700' }, 'Proposed Cost'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-right font-semibold text-gray-700' }, 'Annual Savings'),
-                                            React.createElement('th', { className: 'px-4 py-3 text-center font-semibold text-gray-700' }, '% Reduction')
-                                        ])
-                                    ]),
-                                    React.createElement('tbody', {}, [
-                                        ...financialComparison.map((item, index) => 
-                                            React.createElement('tr', { key: index, className: 'border-t' }, [
-                                                React.createElement('td', { className: 'px-4 py-3 font-medium text-gray-800' }, item.category),
-                                                React.createElement('td', { className: 'px-4 py-3 text-right' }, `$${item.current.toLocaleString()}`),
-                                                React.createElement('td', { className: 'px-4 py-3 text-right' }, `$${item.proposed.toLocaleString()}`),
-                                                React.createElement('td', { className: 'px-4 py-3 text-right font-semibold text-green-600' }, 
-                                                    item.savings > 0 ? `$${item.savings.toLocaleString()}` : '-'
-                                                ),
-                                                React.createElement('td', { className: 'px-4 py-3 text-center' }, 
-                                                    item.current > 0 ? `${Math.round((item.savings / item.current) * 100)}%` : '-'
-                                                )
-                                            ])
-                                        ),
-                                        React.createElement('tr', { className: 'border-t-2 border-gray-300 bg-green-50' }, [
-                                            React.createElement('td', { className: 'px-4 py-3 font-bold text-gray-800' }, 'Net Savings'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-right font-bold' }, '$85,496'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-right font-bold' }, '$61,584'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-right font-bold text-green-600 text-lg' }, '$23,912'),
-                                            React.createElement('td', { className: 'px-4 py-3 text-center font-bold text-green-600' }, '28%')
-                                        ])
-                                    ])
-                                ])
-                            ])
-                        ]),
+            <div class="bg-white rounded-xl shadow-lg p-6">
+                <h3 class="text-xl font-bold text-gray-800 mb-4">Critical Path Activities</h3>
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">Phase 1: Infrastructure (Sept-Oct 2025)</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-orange-500 mr-2"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4"/><path d="M4 6V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M12 14V9"/><path d="M12 9H9"/></svg>Design and construct waste enclosure</li>
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-orange-500 mr-2"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4"/><path d="M4 6V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M12 14V9"/><path d="M12 9H9"/></svg>Replace oil collection system</li>
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-orange-500 mr-2"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4"/><path d="M4 6V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M12 14V9"/><path d="M12 9H9"/></svg>Order new bin configurations</li>
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-orange-500 mr-2"><rect x="2" y="6" width="20" height="8" rx="1"/><path d="M17 14v4a2 2 0 0 1-2 2H9a2 2 0 0 1-2-2v-4"/><path d="M4 6V5a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v1"/><path d="M12 14V9"/><path d="M12 9H9"/></svg>Install signage and safety equipment</li>
+                        </ul>
+                    </div>
+                    <div>
+                        <h4 class="font-semibold text-gray-800 mb-3">Phase 2: Service Launch (Nov 2025)</h4>
+                        <ul class="space-y-2 text-gray-700">
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-green-500 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Launch new waste streams</li>
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-green-500 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Implement bin changes</li>
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-green-500 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Train cleaning staff</li>
+                            <li class="flex items-center"><svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" class="w-4 h-4 text-green-500 mr-2"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>Brief all tenants</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+        </div>
 
-                        // ROI Summary
-                        React.createElement('div', { className: 'grid grid-cols-1 md:grid-cols-4 gap-6' }, [
-                            React.createElement('div', { className: 'bg-gradient-to-r from-green-500 to-green-600 text-white rounded-xl p-6 text-center' }, [
-                                React.createElement('h4', { className: 'text-lg font-semibold mb-2' }, 'Annual Savings'),
-                                React.createElement('p', { className: 'text-3xl font-bold' }, '$23,912'),
-                                React.createElement('p', { className: 'text-green-100 text-sm' }, '28% cost reduction')
-                            ]),
-                            React.createElement('div', { className: 'bg-gradient-to-r from-blue-500 to-blue-600 text-white rounded-xl p-6 text-center' }, [
-                                React.createElement('h4', { className: 'text-lg font-semibold mb-2' }, 'Waste Diverted'),
-                                React.createElement('p', { className: 'text-3xl font-bold' }, '60%'),
-                                React.createElement('p', { className: 'text-blue-100 text-sm' }, 'From landfill to recycling')
-                            ]),
-                            React.createElement('div', { className: 'bg-gradient-to-r from-orange-500 to-orange-600 text-white rounded-xl p-6 text-center' }, [
-                                React.createElement('h4', { className: 'text-lg font-semibold mb-2' }, 'Infrastructure Investment'),
-                                React.createElement('p', { className: 'text-3xl font-bold' }, '$4k-6k'),
-                                React.createElement('p', { className: 'text-orange-100 text-sm' }, 'Signage & smart metering')
-                            ]),
-                            React.createElement('div', { className: 'bg-gradient-to-r from-purple-500 to-purple-600 text-white rounded-xl p-6 text-center' }, [
-                                React.createElement('h4', { className: 'text-lg font-semibold mb-2' }, 'Payback Period'),
-                                React.createElement('p', { className: 'text-3xl font-bold' }, '2-3'),
-                                React.createElement('p', { className: 'text-purple-100 text-sm' }, 'Months to break even')
-                            ])
-                        ])
-                    ])
-                ]),
+        <footer class="mt-12 text-center text-gray-600 border-t border-gray-200 pt-6">
+            <p>© 2025 | <strong>Shrunk Innovation Group Pty Ltd</strong> | All Rights Reserved</p>
+        </footer>
+    </div>
+</div>
 
-                // Footer
-                React.createElement('footer', { className: 'mt-12 text-center text-gray-600 border-t border-gray-200 pt-6' }, [
-                    React.createElement('p', {}, [
-                        '© 2025 | ',
-                        React.createElement('strong', {}, 'Shrunk Innovation Group Pty Ltd'),
-                        ' | All Rights Reserved'
-                    ])
-                ])
-            ]);
-        };
-
-        ReactDOM.render(React.createElement(SouthlandsWasteReport), document.getElementById('root'));
-    </script>
 </body>
 </html>
