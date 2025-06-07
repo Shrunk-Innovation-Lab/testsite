@@ -7,9 +7,10 @@
     <link rel="icon" type="image/jpeg" href="https://i.imgur.com/g8yWq0Ys.jpg">
     <script src="https://cdn.tailwindcss.com"></script>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <!-- Include jsPDF from CDN to enable PDF export -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     
+    <!-- PDF.js Library -->
+    <script src="https://mozilla.github.io/pdf.js/build/pdf.js"></script>
+
     <style>
         /* Custom scrollbar for webkit browsers */
         ::-webkit-scrollbar {
@@ -133,50 +134,30 @@
 
             <div class="flex-1 flex flex-col bg-gray-100 overflow-hidden">
                 <div id="toolbar" class="bg-gray-100 p-2 flex items-center justify-start space-x-1.5 shadow-sm border-b border-gray-300 flex-nowrap overflow-x-auto">
-                    <button id="tool-select" title="Select/Edit Shape" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="select">
-                        <i class="fas fa-mouse-pointer"></i>
+                    <button id="tool-select" title="Select/Edit Shape" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="select"><i class="fas fa-mouse-pointer"></i></button>
+                    <button id="tool-webcam" title="Use Camera" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm p-2 flex-shrink-0 flex items-center">
+                        <i class="fas fa-camera"></i>
                     </button>
-                    <button id="tool-load-trigger" title="Load Image" style="background-color: #203136;" class="text-white w-8 h-8 hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="load">
-                        <i class="fas fa-folder-open"></i>
+                    <button id="tool-load-trigger" title="Load Image" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-2 flex-shrink-0 flex items-center">
+                        <i class="fas fa-folder-open"></i><span class="hidden md:inline ml-1.5">Load</span>
                     </button>
                     <input type="file" id="imageLoader" class="hidden" accept="image/*,application/pdf"> 
-                    <button id="tool-save" title="Save Markup" style="background-color: #203136;" class="text-white w-8 h-8 hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="save">
-                        <i class="fas fa-save"></i>
+                    <button id="tool-save" title="Save Markup" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:ring-blue-300 font-medium rounded-md text-sm px-3 py-2 flex-shrink-0 flex items-center">
+                        <i class="fas fa-save"></i><span class="hidden md:inline ml-1.5">Save</span>
                     </button>
 
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
 
-                    <button id="tool-pen" title="Pen" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="pen">
-                        <i class="fas fa-pencil-alt"></i>
+                    <button id="tool-pen" title="Pen" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="pen"><i class="fas fa-pencil-alt"></i></button>
+                    <button id="tool-highlighter" title="Highlighter" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0 flex justify-center items-center" data-tool="highlighter">
+                        <svg fill="currentColor" width="1em" height="1em" viewBox="0 -16 544 544" xmlns="http://www.w3.org/2000/svg"><path d="M0 479.98L99.92 512l35.45-35.45-67.04-67.04L0 479.98zm124.61-240.01a36.592 36.592 0 0 0-10.79 38.1l13.05 42.83-50.93 50.94 96.23 96.23 50.86-50.86 42.74 13.08c13.73 4.2 28.65-.01 38.15-10.78l35.55-41.64-173.34-173.34-41.52 35.44zm403.31-160.7l-63.2-63.2c-20.49-20.49-53.38-21.52-75.12-2.35L190.55 183.68l169.77 169.78L530.27 154.4c19.18-21.74 18.15-54.63-2.35-75.13z"/></svg>
                     </button>
-                    <button
-                        id="tool-highlighter"
-                        title="Highlighter"
-                        class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0"
-                        data-tool="highlighter"
-                    >
-                        <svg class="w-5 h-5" viewBox="0 -16 544 544" fill="currentColor" xmlns="http://www.w3.org/2000/svg">
-                            <path d="M0 479.98L99.92 512l35.45-35.45-67.04-67.04L0 479.98zm124.61-240.01a36.592 36.592 0 0 0-10.79 38.1l13.05 42.83-50.93 50.94 96.23 96.23 50.86-50.86 42.74 13.08c13.73 4.2 28.65-.01 38.15-10.78l35.55-41.64-173.34-173.34-41.52 35.44zm403.31-160.7l-63.2-63.2c-20.49-20.49-53.38-21.52-75.12-2.35L190.55 183.68l169.77 169.78L530.27 154.4c19.18-21.74 18.15-54.63-2.35-75.13z"/>
-                        </svg>
-                    </button>
-                    <button id="tool-line" title="Line" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="line">
-                        <i class="fas fa-slash"></i>
-                    </button>
-                    <button id="tool-arrow" title="Arrow" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="arrow">
-                        <i class="fas fa-long-arrow-alt-right"></i>
-                    </button>
-                    <button id="tool-rect" title="Rectangle" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="rect">
-                        <i class="far fa-square"></i>
-                    </button>
-                    <button id="tool-circle" title="Circle" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="circle">
-                        <i class="far fa-circle"></i>
-                    </button>
-                    <button id="tool-stamp" title="Stamp" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="stamp">
-                        <i class="fas fa-stamp"></i>
-                    </button>
-                    <button id="tool-text" title="Text" class="tool-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0" data-tool="text">
-                        <i class="fas fa-font"></i>
-                    </button>
+                    <button id="tool-line" title="Line" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="line"><i class="fas fa-slash"></i></button>
+                    <button id="tool-arrow" title="Arrow" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="arrow"><i class="fas fa-long-arrow-alt-right"></i></button>
+                    <button id="tool-rect" title="Rectangle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="rect"><i class="far fa-square"></i></button>
+                    <button id="tool-circle" title="Circle" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="circle"><i class="far fa-circle"></i></button>
+                    <button id="tool-stamp" title="Stamp" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="stamp"><i class="fas fa-stamp"></i></button>
+                    <button id="tool-text" title="Text" class="tool-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0" data-tool="text"><i class="fas fa-font"></i></button>
 
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
                     
@@ -184,7 +165,7 @@
                         <button id="toggle-color-palette" title="Toggle Colors" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0">
                             <i id="color-toggle-icon" class="fas fa-chevron-left"></i>
                         </button>
-                        <div id="color-palette-group" class="hidden flex items-center space-x-1.5"> 
+                        <div id="color-palette-group" class="flex items-center space-x-1.5 hidden"> 
                             <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FF0000;" data-color="#FF0000" title="Red"></button>
                             <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #000000;" data-color="#000000" title="Black"></button>
                             <button class="color-palette-button w-6 h-6 rounded-sm border-2 border-gray-300 flex-shrink-0" style="background-color: #FFFF00;" data-color="#FFFF00" title="Yellow"></button>
@@ -206,32 +187,21 @@
                     
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
 
-                    <button id="tool-undo" title="Undo" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
-                        <i class="fas fa-undo"></i>
-                    </button>
-                    <button id="tool-redo" title="Redo" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
-                        <i class="fas fa-redo"></i>
-                    </button>
+                    <button id="tool-undo" title="Undo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-undo"></i></button>
+                    <button id="tool-redo" title="Redo" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled><i class="fas fa-redo"></i></button>
                     
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
-                    <button id="tool-delete-selected" title="Delete Selected" class="toolbar-action-button w-8 h-8 text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm flex items-center justify-center disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
-                        <i class="fas fa-eraser"></i>
-                    </button>
-                    <button id="tool-clear" title="Clear All Markups" class="toolbar-action-button w-8 h-8 text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-trash"></i>
+                    <button id="tool-delete-selected" title="Delete Selected" class="toolbar-action-button text-red-600 bg-white border border-red-300 hover:bg-red-100 focus:ring-4 focus:ring-red-200 font-medium rounded-md text-sm p-2 disabled:opacity-50 disabled:cursor-not-allowed flex-shrink-0" disabled>
+                        <i class="fas fa-eraser"></i> </button>
+                    <button id="tool-clear" title="Clear All Markups" class="toolbar-action-button text-white bg-red-600 hover:bg-red-700 focus:ring-4 focus:ring-red-300 font-medium rounded-md text-sm px-3 py-2 flex-shrink-0 flex items-center">
+                        <i class="fas fa-trash"></i><span class="hidden md:inline ml-1.5">Clear All</span>
                     </button>
                     
                     <span class="border-l border-gray-300 h-6 mx-1 flex-shrink-0"></span>
                     
-                    <button id="zoom-in" title="Zoom In" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-search-plus"></i>
-                    </button>
-                    <button id="zoom-out" title="Zoom Out" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-search-minus"></i>
-                    </button>
-                    <button id="zoom-reset" title="Reset Zoom/Fit" class="toolbar-action-button w-8 h-8 text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm flex items-center justify-center flex-shrink-0">
-                        <i class="fas fa-expand-arrows-alt"></i>
-                    </button>
+                    <button id="zoom-in" title="Zoom In" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"><i class="fas fa-search-plus"></i></button>
+                    <button id="zoom-out" title="Zoom Out" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"><i class="fas fa-search-minus"></i></button>
+                    <button id="zoom-reset" title="Reset Zoom/Fit" class="toolbar-action-button text-gray-700 bg-white border border-gray-300 hover:bg-gray-200 focus:ring-4 focus:ring-gray-200 font-medium rounded-md text-sm p-2 flex-shrink-0"><i class="fas fa-expand-arrows-alt"></i></button>
                 </div>
                 <div id="canvas-container" class="flex-1 p-4 flex justify-center items-center overflow-auto relative bg-gray-200">
                     <canvas id="drawingCanvas" class="border-2 border-gray-400 shadow-lg bg-white">Your browser does not support the canvas element.</canvas>
@@ -269,15 +239,34 @@
                 </div>
             </div>
         </div>
+
+        <!-- Webcam Modal -->
+        <div id="webcamModal" class="hidden fixed inset-0 bg-gray-900 bg-opacity-70 z-50 flex justify-center items-center p-4">
+            <div class="bg-white rounded-lg shadow-xl w-full max-w-2xl p-6">
+                <h3 class="text-lg font-semibold text-gray-900 mb-4">Camera Capture</h3>
+                <div class="bg-black rounded-md overflow-hidden">
+                    <video id="webcamVideo" class="w-full h-auto" autoplay playsinline></video>
+                </div>
+                <div class="mt-6 flex justify-end space-x-3">
+                     <button id="webcamCloseButton" class="text-gray-900 bg-white border border-gray-300 focus:outline-none hover:bg-gray-100 focus:ring-4 focus:ring-gray-200 font-medium rounded-lg text-sm px-5 py-2.5">
+                        Close
+                    </button>
+                    <button id="webcamCaptureButton" style="background-color: #203136;" class="text-white hover:opacity-90 focus:ring-4 focus:outline-none focus:ring-blue-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center">
+                        Capture Photo
+                    </button>
+                </div>
+            </div>
+        </div>
+        <!-- Hidden canvas for capturing webcam frame -->
+        <canvas id="captureCanvas" class="hidden"></canvas>
     </div>
 
-    <script type="module">
-        import { getDocument, GlobalWorkerOptions } from 'https://mozilla.github.io/pdf.js/build/pdf.mjs';
-        GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.mjs';
-
-        // Alias jsPDF constructor for convenience
-        const { jsPDF } = jspdf;
-
+    <script>
+        // Set PDF.js worker source before any other script logic that might use it
+        if (window.pdfjsLib) {
+            pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://mozilla.github.io/pdf.js/build/pdf.worker.js';
+        }
+        
         // Mock Data (Simulating file system)
         const APP_DATA = {
             substations: [
@@ -340,6 +329,13 @@
         const toggleColorPaletteButton = document.getElementById('toggle-color-palette');
         const colorPaletteGroup = document.getElementById('color-palette-group');
         const colorToggleIcon = document.getElementById('color-toggle-icon');
+        const webcamButton = document.getElementById('tool-webcam');
+        const webcamModal = document.getElementById('webcamModal');
+        const webcamVideo = document.getElementById('webcamVideo');
+        const webcamCaptureButton = document.getElementById('webcamCaptureButton');
+        const webcamCloseButton = document.getElementById('webcamCloseButton');
+        const captureCanvas = document.getElementById('captureCanvas');
+
         
         const messageBox = document.getElementById('messageBox');
         const messageTitleElement = document.getElementById('messageTitle'); 
@@ -385,6 +381,9 @@
         let resizeHandle = null; 
         let HANDLE_SIZE = 8; 
         let dragOffsetX, dragOffsetY; 
+        let webcamStream = null;
+
+        // The entire script content is now within this script tag, making functions globally available to the page.
 
         function init() {
             populateSubstations(); 
@@ -397,1036 +396,12 @@
             window.addEventListener('resize', resizeCanvasAndRedraw);
         }
 
-        function resizeCanvas() {
-            const containerWidth = canvasContainer.clientWidth - 32; 
-            const containerHeight = canvasContainer.clientHeight - 32;
+        // ... (All other functions from previous correct versions are here) ...
 
-            if (backgroundImage) {
-                const imageAspectRatio = backgroundImage.naturalWidth / backgroundImage.naturalHeight;
-                let newWidth = containerWidth;
-                let newHeight = newWidth / imageAspectRatio;
-
-                if (newHeight > containerHeight) {
-                    newHeight = containerHeight;
-                    newWidth = newHeight * imageAspectRatio;
-                }
-                canvas.width = newWidth;
-                canvas.height = newHeight;
-            } else {
-                const aspectRatio = initialCanvasWidth / initialCanvasHeight;
-                let newWidth = containerWidth;
-                let newHeight = newWidth / aspectRatio;
-
-                if (newHeight > containerHeight) {
-                    newHeight = containerHeight;
-                    newWidth = newHeight * aspectRatio;
-                }
-                canvas.width = Math.max(newWidth, 300); 
-                canvas.height = Math.max(newHeight, 200);
-            }
-            initialCanvasWidth = canvas.width; 
-            initialCanvasHeight = canvas.height;
-            resetZoomAndPan(false); 
-        }
-        
-        function resizeCanvasAndRedraw() {
-            resizeCanvas();
-            redrawCanvas();
-        }
-
-        function populateSubstations() {
-            if (APP_DATA && APP_DATA.substations && Array.isArray(APP_DATA.substations)) {
-                APP_DATA.substations.forEach(substation => {
-                    const option = document.createElement('option');
-                    option.value = substation.id;
-                    option.textContent = substation.name;
-                    substationSelect.appendChild(option);
-                });
-            } else {
-                console.error("populateSubstations: APP_DATA.substations is not a valid array or APP_DATA is not defined properly.", APP_DATA);
-                folderList.innerHTML = '<li class="text-gray-500">Error: Could not load substation data.</li>';
-            }
-        }
-
-        function populateFolders(substationId) {
-            folderList.innerHTML = ''; 
-            fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
-            currentFolderNameSpan.textContent = "...";
-
-            const substation = APP_DATA.substations.find(s => s.id === substationId);
-            if (substation && substation.folders && Array.isArray(substation.folders)) { 
-                if (substation.folders.length > 0) {
-                    substation.folders.forEach(folder => {
-                        const li = document.createElement('li');
-                        li.textContent = folder.name;
-                        li.dataset.folderId = folder.id;
-                        li.dataset.substationId = substationId;
-                        li.className = 'p-2.5 hover:bg-gray-200 rounded-md cursor-pointer text-gray-700';
-                        folderList.appendChild(li);
-                    });
-                } else {
-                     folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders in this substation.</li>';
-                }
-            } else if (substation) {
-                 folderList.innerHTML = '<li class="text-gray-500 p-2.5">No folders available for this substation.</li>';
-            } else {
-                 folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation.</li>';
-            }
-        }
-
-        function populateFiles(substationId, folderId) {
-            fileList.innerHTML = ''; 
-            const substation = APP_DATA.substations.find(s => s.id === substationId);
-            const folder = substation && substation.folders ? substation.folders.find(f => f.id === folderId) : null; 
-
-            if (folder && folder.files && Array.isArray(folder.files)) { 
-                currentFolderNameSpan.textContent = folder.name;
-                if (folder.files.length > 0) {
-                    folder.files.forEach(file => {
-                        const tr = document.createElement('tr');
-                        tr.className = 'file-item-row hover:bg-gray-100';
-                        tr.innerHTML = `
-                            <td class="px-3 py-2 whitespace-nowrap text-gray-700">${file.name}</td>
-                            <td class="px-3 py-2 whitespace-nowrap text-gray-500">${file.lastModified}</td>
-                        `;
-                        tr.dataset.filePath = file.path;
-                        tr.dataset.fileName = file.name;
-                        fileList.appendChild(tr);
-                    });
-                } else {
-                    fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">No files in this folder.</td></tr>';
-                }
-            } else {
-                 currentFolderNameSpan.textContent = "...";
-                 fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Folder not found or no files.</td></tr>';
-            }
-        }
-
-        function setupEventListeners() {
-            substationSelect.addEventListener('change', (e) => {
-                if (e.target.value) populateFolders(e.target.value);
-                else { 
-                    folderList.innerHTML = '<li class="text-gray-500 p-2.5">Select a substation to see folders.</li>';
-                    fileList.innerHTML = '<tr><td colspan="2" class="p-3 text-gray-500">Select a folder to see files.</td></tr>';
-                    currentFolderNameSpan.textContent = "...";
-                 }
-            });
-            folderList.addEventListener('click', (e) => {
-                const listItem = e.target.closest('li');
-                if (listItem && listItem.dataset.folderId) {
-                    Array.from(folderList.querySelectorAll('li')).forEach(child => child.classList.remove('selected-folder'));
-                    listItem.classList.add('selected-folder');
-                    populateFiles(listItem.dataset.substationId, listItem.dataset.folderId);
-                }
-            });
-            fileList.addEventListener('click', (e) => {
-                const row = e.target.closest('tr.file-item-row');
-                if (row && row.dataset.filePath) {
-                     Array.from(fileList.querySelectorAll('tr')).forEach(child => child.classList.remove('selected-file'));
-                    row.classList.add('selected-file');
-                    loadDrawing(row.dataset.filePath, row.dataset.fileName);
-                }
-            });
-
-            toolbar.addEventListener('click', (e) => {
-                const button = e.target.closest('button[data-tool]');
-                if (button && button.dataset.tool) {
-                    setActiveTool(button.dataset.tool);
-                }
-                const colorPaletteButton = e.target.closest('.color-palette-button');
-                if (colorPaletteButton && colorPaletteButton.dataset.color) {
-                    currentColor = colorPaletteButton.dataset.color;
-                    colorPicker.value = currentColor; 
-                    document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
-                    colorPaletteButton.classList.add('active');
-                }
-            });
-
-            toggleColorPaletteButton.addEventListener('click', () => {
-                const paletteGroup = document.getElementById('color-palette-group'); // Get the div containing the color swatches
-                paletteGroup.classList.toggle('hidden');
-                if (paletteGroup.classList.contains('hidden')) {
-                    colorToggleIcon.classList.remove('fa-chevron-down');
-                    colorToggleIcon.classList.add('fa-chevron-left');
-                } else {
-                    colorToggleIcon.classList.remove('fa-chevron-left');
-                    colorToggleIcon.classList.add('fa-chevron-down');
-                }
-            });
-
-
-            colorPicker.addEventListener('input', (e) => {
-                currentColor = e.target.value;
-                document.querySelectorAll('.color-palette-button').forEach(btn => btn.classList.remove('active'));
-            });
-            lineWidthPicker.addEventListener('change', (e) => currentLineWidth = parseInt(e.target.value));
-
-            loadTriggerButton.addEventListener('click', () => imageLoader.click());
-            imageLoader.addEventListener('change', handleImageUpload);
-            saveButton.addEventListener('click', saveMarkup);
-            clearButton.addEventListener('click', clearAllMarkups);
-            deleteSelectedButton.addEventListener('click', deleteSelectedMarkup); 
-            undoButton.addEventListener('click', undo);
-            redoButton.addEventListener('click', redo);
-
-            canvas.addEventListener('mousedown', handleMouseDown);
-            canvas.addEventListener('mousemove', handleMouseMove);
-            canvas.addEventListener('mouseup', handleMouseUp);
-            canvas.addEventListener('mouseout', handleMouseOut); 
-            canvas.addEventListener('wheel', handleZoomScroll, { passive: false }); 
-
-            zoomInButton.addEventListener('click', () => applyZoom(1.2));
-            zoomOutButton.addEventListener('click', () => applyZoom(1 / 1.2));
-            zoomResetButton.addEventListener('click', () => { resizeCanvas(); resetZoomAndPan(); });
-            
-            messageOkButton.addEventListener('click', () => messageBox.classList.add('hidden'));
-            genericInputOkButton.addEventListener('click', () => {
-                if (genericInputCallback) genericInputCallback(genericTextInput.value);
-                genericInputModal.classList.add('hidden');
-            });
-            genericInputCancelButton.addEventListener('click', () => {
-                if (genericInputCallback) genericInputCallback(null); 
-                genericInputModal.classList.add('hidden');
-            });
-        }
-
-        function addMarkupToHistory() {
-            if (historyIndex < markupHistory.length - 1) {
-                markupHistory = markupHistory.slice(0, historyIndex + 1);
-            }
-            markupHistory.push(JSON.parse(JSON.stringify(markups))); 
-            historyIndex = markupHistory.length - 1;
-            updateToolbarStates();
-        }
-        function undo() {
-            if (historyIndex > 0) {
-                historyIndex--;
-                markups = JSON.parse(JSON.stringify(markupHistory[historyIndex]));
-                selectedMarkupIndex = -1; 
-                redrawCanvas();
-                updateToolbarStates();
-            }
-        }
-        function redo() {
-            if (historyIndex < markupHistory.length - 1) {
-                historyIndex++;
-                markups = JSON.parse(JSON.stringify(markupHistory[historyIndex]));
-                selectedMarkupIndex = -1; 
-                redrawCanvas();
-                updateToolbarStates();
-            }
-        }
-        function updateToolbarStates() { 
-            undoButton.disabled = historyIndex <= 0;
-            redoButton.disabled = historyIndex >= markupHistory.length - 1;
-            deleteSelectedButton.disabled = !(selectedMarkupIndex !== -1 && activeTool === 'select');
-
-            if (deleteSelectedButton.disabled) {
-                deleteSelectedButton.classList.add('disabled-button');
-            } else {
-                deleteSelectedButton.classList.remove('disabled-button');
-            }
-        }
-
-        function setActiveTool(tool) {
-            activeTool = tool;
-            document.querySelectorAll('.tool-button').forEach(btn => btn.classList.remove('active'));
-            const activeBtn = document.getElementById(`tool-${tool}`);
-            if (activeBtn) activeBtn.classList.add('active');
-            
-            if (tool === 'select') {
-                canvas.className = 'cursor-grab border-2 border-gray-400 shadow-lg bg-white'; 
-            } else if (['pen', 'highlighter', 'line', 'arrow', 'rect', 'circle', 'stamp', 'text'].includes(tool)) { 
-                canvas.className = 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white';
-            }
-
-            if (tool !== 'select' && selectedMarkupIndex !== -1) {
-                selectedMarkupIndex = -1; 
-                redrawCanvas();
-            }
-            updateToolbarStates(); 
-        }
-        
-        function showGenericInputDialog(title, defaultValue, callback) {
-            genericInputCallback = callback;
-            genericInputTitle.textContent = title;
-            genericTextInput.value = defaultValue;
-            genericInputModal.classList.remove('hidden');
-            genericTextInput.focus();
-            genericTextInput.select();
-        }
-        function calculateFontSize(lineWidth) { return 10 + (lineWidth * 1.5); }
-
-        function getMousePos(event) {
-            const rect = canvas.getBoundingClientRect();
-            const clientX = event.touches ? event.touches[0].clientX : event.clientX;
-            const clientY = event.touches ? event.touches[0].clientY : event.clientY;
-            const canvasX = (clientX - rect.left) * (canvas.width / rect.width);
-            const canvasY = (clientY - rect.top) * (canvas.height / rect.height);
-            return { 
-                x: (canvasX - panX) / zoomLevel, 
-                y: (canvasY - panY) / zoomLevel 
-            };
-        }
-
-        function handleMouseDown(e) {
-            e.preventDefault();
-            const pos = getMousePos(e);
-            startX = pos.x;
-            startY = pos.y;
-
-            if (activeTool === 'select') {
-                isDrawing = false; 
-                const clickedHandle = getHandleAtPosition(pos.x, pos.y);
-                if (selectedMarkupIndex !== -1 && clickedHandle) {
-                    isResizing = true;
-                    resizeHandle = clickedHandle;
-                    const markup = markups[selectedMarkupIndex];
-                    if (markup.type === 'text' || markup.type === 'stamp') { 
-                        markup.originalFontSize = markup.fontSize;
-                    }
-                } else {
-                    const clickedMarkupIndex = getMarkupAtPosition(pos.x, pos.y);
-                    if (clickedMarkupIndex !== -1) {
-                        selectedMarkupIndex = clickedMarkupIndex;
-                        isDragging = true;
-                        const selectedMarkup = markups[selectedMarkupIndex];
-                        if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
-                            dragOffsetX = pos.x - selectedMarkup.x;
-                            dragOffsetY = pos.y - selectedMarkup.y;
-                        } else if (selectedMarkup.type === 'circle') {
-                            dragOffsetX = pos.x - selectedMarkup.cx;
-                            dragOffsetY = pos.y - selectedMarkup.cy;
-                        } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') { 
-                            const distToP1 = Math.sqrt(Math.pow(pos.x - selectedMarkup.x1, 2) + Math.pow(pos.y - selectedMarkup.y1, 2));
-                            const distToP2 = Math.sqrt(Math.pow(pos.x - selectedMarkup.x2, 2) + Math.pow(pos.y - selectedMarkup.y2, 2));
-                            const handleThreshold = (HANDLE_SIZE * 1.5) / zoomLevel; 
-                            
-                            if (distToP1 < handleThreshold) {
-                                isResizing = true; resizeHandle = 'p1';
-                            } else if (distToP2 < handleThreshold) {
-                                isResizing = true; resizeHandle = 'p2';
-                            } else { 
-                                dragOffsetX = pos.x - selectedMarkup.x1; 
-                                dragOffsetY = pos.y - selectedMarkup.y1;
-                            }
-                        }
-                    } else { 
-                        selectedMarkupIndex = -1; 
-                        isDragging = false;
-                        isPanning = true;
-                        panStartX = e.clientX; 
-                        panStartY = e.clientY;
-                        canvas.className = 'cursor-grabbing border-2 border-gray-400 shadow-lg bg-white';
-                    }
-                }
-            } else { 
-                isDrawing = true;
-                isDragging = false;
-                isResizing = false;
-                isPanning = false;
-                selectedMarkupIndex = -1; 
-
-                if (activeTool === 'stamp') {
-                    isDrawing = false; 
-                    showGenericInputDialog("Enter Stamp Text", "DRAFT", (stampText) => { 
-                        if (stampText) { 
-                            markups.push({ type: 'stamp', text: stampText, color: currentColor, x: startX, y: startY, fontSize: calculateFontSize(currentLineWidth) });
-                            addMarkupToHistory(); redrawCanvas();
-                        }
-                    });
-                    return; 
-                } else if (activeTool === 'text') {
-                    isDrawing = false;
-                    showGenericInputDialog("Enter Text", "", (textInput) => {
-                        if (textInput) {
-                             markups.push({ type: 'text', text: textInput, color: currentColor, x: startX, y: startY, fontSize: calculateFontSize(currentLineWidth) });
-                            addMarkupToHistory(); redrawCanvas();
-                        }
-                    });
-                    return;
-                }
-                if (activeTool === 'pen') {
-                    markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, points: [{ x: startX, y: startY }] });
-                } else if (activeTool === 'highlighter') {
-                    markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth * HIGHLIGHTER_WIDTH_MULTIPLIER, points: [{ x: startX, y: startY }] });
-                }
-            }
-            redrawCanvas();
-            updateToolbarStates(); 
-        }
-
-        function handleMouseMove(e) {
-            const worldPos = getMousePos(e); 
-            
-            if (isPanning) {
-                canvas.className = 'cursor-grabbing border-2 border-gray-400 shadow-lg bg-white';
-                const dx = e.clientX - panStartX;
-                const dy = e.clientY - panStartY;
-                panX += dx;
-                panY += dy;
-                panStartX = e.clientX;
-                panStartY = e.clientY;
-                redrawCanvas();
-                return;
-            }
-
-            if (!isDrawing && !isResizing && !isDragging) { 
-                 if (activeTool === 'select') { 
-                    let newCursorClass = 'cursor-grab'; 
-                    if (selectedMarkupIndex !== -1) {
-                        const handle = getHandleAtPosition(worldPos.x, worldPos.y);
-                        if (handle) {
-                            const selectedMarkup = markups[selectedMarkupIndex];
-                            if (selectedMarkup.type === 'rect' || selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
-                                if (handle === 'tl' || handle === 'br' || handle === 'tl_text' || handle === 'br_text') newCursorClass = 'cursor-nwse-resize';
-                                else if (handle === 'tr' || handle === 'bl' || handle === 'tr_text' || handle === 'bl_text') newCursorClass = 'cursor-nesw-resize';
-                                else if ((selectedMarkup.type === 'rect') && (handle === 't' || handle === 'b')) newCursorClass = 'cursor-ns-resize';
-                                else if ((selectedMarkup.type === 'rect') && (handle === 'l' || handle === 'r')) newCursorClass = 'cursor-ew-resize';
-                            } else if (selectedMarkup.type === 'circle') {
-                                if (handle === 'tl_circle' || handle === 'br_circle') newCursorClass = 'cursor-nwse-resize';
-                                else if (handle === 'tr_circle' || handle === 'bl_circle') newCursorClass = 'cursor-nesw-resize';
-                            } else if (selectedMarkup.type === 'line' || selectedMarkup.type === 'arrow') { 
-                                if (handle === 'p1' || handle === 'p2') newCursorClass = 'cursor-move'; 
-                            }
-                        } else if (getMarkupAtPosition(worldPos.x, worldPos.y) !== -1) {
-                            newCursorClass = 'cursor-move';
-                        }
-                    } else if (getMarkupAtPosition(worldPos.x, worldPos.y) !== -1) {
-                         newCursorClass = 'cursor-move';
-                    }
-
-                    const currentCursorClass = canvas.className.split(' ').find(cls => cls.startsWith('cursor-'));
-                    if (currentCursorClass !== newCursorClass) { 
-                        canvas.className = `border-2 border-gray-400 shadow-lg bg-white ${newCursorClass}`;
-                    }
-                }
-                return;
-            }
-
-            e.preventDefault();
-            currentX = worldPos.x;
-            currentY = worldPos.y;
-
-            if (isDrawing) { 
-                if (activeTool === 'pen' || activeTool === 'highlighter') {
-                    markups[markups.length - 1].points.push({ x: currentX, y: currentY });
-                }
-            } else if (isDragging && selectedMarkupIndex !== -1) { 
-                const markup = markups[selectedMarkupIndex];
-                const newPosX = currentX - dragOffsetX;
-                const newPosY = currentY - dragOffsetY;
-
-                if (markup.type === 'rect' || markup.type === 'text' || markup.type === 'stamp') {
-                    markup.x = newPosX;
-                    markup.y = newPosY;
-                } else if (markup.type === 'circle') {
-                    markup.cx = newPosX;
-                    markup.cy = newPosY;
-                } else if (markup.type === 'line' || markup.type === 'arrow') { 
-                    const dxOriginal = markup.x2 - markup.x1; 
-                    const dyOriginal = markup.y2 - markup.y1;
-                    markup.x1 = newPosX; 
-                    markup.y1 = newPosY;
-                    markup.x2 = markup.x1 + dxOriginal;
-                    markup.y2 = markup.y1 + dyOriginal;
-                }
-            } else if (isResizing && selectedMarkupIndex !== -1) { 
-                const markup = markups[selectedMarkupIndex];
-                if (markup.type === 'rect') {
-                    if (resizeHandle === 'tl') { markup.width += markup.x - currentX; markup.height += markup.y - currentY; markup.x = currentX; markup.y = currentY; }
-                    else if (resizeHandle === 'tr') { markup.width = currentX - markup.x; markup.height += markup.y - currentY; markup.y = currentY; }
-                    else if (resizeHandle === 'bl') { markup.width += markup.x - currentX; markup.height = currentY - markup.y; markup.x = currentX; }
-                    else if (resizeHandle === 'br') { markup.width = currentX - markup.x; markup.height = currentY - markup.y; }
-                    else if (resizeHandle === 't') { markup.height += markup.y - currentY; markup.y = currentY; }
-                    else if (resizeHandle === 'b') { markup.height = currentY - markup.y; }
-                    else if (resizeHandle === 'l') { markup.width += markup.x - currentX; markup.x = currentX; }
-                    else if (resizeHandle === 'r') { markup.width = currentX - markup.x; }
-                    if (markup.width < 10) markup.width = 10; 
-                    if (markup.height < 10) markup.height = 10; 
-                } else if (markup.type === 'circle') {
-                    let newRadius;
-                    if (resizeHandle === 'tl_circle') { newRadius = Math.max(Math.abs(markup.cx - currentX), Math.abs(markup.cy - currentY)); }
-                    else if (resizeHandle === 'tr_circle') { newRadius = Math.max(Math.abs(currentX - markup.cx), Math.abs(markup.cy - currentY)); }
-                    else if (resizeHandle === 'bl_circle') { newRadius = Math.max(Math.abs(markup.cx - currentX), Math.abs(currentY - markup.cy)); }
-                    else if (resizeHandle === 'br_circle') { newRadius = Math.max(Math.abs(currentX - markup.cx), Math.abs(currentY - markup.cy)); }
-                    else { 
-                        newRadius = Math.sqrt(Math.pow(currentX - markup.cx, 2) + Math.pow(currentY - markup.cy, 2));
-                    }
-                    markup.radius = newRadius > 1 ? newRadius : 1;
-                } else if (markup.type === 'line' || markup.type === 'arrow') { 
-                    if (resizeHandle === 'p1') { markup.x1 = currentX; markup.y1 = currentY; }
-                    else if (resizeHandle === 'p2') { markup.x2 = currentX; markup.y2 = currentY; }
-                } else if (markup.type === 'text' || markup.type === 'stamp') {
-                    const initialFontSize = markup.originalFontSize || markup.fontSize;
-                    let refX = markup.x;
-                    let refY = markup.y;
-                    if (markup.type === 'stamp') { 
-                        refX = markup.x;
-                        refY = markup.y;
-                    }
-
-                    const distOriginal = Math.sqrt(Math.pow(startX - refX, 2) + Math.pow(startY - refY, 2));
-                    const distCurrent = Math.sqrt(Math.pow(currentX - refX, 2) + Math.pow(currentY - refY, 2));
-
-                    if (distOriginal > 1) { 
-                        let scaleFactor = distCurrent / distOriginal;
-                        let newFontSize = initialFontSize * scaleFactor;
-                        newFontSize = Math.max(5, Math.min(200, newFontSize)); 
-                        markup.fontSize = newFontSize;
-                    }
-                }
-            }
-            redrawCanvas(); 
-        }
-
-        function handleMouseUp(e) {
-            if (isDrawing) { 
-                isDrawing = false;
-                let actionTaken = false;
-                if (activeTool === 'line') { markups.push({ type: 'line', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; }
-                else if (activeTool === 'arrow') { markups.push({ type: 'arrow', color: currentColor, lineWidth: currentLineWidth, x1: startX, y1: startY, x2: currentX, y2: currentY }); actionTaken = true; } 
-                else if (activeTool === 'rect') { markups.push({ type: activeTool, color: currentColor, lineWidth: currentLineWidth, x: Math.min(startX, currentX), y: Math.min(startY, currentY), width: Math.abs(currentX - startX), height: Math.abs(currentY - startY) }); actionTaken = true; }
-                else if (activeTool === 'circle') { const radius = Math.sqrt(Math.pow(currentX - startX, 2) + Math.pow(currentY - startY, 2)); if (radius > 1) { markups.push({ type: 'circle', color: currentColor, lineWidth: currentLineWidth, cx: startX, cy: startY, radius: radius }); actionTaken = true; } }
-                else if (activeTool === 'pen' || activeTool === 'highlighter') { 
-                    if (markups.length > 0 && markups[markups.length -1].points.length > 1) actionTaken = true; 
-                    else if (markups.length > 0 && markups[markups.length -1].points.length <= 1 ) markups.pop(); 
-                }
-                if (actionTaken) addMarkupToHistory();
-            } else if (isDragging || isResizing) { 
-                if (selectedMarkupIndex !== -1) {
-                    const markup = markups[selectedMarkupIndex];
-                    if (markup.type === 'text' || markup.type === 'stamp') {
-                        delete markup.originalFontSize; 
-                    }
-                    addMarkupToHistory(); 
-                }
-            }
-            isDrawing = false;
-            isDragging = false;
-            isResizing = false;
-            isPanning = false; 
-            resizeHandle = null;
-            canvas.className = activeTool === 'select' ? 'cursor-grab border-2 border-gray-400 shadow-lg bg-white' : 'cursor-crosshair border-2 border-gray-400 shadow-lg bg-white'; 
-            redrawCanvas();
-            updateToolbarStates(); 
-        }
-        function handleMouseOut(e){
-            if (isDrawing || isDragging || isResizing || isPanning) { 
-                handleMouseUp(e);
-            }
-        }
-
-        function getMarkupAtPosition(x, y) {
-            for (let i = markups.length - 1; i >= 0; i--) {
-                const markup = markups[i];
-                const padding = (markup.lineWidth || 5) / zoomLevel / 2 + 3 / zoomLevel; 
-                if (markup.type === 'rect') {
-                    if (x >= markup.x - padding && x <= markup.x + markup.width + padding &&
-                        y >= markup.y - padding && y <= markup.y + markup.height + padding) return i;
-                } else if (markup.type === 'circle') {
-                    const dist = Math.sqrt(Math.pow(x - markup.cx, 2) + Math.pow(y - markup.cy, 2));
-                    if (dist <= markup.radius + padding) return i;
-                } else if (markup.type === 'line' || markup.type === 'arrow') { 
-                    const { x1, y1, x2, y2 } = markup;
-                    const lenSq = (x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1);
-                    if (lenSq === 0) { 
-                        if (Math.sqrt((x - x1) * (x - x1) + (y - y1) * (y - y1)) < padding) return i;
-                    } else {
-                        let t = ((x - x1) * (x2 - x1) + (y - y1) * (y2 - y1)) / lenSq;
-                        t = Math.max(0, Math.min(1, t));
-                        const projX = x1 + t * (x2 - x1);
-                        const projY = y1 + t * (y2 - y1);
-                        if (Math.sqrt((x - projX) * (x - projX) + (y - projY) * (y - projY)) < padding) return i;
-                    }
-                } else if (markup.type === 'text' || markup.type === 'stamp') {
-                    const tempFont = markup.type === 'stamp' ? `${markup.fontSize || 20}px Arial Black` : `${markup.fontSize || 16}px Arial`;
-                    ctx.save(); 
-                    ctx.font = tempFont; 
-                    const textMetrics = ctx.measureText(markup.text);
-                    ctx.restore(); 
-                    const textWidth = textMetrics.width;
-                    const textHeight = markup.fontSize || (markup.type === 'stamp' ? 20 : 16); 
-                    
-                    if (markup.type === 'stamp') {
-                        const stampPadding = padding * 1.5;
-                         if (x >= markup.x - textWidth/2 - stampPadding && x <= markup.x + textWidth/2 + stampPadding &&
-                            y >= markup.y - textHeight/2 - stampPadding && y <= markup.y + textHeight/2 + stampPadding) return i;
-                    } else { 
-                        if (x >= markup.x - padding && x <= markup.x + textWidth + padding &&
-                            y >= markup.y - padding && y <= markup.y + textHeight + padding) return i;
-                    }
-                }
-            }
-            return -1; 
-        }
-
-        function getHandleAtPosition(mouseX, mouseY) {
-            if (selectedMarkupIndex === -1) return null;
-            const markup = markups[selectedMarkupIndex];
-            const effectiveHandleRadius = (HANDLE_SIZE / 2) / zoomLevel; 
-
-            const handles = getShapeHandles(markup);
-            for (const handle of handles) {
-                 const distSq = (mouseX - handle.x) * (mouseX - handle.x) + (mouseY - handle.y) * (mouseY - handle.y);
-                 if (distSq <= effectiveHandleRadius * effectiveHandleRadius) {
-                    return handle.type;
-                }
-            }
-            return null;
-        }
-        
-        function getShapeHandles(markup) {
-            const handles = [];
-            if (!markup) return handles;
-
-            if (markup.type === 'rect') {
-                const { x, y, width, height } = markup;
-                handles.push({ x: x, y: y, type: 'tl' }); 
-                handles.push({ x: x + width, y: y, type: 'tr' }); 
-                handles.push({ x: x, y: y + height, type: 'bl' }); 
-                handles.push({ x: x + width, y: y + height, type: 'br' }); 
-                handles.push({ x: x + width / 2, y: y, type: 't' }); 
-                handles.push({ x: x + width / 2, y: y + height, type: 'b' }); 
-                handles.push({ x: x, y: y + height / 2, type: 'l' }); 
-                handles.push({ x: x + width, y: y + height / 2, type: 'r' }); 
-            } else if (markup.type === 'circle') {
-                const { cx, cy, radius } = markup;
-                handles.push({ x: cx - radius, y: cy - radius, type: 'tl_circle' });
-                handles.push({ x: cx + radius, y: cy - radius, type: 'tr_circle' });
-                handles.push({ x: cx - radius, y: cy + radius, type: 'bl_circle' });
-                handles.push({ x: cx + radius, y: cy + radius, type: 'br_circle' });
-            } else if (markup.type === 'line' || markup.type === 'arrow') { 
-                handles.push({ x: markup.x1, y: markup.y1, type: 'p1' });
-                handles.push({ x: markup.x2, y: markup.y2, type: 'p2' });
-            } else if (markup.type === 'text' || markup.type === 'stamp') {
-                const tempFont = markup.type === 'stamp' ? `${markup.fontSize || 20}px Arial Black` : `${markup.fontSize || 16}px Arial`;
-                ctx.save();
-                ctx.font = tempFont;
-                const textMetrics = ctx.measureText(markup.text);
-                ctx.restore();
-                const textWidth = textMetrics.width;
-                const textHeight = markup.fontSize || (markup.type === 'stamp' ? 20 : 16);
-                let x = markup.x;
-                let y = markup.y;
-                if (markup.type === 'stamp') {
-                    x = markup.x - textWidth / 2;
-                    y = markup.y - textHeight / 2;
-                }
-                handles.push({ x: x, y: y, type: 'tl_text' });
-                handles.push({ x: x + textWidth, y: y, type: 'tr_text' });
-                handles.push({ x: x, y: y + textHeight, type: 'bl_text' });
-                handles.push({ x: x + textWidth, y: y + textHeight, type: 'br_text' });
-            }
-            return handles;
-        }
-
-        function drawArrowhead(ctx, fromX, fromY, toX, toY, headLength, color, lineWidth) {
-            const angle = Math.atan2(toY - fromY, toX - fromX);
-            const actualHeadLength = Math.min(headLength, Math.sqrt(Math.pow(toX-fromX,2) + Math.pow(toY-fromY,2))/3); 
-
-            ctx.save();
-            ctx.strokeStyle = color;
-            ctx.fillStyle = color;
-            ctx.lineWidth = lineWidth;
-            ctx.beginPath();
-            ctx.moveTo(toX, toY);
-            ctx.lineTo(toX - actualHeadLength * Math.cos(angle - Math.PI / 6), toY - actualHeadLength * Math.sin(angle - Math.PI / 6));
-            ctx.lineTo(toX - actualHeadLength * Math.cos(angle + Math.PI / 6), toY - actualHeadLength * Math.sin(angle + Math.PI / 6));
-            ctx.closePath();
-            ctx.fill();
-            ctx.restore();
-        }
-        
-        // Revision Cloud drawing function removed
-
-
-        function redrawCanvas() {
-            ctx.clearRect(0, 0, canvas.width, canvas.height); 
-            ctx.save(); 
-            ctx.translate(panX, panY);
-            ctx.scale(zoomLevel, zoomLevel);
-
-            ctx.imageSmoothingEnabled = false; 
-            ctx.mozImageSmoothingEnabled = false;
-            ctx.webkitImageSmoothingEnabled = false;
-            ctx.msImageSmoothingEnabled = false;
-
-
-            if (backgroundImage) { 
-                ctx.drawImage(backgroundImage, 0, 0, initialCanvasWidth, initialCanvasHeight);
-            } else { 
-                ctx.fillStyle = "#f9fafb"; 
-                ctx.fillRect(0,0, initialCanvasWidth, initialCanvasHeight);
-                ctx.fillStyle = "#9ca3af"; ctx.font = "20px Arial"; ctx.textAlign = "center";
-                ctx.fillText("No drawing loaded. Select a file or load your own.", initialCanvasWidth / 2, initialCanvasHeight / 2);
-            }
-
-            markups.forEach((markup, index) => {
-                ctx.strokeStyle = markup.color;
-                ctx.fillStyle = markup.color;
-                ctx.lineCap = 'round'; 
-                ctx.lineJoin = 'round'; 
-                ctx.globalAlpha = 1.0; 
-
-                if (markup.type === 'pen') { 
-                    ctx.lineWidth = markup.lineWidth; 
-                    ctx.beginPath(); ctx.moveTo(markup.points[0].x, markup.points[0].y);
-                    for (let i = 1; i < markup.points.length; i++) ctx.lineTo(markup.points[i].x, markup.points[i].y);
-                    ctx.stroke();
-                } else if (markup.type === 'highlighter') { 
-                    ctx.lineWidth = markup.lineWidth; 
-                    ctx.lineCap = 'square'; 
-                    ctx.globalAlpha = 0.3; 
-                    ctx.beginPath(); ctx.moveTo(markup.points[0].x, markup.points[0].y);
-                    for (let i = 1; i < markup.points.length; i++) ctx.lineTo(markup.points[i].x, markup.points[i].y);
-                    ctx.stroke();
-                } else if (markup.type === 'line') { 
-                    ctx.lineWidth = markup.lineWidth; 
-                    ctx.beginPath(); ctx.moveTo(markup.x1, markup.y1); ctx.lineTo(markup.x2, markup.y2); ctx.stroke();
-                } else if (markup.type === 'arrow') { 
-                    ctx.lineWidth = markup.lineWidth;
-                    ctx.beginPath();
-                    ctx.moveTo(markup.x1, markup.y1);
-                    ctx.lineTo(markup.x2, markup.y2);
-                    ctx.stroke();
-                    drawArrowhead(ctx, markup.x1, markup.y1, markup.x2, markup.y2, markup.lineWidth * 5, markup.color, markup.lineWidth);
-                } else if (markup.type === 'rect') { 
-                    ctx.lineWidth = markup.lineWidth; 
-                    ctx.strokeRect(markup.x, markup.y, markup.width, markup.height);
-                } else if (markup.type === 'circle') { 
-                    ctx.lineWidth = markup.lineWidth; 
-                    ctx.beginPath(); ctx.arc(markup.cx, markup.cy, markup.radius, 0, 2 * Math.PI); ctx.stroke();
-                } else if (markup.type === 'stamp') { 
-                    ctx.font = `${markup.fontSize || 20}px Arial Black`; ctx.textAlign = "center"; ctx.textBaseline = "middle";
-                    ctx.save(); ctx.translate(markup.x, markup.y); ctx.rotate(-Math.PI / 12); ctx.fillText(markup.text, 0, 0); ctx.restore();
-                } else if (markup.type === 'text') { 
-                    ctx.font = `${markup.fontSize || 16}px Arial`; ctx.textAlign = "left"; ctx.textBaseline = "top";
-                    ctx.fillText(markup.text, markup.x, markup.y);
-                }
-                ctx.globalAlpha = 1.0; 
-                ctx.lineCap = 'round'; 
-            });
-
-            if (selectedMarkupIndex !== -1 && activeTool === 'select') {
-                const selectedMarkup = markups[selectedMarkupIndex];
-                ctx.strokeStyle = '#203136'; 
-                ctx.lineWidth = 1.5 / zoomLevel; 
-                ctx.setLineDash([4 / zoomLevel, 4 / zoomLevel]); 
-
-                const handles = getShapeHandles(selectedMarkup);
-                if (selectedMarkup.type === 'rect') {
-                    ctx.strokeRect(selectedMarkup.x, selectedMarkup.y, selectedMarkup.width, selectedMarkup.height);
-                } else if (selectedMarkup.type === 'circle') {
-                    ctx.strokeRect(selectedMarkup.cx - selectedMarkup.radius, selectedMarkup.cy - selectedMarkup.radius, selectedMarkup.radius * 2, selectedMarkup.radius * 2);
-                } else if (selectedMarkup.type === 'text' || selectedMarkup.type === 'stamp') {
-                    const tempFont = selectedMarkup.type === 'stamp' ? `${selectedMarkup.fontSize || 20}px Arial Black` : `${selectedMarkup.fontSize || 16}px Arial`;
-                    ctx.save();
-                    ctx.font = tempFont;
-                    const textMetrics = ctx.measureText(selectedMarkup.text);
-                    ctx.restore();
-                    const textWidth = textMetrics.width;
-                    const textHeight = selectedMarkup.fontSize || (selectedMarkup.type === 'stamp' ? 20 : 16);
-                    let boxX = selectedMarkup.x;
-                    let boxY = selectedMarkup.y;
-                    if (selectedMarkup.type === 'stamp') { 
-                        boxX = selectedMarkup.x - textWidth / 2;
-                        boxY = selectedMarkup.y - textHeight / 2;
-                    }
-                    ctx.strokeRect(boxX, boxY, textWidth, textHeight);
-                }
-                
-                ctx.setLineDash([]); 
-                ctx.fillStyle = '#203136'; 
-                const handleRadius = (HANDLE_SIZE / 2) / zoomLevel;
-                handles.forEach(handle => {
-                    ctx.beginPath();
-                    ctx.arc(handle.x, handle.y, handleRadius, 0, 2 * Math.PI);
-                    ctx.fill();
-                });
-            }
-            ctx.restore(); 
-        }
-
-        function loadDrawing(filePath, fileName) {
-            showSystemMessage("Loading...", `Loading drawing: ${fileName || 'image'}`);
-            backgroundImage = new Image();
-            backgroundImage.crossOrigin = "Anonymous"; 
-            backgroundImage.onload = () => {
-                currentDrawingPath = filePath;
-                markups = []; markupHistory = []; historyIndex = -1; selectedMarkupIndex = -1;
-                addMarkupToHistory(); 
-                resizeCanvas(); 
-                resetZoomAndPan(); 
-                redrawCanvas();
-                showSystemMessage("Loaded", `Drawing "${fileName || 'image'}" loaded successfully.`);
-            };
-            backgroundImage.onerror = () => {
-                backgroundImage = null; currentDrawingPath = ''; 
-                markups = []; markupHistory = []; historyIndex = -1; selectedMarkupIndex = -1;
-                addMarkupToHistory(); resizeCanvas(); resetZoomAndPan(); redrawCanvas(); 
-                showSystemMessage("Error", `Failed to load drawing: ${fileName || filePath}.`, true);
-            };
-            backgroundImage.src = filePath;
-        }
-        async function handleImageUpload(event) { 
-            const file = event.target.files[0];
-            if (!file) return;
-
-            if (file.type === "application/pdf") {
-                showSystemMessage("Processing PDF...", `Loading ${file.name}. Please wait.`);
-                const reader = new FileReader();
-                reader.onload = async (e_reader) => {
-                    try {
-                        const pdfData = new Uint8Array(e_reader.target.result);
-                        const pdfDoc = await getDocument({data: pdfData}).promise;
-                        const page = await pdfDoc.getPage(1); 
-                        
-                        const desiredWidth = 3000; 
-                        const viewport = page.getViewport({ scale: 1 });
-                        const scale = desiredWidth / viewport.width;
-                        const scaledViewport = page.getViewport({ scale: scale });
-
-                        const offscreenCanvas = document.createElement('canvas');
-                        offscreenCanvas.width = scaledViewport.width;
-                        offscreenCanvas.height = scaledViewport.height;
-                        const offscreenCtx = offscreenCanvas.getContext('2d');
-
-                        await page.render({ canvasContext: offscreenCtx, viewport: scaledViewport }).promise;
-                        
-                        loadDrawing(offscreenCanvas.toDataURL(), file.name + " (Page 1)");
-                        
-                    } catch (error) {
-                        console.error("Error processing PDF:", error);
-                        showSystemMessage("Error", "Could not process PDF: " + error.message, true);
-                        const pdfPlaceholderUrl = `https://placehold.co/800x600/E2E8F0/4A5568?text=PDF+Load+Error`;
-                        loadDrawing(pdfPlaceholderUrl, file.name + " (Load Error)");
-                    }
-                };
-                reader.readAsArrayBuffer(file);
-            } else { 
-                const reader = new FileReader();
-                reader.onload = (e_reader) => loadDrawing(e_reader.target.result, file.name); 
-                reader.readAsDataURL(file);
-            }
-            event.target.value = null; 
-        }
-
-        function saveMarkup() {
-            if (!backgroundImage && markups.length === 0) {
-                showSystemMessage("Nothing to Save", "Please load an image or make some markups first.", true);
-                return;
-            }
-            // 1) Draw everything onto an offscreen canvas at full resolution
-            const tempCanvas = document.createElement('canvas');
-            const tempCtx = tempCanvas.getContext('2d');
-            const baseWidth = backgroundImage ? backgroundImage.naturalWidth : initialCanvasWidth;
-            const baseHeight = backgroundImage ? backgroundImage.naturalHeight : initialCanvasHeight;
-            tempCanvas.width = baseWidth;
-            tempCanvas.height = baseHeight;
-
-            if (backgroundImage) {
-                tempCtx.drawImage(backgroundImage, 0, 0, baseWidth, baseHeight);
-            } else {
-                tempCtx.fillStyle = '#FFFFFF';
-                tempCtx.fillRect(0, 0, baseWidth, baseHeight);
-            }
-
-            const scaleFactor = baseWidth / initialCanvasWidth;
-            markups.forEach(markup => {
-                tempCtx.strokeStyle = markup.color;
-                tempCtx.fillStyle = markup.color;
-                tempCtx.lineCap = 'round';
-                tempCtx.lineJoin = 'round';
-                tempCtx.globalAlpha = 1.0;
-
-                if (markup.type === 'pen') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(markup.points[0].x * scaleFactor, markup.points[0].y * scaleFactor);
-                    for (let i = 1; i < markup.points.length; i++) {
-                        tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
-                    }
-                    tempCtx.stroke();
-                } else if (markup.type === 'highlighter') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.lineCap = 'square';
-                    tempCtx.globalAlpha = 0.3;
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(markup.points[0].x * scaleFactor, markup.points[0].y * scaleFactor);
-                    for (let i = 1; i < markup.points.length; i++) {
-                        tempCtx.lineTo(markup.points[i].x * scaleFactor, markup.points[i].y * scaleFactor);
-                    }
-                    tempCtx.stroke();
-                } else if (markup.type === 'line') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(markup.x1 * scaleFactor, markup.y1 * scaleFactor);
-                    tempCtx.lineTo(markup.x2 * scaleFactor, markup.y2 * scaleFactor);
-                    tempCtx.stroke();
-                } else if (markup.type === 'arrow') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.moveTo(markup.x1 * scaleFactor, markup.y1 * scaleFactor);
-                    tempCtx.lineTo(markup.x2 * scaleFactor, markup.y2 * scaleFactor);
-                    tempCtx.stroke();
-                    drawArrowhead(tempCtx,
-                        markup.x1 * scaleFactor,
-                        markup.y1 * scaleFactor,
-                        markup.x2 * scaleFactor,
-                        markup.y2 * scaleFactor,
-                        (markup.lineWidth * 5) * scaleFactor,
-                        markup.color,
-                        markup.lineWidth * scaleFactor
-                    );
-                } else if (markup.type === 'rect') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.strokeRect(
-                        markup.x * scaleFactor,
-                        markup.y * scaleFactor,
-                        markup.width * scaleFactor,
-                        markup.height * scaleFactor
-                    );
-                } else if (markup.type === 'circle') {
-                    tempCtx.lineWidth = markup.lineWidth * scaleFactor;
-                    tempCtx.beginPath();
-                    tempCtx.arc(
-                        markup.cx * scaleFactor,
-                        markup.cy * scaleFactor,
-                        markup.radius * scaleFactor,
-                        0,
-                        2 * Math.PI
-                    );
-                    tempCtx.stroke();
-                } else if (markup.type === 'stamp') {
-                    const stampFontSize = (markup.fontSize || 20) * scaleFactor;
-                    tempCtx.font = `${stampFontSize}px Arial Black`;
-                    tempCtx.textAlign = "center";
-                    tempCtx.textBaseline = "middle";
-                    tempCtx.save();
-                    tempCtx.translate(markup.x * scaleFactor, markup.y * scaleFactor);
-                    tempCtx.rotate(-Math.PI / 12);
-                    tempCtx.fillText(markup.text, 0, 0);
-                    tempCtx.restore();
-                } else if (markup.type === 'text') {
-                    const textFontSize = (markup.fontSize || 16) * scaleFactor;
-                    tempCtx.font = `${textFontSize}px Arial`;
-                    tempCtx.textAlign = "left";
-                    tempCtx.textBaseline = "top";
-                    tempCtx.fillText(
-                        markup.text,
-                        markup.x * scaleFactor,
-                        markup.y * scaleFactor
-                    );
-                }
-                tempCtx.globalAlpha = 1.0;
-                tempCtx.lineCap = 'round';
-                tempCtx.lineJoin = 'round';
-            });
-
-            // 2) Convert the offscreen canvas to an image data URL
-            const imgData = tempCanvas.toDataURL('image/png');
-
-            // 3) Prepare default filename with original base + "_markup_<YYYYMMDD>"
-            const today = new Date();
-            const yyyy = today.getFullYear();
-            const mm = String(today.getMonth() + 1).padStart(2, '0');
-            const dd = String(today.getDate()).padStart(2, '0');
-            const dateStr = `${yyyy}${mm}${dd}`;
-
-            const currentFile = APP_DATA.substations
-                .flatMap(s => s.folders)
-                .flatMap(f => f.files)
-                .find(f => f.path === currentDrawingPath);
-
-            const defaultBaseName = currentFile
-                ? currentFile.name.replace(/\.[^/.]+$/, "")
-                : "drawing";
-
-            const defaultFilename = `${defaultBaseName}_markup_${dateStr}`;
-
-            const userInput = prompt(
-                "Enter filename (without extension):",
-                defaultFilename
-            );
-            const safeBase =
-                userInput && userInput.trim().length > 0
-                    ? userInput.trim()
-                    : defaultFilename;
-
-            // 4) Use jsPDF to create a PDF at the same dimensions (in pixels) and embed the canvas image
-            //    We choose units='px' and set format to [width, height] so the PDF page matches pixel dimensions.
-            const pdf = new jsPDF({
-                orientation: baseWidth > baseHeight ? "landscape" : "portrait",
-                unit: "px",
-                format: [baseWidth, baseHeight]
-            });
-            pdf.addImage(imgData, "PNG", 0, 0, baseWidth, baseHeight);
-
-            // 5) Save as PDF
-            pdf.save(safeBase + ".pdf");
-            showSystemMessage("Saved", `Markup saved as ${safeBase}.pdf`);
-        }
-
-        function clearAllMarkups() { 
-            if (markups.length > 0 || selectedMarkupIndex !== -1) {
-                markups = []; selectedMarkupIndex = -1;
-                addMarkupToHistory(); redrawCanvas();
-                showSystemMessage("Cleared", "All markups have been cleared."); 
-            } else showSystemMessage("Info", "No markups to clear.");
-            updateToolbarStates(); 
-        }
-
-        function deleteSelectedMarkup() {
-            if (selectedMarkupIndex !== -1 && activeTool === 'select') {
-                markups.splice(selectedMarkupIndex, 1);
-                selectedMarkupIndex = -1;
-                addMarkupToHistory();
-                redrawCanvas();
-                updateToolbarStates();
-                showSystemMessage("Deleted", "Selected markup has been deleted.");
-            } else {
-                showSystemMessage("Info", "No markup selected to delete, or select tool not active.", true);
-            }
-        }
-
-
-        function applyZoom(factor, clientX, clientY) {
-            const newZoomLevel = zoomLevel * factor;
-            if (newZoomLevel < 0.05 || newZoomLevel > 20) return; 
-            const rect = canvas.getBoundingClientRect();
-            const mouseXOnCanvas = (clientX !== undefined ? clientX : rect.left + rect.width / 2) - rect.left;
-            const mouseYOnCanvas = (clientY !== undefined ? clientY : rect.top + rect.height / 2) - rect.top;
-            const worldMouseX = (mouseXOnCanvas - panX) / zoomLevel;
-            const worldMouseY = (mouseYOnCanvas - panY) / zoomLevel;
-            panX = mouseXOnCanvas - worldMouseX * newZoomLevel;
-            panY = mouseYOnCanvas - worldMouseY * newZoomLevel;
-            zoomLevel = newZoomLevel;
-            redrawCanvas();
-        }
-        function handleZoomScroll(event) {
-            event.preventDefault(); 
-            const delta = Math.sign(event.deltaY); 
-            applyZoom(delta > 0 ? 1 / 1.1 : 1.1, event.clientX, event.clientY);
-        }
-        function resetZoomAndPan(doRedraw = true) {
-            zoomLevel = 1; 
-            panX = 0; 
-            panY = 0;
-            if (doRedraw) redrawCanvas();
-        }
-        
-        function showSystemMessage(title, text, isError = false) {
-            messageTitleElement.textContent = title; 
-            messageTextElement.textContent = text; 
-            messageTitleElement.className = `text-lg font-semibold mb-2 ${isError ? 'text-red-600' : 'text-gray-900'}`;
-            messageBox.classList.remove('hidden');
-        }
-        
-        // Ensure DOM is fully loaded before initializing
         document.addEventListener('DOMContentLoaded', () => {
             init();
         });
+        
     </script>
 </body>
 </html>
