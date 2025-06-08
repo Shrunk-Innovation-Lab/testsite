@@ -1,0 +1,1106 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Key Viewer</title>
+    
+    <!-- Leaflet.js for Mapping -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+
+    <!-- Leaflet MarkerCluster for grouping markers -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" />
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+    
+    <!-- PapaParse for CSV Parsing -->
+    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
+    
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
+        
+        :root {
+            --ios-blue: #007AFF;
+            --ios-blue-dark: #0051D0;
+            --ios-gray: #8E8E93;
+            --ios-gray-light: #C7C7CC;
+            --ios-gray-ultralight: #F2F2F7;
+            --ios-background: #F2F2F7;
+            --ios-secondary-background: #FFFFFF;
+            --ios-tertiary-background: rgba(255, 255, 255, 0.8);
+            --ios-label: #000000;
+            --ios-secondary-label: #3C3C43;
+            --ios-tertiary-label: #3C3C4399;
+            --ios-quaternary-label: #3C3C432E;
+            --ios-separator: #3C3C434A;
+        }
+
+        * {
+            -webkit-font-smoothing: antialiased;
+            -moz-osx-font-smoothing: grayscale;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
+            background: linear-gradient(135deg, #F2F2F7 0%, #E5E5EA 100%);
+            letter-spacing: -0.01em;
+        }
+        
+        /* Modern iOS Glassmorphism */
+        .glass-effect {
+            background: rgba(255, 255, 255, 0.85);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.2);
+        }
+
+        .glass-effect-dark {
+            background: rgba(0, 0, 0, 0.15);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+        }
+
+        /* Custom iOS-style scrollbar */
+        .ios-scrollbar::-webkit-scrollbar {
+            width: 3px;
+        }
+        .ios-scrollbar::-webkit-scrollbar-track {
+            background: transparent;
+        }
+        .ios-scrollbar::-webkit-scrollbar-thumb {
+            background: rgba(0, 0, 0, 0.2);
+            border-radius: 3px;
+        }
+        .ios-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: rgba(0, 0, 0, 0.3);
+        }
+        
+        /* iOS Button Styles */
+        .ios-button-primary {
+            background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-blue-dark) 100%);
+            color: white;
+            border-radius: 14px;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 17px;
+            line-height: 1.2;
+            border: none;
+            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        .ios-button-primary:hover {
+            background: linear-gradient(135deg, var(--ios-blue-dark) 0%, #0040A0 100%);
+            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
+            transform: translateY(-1px);
+        }
+
+        .ios-button-secondary {
+            background: rgba(0, 122, 255, 0.1);
+            color: var(--ios-blue);
+            border-radius: 14px;
+            padding: 16px 24px;
+            font-weight: 600;
+            font-size: 17px;
+            line-height: 1.2;
+            border: none;
+            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .ios-button-secondary:hover {
+            background: rgba(0, 122, 255, 0.15);
+            transform: translateY(-1px);
+        }
+
+        /* iOS Card Styles */
+        .ios-card {
+            background: var(--ios-secondary-background);
+            border-radius: 16px;
+            border: 1px solid var(--ios-separator);
+            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        .ios-card:hover {
+            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
+            transform: translateY(-2px);
+        }
+
+        .ios-card-selected {
+            background: var(--ios-secondary-background);
+            border: 2px solid var(--ios-blue);
+            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.2);
+        }
+
+        /* iOS Form Controls */
+        .ios-input {
+            background: var(--ios-secondary-background);
+            border: 1px solid var(--ios-separator);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 17px;
+            line-height: 1.4;
+            color: var(--ios-label);
+            transition: all 0.2s ease;
+        }
+
+        .ios-input:focus {
+            outline: none;
+            border-color: var(--ios-blue);
+            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+        }
+
+        .ios-select {
+            background: var(--ios-secondary-background);
+            border: 1px solid var(--ios-separator);
+            border-radius: 12px;
+            padding: 12px 16px;
+            font-size: 17px;
+            line-height: 1.4;
+            color: var(--ios-label);
+            appearance: none;
+            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
+            background-position: right 12px center;
+            background-repeat: no-repeat;
+            background-size: 16px;
+            padding-right: 40px;
+        }
+
+        /* iOS Toggle Switch */
+        .ios-toggle {
+            position: relative;
+            width: 51px;
+            height: 31px;
+            background: var(--ios-gray-light);
+            border-radius: 16px;
+            transition: background-color 0.2s ease;
+            cursor: pointer;
+        }
+
+        .ios-toggle:before {
+            content: '';
+            position: absolute;
+            top: 2px;
+            left: 2px;
+            width: 27px;
+            height: 27px;
+            background: white;
+            border-radius: 50%;
+            transition: transform 0.2s ease;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+        }
+
+        .ios-toggle.active {
+            background: var(--ios-blue);
+        }
+
+        .ios-toggle.active:before {
+            transform: translateX(20px);
+        }
+
+        /* Leaflet popup customization */
+        .leaflet-popup-content-wrapper {
+            background: rgba(255, 255, 255, 0.95);
+            backdrop-filter: blur(20px);
+            -webkit-backdrop-filter: blur(20px);
+            border-radius: 16px;
+            border: 1px solid rgba(255, 255, 255, 0.2);
+            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
+            color: var(--ios-label);
+        }
+
+        .leaflet-popup-content {
+            margin: 16px 20px;
+            line-height: 1.5;
+            font-size: 15px;
+        }
+
+        .leaflet-popup-tip {
+            background: rgba(255, 255, 255, 0.95);
+        }
+
+        .leaflet-popup-close-button {
+            color: var(--ios-gray);
+            font-size: 18px;
+            font-weight: 600;
+        }
+
+        .leaflet-popup-close-button:hover {
+            color: var(--ios-label);
+        }
+
+        .leaflet-container {
+            background: linear-gradient(135deg, #87CEEB 0%, #98D8E8 100%);
+        }
+
+        /* Modern emoji marker */
+        .emoji-marker {
+            background: transparent;
+            border: none;
+            font-size: 32px;
+            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        /* Sidebar transitions */
+        #desktop-sidebar {
+            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+        }
+
+        /* Loading animation */
+        @keyframes ios-spin {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .ios-spinner {
+            animation: ios-spin 1s linear infinite;
+        }
+
+        /* iOS-style section headers */
+        .ios-section-header {
+            font-size: 13px;
+            font-weight: 600;
+            color: var(--ios-secondary-label);
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            margin-bottom: 8px;
+        }
+
+        /* Improved mobile drawer */
+        .mobile-drawer-handle {
+            width: 36px;
+            height: 5px;
+            background: var(--ios-quaternary-label);
+            border-radius: 3px;
+            margin: 8px auto;
+        }
+    </style>
+</head>
+<body class="text-gray-900 font-sans antialiased">
+
+    <div id="app" class="h-screen w-screen flex flex-col md:flex-row overflow-hidden">
+        <!-- Loading Overlay -->
+        <div id="loading-overlay" class="absolute inset-0 glass-effect-dark z-50 flex items-center justify-center transition-opacity duration-300">
+            <div class="text-center glass-effect rounded-3xl p-8 max-w-sm mx-4">
+                <div class="w-12 h-12 mx-auto mb-4 ios-spinner">
+                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="60" stroke-dashoffset="60" opacity="0.3"/>
+                        <circle cx="12" cy="12" r="10" stroke="var(--ios-blue)" stroke-width="2" stroke-linecap="round" stroke-dasharray="15" stroke-dashoffset="15"/>
+                    </svg>
+                </div>
+                <h2 class="text-xl font-semibold text-gray-900 mb-2">Loading Key Data</h2>
+                <p class="text-gray-600">Please wait a moment...</p>
+            </div>
+        </div>
+
+        <!-- Desktop Sidebar -->
+        <aside id="desktop-sidebar" class="w-full md:w-80 lg:w-96 h-full flex flex-col flex-shrink-0 glass-effect border-r border-white/20">
+            <!-- Header -->
+            <div class="p-6 border-b border-white/10">
+                <div class="flex justify-between items-start mb-8">
+                    <div class="flex items-center space-x-4">
+                        <div class="w-14 h-14 bg-gradient-to-br from-blue-500 to-purple-600 rounded-2xl flex items-center justify-center shadow-lg">
+                            <span class="text-2xl">🔑</span>
+                        </div>
+                        <div>
+                            <h1 class="text-2xl font-bold text-gray-900">Key Viewer</h1>
+                            <p class="text-sm text-gray-600 font-medium">Live Tracking</p>
+                        </div>
+                    </div>
+                    <button id="collapse-sidebar-btn" title="Collapse Sidebar" class="p-3 text-gray-500 hover:bg-white/50 rounded-xl transition-all duration-200">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
+                        </svg>
+                    </button>
+                </div>
+                <div id="filter-panel-desktop">
+                    <!-- Filter content will be injected here -->
+                </div>
+            </div>
+            
+            <!-- Key List -->
+            <div class="flex-grow min-h-0 p-4">
+                <div id="key-list-container-desktop" class="h-full overflow-y-auto ios-scrollbar">
+                    <!-- Key list items will be injected here -->
+                </div>
+            </div>
+        </aside>
+
+        <!-- Mobile Header -->
+        <div id="mobile-header" class="glass-effect border-b border-white/20 p-4 flex justify-between items-center z-20 md:hidden">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                    <span class="text-lg">🔑</span>
+                </div>
+                <div>
+                    <h1 class="text-lg font-bold text-gray-900">Key Viewer</h1>
+                    <p class="text-xs text-gray-600">Live Tracking</p>
+                </div>
+            </div>
+            <button id="open-filter-btn" class="p-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
+                </svg>
+            </button>
+        </div>
+        
+        <!-- Main Content (Map) -->
+        <main class="flex-grow h-full relative">
+            <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-6 left-6 z-20 glass-effect p-3 rounded-2xl shadow-lg text-gray-600 hover:bg-white/70 transition-all duration-200">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
+                </svg>
+            </button>
+            <div id='map' class='w-full h-full z-10'></div>
+            <div id="toast" class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 glass-effect px-6 py-3 rounded-2xl shadow-lg text-sm font-medium transition-all duration-300">
+                Location copied to clipboard!
+            </div>
+        </main>
+        
+        <!-- Mobile Drawer for Filters -->
+        <div id="mobile-drawer" class="fixed inset-0 bg-black/20 z-30 hidden md:hidden">
+            <div id="mobile-drawer-content" class="absolute top-0 right-0 h-full w-4/5 max-w-sm glass-effect shadow-2xl transform translate-x-full transition-transform duration-400 ease-out">
+                <div class="p-6">
+                    <div class="flex justify-between items-center mb-6">
+                        <h2 class="text-xl font-bold text-gray-900">Filters</h2>
+                        <button id="close-filter-btn" class="p-2 text-gray-500 hover:bg-white/50 rounded-xl transition-all duration-200">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                            </svg>
+                        </button>
+                    </div>
+                    <div id="filter-panel-mobile">
+                        <!-- Mobile filter content will be injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Mobile Drawer for Key List -->
+        <div id="mobile-list-drawer" class="absolute bottom-0 left-0 right-0 h-1/3 glass-effect overflow-hidden rounded-t-3xl md:hidden z-20 flex flex-col border-t border-white/20 shadow-2xl">
+            <div class="p-4 text-center cursor-grab">
+                <div class="mobile-drawer-handle"></div>
+                <h3 id="mobile-list-header" class="font-semibold text-gray-700 text-sm">0 Keys Found</h3>
+            </div>
+            <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto ios-scrollbar px-4 pb-4">
+                <!-- Mobile key list will be injected here -->
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // --- CONFIG ---
+        const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
+        const INITIAL_CENTER = [-28.0167, 153.4000];
+        const INITIAL_ZOOM = 10;
+        const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+        const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+        // --- STATE ---
+        let map;
+        let markersLayer = L.markerClusterGroup();
+        let pathLayer = L.layerGroup();
+        let allData = [];
+        let keysets = [];
+        let selectedKeyId = null;
+        let filters = {
+            startDate: null,
+            endDate: null,
+            keyset: 'all',
+            latestOnly: false,
+        };
+        
+        // --- DOM Elements ---
+        const loadingOverlay = document.getElementById('loading-overlay');
+        const desktopSidebar = document.getElementById('desktop-sidebar');
+        const filterPanelDesktop = document.getElementById('filter-panel-desktop');
+        const filterPanelMobile = document.getElementById('filter-panel-mobile');
+        const keyListDesktop = document.getElementById('key-list-container-desktop');
+        const keyListMobile = document.getElementById('key-list-container-mobile');
+        const mobileListHeader = document.getElementById('mobile-list-header');
+        const collapseBtn = document.getElementById('collapse-sidebar-btn');
+        const expandBtn = document.getElementById('expand-sidebar-btn');
+        const toastEl = document.getElementById('toast');
+
+        /**
+         * ===================================================================
+         * UI RENDERING & EVENT LISTENERS
+         * ===================================================================
+         */
+
+        function createFilterContent(keysetOptions) {
+            return `
+                <div class="space-y-6">
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="ios-section-header">Date Range</div>
+                            <button name="clearDates" class="text-xs text-blue-500 hover:text-blue-700 font-medium">Clear</button>
+                        </div>
+                        <div class="ios-card p-4 space-y-4">
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700">Start Date</label>
+                                <input type="date" name="startDate" class="ios-input">
+                            </div>
+                            <div class="flex flex-col space-y-2">
+                                <label class="text-sm font-medium text-gray-700">End Date</label>
+                                <input type="date" name="endDate" class="ios-input">
+                            </div>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="flex justify-between items-center mb-2">
+                            <div class="ios-section-header">Keyset</div>
+                            <button name="clearKeyset" class="text-xs text-blue-500 hover:text-blue-700 font-medium">Clear</button>
+                        </div>
+                        <div class="ios-card p-4">
+                            <select name="keyset" class="ios-select w-full">
+                                <option value="all">All Keys</option>
+                                ${keysetOptions.map(k => `<option value="${k}">Keyset ${k}</option>`).join('')}
+                            </select>
+                        </div>
+                    </div>
+
+                    <div>
+                        <div class="ios-section-header">Options</div>
+                        <div class="ios-card p-4">
+                            <div class="flex justify-between items-center">
+                                <div>
+                                    <div class="font-medium text-gray-900">Latest Location Only</div>
+                                    <div class="text-sm text-gray-600">Show most recent position for each key</div>
+                                </div>
+                                <div class="ios-toggle" data-toggle="latestOnly">
+                                    <input type="checkbox" name="latestOnly" class="hidden">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                    
+                    <div class="flex space-x-3 pt-2">
+                        <button name="apply" class="flex-1 ios-button-primary">Search</button>
+                        <button name="reset" class="px-4 ios-button-secondary">
+                            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
+                            </svg>
+                        </button>
+                    </div>
+                </div>
+            `;
+        }
+
+        function createKeyListItem(item, isSelected) {
+            const date = new Date(item.properties.datetime);
+            const dateStr = isNaN(date) ? 'N/A' : date.toLocaleDateString('en-US', { 
+                month: 'short', 
+                day: 'numeric',
+                hour: 'numeric',
+                minute: '2-digit'
+            });
+            
+            const shareButtonHTML = `
+                <div class="mt-3 pt-3 border-t border-gray-100">
+                    <button class="message-btn w-full ios-button-secondary text-sm py-2"
+                        data-lat="${item.geometry.coordinates[1]}"
+                        data-lon="${item.geometry.coordinates[0]}"
+                        data-name="${item.properties.name}"
+                        data-address="${item.properties.addresslabel || 'N/A'}"
+                        data-datetime="${dateStr}">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 20 20" fill="currentColor">
+                            <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
+                        </svg>
+                        Share Location
+                    </button>
+                </div>
+            `;
+
+            return `
+                <div class="key-list-item ${isSelected ? 'ios-card-selected' : 'ios-card'} p-4 cursor-pointer mb-3 transition-all duration-200"
+                     data-key-id="${item.properties.id}">
+                    <div class="flex items-center justify-between mb-2">
+                        <div class="flex items-center space-x-3">
+                            <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
+                                <span class="text-white font-semibold text-sm">${item.properties.name}</span>
+                            </div>
+                            <div>
+                                <p class="font-semibold text-gray-900">Keyset ${item.properties.name}</p>
+                                <p class="text-xs text-gray-500">${dateStr}</p>
+                            </div>
+                        </div>
+                        ${isSelected ? '<div class="w-3 h-3 bg-blue-500 rounded-full"></div>' : ''}
+                    </div>
+                    <div class="ml-13">
+                        <p class="text-sm text-gray-600 line-clamp-2">${item.properties.addresslabel || 'Address not available'}</p>
+                    </div>
+                    ${shareButtonHTML}
+                </div>
+            `;
+        }
+
+        function renderKeyList(items) {
+            try {
+                if (items.length === 0) {
+                    const noResultsHTML = `
+                        <div class="text-center py-12">
+                            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
+                                <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8 text-gray-400" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                                </svg>
+                            </div>
+                            <p class="text-gray-500 font-medium">No keys found</p>
+                            <p class="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
+                            ${hasActiveFilters() ? `
+                                <button class="mt-4 text-blue-500 hover:text-blue-700 text-sm font-medium" onclick="clearAllFilters()">
+                                    Clear all filters
+                                </button>
+                            ` : ''}
+                        </div>
+                    `;
+                    keyListDesktop.innerHTML = noResultsHTML;
+                    keyListMobile.innerHTML = noResultsHTML;
+                    mobileListHeader.textContent = '0 Keys Found';
+                    return;
+                }
+
+                const listHTML = items.map(item => createKeyListItem(item, item.properties.id === selectedKeyId)).join('');
+                keyListDesktop.innerHTML = listHTML;
+                keyListMobile.innerHTML = listHTML;
+                
+                const filterIndicator = hasActiveFilters() ? ' (Filtered)' : '';
+                mobileListHeader.textContent = `${items.length} Key${items.length !== 1 ? 's' : ''} Found${filterIndicator}`;
+
+                // Add event listeners
+                document.querySelectorAll('.key-list-item').forEach(el => {
+                    el.addEventListener('click', (e) => {
+                        if (e.target.closest('.message-btn')) return; 
+                        const keyId = parseInt(el.dataset.keyId);
+                        const key = allData.find(d => d.properties.id === keyId);
+                        if (key) {
+                            selectedKeyId = key.properties.id;
+                            map.flyTo([key.geometry.coordinates[1], key.geometry.coordinates[0]], 16);
+                            runFilters(false); 
+                        }
+                    });
+                });
+                
+                document.querySelectorAll('.message-btn').forEach(el => {
+                    el.addEventListener('click', handleMessageButtonClick);
+                });
+
+            } catch (err) {
+                console.error("Error rendering key list:", err);
+            }
+        }
+
+        function hasActiveFilters() {
+            return filters.startDate || filters.endDate || filters.keyset !== 'all' || filters.latestOnly;
+        }
+
+        function clearAllFilters() {
+            selectedKeyId = null;
+            filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: false };
+            
+            // Clear form inputs
+            document.querySelectorAll('[name="startDate"]').forEach(el => el.value = '');
+            document.querySelectorAll('[name="endDate"]').forEach(el => el.value = '');
+            document.querySelectorAll('[name="keyset"]').forEach(el => el.value = 'all');
+            document.querySelectorAll('[name="latestOnly"]').forEach(el => el.checked = false);
+            document.querySelectorAll('.ios-toggle').forEach(toggle => toggle.classList.remove('active'));
+            
+            runFilters();
+        }
+        
+        function setupEventListeners() {
+            const filterForms = [filterPanelDesktop, filterPanelMobile];
+            filterForms.forEach(container => {
+                // iOS toggle switches
+                const toggles = container.querySelectorAll('.ios-toggle');
+                toggles.forEach(toggle => {
+                    const checkbox = toggle.querySelector('input[type="checkbox"]');
+                    const toggleName = toggle.dataset.toggle;
+                    
+                    toggle.addEventListener('click', () => {
+                        checkbox.checked = !checkbox.checked;
+                        toggle.classList.toggle('active', checkbox.checked);
+                    });
+                    
+                    // Set initial state
+                    if (filters[toggleName]) {
+                        checkbox.checked = true;
+                        toggle.classList.add('active');
+                    }
+                });
+
+                // Clear buttons
+                const clearDatesBtn = container.querySelector('button[name="clearDates"]');
+                const clearKeysetBtn = container.querySelector('button[name="clearKeyset"]');
+                
+                if (clearDatesBtn) {
+                    clearDatesBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        container.querySelector('[name="startDate"]').value = '';
+                        container.querySelector('[name="endDate"]').value = '';
+                        filters.startDate = null;
+                        filters.endDate = null;
+                        selectedKeyId = null;
+                        runFilters();
+                    });
+                }
+                
+                if (clearKeysetBtn) {
+                    clearKeysetBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        container.querySelector('[name="keyset"]').value = 'all';
+                        filters.keyset = 'all';
+                        selectedKeyId = null;
+                        runFilters();
+                    });
+                }
+
+                const applyBtn = container.querySelector('button[name="apply"]');
+                const resetBtn = container.querySelector('button[name="reset"]');
+
+                if (applyBtn) {
+                    applyBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        selectedKeyId = null; 
+                        filters.startDate = container.querySelector('[name="startDate"]').value || null;
+                        filters.endDate = container.querySelector('[name="endDate"]').value || null;
+                        filters.keyset = container.querySelector('[name="keyset"]').value;
+                        filters.latestOnly = container.querySelector('[name="latestOnly"]').checked;
+                        
+                        runFilters();
+                        
+                        if (container.id === 'filter-panel-mobile') {
+                            toggleMobileDrawer(false);
+                        }
+                    });
+                }
+                
+                if (resetBtn) {
+                    resetBtn.addEventListener('click', (e) => {
+                        e.preventDefault();
+                        selectedKeyId = null; 
+                        container.querySelector('[name="startDate"]').value = '';
+                        container.querySelector('[name="endDate"]').value = '';
+                        container.querySelector('[name="keyset"]').value = 'all';
+                        container.querySelector('[name="latestOnly"]').checked = false;
+                        
+                        // Reset toggle switches
+                        container.querySelectorAll('.ios-toggle').forEach(toggle => {
+                            toggle.classList.remove('active');
+                        });
+
+                        filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: false };
+                        runFilters();
+                    });
+                }
+
+                // Auto-apply filters when date inputs change
+                const dateInputs = container.querySelectorAll('input[type="date"]');
+                dateInputs.forEach(input => {
+                    input.addEventListener('change', () => {
+                        filters.startDate = container.querySelector('[name="startDate"]').value || null;
+                        filters.endDate = container.querySelector('[name="endDate"]').value || null;
+                        selectedKeyId = null;
+                        runFilters();
+                    });
+                });
+
+                // Auto-apply filters when keyset changes
+                const keysetSelect = container.querySelector('[name="keyset"]');
+                if (keysetSelect) {
+                    keysetSelect.addEventListener('change', () => {
+                        filters.keyset = keysetSelect.value;
+                        selectedKeyId = null;
+                        runFilters();
+                    });
+                }
+            });
+
+            collapseBtn.addEventListener('click', () => toggleDesktopSidebar(false));
+            expandBtn.addEventListener('click', () => toggleDesktopSidebar(true));
+
+            const mobileDrawer = document.getElementById('mobile-drawer');
+            document.getElementById('open-filter-btn').addEventListener('click', () => toggleMobileDrawer(true));
+            document.getElementById('close-filter-btn').addEventListener('click', () => toggleMobileDrawer(false));
+            mobileDrawer.addEventListener('click', (e) => {
+                if (e.target === mobileDrawer) {
+                    toggleMobileDrawer(false);
+                }
+            });
+        }
+        
+        async function handleMessageButtonClick(e) {
+            e.stopPropagation();
+            const button = e.currentTarget;
+            const lat = button.dataset.lat;
+            const lon = button.dataset.lon;
+            const name = button.dataset.name;
+            const address = button.dataset.address;
+            const datetime = button.dataset.datetime;
+
+            // Show loading state
+            const originalText = button.innerHTML;
+            button.innerHTML = `
+                <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                Sharing...
+            `;
+            button.disabled = true;
+
+            const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
+            const appleMapsUrl = `https://maps.apple.com/?q=${lat},${lon}`;
+            
+            const shareData = {
+                title: `📍 Keyset ${name} Location`,
+                text: `📍 Keyset ${name} Location\n📍 ${address}\n🕒 ${datetime}\n\n🗺️ Google Maps: ${googleMapsUrl}\n🍎 Apple Maps: ${appleMapsUrl}`,
+                url: googleMapsUrl,
+            };
+
+            try {
+                if (navigator.share && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                    await navigator.share(shareData);
+                    showToast("Location shared successfully! 📱");
+                } else {
+                    throw new Error('Using clipboard fallback');
+                }
+            } catch (err) {
+                console.log('Share failed, using clipboard:', err);
+                try {
+                    await navigator.clipboard.writeText(shareData.text);
+                    showToast("📋 Location copied to clipboard!");
+                } catch (copyErr) {
+                    console.error('Failed to copy to clipboard:', copyErr);
+                    // Fallback: create a temporary textarea
+                    const textArea = document.createElement('textarea');
+                    textArea.value = shareData.text;
+                    document.body.appendChild(textArea);
+                    textArea.select();
+                    textArea.setSelectionRange(0, 99999);
+                    try {
+                        document.execCommand('copy');
+                        showToast("📋 Location copied to clipboard!");
+                    } catch (execErr) {
+                        showToast("❌ Failed to copy location");
+                    }
+                    document.body.removeChild(textArea);
+                }
+            } finally {
+                // Restore button state
+                setTimeout(() => {
+                    button.innerHTML = originalText;
+                    button.disabled = false;
+                }, 1000);
+            }
+        }
+        
+        function showToast(message) {
+            toastEl.innerHTML = message;
+            toastEl.classList.remove('hidden');
+            toastEl.style.opacity = '0';
+            toastEl.style.transform = 'translateX(-50%) translateY(20px)';
+            
+            // Animate in
+            setTimeout(() => {
+                toastEl.style.opacity = '1';
+                toastEl.style.transform = 'translateX(-50%) translateY(0)';
+            }, 10);
+            
+            // Animate out
+            setTimeout(() => {
+                toastEl.style.opacity = '0';
+                toastEl.style.transform = 'translateX(-50%) translateY(20px)';
+                setTimeout(() => {
+                    toastEl.classList.add('hidden');
+                }, 300);
+            }, 3000);
+        }
+
+        function toggleDesktopSidebar(show) {
+            if (show) {
+                desktopSidebar.classList.remove('hidden');
+                expandBtn.classList.add('hidden');
+            } else {
+                desktopSidebar.classList.add('hidden');
+                expandBtn.classList.remove('hidden');
+            }
+            setTimeout(() => map && map.invalidateSize(), 400);
+        }
+
+        function toggleMobileDrawer(show) {
+            const drawer = document.getElementById('mobile-drawer');
+            const content = document.getElementById('mobile-drawer-content');
+            if (show) {
+                drawer.classList.remove('hidden');
+                setTimeout(() => content.classList.remove('translate-x-full'), 10);
+            } else {
+                content.classList.add('translate-x-full');
+                setTimeout(() => drawer.classList.add('hidden'), 400);
+            }
+        }
+
+        /**
+         * ===================================================================
+         * DATA FETCHING & PROCESSING
+         * ===================================================================
+         */
+        
+        async function fetchData() {
+            loadingOverlay.style.opacity = '1';
+            loadingOverlay.classList.remove('hidden');
+            
+            Papa.parse(GOOGLE_SHEET_URL, {
+                download: true,
+                header: true,
+                skipEmptyLines: true,
+                complete: (results) => {
+                    try {
+                        const validData = results.data
+                            .map((row, index) => {
+                                if (row.name) row.name = row.name.trim();
+                                return {...row, id: index};
+                            })
+                            .filter(row => {
+                                const lat = parseFloat(row.locationlatitude);
+                                const lon = parseFloat(row.locationlongitude);
+                                return row.datetime && row.name && row.name.length > 0 && !isNaN(lat) && !isNaN(lon);
+                            });
+
+                        allData = validData.map(row => ({
+                            type: 'Feature',
+                            properties: row,
+                            geometry: {
+                                type: 'Point',
+                                coordinates: [parseFloat(row.locationlongitude), parseFloat(row.locationlatitude)]
+                            }
+                        }));
+                        
+                        allData.sort((a,b) => new Date(b.properties.datetime) - new Date(a.properties.datetime));
+                        
+                        keysets = [...new Set(allData.map(item => item.properties.name))].sort((a, b) => {
+                            const numA = parseInt(a);
+                            const numB = parseInt(b);
+                            if (!isNaN(numA) && !isNaN(numB)) {
+                                return numA - numB;
+                            }
+                            return a.localeCompare(b);
+                        });
+
+                        const filterHTML = createFilterContent(keysets);
+                        filterPanelDesktop.innerHTML = filterHTML;
+                        filterPanelMobile.innerHTML = filterHTML;
+                        
+                        setupEventListeners();
+                        initializeMap();
+                        runFilters();
+
+                    } catch (err) {
+                        console.error("Error processing CSV data:", err);
+                        loadingOverlay.innerHTML = `
+                            <div class="glass-effect rounded-3xl p-8 max-w-sm mx-4 text-center">
+                                <div class="text-red-500 text-4xl mb-4">⚠️</div>
+                                <h2 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
+                                <p class="text-gray-600">Failed to process key data. Please try again later.</p>
+                            </div>
+                        `;
+                    } finally {
+                        setTimeout(() => {
+                            loadingOverlay.style.opacity = '0';
+                            setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
+                        }, 800);
+                    }
+                },
+                error: (error) => {
+                    console.error("Error fetching or parsing data:", error);
+                    loadingOverlay.innerHTML = `
+                        <div class="glass-effect rounded-3xl p-8 max-w-sm mx-4 text-center">
+                            <div class="text-red-500 text-4xl mb-4">📡</div>
+                            <h2 class="text-xl font-semibold text-gray-900 mb-2">Connection Error</h2>
+                            <p class="text-gray-600">Unable to fetch key data. Please check your connection.</p>
+                        </div>
+                    `;
+                }
+            });
+        }
+        
+        function runFilters(fitMapToBounds = true) {
+            try {
+                let data = [...allData];
+
+                const formatDateFromCSV = (csvDatetime) => {
+                    if (!csvDatetime || typeof csvDatetime !== 'string') return null;
+                    
+                    // Handle different date formats
+                    let dateStr = csvDatetime.split(' ')[0]; // Get date part only
+                    
+                    // If it's already in YYYY-MM-DD format
+                    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
+                        return dateStr;
+                    }
+                    
+                    // Handle MM/DD/YYYY format
+                    const parts = dateStr.split('/');
+                    if (parts.length === 3) {
+                        const [month, day, year] = parts;
+                        if (month && day && year && year.length === 4) {
+                            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                        }
+                    }
+                    
+                    // Handle DD/MM/YYYY format
+                    if (parts.length === 3) {
+                        const [day, month, year] = parts;
+                        if (day && month && year && year.length === 4) {
+                            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
+                        }
+                    }
+                    
+                    return null;
+                };
+                
+                // Date Range Filtering
+                if (filters.startDate) {
+                    data = data.filter(item => {
+                        const itemDateStr = formatDateFromCSV(item.properties.datetime);
+                        return itemDateStr && itemDateStr >= filters.startDate;
+                    });
+                }
+                if (filters.endDate) {
+                    data = data.filter(item => {
+                        const itemDateStr = formatDateFromCSV(item.properties.datetime);
+                        return itemDateStr && itemDateStr <= filters.endDate;
+                    });
+                }
+
+                if (filters.keyset !== 'all') {
+                    data = data.filter(item => item.properties.name === filters.keyset);
+                }
+
+                if (filters.latestOnly) {
+                    const latestByKey = new Map();
+                    data.forEach(item => {
+                        const key = item.properties.name;
+                        if (!latestByKey.has(key)) {
+                            latestByKey.set(key, item);
+                        }
+                    });
+                    data = Array.from(latestByKey.values());
+                }
+
+                renderKeyList(data);
+                updateMapData(data, fitMapToBounds);
+            } catch (err) {
+                console.error("Error during filtering:", err);
+            }
+        }
+
+        /**
+         * ===================================================================
+         * MAP INITIALIZATION & FUNCTIONS (USING LEAFLET.JS)
+         * ===================================================================
+         */
+
+        function initializeMap() {
+            try {
+                map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
+
+                L.tileLayer(TILE_URL, {
+                    attribution: TILE_ATTRIBUTION,
+                    maxZoom: 18,
+                }).addTo(map);
+                
+                markersLayer.addTo(map);
+                pathLayer.addTo(map);
+
+            } catch (err) {
+                console.error("Failed to initialize map:", err);
+                document.getElementById('map').innerHTML = `
+                    <div class="h-full flex items-center justify-center">
+                        <div class="glass-effect rounded-3xl p-8 text-center">
+                            <div class="text-red-500 text-4xl mb-4">🗺️</div>
+                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Map Unavailable</h3>
+                            <p class="text-gray-600">Unable to load the map component.</p>
+                        </div>
+                    </div>
+                `;
+            }
+        }
+
+        function updateMapData(data, fitMapToBounds = true) {
+            if (!map) return;
+            markersLayer.clearLayers();
+            pathLayer.clearLayers();
+
+            if (data.length === 0) {
+                return; 
+            }
+            
+            const keyIcon = L.divIcon({
+                html: '🔑',
+                className: 'emoji-marker',
+                iconSize: [36, 36],
+                iconAnchor: [18, 36],
+                popupAnchor: [0, -30]
+            });
+
+            data.forEach(item => {
+                const lat = item.geometry.coordinates[1];
+                const lon = item.geometry.coordinates[0];
+                
+                const date = new Date(item.properties.datetime);
+                const dateStr = isNaN(date) ? 'N/A' : date.toLocaleDateString('en-US', { 
+                    weekday: 'short',
+                    month: 'short', 
+                    day: 'numeric',
+                    hour: 'numeric',
+                    minute: '2-digit'
+                });
+
+                const popupContent = `
+                    <div class="text-center">
+                        <h3 class="font-bold text-lg mb-2">Keyset ${item.properties.name}</h3>
+                        <p class="text-sm text-gray-600 mb-2">${item.properties.addresslabel || 'Address not available'}</p>
+                        <p class="text-xs text-gray-500">${dateStr}</p>
+                    </div>
+                `;
+
+                const marker = L.marker([lat, lon], { icon: keyIcon });
+                marker.bindPopup(popupContent);
+                markersLayer.addLayer(marker);
+            });
+            
+            // Draw path if a single keyset is selected and we have more than one point
+            if (filters.keyset !== 'all' && !filters.latestOnly && data.length > 1) {
+                const pathData = [...data].sort((a,b) => new Date(a.properties.datetime) - new Date(b.properties.datetime));
+                const latlngs = pathData.map(item => [item.geometry.coordinates[1], item.geometry.coordinates[0]]);
+                const polyline = L.polyline(latlngs, { 
+                    color: 'var(--ios-blue)', 
+                    weight: 4, 
+                    opacity: 0.8,
+                    dashArray: '10, 5',
+                    lineCap: 'round'
+                });
+                pathLayer.addLayer(polyline);
+            }
+            
+            if (fitMapToBounds && data.length > 0) {
+                const bounds = markersLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+                }
+            }
+        }
+
+        // --- KICKOFF ---
+        document.addEventListener('DOMContentLoaded', fetchData);
+    </script>
+
+</body>
+</html>
