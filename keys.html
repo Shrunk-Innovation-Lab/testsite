@@ -27,9 +27,13 @@
         body {
             font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
             background-color: #f2f2f7;
-            /* Support for safe areas on iOS */
-            padding-top: env(safe-area-inset-top);
-            padding-bottom: env(safe-area-inset-bottom);
+            /* Prevent scrolling on the body itself */
+            overscroll-behavior-y: contain;
+        }
+
+        #app {
+            /* Use a CSS variable for the dynamic height */
+            height: var(--app-height, 100vh);
         }
         
         /* Custom scrollbar */
@@ -97,7 +101,7 @@
 </head>
 <body class="text-black font-sans antialiased">
 
-    <div id="app" class="h-screen w-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
+    <div id="app" class="w-screen flex flex-col md:flex-row overflow-hidden bg-gray-100">
         <!-- Loading Overlay -->
         <div id="loading-overlay" class="absolute inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center">
             <div class="text-center">
@@ -135,22 +139,39 @@
             </div>
         </aside>
 
-        <!-- Mobile Header -->
-        <div id="mobile-header" class="bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm p-2 flex justify-between items-center z-20 md:hidden" style="padding-top: env(safe-area-inset-top);">
-           <div class="flex items-center space-x-3 pl-2">
-            <h1 class="text-lg font-bold text-gray-800">Key Viewer</h1>
-           </div>
-            <button id="open-filter-btn" class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
-            </button>
+        <!-- Mobile View Container -->
+        <div id="mobile-view" class="flex-grow flex-col h-full md:hidden">
+            <!-- Mobile Header -->
+            <header id="mobile-header" class="bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm p-2 flex justify-between items-center z-20 flex-shrink-0" style="padding-top: env(safe-area-inset-top);">
+               <div class="flex items-center space-x-3 pl-2">
+                <h1 class="text-lg font-bold text-gray-800">Key Viewer</h1>
+               </div>
+                <button id="open-filter-btn" class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                </button>
+            </header>
+            
+            <!-- Main Content (Map & List) -->
+            <div class="flex-grow relative overflow-hidden">
+                <div id='map' class='w-full h-full z-10'></div>
+                <div id="mobile-list-drawer" class="absolute bottom-0 left-0 right-0 h-1/3 bg-white/80 backdrop-blur-lg shadow-lg overflow-hidden rounded-t-lg z-20 flex flex-col border-t border-gray-200" style="padding-bottom: env(safe-area-inset-bottom);">
+                    <div class="p-2 bg-transparent text-center cursor-grab">
+                        <div class="w-8 h-1 bg-gray-300 rounded-full mx-auto"></div>
+                        <h3 id="mobile-list-header" class="font-semibold text-gray-600 text-sm mt-1">0 Keys Found</h3>
+                    </div>
+                    <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto custom-scrollbar">
+                        <!-- Mobile key list will be injected here -->
+                    </div>
+                </div>
+            </div>
         </div>
         
-        <!-- Main Content (Map) -->
-        <main class="flex-grow h-full relative">
+        <!-- Desktop Main Content -->
+        <main id="desktop-main" class="flex-grow h-full relative hidden md:block">
             <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-20 left-4 z-20 bg-white/80 backdrop-blur-lg p-2 rounded-lg shadow-lg text-gray-600 hover:bg-gray-200 border border-gray-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z" clip-rule="evenodd" /></svg>
             </button>
-            <div id='map' class='w-full h-full z-10'></div>
+            <div id='desktop-map' class='w-full h-full z-10'></div>
             <div id="toast" class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg text-sm transition-opacity duration-300">
                 Location copied to clipboard!
             </div>
@@ -170,21 +191,17 @@
                 </div>
             </div>
         </div>
-
-        <!-- Mobile Drawer for Key List -->
-         <div id="mobile-list-drawer" class="absolute bottom-0 left-0 right-0 h-1/3 bg-white/80 backdrop-blur-lg shadow-lg overflow-hidden rounded-t-lg md:hidden z-20 flex flex-col border-t border-gray-200" style="padding-bottom: env(safe-area-inset-bottom);">
-            <div class="p-2 bg-transparent text-center cursor-grab">
-                <div class="w-8 h-1 bg-gray-300 rounded-full mx-auto"></div>
-                <h3 id="mobile-list-header" class="font-semibold text-gray-600 text-sm mt-1">0 Keys Found</h3>
-            </div>
-            <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto custom-scrollbar">
-                <!-- Mobile key list will be injected here -->
-            </div>
-        </div>
-
     </div>
 
     <script>
+        // Set dynamic height for mobile browsers
+        const setAppHeight = () => {
+            const doc = document.documentElement;
+            doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+        };
+        window.addEventListener('resize', setAppHeight);
+        setAppHeight();
+
         // --- CONFIG ---
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
         const INITIAL_CENTER = [-28.0167, 153.4000]; // [Latitude, Longitude] for Leaflet
@@ -578,7 +595,8 @@
 
         function initializeMap() {
             try {
-                map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
+                const mapElement = window.innerWidth < 768 ? 'map' : 'desktop-map';
+                map = L.map(mapElement).setView(INITIAL_CENTER, INITIAL_ZOOM);
 
                 L.tileLayer(TILE_URL, {
                     attribution: TILE_ATTRIBUTION,
@@ -591,6 +609,7 @@
             } catch (err) {
                  console.error("Failed to initialize map:", err);
                  document.getElementById('map').innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Map could not be loaded.</div>`;
+                 document.getElementById('desktop-map').innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Map could not be loaded.</div>`;
             }
         }
 
@@ -604,7 +623,7 @@
             }
             
             const keyIcon = L.divIcon({
-                html: '�',
+                html: '🔑',
                 className: 'emoji-marker',
                 iconSize: [30, 30],
                 iconAnchor: [15, 30],
@@ -653,4 +672,3 @@
 
 </body>
 </html>
-�
