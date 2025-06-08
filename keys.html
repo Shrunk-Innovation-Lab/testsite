@@ -99,8 +99,12 @@
         
         /* Mobile list drawer transition */
         #mobile-list-drawer {
-            transition: transform 0.3s ease-in-out;
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
         }
+        #mobile-list-drawer.is-collapsed {
+            transform: translateY(calc(100% - 60px - env(safe-area-inset-bottom))); /* Adjust for handle height */
+        }
+
 
     </style>
 </head>
@@ -260,8 +264,9 @@
                         </div>
                     </div>
 
-                     <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-1">
-                        <select name="keyset" class="w-full text-sm bg-transparent border-none text-gray-600 focus:ring-0">
+                     <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
+                        <label for="keyset" class="text-sm font-medium text-gray-700">Keyset</label>
+                        <select name="keyset" class="w-1/2 text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
                             <option value="all">All Keys</option>
                             ${keysetOptions.map(k => `<option value="${k}">${k}</option>`).join('')}
                         </select>
@@ -401,21 +406,25 @@
             // Mobile List Drawer Swipe/Tap handler
             let touchStartY = 0;
             mobileListHandle.addEventListener('click', () => {
-                mobileListDrawer.classList.toggle('is-collapsed');
+                setListDrawerState(!mobileListDrawer.classList.contains('is-collapsed'));
             });
 
-            mobileListDrawer.addEventListener('touchstart', (e) => {
+            mobileListHandle.addEventListener('touchstart', (e) => {
                 touchStartY = e.touches[0].clientY;
             }, { passive: true });
 
-            mobileListDrawer.addEventListener('touchend', (e) => {
+            mobileListHandle.addEventListener('touchend', (e) => {
+                if (touchStartY === 0) return;
                 const touchEndY = e.changedTouches[0].clientY;
-                const swipeDistance = touchEndY - touchStartY;
+                const deltaY = touchEndY - touchStartY;
+                touchStartY = 0;
+                
+                if (Math.abs(deltaY) < 50) return;
 
-                if (swipeDistance > 50) { // Swipe down
-                    mobileListDrawer.style.transform = `translateY(calc(100% - 60px))`;
-                } else if (swipeDistance < -50) { // Swipe up
-                     mobileListDrawer.style.transform = `translateY(0)`;
+                if (deltaY > 0) { // Swipe down
+                    setListDrawerState(true); // Collapse
+                } else { // Swipe up
+                    setListDrawerState(false); // Expand
                 }
             });
         }
@@ -472,6 +481,11 @@
                 expandBtn.classList.remove('hidden');
             }
             setTimeout(() => map && map.invalidateSize(), 310);
+        }
+        
+        function setListDrawerState(collapsed) {
+             mobileListDrawer.classList.toggle('is-collapsed', collapsed);
+             setTimeout(() => map && map.invalidateSize(), 310);
         }
 
         function toggleMobileDrawer(show) {
@@ -619,7 +633,9 @@
 
         function initializeMap() {
             try {
-                map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
+                map = L.map('map', { zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
+                L.control.zoom({ position: 'topright' }).addTo(map);
+
 
                 L.tileLayer(TILE_URL, {
                     attribution: TILE_ATTRIBUTION,
