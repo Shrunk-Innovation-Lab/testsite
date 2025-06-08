@@ -2,17 +2,19 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Key Viewer</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <title>Keyzy Key Viewer</title>
     
     <!-- Leaflet.js for Mapping -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet/1.7.1/leaflet.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" xintegrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
+    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" xintegrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
 
     <!-- Leaflet MarkerCluster for grouping markers -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/MarkerCluster.Default.css" />
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/leaflet.markercluster/1.4.1/leaflet.markercluster.js"></script>
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
+    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
+    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
     
     <!-- PapaParse for CSV Parsing -->
     <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
@@ -21,804 +23,198 @@
     <script src="https://cdn.tailwindcss.com"></script>
     
     <style>
-        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap');
-        
-        :root {
-            --ios-blue: #007AFF;
-            --ios-blue-dark: #0051D0;
-            --ios-gray: #8E8E93;
-            --ios-gray-light: #C7C7CC;
-            --ios-gray-ultralight: #F2F2F7;
-            --ios-background: #F2F2F7;
-            --ios-secondary-background: #FFFFFF;
-            --ios-tertiary-background: rgba(255, 255, 255, 0.8);
-            --ios-label: #000000;
-            --ios-secondary-label: #3C3C43;
-            --ios-tertiary-label: #3C3C4399;
-            --ios-quaternary-label: #3C3C432E;
-            --ios-separator: #3C3C434A;
-        }
-
-        * {
-            -webkit-font-smoothing: antialiased;
-            -moz-osx-font-smoothing: grayscale;
-        }
-
+        /* Base styles for an iOS look */
         body {
-            font-family: 'Inter', -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", Roboto, sans-serif;
-            background: linear-gradient(135deg, #F2F2F7 0%, #E5E5EA 100%);
-            letter-spacing: -0.01em;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+            background-color: #f2f2f7;
+            /* Prevent scrolling on the body itself */
+            overscroll-behavior-y: contain;
+        }
+
+        #app {
+            /* Use a CSS variable for the dynamic height */
+            height: var(--app-height, 100vh);
         }
         
-        /* Device detection and optimization */
-        .mobile-optimized {
-            --touch-target-size: 48px;
-            --mobile-padding: 16px;
-            --mobile-font-size: 16px;
+        /* Custom scrollbar */
+        .custom-scrollbar::-webkit-scrollbar {
+            width: 6px;
         }
-
-        .desktop-optimized {
-            --hover-transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            --desktop-padding: 24px;
-            --desktop-font-size: 15px;
+        .custom-scrollbar::-webkit-scrollbar-track {
+            background: #f2f2f7; 
         }
-        
-        /* Modern iOS Glassmorphism */
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.85);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-
-        .glass-effect-dark {
-            background: rgba(0, 0, 0, 0.15);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.1);
-        }
-
-        /* Custom iOS-style scrollbar */
-        .ios-scrollbar::-webkit-scrollbar {
-            width: 3px;
-        }
-        .ios-scrollbar::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        .ios-scrollbar::-webkit-scrollbar-thumb {
-            background: rgba(0, 0, 0, 0.2);
+        .custom-scrollbar::-webkit-scrollbar-thumb {
+            background: #d1d1d6;
             border-radius: 3px;
         }
-        .ios-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: rgba(0, 0, 0, 0.3);
+        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+            background: #b2b2b7;
         }
         
-        /* iOS Button Styles */
-        .ios-button-primary {
-            background: linear-gradient(135deg, var(--ios-blue) 0%, var(--ios-blue-dark) 100%);
-            color: white;
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-weight: 600;
-            font-size: 14px;
-            line-height: 1.2;
-            border: none;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ios-button-primary:hover {
-            background: linear-gradient(135deg, var(--ios-blue-dark) 0%, #0040A0 100%);
-            box-shadow: 0 4px 16px rgba(0, 122, 255, 0.4);
-            transform: translateY(-1px);
-        }
-
-        .ios-button-secondary {
-            background: rgba(0, 122, 255, 0.1);
-            color: var(--ios-blue);
-            border-radius: 10px;
-            padding: 10px 16px;
-            font-weight: 600;
-            font-size: 14px;
-            line-height: 1.2;
-            border: none;
-            transition: all 0.2s cubic-bezier(0.4, 0.0, 0.2, 1);
-            min-height: 40px;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-        }
-
-        .ios-button-secondary:hover {
-            background: rgba(0, 122, 255, 0.15);
-            transform: translateY(-1px);
-        }
-
-        /* iOS Card Styles */
-        .ios-card {
-            background: var(--ios-secondary-background);
-            border-radius: 16px;
-            border: 1px solid var(--ios-separator);
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.05);
-            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-        }
-
-        .ios-card:hover {
-            box-shadow: 0 4px 20px rgba(0, 0, 0, 0.1);
-            transform: translateY(-2px);
-        }
-
-        .ios-card-selected {
-            background: var(--ios-secondary-background);
-            border: 2px solid var(--ios-blue);
-            box-shadow: 0 4px 20px rgba(0, 122, 255, 0.2);
-        }
-
-        /* iOS Form Controls */
-        .ios-input {
-            background: var(--ios-secondary-background);
-            border: 1px solid var(--ios-separator);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-            line-height: 1.4;
-            color: var(--ios-label);
-            transition: all 0.2s ease;
-            min-height: 36px;
-            width: 100%;
-        }
-
-        .ios-input:focus {
-            outline: none;
-            border-color: var(--ios-blue);
-            box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
-        }
-
-        .ios-select {
-            background: var(--ios-secondary-background);
-            border: 1px solid var(--ios-separator);
-            border-radius: 8px;
-            padding: 8px 12px;
-            font-size: 14px;
-            line-height: 1.4;
-            color: var(--ios-label);
-            appearance: none;
-            background-image: url("data:image/svg+xml,%3csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 20 20'%3e%3cpath stroke='%236b7280' stroke-linecap='round' stroke-linejoin='round' stroke-width='1.5' d='m6 8 4 4 4-4'/%3e%3c/svg%3e");
-            background-position: right 10px center;
-            background-repeat: no-repeat;
-            background-size: 14px;
-            padding-right: 32px;
-            min-height: 36px;
-            width: 100%;
-        }
-
-        /* iOS Toggle Switch - Smaller size */
-        .ios-toggle {
-            position: relative;
-            width: 44px;
-            height: 26px;
-            background: var(--ios-gray-light);
-            border-radius: 13px;
-            transition: background-color 0.2s ease;
-            cursor: pointer;
-            flex-shrink: 0;
-        }
-
-        .ios-toggle:before {
-            content: '';
-            position: absolute;
-            top: 2px;
-            left: 2px;
-            width: 22px;
-            height: 22px;
-            background: white;
-            border-radius: 50%;
-            transition: transform 0.2s ease;
-            box-shadow: 0 1px 3px rgba(0, 0, 0, 0.2);
-        }
-
-        .ios-toggle.active {
-            background: var(--ios-blue);
-        }
-
-        .ios-toggle.active:before {
-            transform: translateX(18px);
-        }
-
         /* Leaflet popup customization */
         .leaflet-popup-content-wrapper {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            -webkit-backdrop-filter: blur(20px);
-            border-radius: 16px;
-            border: 1px solid rgba(255, 255, 255, 0.2);
-            box-shadow: 0 8px 32px rgba(0, 0, 0, 0.15);
-            color: var(--ios-label);
+            padding: 1px;
+            border-radius: 12px;
+            background-color: #f9f9f9;
+            color: #1c1c1e; 
+            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
         }
-
         .leaflet-popup-content {
-            margin: 16px 20px;
-            line-height: 1.5;
-            font-size: 15px;
+            margin: 14px 20px;
+            line-height: 1.4;
         }
-
+        .leaflet-popup-tip-container {
+            width: 40px;
+            height: 20px;
+        }
         .leaflet-popup-tip {
-            background: rgba(255, 255, 255, 0.95);
+             background-color: #f9f9f9;
         }
-
-        .leaflet-popup-close-button {
-            color: var(--ios-gray);
-            font-size: 18px;
-            font-weight: 600;
+         .leaflet-popup-close-button {
+            color: #8e8e93;
         }
-
         .leaflet-popup-close-button:hover {
-            color: var(--ios-label);
+            color: #1c1c1e;
         }
-
+        
+        #loading-overlay {
+            transition: opacity 0.3s ease-in-out;
+        }
         .leaflet-container {
-            background: linear-gradient(135deg, #87CEEB 0%, #98D8E8 100%);
+            background: #aadaff;
         }
 
-        /* Modern emoji marker */
+        /* Style for the emoji marker */
         .emoji-marker {
             background: transparent;
             border: none;
-            font-size: 32px;
-            filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+            font-size: 26px; /* Slightly larger for better visibility */
+            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
         }
 
-        #toast {
-            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
-            transform: translateX(-50%) translateY(0);
-        }
-
-        /* Sidebar transitions */
+        /* Sidebar transition */
         #desktop-sidebar {
-            transition: all 0.4s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+        }
+        
+        /* Mobile list drawer transition */
+        #mobile-list-drawer {
+            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+        }
+        #mobile-list-drawer.is-collapsed {
+            transform: translateY(calc(100% - 60px - env(safe-area-inset-bottom))); /* Adjust for handle height */
         }
 
-        /* Loading animation */
-        @keyframes ios-spin {
-            from { transform: rotate(0deg); }
-            to { transform: rotate(360deg); }
-        }
 
-        .ios-spinner {
-            animation: ios-spin 1s linear infinite;
-        }
-
-        /* iOS-style section headers */
-        .ios-section-header {
-            font-size: 13px;
-            font-weight: 600;
-            color: var(--ios-secondary-label);
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-            margin-bottom: 8px;
-        }
-
-        /* Improved mobile drawer */
-        .mobile-drawer-handle {
-            width: 36px;
-            height: 5px;
-            background: var(--ios-quaternary-label);
-            border-radius: 3px;
-            margin: 8px auto;
-        }
-
-        /* Line clamp utility */
-        .line-clamp-2 {
-            display: -webkit-box;
-            -webkit-line-clamp: 2;
-            -webkit-box-orient: vertical;
-            overflow: hidden;
-        }
-
-        /* Margin utilities for responsive spacing */
-        .ml-10 {
-            margin-left: 2.5rem;
-        }
-
-        .ml-12 {
-            margin-left: 3rem;
-        }
-
-        .ml-13 {
-            margin-left: 3.25rem;
-        }
-
-        .ml-15 {
-            margin-left: 3.75rem;
-        }
-
-        /* Mobile-first responsive improvements */
-        @media (max-width: 767px) {
-            /* Mobile touch targets */
-            .ios-button-primary,
-            .ios-button-secondary {
-                min-height: 44px;
-                font-size: 15px;
-                padding: 12px 18px;
-            }
-
-            /* Mobile-optimized cards */
-            .ios-card {
-                padding: 14px;
-                margin-bottom: 10px;
-            }
-
-            /* Mobile key list items */
-            .key-list-item {
-                padding: 14px;
-                margin-bottom: 10px;
-                min-height: 70px;
-            }
-
-            /* Mobile-friendly toggle switches */
-            .ios-toggle {
-                width: 48px;
-                height: 28px;
-                min-width: 48px;
-            }
-
-            .ios-toggle:before {
-                width: 24px;
-                height: 24px;
-                top: 2px;
-                left: 2px;
-            }
-
-            .ios-toggle.active:before {
-                transform: translateX(20px);
-            }
-
-            /* Mobile header enhancements */
-            #mobile-header {
-                min-height: 60px;
-                padding: 14px;
-            }
-
-            /* Mobile drawer improvements */
-            #mobile-list-drawer {
-                height: 35vh;
-                min-height: 280px;
-            }
-
-            .mobile-drawer-handle {
-                width: 36px;
-                height: 5px;
-                margin: 10px auto;
-            }
-
-            /* Mobile map controls */
-            .leaflet-control-zoom {
-                margin-left: 14px !important;
-                margin-top: 74px !important;
-            }
-
-            .leaflet-control-zoom a {
-                width: 34px !important;
-                height: 34px !important;
-                line-height: 34px !important;
-                font-size: 18px !important;
-            }
-
-            /* Mobile filter panel */
-            #mobile-drawer-content {
-                width: 88%;
-                max-width: none;
-            }
-
-            /* Mobile typography */
-            .ios-section-header {
-                font-size: 11px;
-                margin-bottom: 10px;
-            }
-
-            /* Mobile toast */
-            #toast {
-                bottom: 20px;
-                padding: 10px 18px;
-                font-size: 14px;
-                border-radius: 20px;
-            }
-
-            /* Mobile inputs */
-            .ios-input,
-            .ios-select {
-                min-height: 40px;
-                font-size: 16px; /* Prevent zoom on iOS */
-            }
-        }
-
-        /* Desktop optimizations */
-        @media (min-width: 768px) {
-            /* Desktop hover states */
-            .key-list-item:hover {
-                transform: translateY(-2px);
-                box-shadow: 0 8px 25px rgba(0, 0, 0, 0.1);
-            }
-
-            /* Desktop sidebar - much narrower */
-            #desktop-sidebar {
-                min-width: 280px;
-                max-width: 320px;
-                width: 22vw;
-            }
-
-            /* Desktop button groups */
-            .desktop-button-group {
-                display: flex;
-                gap: 8px;
-            }
-
-            .desktop-button-group .ios-button-primary {
-                flex: 2;
-            }
-
-            .desktop-button-group .ios-button-secondary {
-                flex: 0 0 auto;
-                min-width: 48px;
-            }
-
-            /* Desktop map controls */
-            .leaflet-control-zoom {
-                margin-left: 20px !important;
-                margin-top: 20px !important;
-            }
-
-            .sidebar-collapsed .leaflet-control-zoom {
-                margin-left: 20px !important;
-                margin-top: 20px !important;
-            }
-
-            /* Desktop key list */
-            .key-list-item {
-                padding: 12px 16px;
-                margin-bottom: 6px;
-            }
-
-            /* Desktop scrollbars */
-            .ios-scrollbar::-webkit-scrollbar {
-                width: 6px;
-            }
-
-            .ios-scrollbar::-webkit-scrollbar-thumb {
-                background: rgba(0, 0, 0, 0.15);
-                border-radius: 3px;
-            }
-
-            .ios-scrollbar::-webkit-scrollbar-thumb:hover {
-                background: rgba(0, 0, 0, 0.25);
-            }
-
-            /* Desktop filter improvements */
-            .filter-row {
-                display: block;
-                space-y: 16px;
-            }
-
-            .filter-row > div {
-                margin-bottom: 16px;
-            }
-
-            .filter-row > div:last-child {
-                margin-bottom: 0;
-            }
-
-            /* Desktop toast positioning */
-            #toast {
-                bottom: 32px;
-                padding: 16px 24px;
-            }
-
-            /* Compact header */
-            .desktop-header {
-                padding: 16px 20px;
-            }
-
-            .desktop-header h1 {
-                font-size: 20px;
-            }
-
-            .desktop-header p {
-                font-size: 12px;
-            }
-        }
-
-        /* Large desktop optimizations */
-        @media (min-width: 1200px) {
-            #desktop-sidebar {
-                width: 20vw;
-                min-width: 300px;
-                max-width: 360px;
-            }
-
-            .key-list-item {
-                padding: 14px 18px;
-            }
-
-            /* Better spacing for large screens */
-            .space-y-6 > * + * {
-                margin-top: 1.5rem;
-            }
-        }
-
-        /* Tablet optimizations */
-        @media (min-width: 768px) and (max-width: 1023px) {
-            #desktop-sidebar {
-                width: 30vw;
-                min-width: 260px;
-                max-width: 300px;
-            }
-
-            /* Tablet-specific adjustments */
-            .ios-card {
-                padding: 14px;
-            }
-
-            .filter-row {
-                display: block;
-            }
-        }
-
-        /* Landscape mobile optimizations */
-        @media (max-height: 500px) and (orientation: landscape) {
-            #mobile-list-drawer {
-                height: 50vh;
-                min-height: 200px;
-            }
-
-            #mobile-header {
-                min-height: 56px;
-                padding: 12px 16px;
-            }
-
-            .leaflet-control-zoom {
-                margin-top: 68px !important;
-            }
-        }
-
-        /* High DPI display optimizations */
-        @media (-webkit-min-device-pixel-ratio: 2), (min-resolution: 192dpi) {
-            .emoji-marker {
-                font-size: 28px;
-            }
-
-            .leaflet-popup-content {
-                font-size: 16px;
-            }
-        }
-
-        /* Touch device optimizations */
-        @media (pointer: coarse) {
-            /* Larger touch targets */
-            button, .ios-toggle, .key-list-item {
-                min-height: 44px;
-            }
-
-            /* Remove hover effects on touch devices */
-            .ios-card:hover,
-            .key-list-item:hover,
-            .ios-button-primary:hover,
-            .ios-button-secondary:hover {
-                transform: none;
-                box-shadow: initial;
-            }
-
-            /* Touch-specific interactions */
-            .key-list-item:active {
-                transform: scale(0.98);
-                transition: transform 0.1s ease;
-            }
-        }
-
-        /* Mouse device optimizations */
-        @media (pointer: fine) {
-            /* Enhanced hover states for mouse users */
-            .expandable-item {
-                transition: var(--hover-transition);
-            }
-
-            .expandable-item:hover {
-                transform: translateY(-1px);
-            }
-
-            /* Cursor indicators */
-            .key-list-item,
-            .ios-toggle,
-            button {
-                cursor: pointer;
-            }
-
-            /* Subtle hover feedback */
-            .ios-input:hover,
-            .ios-select:hover {
-                border-color: var(--ios-blue);
-                transition: border-color 0.2s ease;
-            }
-        }
-
-        /* Reduced motion preferences */
-        @media (prefers-reduced-motion: reduce) {
-            *,
-            *::before,
-            *::after {
-                animation-duration: 0.01ms !important;
-                animation-iteration-count: 1 !important;
-                transition-duration: 0.01ms !important;
-            }
-
-            .ios-spinner {
-                animation: none;
-            }
-        }
     </style>
 </head>
-<body class="text-gray-900 font-sans antialiased">
+<body class="text-black font-sans antialiased">
 
-    <div id="app" class="h-screen w-screen flex flex-col md:flex-row overflow-hidden">
+    <div id="app" class="w-screen flex md:flex-row overflow-hidden bg-gray-100">
         <!-- Loading Overlay -->
-        <div id="loading-overlay" class="absolute inset-0 glass-effect-dark z-50 flex items-center justify-center transition-opacity duration-300">
-            <div class="text-center glass-effect rounded-3xl p-8 max-w-sm mx-4">
-                <div class="w-12 h-12 mx-auto mb-4 ios-spinner">
-                    <svg viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
-                        <circle cx="12" cy="12" r="10" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-dasharray="60" stroke-dashoffset="60" opacity="0.3"/>
-                        <circle cx="12" cy="12" r="10" stroke="var(--ios-blue)" stroke-width="2" stroke-linecap="round" stroke-dasharray="15" stroke-dashoffset="15"/>
-                    </svg>
-                </div>
-                <h2 class="text-xl font-semibold text-gray-900 mb-2">Loading Key Data</h2>
-                <p class="text-gray-600">Loading latest key locations...</p>
+        <div id="loading-overlay" class="absolute inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center">
+            <div class="text-center">
+                <svg class="mx-auto h-12 w-12 text-gray-400 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
+                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                </svg>
+                <h2 class="mt-4 text-xl font-semibold text-gray-700">Loading Key Data...</h2>
+                <p class="text-gray-500">Please wait a moment.</p>
             </div>
         </div>
 
         <!-- Desktop Sidebar -->
-        <aside id="desktop-sidebar" class="w-full md:w-72 lg:w-80 h-full flex flex-col flex-shrink-0 glass-effect border-r border-white/20">
-            <!-- Header -->
-            <div class="p-4 border-b border-white/10">
-                <div class="flex justify-between items-center mb-4">
-                    <div class="flex items-center space-x-3">
-                        <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center shadow-lg">
-                            <span class="text-lg">🔑</span>
-                        </div>
-                        <div>
-                            <h1 class="text-lg font-bold text-gray-900">Key Viewer</h1>
-                            <p class="text-xs text-gray-600 font-medium">Live Tracking</p>
-                        </div>
+        <aside id="desktop-sidebar" class="w-full md:w-1/3 lg:w-1/4 max-w-sm h-full flex-col flex-shrink-0 bg-gray-100 hidden md:flex">
+            <!-- Filter Panel -->
+            <div class="p-4 bg-gray-100 border-r border-gray-200">
+                 <div class="flex justify-between items-start mb-6 pt-4 px-2">
+                    <div class="flex flex-col items-center w-full">
+                         <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-12 w-12">
+                         <h1 class="text-2xl font-bold text-gray-800 pt-4">Keyzy</h1>
                     </div>
-                    <button id="collapse-sidebar-btn" title="Collapse Sidebar" class="p-2 text-gray-500 hover:bg-white/50 rounded-lg transition-all duration-200">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                            <path fill-rule="evenodd" d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" />
-                        </svg>
+                    <button id="collapse-sidebar-btn" title="Collapse Sidebar" class="p-2 text-gray-500 hover:bg-gray-200 rounded-full">
+                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z" clip-rule="evenodd" /></svg>
                     </button>
                 </div>
                 <div id="filter-panel-desktop">
-                    <!-- Filter content will be injected here -->
+                    <!-- Sidebar content will be injected here -->
                 </div>
             </div>
-            
             <!-- Key List -->
-            <div class="flex-grow min-h-0 p-3">
-                <div id="key-list-container-desktop" class="h-full overflow-y-auto ios-scrollbar">
+            <div class="flex-grow min-h-0 bg-gray-100 border-r border-gray-200 px-2">
+                <div id="key-list-container-desktop" class="h-full overflow-y-auto custom-scrollbar">
                     <!-- Key list items will be injected here -->
                 </div>
             </div>
         </aside>
 
-        <!-- Mobile Header -->
-        <div id="mobile-header" class="glass-effect border-b border-white/20 p-4 flex justify-between items-center z-20 md:hidden">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 bg-gradient-to-br from-blue-500 to-purple-600 rounded-xl flex items-center justify-center">
-                    <span class="text-lg">🔑</span>
+        <!-- Main Content (Map and Mobile UI) -->
+        <main class="flex-grow h-full flex flex-col relative">
+             <!-- Mobile Header -->
+            <header id="mobile-header" class="bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm p-2 flex justify-between items-center z-20 flex-shrink-0 md:hidden" style="padding-top: calc(env(safe-area-inset-top) + 0.5rem); padding-bottom: 0.5rem;">
+               <div class="flex items-center space-x-3 pl-2">
+                <h1 class="text-lg font-bold text-gray-800">Keyzy</h1>
+               </div>
+                <button id="open-filter-btn" class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+                </button>
+            </header>
+            
+            <div class="flex-grow relative">
+                <div id='map' class='w-full h-full z-10'></div>
+                <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-20 left-4 z-20 bg-white/80 backdrop-blur-lg p-2 rounded-lg shadow-lg text-gray-600 hover:bg-gray-200 border border-gray-200">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z" clip-rule="evenodd" /></svg>
+                </button>
+            </div>
+
+             <!-- Mobile Drawer for Key List -->
+             <div id="mobile-list-drawer" class="absolute bottom-0 left-0 right-0 h-1/3 bg-white/80 backdrop-blur-lg shadow-lg overflow-hidden rounded-t-lg z-20 flex flex-col border-t border-gray-200 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
+                <div id="mobile-list-handle" class="p-2 bg-transparent text-center cursor-grab">
+                    <div class="w-8 h-1 bg-gray-300 rounded-full mx-auto"></div>
+                    <h3 id="mobile-list-header" class="font-semibold text-gray-600 text-sm mt-1">0 Keys Found</h3>
                 </div>
-                <div>
-                    <h1 class="text-lg font-bold text-gray-900">Key Viewer</h1>
-                    <p class="text-xs text-gray-600">Live Tracking</p>
+                <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto custom-scrollbar">
+                    <!-- Mobile key list will be injected here -->
                 </div>
             </div>
-            <button id="open-filter-btn" class="p-3 text-gray-600 hover:bg-white/50 rounded-xl transition-all duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6V4m0 2a2 2 0 100 4m0-4a2 2 0 110 4m-6 8a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4m6 6v10m6-2a2 2 0 100-4m0 4a2 2 0 100 4m0-4v2m0-6V4" />
-                </svg>
-            </button>
-        </div>
-        
-        <!-- Main Content (Map) -->
-        <main class="flex-grow h-full relative">
-            <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-20 left-6 z-20 glass-effect p-3 rounded-2xl shadow-lg text-gray-600 hover:bg-white/70 transition-all duration-200">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
-                    <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
-                </svg>
-            </button>
-            <div id='map' class='w-full h-full z-10'></div>
-            <div id="toast" class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 glass-effect px-6 py-3 rounded-2xl shadow-lg text-sm font-medium transition-all duration-300">
+
+            <div id="toast" class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg text-sm transition-opacity duration-300">
                 Location copied to clipboard!
             </div>
         </main>
         
         <!-- Mobile Drawer for Filters -->
-        <div id="mobile-drawer" class="fixed inset-0 bg-black/20 z-30 hidden md:hidden">
-            <div id="mobile-drawer-content" class="absolute top-0 right-0 h-full w-4/5 max-w-sm glass-effect shadow-2xl transform translate-x-full transition-transform duration-400 ease-out">
-                <div class="p-6">
-                    <div class="flex justify-between items-center mb-6">
-                        <h2 class="text-xl font-bold text-gray-900">Filters</h2>
-                        <button id="close-filter-btn" class="p-2 text-gray-500 hover:bg-white/50 rounded-xl transition-all duration-200">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                            </svg>
-                        </button>
-                    </div>
-                    <div id="filter-panel-mobile">
-                        <!-- Mobile filter content will be injected here -->
-                    </div>
+        <div id="mobile-drawer" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden">
+            <div id="mobile-drawer-content" class="absolute bottom-0 left-0 right-0 max-h-[90vh] bg-gray-100 shadow-xl rounded-t-2xl p-4 transform translate-y-full transition-transform duration-300 ease-in-out overflow-y-auto" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);">
+                <div class="flex justify-between items-center mb-4">
+                    <h2 class="text-xl font-semibold text-gray-800">Filters</h2>
+                    <button id="close-filter-btn" class="p-2 h-auto bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-full">
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+                    </button>
                 </div>
-            </div>
-        </div>
-
-        <!-- Mobile Drawer for Key List -->
-        <div id="mobile-list-drawer" class="absolute bottom-0 left-0 right-0 h-1/3 glass-effect overflow-hidden rounded-t-3xl md:hidden z-20 flex flex-col border-t border-white/20 shadow-2xl">
-            <div class="p-4 text-center cursor-grab">
-                <div class="mobile-drawer-handle"></div>
-                <h3 id="mobile-list-header" class="font-semibold text-gray-700 text-sm">0 Keys Found</h3>
-            </div>
-            <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto ios-scrollbar px-4 pb-4">
-                <!-- Mobile key list will be injected here -->
+                <div id="filter-panel-mobile">
+                     <!-- Mobile filter content will be injected here -->
+                </div>
             </div>
         </div>
     </div>
 
     <script>
-        // --- DEVICE DETECTION & OPTIMIZATION ---
-        let isMobile = /iPhone|iPad|iPod|Android|BlackBerry|Opera Mini|IEMobile|WPDesktop/i.test(navigator.userAgent);
-        let isTouch = 'ontouchstart' in window || navigator.maxTouchPoints > 0;
-        let isDesktop = !isMobile && window.innerWidth >= 768;
-
-        // Apply device-specific optimizations
-        function applyDeviceOptimizations() {
-            const body = document.body;
-            const app = document.getElementById('app');
-            
-            if (isMobile || isTouch) {
-                body.classList.add('mobile-optimized');
-                app.classList.add('touch-device');
-            } else {
-                body.classList.add('desktop-optimized');
-                app.classList.add('mouse-device');
-            }
-
-            // Update on resize
-            window.addEventListener('resize', () => {
-                isDesktop = !isMobile && window.innerWidth >= 768;
-                updateResponsiveLayout();
-            });
-        }
-
-        function updateResponsiveLayout() {
-            const sidebar = document.getElementById('desktop-sidebar');
-            const mobileHeader = document.getElementById('mobile-header');
-            
-            if (window.innerWidth < 768) {
-                sidebar?.classList.add('hidden');
-                mobileHeader?.classList.remove('hidden');
-            } else {
-                mobileHeader?.classList.add('hidden');
-                if (sidebar?.classList.contains('hidden') && !sidebar?.dataset.manualHide) {
-                    sidebar?.classList.remove('hidden');
-                }
-            }
-        }
+        // Set dynamic height for mobile browsers
+        const setAppHeight = () => {
+            const doc = document.documentElement;
+            doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+        };
+        window.addEventListener('resize', setAppHeight);
+        setAppHeight();
 
         // --- CONFIG ---
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
-        const INITIAL_CENTER = [-28.0167, 153.4000]; // Fallback center if no data available
-        const INITIAL_ZOOM = 10; // Fallback zoom if no data available
+        const INITIAL_CENTER = [-28.0167, 153.4000]; // [Latitude, Longitude] for Leaflet
+        const INITIAL_ZOOM = 10;
         const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
 
         // --- STATE ---
         let map;
@@ -831,7 +227,7 @@
             startDate: null,
             endDate: null,
             keyset: 'all',
-            latestOnly: true, // Default to latest location only
+            latestOnly: true, // Default to showing latest location only
         };
         
         // --- DOM Elements ---
@@ -845,6 +241,8 @@
         const collapseBtn = document.getElementById('collapse-sidebar-btn');
         const expandBtn = document.getElementById('expand-sidebar-btn');
         const toastEl = document.getElementById('toast');
+        const mobileListDrawer = document.getElementById('mobile-list-drawer');
+        const mobileListHandle = document.getElementById('mobile-list-handle');
 
         /**
          * ===================================================================
@@ -853,67 +251,35 @@
          */
 
         function createFilterContent(keysetOptions) {
-            const isDesktopView = window.innerWidth >= 768;
-            
             return `
-                <div class="space-y-4">
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="ios-section-header">Date Range</div>
-                            <button name="clearDates" class="text-xs text-blue-500 hover:text-blue-700 font-medium">Clear</button>
+                <div class="space-y-6">
+                    <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm">
+                        <div class="p-3 flex justify-between items-center border-b border-gray-200/80">
+                            <label for="startDate" class="text-sm font-medium text-gray-700">Start Date</label>
+                            <input type="date" name="startDate" class="text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
                         </div>
-                        <div class="ios-card p-3 space-y-3">
-                            <div class="w-full">
-                                <label class="text-xs font-medium text-gray-700 mb-1 block">Start Date</label>
-                                <input type="date" name="startDate" class="ios-input text-sm w-full">
-                            </div>
-                            <div class="w-full">
-                                <label class="text-xs font-medium text-gray-700 mb-1 block">End Date</label>
-                                <input type="date" name="endDate" class="ios-input text-sm w-full">
-                            </div>
+                        <div class="p-3 flex justify-between items-center">
+                            <label for="endDate" class="text-sm font-medium text-gray-700">End Date</label>
+                            <input type="date" name="endDate" class="text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
                         </div>
                     </div>
 
-                    <div>
-                        <div class="flex justify-between items-center mb-2">
-                            <div class="ios-section-header">Keyset</div>
-                            <button name="clearKeyset" class="text-xs text-blue-500 hover:text-blue-700 font-medium">Clear</button>
-                        </div>
-                        <div class="ios-card p-3">
-                            <select name="keyset" class="ios-select w-full text-sm">
-                                <option value="all">All Keys</option>
-                                ${keysetOptions.map(k => `<option value="${k}">Keyset ${k}</option>`).join('')}
-                            </select>
-                        </div>
+                     <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
+                        <label for="keyset" class="text-sm font-medium text-gray-700">Keyset</label>
+                        <select name="keyset" class="w-1/2 text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
+                            <option value="all">All Keys</option>
+                            ${keysetOptions.map(k => `<option value="${k}">${k}</option>`).join('')}
+                        </select>
                     </div>
 
-                    <div>
-                        <div class="ios-section-header">Options</div>
-                        <div class="ios-card p-3">
-                            <div class="flex justify-between items-center">
-                                <div class="flex-1 pr-3">
-                                    <div class="font-medium text-gray-900 text-sm">Latest Location Only</div>
-                                    <div class="text-xs text-gray-600">Show most recent position</div>
-                                </div>
-                                <div class="ios-toggle active" data-toggle="latestOnly">
-                                    <input type="checkbox" name="latestOnly" class="hidden" checked>
-                                </div>
-                            </div>
-                        </div>
+                    <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
+                        <label for="latest-only" class="text-sm font-medium text-gray-700">Latest Location Only</label>
+                        <input id="latest-only" name="latestOnly" type="checkbox" class="h-5 w-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500" ${filters.latestOnly ? 'checked' : ''}>
                     </div>
                     
-                    <div class="flex space-x-2 pt-2">
-                        <button name="apply" class="flex-1 ios-button-primary text-sm py-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z" clip-rule="evenodd" />
-                            </svg>
-                            Search
-                        </button>
-                        <button name="reset" class="px-3 ios-button-secondary text-sm py-2">
-                            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
-                                <path fill-rule="evenodd" d="M4 2a1 1 0 011 1v2.101a7.002 7.002 0 0111.601 2.566 1 1 0 11-1.885.666A5.002 5.002 0 005.999 7H9a1 1 0 010 2H4a1 1 0 01-1-1V3a1 1 0 011-1zm.008 9.057a1 1 0 011.276.61A5.002 5.002 0 0014.001 13H11a1 1 0 110-2h5a1 1 0 011 1v5a1 1 0 11-2 0v-2.101a7.002 7.002 0 01-11.601-2.566 1 1 0 01.61-1.276z" clip-rule="evenodd" />
-                            </svg>
-                        </button>
+                    <div class="pt-4 space-y-3">
+                        <button name="apply" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-blue-500 text-white hover:bg-blue-600 h-11 px-4 py-2 transition-colors shadow-sm">Find</button>
+                        <button name="reset" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 h-11 px-4 py-2 transition-colors">Reset</button>
                     </div>
                 </div>
             `;
@@ -921,52 +287,32 @@
 
         function createKeyListItem(item, isSelected) {
             const date = new Date(item.properties.datetime);
-            const dateStr = isNaN(date) ? 'N/A' : date.toLocaleDateString('en-US', { 
-                month: 'short', 
-                day: 'numeric',
-                hour: 'numeric',
-                minute: '2-digit'
-            });
+            const dateStr = isNaN(date) ? 'N/A' : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
             
-            const isDesktopView = window.innerWidth >= 768;
-            const cardClass = isSelected ? 'ios-card-selected' : 'ios-card';
-            const avatarSize = isDesktopView ? 'w-8 h-8' : 'w-10 h-10';
-            const textSizes = isDesktopView ? 'text-xs' : 'text-sm';
-            
-            const shareButtonHTML = `
-                <div class="mt-2 pt-2 border-t border-gray-100">
-                    <button class="message-btn w-full ios-button-secondary text-xs py-1.5 min-h-[36px]"
+            const shareButtonHTML = isSelected ? `
+                <div class="mt-3 pt-3 border-t border-gray-200">
+                    <button class="message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
                         data-lat="${item.geometry.coordinates[1]}"
                         data-lon="${item.geometry.coordinates[0]}"
                         data-name="${item.properties.name}"
                         data-address="${item.properties.addresslabel || 'N/A'}"
                         data-datetime="${dateStr}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-3 w-3 mr-1" viewBox="0 0 20 20" fill="currentColor">
-                            <path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" />
-                        </svg>
-                        ${isDesktopView ? 'Share' : 'Share Location'}
+                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+                        Message Location
                     </button>
                 </div>
-            `;
+            ` : '';
 
             return `
-                <div class="key-list-item ${cardClass} p-3 cursor-pointer mb-2 transition-all duration-200 expandable-item"
-                     data-key-id="${item.properties.id}">
-                    <div class="flex items-center justify-between mb-1">
-                        <div class="flex items-center space-x-2 min-w-0 flex-1">
-                            <div class="${avatarSize} bg-gradient-to-br from-blue-500 to-purple-600 rounded-lg flex items-center justify-center flex-shrink-0">
-                                <span class="text-white text-sm">🔑</span>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <p class="font-semibold text-gray-900 truncate text-sm">Keyset ${item.properties.name}</p>
-                                <p class="text-xs text-gray-500 truncate">${dateStr}</p>
-                            </div>
-                        </div>
-                        ${isSelected ? '<div class="w-2 h-2 bg-blue-500 rounded-full flex-shrink-0"></div>' : ''}
+                <div
+                    class="key-list-item p-4 rounded-xl cursor-pointer transition-shadow duration-300 ${isSelected ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}"
+                    data-key-id="${item.properties.id}"
+                >
+                    <div class="flex items-center justify-between">
+                        <p class="font-semibold text-gray-800">${item.properties.name}</p>
                     </div>
-                    <div class="${isDesktopView ? 'ml-10' : 'ml-12'}">
-                        <p class="${textSizes} text-gray-600 line-clamp-2">${item.properties.addresslabel || 'Address not available'}</p>
-                    </div>
+                    <p class="text-sm text-gray-600 truncate pt-1">${item.properties.addresslabel || 'Address not available'}</p>
+                    <p class="text-xs text-gray-500 pt-1">${dateStr}</p>
                     ${shareButtonHTML}
                 </div>
             `;
@@ -975,71 +321,32 @@
         function renderKeyList(items) {
             try {
                 if (items.length === 0) {
-                    const emptyStateIcon = isDesktop ? '🔍' : '📱';
-                    const noResultsHTML = `
-                        <div class="text-center py-12">
-                            <div class="w-16 h-16 bg-gray-100 rounded-2xl flex items-center justify-center mx-auto mb-4">
-                                <span class="text-2xl">${emptyStateIcon}</span>
-                            </div>
-                            <p class="text-gray-500 font-medium">No keys found</p>
-                            <p class="text-sm text-gray-400 mt-1">Try adjusting your filters</p>
-                            ${hasActiveFilters() ? `
-                                <button class="mt-4 text-blue-500 hover:text-blue-700 text-sm font-medium min-h-[44px] px-4 py-2 rounded-lg" onclick="clearAllFilters()">
-                                    Clear all filters
-                                </button>
-                            ` : ''}
-                        </div>
-                    `;
+                    const noResultsHTML = `<div class="p-4 text-center text-gray-500">No keys found.</div>`;
                     keyListDesktop.innerHTML = noResultsHTML;
                     keyListMobile.innerHTML = noResultsHTML;
                     mobileListHeader.textContent = '0 Keys Found';
                     return;
                 }
 
-                const listHTML = items.map(item => createKeyListItem(item, item.properties.id === selectedKeyId)).join('');
+                const listHTML = `<div class="space-y-3 p-2">${items.map(item => createKeyListItem(item, item.properties.id === selectedKeyId)).join('')}</div>`;
                 keyListDesktop.innerHTML = listHTML;
                 keyListMobile.innerHTML = listHTML;
-                
-                const filterIndicator = hasActiveFilters() ? ' (Filtered)' : '';
-                const countText = `${items.length} Key${items.length !== 1 ? 's' : ''} Found${filterIndicator}`;
-                mobileListHeader.textContent = countText;
+                mobileListHeader.textContent = `${items.length} Keys Found`;
 
-                // Add event listeners and accessibility
-                document.querySelectorAll('.key-list-item').forEach((el, index) => {
-                    // Make focusable for keyboard navigation
-                    el.setAttribute('tabindex', '0');
-                    el.setAttribute('role', 'button');
-                    el.setAttribute('aria-label', `Select keyset ${el.dataset.keyId}`);
-                    
-                    // Add touch/click handlers
+                document.querySelectorAll('.key-list-item').forEach(el => {
                     el.addEventListener('click', (e) => {
-                        if (e.target.closest('.message-btn')) return; 
-                        handleKeySelection(el);
-                    });
-
-                    // Touch feedback for mobile
-                    if (isMobile || isTouch) {
-                        el.addEventListener('touchstart', () => {
-                            el.style.transform = 'scale(0.98)';
-                        });
-                        
-                        el.addEventListener('touchend', () => {
-                            setTimeout(() => {
-                                el.style.transform = '';
-                            }, 150);
-                        });
-                    }
-
-                    // Keyboard navigation
-                    el.addEventListener('keydown', (e) => {
-                        if (e.key === 'Enter' || e.key === ' ') {
-                            e.preventDefault();
-                            handleKeySelection(el);
+                         if (e.target.closest('.message-btn')) return; 
+                        const keyId = parseInt(el.dataset.keyId);
+                        const key = allData.find(d => d.properties.id === keyId);
+                        if (key) {
+                            selectedKeyId = key.properties.id;
+                            map.flyTo([key.geometry.coordinates[1], key.geometry.coordinates[0]], 16);
+                            runFilters(false); 
                         }
                     });
                 });
                 
-                document.querySelectorAll('.message-btn').forEach(el => {
+                 document.querySelectorAll('.message-btn').forEach(el => {
                     el.addEventListener('click', handleMessageButtonClick);
                 });
 
@@ -1047,87 +354,15 @@
                 console.error("Error rendering key list:", err);
             }
         }
-
-        function handleKeySelection(element) {
-            const keyId = parseInt(element.dataset.keyId);
-            const key = allData.find(d => d.properties.id === keyId);
-            if (key) {
-                selectedKeyId = key.properties.id;
-                
-                // Smooth map transition
-                if (isDesktop) {
-                    map.flyTo([key.geometry.coordinates[1], key.geometry.coordinates[0]], 16, {
-                        duration: 1.5
-                    });
-                } else {
-                    map.setView([key.geometry.coordinates[1], key.geometry.coordinates[0]], 16);
-                }
-                
-                runFilters(false);
-                
-                // Scroll selected item into view
-                setTimeout(() => {
-                    element.scrollIntoView({ 
-                        behavior: 'smooth', 
-                        block: 'center' 
-                    });
-                }, 100);
-            }
-        }
         
         function setupEventListeners() {
             const filterForms = [filterPanelDesktop, filterPanelMobile];
             filterForms.forEach(container => {
-                // iOS toggle switches
-                const toggles = container.querySelectorAll('.ios-toggle');
-                toggles.forEach(toggle => {
-                    const checkbox = toggle.querySelector('input[type="checkbox"]');
-                    const toggleName = toggle.dataset.toggle;
-                    
-                    toggle.addEventListener('click', () => {
-                        checkbox.checked = !checkbox.checked;
-                        toggle.classList.toggle('active', checkbox.checked);
-                    });
-                    
-                    // Set initial state
-                    if (filters[toggleName]) {
-                        checkbox.checked = true;
-                        toggle.classList.add('active');
-                    }
-                });
-
-                // Clear buttons
-                const clearDatesBtn = container.querySelector('button[name="clearDates"]');
-                const clearKeysetBtn = container.querySelector('button[name="clearKeyset"]');
-                
-                if (clearDatesBtn) {
-                    clearDatesBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        container.querySelector('[name="startDate"]').value = '';
-                        container.querySelector('[name="endDate"]').value = '';
-                        filters.startDate = null;
-                        filters.endDate = null;
-                        selectedKeyId = null;
-                        runFilters();
-                    });
-                }
-                
-                if (clearKeysetBtn) {
-                    clearKeysetBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
-                        container.querySelector('[name="keyset"]').value = 'all';
-                        filters.keyset = 'all';
-                        selectedKeyId = null;
-                        runFilters();
-                    });
-                }
-
                 const applyBtn = container.querySelector('button[name="apply"]');
                 const resetBtn = container.querySelector('button[name="reset"]');
 
                 if (applyBtn) {
-                    applyBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
+                    applyBtn.addEventListener('click', () => {
                         selectedKeyId = null; 
                         filters.startDate = container.querySelector('[name="startDate"]').value || null;
                         filters.endDate = container.querySelector('[name="endDate"]').value || null;
@@ -1143,63 +378,22 @@
                 }
                 
                 if (resetBtn) {
-                    resetBtn.addEventListener('click', (e) => {
-                        e.preventDefault();
+                    resetBtn.addEventListener('click', () => {
                         selectedKeyId = null; 
                         container.querySelector('[name="startDate"]').value = '';
                         container.querySelector('[name="endDate"]').value = '';
                         container.querySelector('[name="keyset"]').value = 'all';
-                        container.querySelector('[name="latestOnly"]').checked = true;
-                        
-                        // Reset toggle switches - keep latestOnly active
-                        container.querySelectorAll('.ios-toggle').forEach(toggle => {
-                            if (toggle.dataset.toggle === 'latestOnly') {
-                                toggle.classList.add('active');
-                            } else {
-                                toggle.classList.remove('active');
-                            }
-                        });
+                        container.querySelector('[name="latestOnly"]').checked = true; // Reset to default
 
                         filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
-                        // Fit map to show all keys when resetting
-                        runFilters(true);
-                    });
-                }
-
-                // Auto-apply filters when date inputs change
-                const dateInputs = container.querySelectorAll('input[type="date"]');
-                dateInputs.forEach(input => {
-                    input.addEventListener('change', () => {
-                        filters.startDate = container.querySelector('[name="startDate"]').value || null;
-                        filters.endDate = container.querySelector('[name="endDate"]').value || null;
-                        selectedKeyId = null;
-                        runFilters();
-                    });
-                });
-
-                // Auto-apply filters when keyset changes
-                const keysetSelect = container.querySelector('[name="keyset"]');
-                if (keysetSelect) {
-                    keysetSelect.addEventListener('change', () => {
-                        filters.keyset = keysetSelect.value;
-                        selectedKeyId = null;
                         runFilters();
                     });
                 }
             });
 
-            // Desktop sidebar controls
-            collapseBtn.addEventListener('click', () => {
-                desktopSidebar.dataset.manualHide = 'true';
-                toggleDesktopSidebar(false);
-            });
-            
-            expandBtn.addEventListener('click', () => {
-                delete desktopSidebar.dataset.manualHide;
-                toggleDesktopSidebar(true);
-            });
+            collapseBtn.addEventListener('click', () => toggleDesktopSidebar(false));
+            expandBtn.addEventListener('click', () => toggleDesktopSidebar(true));
 
-            // Mobile drawer controls
             const mobileDrawer = document.getElementById('mobile-drawer');
             document.getElementById('open-filter-btn').addEventListener('click', () => toggleMobileDrawer(true));
             document.getElementById('close-filter-btn').addEventListener('click', () => toggleMobileDrawer(false));
@@ -1209,128 +403,29 @@
                 }
             });
 
-            // Mobile list drawer gestures
-            setupMobileDrawerGestures();
-
-            // Keyboard navigation
-            setupKeyboardNavigation();
-
-            // Device orientation change
-            window.addEventListener('orientationchange', () => {
-                setTimeout(() => {
-                    updateResponsiveLayout();
-                    if (map) map.invalidateSize();
-                }, 100);
-            });
-        }
-
-        function setupMobileDrawerGestures() {
-            const mobileListDrawer = document.getElementById('mobile-list-drawer');
-            const handle = mobileListDrawer.querySelector('.mobile-drawer-handle').parentElement;
-            
-            let startY = 0;
-            let currentY = 0;
-            let isDragging = false;
-            let initialHeight = 0;
-
-            const handleTouchStart = (e) => {
-                startY = e.touches[0].clientY;
-                initialHeight = mobileListDrawer.offsetHeight;
-                isDragging = true;
-                mobileListDrawer.style.transition = 'none';
-            };
-
-            const handleTouchMove = (e) => {
-                if (!isDragging) return;
-                
-                currentY = e.touches[0].clientY;
-                const deltaY = startY - currentY;
-                const newHeight = Math.max(200, Math.min(window.innerHeight * 0.8, initialHeight + deltaY));
-                
-                mobileListDrawer.style.height = `${newHeight}px`;
-                e.preventDefault();
-            };
-
-            const handleTouchEnd = () => {
-                if (!isDragging) return;
-                
-                isDragging = false;
-                mobileListDrawer.style.transition = '';
-                
-                const currentHeight = mobileListDrawer.offsetHeight;
-                const screenHeight = window.innerHeight;
-                
-                // Snap to appropriate height
-                if (currentHeight < screenHeight * 0.25) {
-                    mobileListDrawer.style.height = '300px';
-                } else if (currentHeight > screenHeight * 0.6) {
-                    mobileListDrawer.style.height = '80vh';
-                } else {
-                    mobileListDrawer.style.height = '40vh';
-                }
-            };
-
-            if (isMobile || isTouch) {
-                handle.addEventListener('touchstart', handleTouchStart, { passive: false });
-                handle.addEventListener('touchmove', handleTouchMove, { passive: false });
-                handle.addEventListener('touchend', handleTouchEnd);
-            }
-        }
-
-        function setupKeyboardNavigation() {
-            if (!isDesktop) return;
-
-            document.addEventListener('keydown', (e) => {
-                // ESC to close mobile drawer
-                if (e.key === 'Escape') {
-                    const mobileDrawer = document.getElementById('mobile-drawer');
-                    if (!mobileDrawer.classList.contains('hidden')) {
-                        toggleMobileDrawer(false);
-                    }
-                }
-
-                // Ctrl/Cmd + F to focus on keyset filter
-                if ((e.ctrlKey || e.metaKey) && e.key === 'f') {
-                    e.preventDefault();
-                    const keysetSelect = document.querySelector('[name="keyset"]');
-                    if (keysetSelect) keysetSelect.focus();
-                }
-
-                // Ctrl/Cmd + R to reset filters
-                if ((e.ctrlKey || e.metaKey) && e.key === 'r') {
-                    e.preventDefault();
-                    clearAllFilters();
-                }
+            // Mobile List Drawer Swipe/Tap handler
+            let touchStartY = 0;
+            mobileListHandle.addEventListener('click', () => {
+                setListDrawerState(!mobileListDrawer.classList.contains('is-collapsed'));
             });
 
-            // Arrow key navigation for key list
-            document.addEventListener('keydown', (e) => {
-                const focusedItem = document.activeElement;
-                if (focusedItem && focusedItem.classList.contains('key-list-item')) {
-                    let nextItem = null;
-                    
-                    if (e.key === 'ArrowDown') {
-                        nextItem = focusedItem.nextElementSibling;
-                    } else if (e.key === 'ArrowUp') {
-                        nextItem = focusedItem.previousElementSibling;
-                    } else if (e.key === 'Enter' || e.key === ' ') {
-                        focusedItem.click();
-                        return;
-                    }
-                    
-                    if (nextItem && nextItem.classList.contains('key-list-item')) {
-                        nextItem.focus();
-                        e.preventDefault();
-                    }
-                }
-            });
+            mobileListHandle.addEventListener('touchstart', (e) => {
+                touchStartY = e.touches[0].clientY;
+            }, { passive: true });
 
-            // Make key list items focusable
-            document.addEventListener('DOMContentLoaded', () => {
-                const keyItems = document.querySelectorAll('.key-list-item');
-                keyItems.forEach(item => {
-                    item.setAttribute('tabindex', '0');
-                });
+            mobileListHandle.addEventListener('touchend', (e) => {
+                if (touchStartY === 0) return;
+                const touchEndY = e.changedTouches[0].clientY;
+                const deltaY = touchEndY - touchStartY;
+                touchStartY = 0;
+                
+                if (Math.abs(deltaY) < 50) return;
+
+                if (deltaY > 0) { // Swipe down
+                    setListDrawerState(true); // Collapse
+                } else { // Swipe up
+                    setListDrawerState(false); // Expand
+                }
             });
         }
         
@@ -1343,152 +438,54 @@
             const address = button.dataset.address;
             const datetime = button.dataset.datetime;
 
-            // Show loading state
-            const originalText = button.innerHTML;
-            button.innerHTML = `
-                <svg class="animate-spin h-4 w-4 mr-2" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                Sharing...
-            `;
-            button.disabled = true;
-
-            const googleMapsUrl = `https://www.google.com/maps?q=${lat},${lon}`;
-            const appleMapsUrl = `https://maps.apple.com/?q=${lat},${lon}`;
-            
-            const shareMessage = `The last Keyzy location for;
-Key ${name} Address: ${address} Time: ${datetime}
-View on map: ${googleMapsUrl}`;
-
+            const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
             const shareData = {
-                title: `Key ${name} Location`,
-                text: shareMessage,
-                url: googleMapsUrl,
+                title: `The last Keyzy location for;`,
+                text: `The last Keyzy location for;\n\nKey ${name}\nAddress: ${address}\nTime: ${datetime}\n\nView on map:\n${mapUrl}`,
+                url: mapUrl,
             };
 
             try {
-                if (navigator.share && /iPhone|iPad|iPod|Android/i.test(navigator.userAgent)) {
+                if (navigator.share) {
                     await navigator.share(shareData);
-                    showToast("Location shared successfully! 📱");
                 } else {
-                    throw new Error('Using clipboard fallback');
+                    throw new Error('Web Share API not supported.');
                 }
             } catch (err) {
-                console.log('Share failed, using clipboard:', err);
+                console.log('Share failed, falling back to clipboard:', err);
+                const fullMessage = shareData.text;
                 try {
-                    await navigator.clipboard.writeText(shareMessage);
-                    showToast("📋 Location copied to clipboard!");
+                    await navigator.clipboard.writeText(fullMessage);
+                    showToast("Location copied to clipboard!");
                 } catch (copyErr) {
                     console.error('Failed to copy to clipboard:', copyErr);
-                    // Fallback: create a temporary textarea
-                    const textArea = document.createElement('textarea');
-                    textArea.value = shareMessage;
-                    document.body.appendChild(textArea);
-                    textArea.select();
-                    textArea.setSelectionRange(0, 99999);
-                    try {
-                        document.execCommand('copy');
-                        showToast("📋 Location copied to clipboard!");
-                    } catch (execErr) {
-                        showToast("❌ Failed to copy location");
-                    }
-                    document.body.removeChild(textArea);
+                    showToast("Failed to copy location.");
                 }
-            } finally {
-                // Restore button state
-                setTimeout(() => {
-                    button.innerHTML = originalText;
-                    button.disabled = false;
-                }, 1000);
             }
         }
         
         function showToast(message) {
-            toastEl.innerHTML = message;
+            toastEl.textContent = message;
             toastEl.classList.remove('hidden');
-            toastEl.style.opacity = '0';
-            toastEl.style.transform = 'translateX(-50%) translateY(20px)';
-            
-            // Animate in
             setTimeout(() => {
-                toastEl.style.opacity = '1';
-                toastEl.style.transform = 'translateX(-50%) translateY(0)';
-            }, 10);
-            
-            // Animate out
-            setTimeout(() => {
-                toastEl.style.opacity = '0';
-                toastEl.style.transform = 'translateX(-50%) translateY(20px)';
-                setTimeout(() => {
-                    toastEl.classList.add('hidden');
-                }, 300);
+                toastEl.classList.add('hidden');
             }, 3000);
         }
 
-        function hasActiveFilters() {
-            return filters.startDate || filters.endDate || filters.keyset !== 'all' || filters.latestOnly === false;
-        }
-
-        function clearAllFilters() {
-            selectedKeyId = null;
-            filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
-            
-            // Clear form inputs but keep latestOnly checked
-            document.querySelectorAll('[name="startDate"]').forEach(el => el.value = '');
-            document.querySelectorAll('[name="endDate"]').forEach(el => el.value = '');
-            document.querySelectorAll('[name="keyset"]').forEach(el => el.value = 'all');
-            document.querySelectorAll('[name="latestOnly"]').forEach(el => el.checked = true);
-            document.querySelectorAll('.ios-toggle').forEach(toggle => {
-                if (toggle.dataset.toggle === 'latestOnly') {
-                    toggle.classList.add('active');
-                } else {
-                    toggle.classList.remove('active');
-                }
-            });
-            
-            // Fit map to show all keys again
-            runFilters(true);
-        }
-
         function toggleDesktopSidebar(show) {
-            const mapContainer = document.getElementById('map');
             if (show) {
                 desktopSidebar.classList.remove('hidden');
                 expandBtn.classList.add('hidden');
-                mapContainer.classList.remove('sidebar-collapsed');
             } else {
                 desktopSidebar.classList.add('hidden');
                 expandBtn.classList.remove('hidden');
-                mapContainer.classList.add('sidebar-collapsed');
             }
-            
-            // Invalidate map size and update controls positioning
-            setTimeout(() => {
-                if (map) {
-                    map.invalidateSize();
-                    updateMapControlsPosition();
-                }
-            }, 400);
+            setTimeout(() => map && map.invalidateSize(), 310);
         }
-
-        function updateMapControlsPosition() {
-            const zoomControl = document.querySelector('.leaflet-control-zoom');
-            if (zoomControl) {
-                const isSidebarCollapsed = document.getElementById('map').classList.contains('sidebar-collapsed');
-                const isDesktopView = window.innerWidth >= 768;
-                
-                if (isDesktopView) {
-                    if (isSidebarCollapsed) {
-                        zoomControl.style.marginLeft = '20px';
-                    } else {
-                        zoomControl.style.marginLeft = '20px';
-                    }
-                } else {
-                    zoomControl.style.marginLeft = '16px';
-                    zoomControl.style.marginTop = '80px';
-                }
-            }
+        
+        function setListDrawerState(collapsed) {
+             mobileListDrawer.classList.toggle('is-collapsed', collapsed);
+             setTimeout(() => map && map.invalidateSize(), 310);
         }
 
         function toggleMobileDrawer(show) {
@@ -1496,10 +493,10 @@ View on map: ${googleMapsUrl}`;
             const content = document.getElementById('mobile-drawer-content');
             if (show) {
                 drawer.classList.remove('hidden');
-                setTimeout(() => content.classList.remove('translate-x-full'), 10);
+                setTimeout(() => content.classList.remove('translate-y-full'), 10);
             } else {
-                content.classList.add('translate-x-full');
-                setTimeout(() => drawer.classList.add('hidden'), 400);
+                content.classList.add('translate-y-full');
+                setTimeout(() => drawer.classList.add('hidden'), 300);
             }
         }
 
@@ -1510,9 +507,6 @@ View on map: ${googleMapsUrl}`;
          */
         
         async function fetchData() {
-            // Apply device optimizations first
-            applyDeviceOptimizations();
-            
             loadingOverlay.style.opacity = '1';
             loadingOverlay.classList.remove('hidden');
             
@@ -1559,36 +553,21 @@ View on map: ${googleMapsUrl}`;
                         
                         setupEventListeners();
                         initializeMap();
-                        updateResponsiveLayout();
-                        
-                        // Auto-fit map to show all keys on initial load
-                        runFilters(true);
+                        runFilters();
 
                     } catch (err) {
                         console.error("Error processing CSV data:", err);
-                        loadingOverlay.innerHTML = `
-                            <div class="glass-effect rounded-3xl p-8 max-w-sm mx-4 text-center">
-                                <div class="text-red-500 text-4xl mb-4">⚠️</div>
-                                <h2 class="text-xl font-semibold text-gray-900 mb-2">Error Loading Data</h2>
-                                <p class="text-gray-600">Failed to process key data. Please try again later.</p>
-                            </div>
-                        `;
+                        loadingOverlay.innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Failed to process data. See console for details.</div>`;
                     } finally {
-                        setTimeout(() => {
+                         setTimeout(() => {
                             loadingOverlay.style.opacity = '0';
                             setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
-                        }, 800);
+                        }, 500);
                     }
                 },
                 error: (error) => {
                     console.error("Error fetching or parsing data:", error);
-                    loadingOverlay.innerHTML = `
-                        <div class="glass-effect rounded-3xl p-8 max-w-sm mx-4 text-center">
-                            <div class="text-red-500 text-4xl mb-4">📡</div>
-                            <h2 class="text-xl font-semibold text-gray-900 mb-2">Connection Error</h2>
-                            <p class="text-gray-600">Unable to fetch key data. Please check your connection.</p>
-                        </div>
-                    `;
+                    loadingOverlay.innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Failed to download key data from the source.</div>`;
                 }
             });
         }
@@ -1597,47 +576,29 @@ View on map: ${googleMapsUrl}`;
             try {
                 let data = [...allData];
 
-                const formatDateFromCSV = (csvDatetime) => {
+                const parseDateFromCSV = (csvDatetime) => {
                     if (!csvDatetime || typeof csvDatetime !== 'string') return null;
-                    
-                    // Handle different date formats
-                    let dateStr = csvDatetime.split(' ')[0]; // Get date part only
-                    
-                    // If it's already in YYYY-MM-DD format
-                    if (dateStr.match(/^\d{4}-\d{2}-\d{2}$/)) {
-                        return dateStr;
-                    }
-                    
-                    // Handle MM/DD/YYYY format
-                    const parts = dateStr.split('/');
-                    if (parts.length === 3) {
-                        const [month, day, year] = parts;
-                        if (month && day && year && year.length === 4) {
-                            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                        }
-                    }
-                    
-                    // Handle DD/MM/YYYY format
-                    if (parts.length === 3) {
-                        const [day, month, year] = parts;
-                        if (day && month && year && year.length === 4) {
-                            return `${year}-${month.padStart(2, '0')}-${day.padStart(2, '0')}`;
-                        }
-                    }
-                    
-                    return null;
+                    const [datePart] = csvDatetime.split(' ');
+                    const parts = datePart.split('/');
+                    if (parts.length !== 3) {
+                         const isoParts = datePart.split('-');
+                        if(isoParts.length === 3) return datePart;
+                        return null;
+                    };
+                    const [day, month, year] = parts;
+                    if (!day || !month || !year || String(year).length < 4) return null;
+                    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
                 };
                 
-                // Date Range Filtering
                 if (filters.startDate) {
                     data = data.filter(item => {
-                        const itemDateStr = formatDateFromCSV(item.properties.datetime);
+                        const itemDateStr = parseDateFromCSV(item.properties.datetime);
                         return itemDateStr && itemDateStr >= filters.startDate;
                     });
                 }
                 if (filters.endDate) {
                     data = data.filter(item => {
-                        const itemDateStr = formatDateFromCSV(item.properties.datetime);
+                        const itemDateStr = parseDateFromCSV(item.properties.datetime);
                         return itemDateStr && itemDateStr <= filters.endDate;
                     });
                 }
@@ -1672,8 +633,9 @@ View on map: ${googleMapsUrl}`;
 
         function initializeMap() {
             try {
-                // Initialize map with a temporary center - we'll fit to data bounds after loading
-                map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
+                map = L.map('map', { zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
+                L.control.zoom({ position: 'topright' }).addTo(map);
+
 
                 L.tileLayer(TILE_URL, {
                     attribution: TILE_ATTRIBUTION,
@@ -1684,16 +646,8 @@ View on map: ${googleMapsUrl}`;
                 pathLayer.addTo(map);
 
             } catch (err) {
-                console.error("Failed to initialize map:", err);
-                document.getElementById('map').innerHTML = `
-                    <div class="h-full flex items-center justify-center">
-                        <div class="glass-effect rounded-3xl p-8 text-center">
-                            <div class="text-red-500 text-4xl mb-4">🗺️</div>
-                            <h3 class="text-lg font-semibold text-gray-900 mb-2">Map Unavailable</h3>
-                            <p class="text-gray-600">Unable to load the map component.</p>
-                        </div>
-                    </div>
-                `;
+                 console.error("Failed to initialize map:", err);
+                 document.getElementById('map').innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Map could not be loaded.</div>`;
             }
         }
 
@@ -1703,19 +657,15 @@ View on map: ${googleMapsUrl}`;
             pathLayer.clearLayers();
 
             if (data.length === 0) {
-                // If no data, center on default location
-                if (fitMapToBounds && allData.length === 0) {
-                    map.setView(INITIAL_CENTER, INITIAL_ZOOM);
-                }
                 return; 
             }
             
             const keyIcon = L.divIcon({
                 html: '🔑',
                 className: 'emoji-marker',
-                iconSize: [36, 36],
-                iconAnchor: [18, 36],
-                popupAnchor: [0, -30]
+                iconSize: [30, 30],
+                iconAnchor: [15, 30],
+                popupAnchor: [0, -25]
             });
 
             data.forEach(item => {
@@ -1723,19 +673,13 @@ View on map: ${googleMapsUrl}`;
                 const lon = item.geometry.coordinates[0];
                 
                 const date = new Date(item.properties.datetime);
-                const dateStr = isNaN(date) ? 'N/A' : date.toLocaleDateString('en-US', { 
-                    weekday: 'short',
-                    month: 'short', 
-                    day: 'numeric',
-                    hour: 'numeric',
-                    minute: '2-digit'
-                });
+                const dateStr = isNaN(date) ? 'N/A' : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
 
                 const popupContent = `
-                    <div class="text-center">
-                        <h3 class="font-bold text-lg mb-2">Keyset ${item.properties.name}</h3>
-                        <p class="text-sm text-gray-600 mb-2">${item.properties.addresslabel || 'Address not available'}</p>
-                        <p class="text-xs text-gray-500">${dateStr}</p>
+                    <div class="p-2">
+                        <h3 class="font-bold text-base mb-1">${item.properties.name}</h3>
+                        <p class="text-sm text-gray-600">${item.properties.addresslabel || 'Address not available'}</p>
+                        <p class="text-xs text-gray-500 mt-1">${dateStr}</p>
                     </div>
                 `;
 
@@ -1748,48 +692,20 @@ View on map: ${googleMapsUrl}`;
             if (filters.keyset !== 'all' && !filters.latestOnly && data.length > 1) {
                 const pathData = [...data].sort((a,b) => new Date(a.properties.datetime) - new Date(b.properties.datetime));
                 const latlngs = pathData.map(item => [item.geometry.coordinates[1], item.geometry.coordinates[0]]);
-                const polyline = L.polyline(latlngs, { 
-                    color: 'var(--ios-blue)', 
-                    weight: 4, 
-                    opacity: 0.8,
-                    dashArray: '10, 5',
-                    lineCap: 'round'
-                });
+                const polyline = L.polyline(latlngs, { color: '#007aff', weight: 3, opacity: 0.8 });
                 pathLayer.addLayer(polyline);
             }
             
             if (fitMapToBounds && data.length > 0) {
-                try {
-                    const bounds = markersLayer.getBounds();
-                    if (bounds.isValid()) {
-                        // Add padding and set max zoom for better initial view
-                        const padding = data.length === 1 ? [100, 100] : [50, 50];
-                        const maxZoom = data.length === 1 ? 15 : 16;
-                        
-                        map.fitBounds(bounds, { 
-                            padding: padding, 
-                            maxZoom: maxZoom 
-                        });
-                    }
-                } catch (err) {
-                    console.warn('Error fitting map bounds:', err);
-                    // Fallback to center on first marker
-                    if (data.length > 0) {
-                        map.setView([data[0].geometry.coordinates[1], data[0].geometry.coordinates[0]], 12);
-                    }
+                const bounds = markersLayer.getBounds();
+                if (bounds.isValid()) {
+                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
                 }
             }
         }
 
         // --- KICKOFF ---
-        document.addEventListener('DOMContentLoaded', () => {
-            // Initialize device optimizations first
-            applyDeviceOptimizations();
-            updateResponsiveLayout();
-            
-            // Then fetch data
-            fetchData();
-        });
+        document.addEventListener('DOMContentLoaded', fetchData);
     </script>
 
 </body>
