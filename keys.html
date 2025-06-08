@@ -238,12 +238,29 @@
             background: linear-gradient(135deg, #87CEEB 0%, #98D8E8 100%);
         }
 
+        /* Leaflet zoom controls positioning to avoid sidebar obstruction */
+        .leaflet-control-zoom {
+            margin-left: 10px !important;
+            margin-top: 10px !important;
+        }
+
+        /* When sidebar is collapsed, move zoom controls closer to edge */
+        .sidebar-collapsed .leaflet-control-zoom {
+            margin-left: 10px !important;
+            margin-top: 70px !important; /* Below the expand button */
+        }
+
         /* Modern emoji marker */
         .emoji-marker {
             background: transparent;
             border: none;
             font-size: 32px;
             filter: drop-shadow(0 2px 8px rgba(0, 0, 0, 0.3));
+        }
+
+        #toast {
+            transition: all 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+            transform: translateX(-50%) translateY(0);
         }
 
         /* Sidebar transitions */
@@ -294,7 +311,7 @@
                     </svg>
                 </div>
                 <h2 class="text-xl font-semibold text-gray-900 mb-2">Loading Key Data</h2>
-                <p class="text-gray-600">Please wait a moment...</p>
+                <p class="text-gray-600">Centering map on all key locations...</p>
             </div>
         </div>
 
@@ -351,7 +368,7 @@
         
         <!-- Main Content (Map) -->
         <main class="flex-grow h-full relative">
-            <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-6 left-6 z-20 glass-effect p-3 rounded-2xl shadow-lg text-gray-600 hover:bg-white/70 transition-all duration-200">
+            <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-20 left-6 z-20 glass-effect p-3 rounded-2xl shadow-lg text-gray-600 hover:bg-white/70 transition-all duration-200">
                 <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
                     <path fill-rule="evenodd" d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" />
                 </svg>
@@ -396,8 +413,8 @@
     <script>
         // --- CONFIG ---
         const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
-        const INITIAL_CENTER = [-28.0167, 153.4000];
-        const INITIAL_ZOOM = 10;
+        const INITIAL_CENTER = [-28.0167, 153.4000]; // Fallback center if no data available
+        const INITIAL_ZOOM = 10; // Fallback zoom if no data available
         const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
         const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
 
@@ -412,7 +429,7 @@
             startDate: null,
             endDate: null,
             keyset: 'all',
-            latestOnly: false,
+            latestOnly: true, // Default to latest location only
         };
         
         // --- DOM Elements ---
@@ -474,8 +491,8 @@
                                     <div class="font-medium text-gray-900">Latest Location Only</div>
                                     <div class="text-sm text-gray-600">Show most recent position for each key</div>
                                 </div>
-                                <div class="ios-toggle" data-toggle="latestOnly">
-                                    <input type="checkbox" name="latestOnly" class="hidden">
+                                <div class="ios-toggle active" data-toggle="latestOnly">
+                                    <input type="checkbox" name="latestOnly" class="hidden" checked>
                                 </div>
                             </div>
                         </div>
@@ -597,21 +614,28 @@
         }
 
         function hasActiveFilters() {
-            return filters.startDate || filters.endDate || filters.keyset !== 'all' || filters.latestOnly;
+            return filters.startDate || filters.endDate || filters.keyset !== 'all' || filters.latestOnly === false;
         }
 
         function clearAllFilters() {
             selectedKeyId = null;
-            filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: false };
+            filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
             
-            // Clear form inputs
+            // Clear form inputs but keep latestOnly checked
             document.querySelectorAll('[name="startDate"]').forEach(el => el.value = '');
             document.querySelectorAll('[name="endDate"]').forEach(el => el.value = '');
             document.querySelectorAll('[name="keyset"]').forEach(el => el.value = 'all');
-            document.querySelectorAll('[name="latestOnly"]').forEach(el => el.checked = false);
-            document.querySelectorAll('.ios-toggle').forEach(toggle => toggle.classList.remove('active'));
+            document.querySelectorAll('[name="latestOnly"]').forEach(el => el.checked = true);
+            document.querySelectorAll('.ios-toggle').forEach(toggle => {
+                if (toggle.dataset.toggle === 'latestOnly') {
+                    toggle.classList.add('active');
+                } else {
+                    toggle.classList.remove('active');
+                }
+            });
             
-            runFilters();
+            // Fit map to show all keys again
+            runFilters(true);
         }
         
         function setupEventListeners() {
@@ -688,15 +712,20 @@
                         container.querySelector('[name="startDate"]').value = '';
                         container.querySelector('[name="endDate"]').value = '';
                         container.querySelector('[name="keyset"]').value = 'all';
-                        container.querySelector('[name="latestOnly"]').checked = false;
+                        container.querySelector('[name="latestOnly"]').checked = true;
                         
-                        // Reset toggle switches
+                        // Reset toggle switches - keep latestOnly active
                         container.querySelectorAll('.ios-toggle').forEach(toggle => {
-                            toggle.classList.remove('active');
+                            if (toggle.dataset.toggle === 'latestOnly') {
+                                toggle.classList.add('active');
+                            } else {
+                                toggle.classList.remove('active');
+                            }
                         });
 
-                        filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: false };
-                        runFilters();
+                        filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
+                        // Fit map to show all keys when resetting
+                        runFilters(true);
                     });
                 }
 
@@ -824,12 +853,15 @@
         }
 
         function toggleDesktopSidebar(show) {
+            const mapContainer = document.getElementById('map');
             if (show) {
                 desktopSidebar.classList.remove('hidden');
                 expandBtn.classList.add('hidden');
+                mapContainer.classList.remove('sidebar-collapsed');
             } else {
                 desktopSidebar.classList.add('hidden');
                 expandBtn.classList.remove('hidden');
+                mapContainer.classList.add('sidebar-collapsed');
             }
             setTimeout(() => map && map.invalidateSize(), 400);
         }
@@ -899,7 +931,9 @@
                         
                         setupEventListeners();
                         initializeMap();
-                        runFilters();
+                        
+                        // Auto-fit map to show all keys on initial load
+                        runFilters(true);
 
                     } catch (err) {
                         console.error("Error processing CSV data:", err);
@@ -1009,6 +1043,7 @@
 
         function initializeMap() {
             try {
+                // Initialize map with a temporary center - we'll fit to data bounds after loading
                 map = L.map('map').setView(INITIAL_CENTER, INITIAL_ZOOM);
 
                 L.tileLayer(TILE_URL, {
@@ -1039,6 +1074,10 @@
             pathLayer.clearLayers();
 
             if (data.length === 0) {
+                // If no data, center on default location
+                if (fitMapToBounds && allData.length === 0) {
+                    map.setView(INITIAL_CENTER, INITIAL_ZOOM);
+                }
                 return; 
             }
             
@@ -1091,9 +1130,24 @@
             }
             
             if (fitMapToBounds && data.length > 0) {
-                const bounds = markersLayer.getBounds();
-                if (bounds.isValid()) {
-                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+                try {
+                    const bounds = markersLayer.getBounds();
+                    if (bounds.isValid()) {
+                        // Add padding and set max zoom for better initial view
+                        const padding = data.length === 1 ? [100, 100] : [50, 50];
+                        const maxZoom = data.length === 1 ? 15 : 16;
+                        
+                        map.fitBounds(bounds, { 
+                            padding: padding, 
+                            maxZoom: maxZoom 
+                        });
+                    }
+                } catch (err) {
+                    console.warn('Error fitting map bounds:', err);
+                    // Fallback to center on first marker
+                    if (data.length > 0) {
+                        map.setView([data[0].geometry.coordinates[1], data[0].geometry.coordinates[0]], 12);
+                    }
                 }
             }
         }
