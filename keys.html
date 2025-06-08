@@ -256,17 +256,17 @@
                     <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm">
                         <div class="p-3 flex justify-between items-center border-b border-gray-200/80">
                             <label for="startDate" class="text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="date" name="startDate" class="text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
+                            <input type="date" name="startDate" class="text-sm border-gray-300 rounded-md">
                         </div>
                         <div class="p-3 flex justify-between items-center">
                             <label for="endDate" class="text-sm font-medium text-gray-700">End Date</label>
-                            <input type="date" name="endDate" class="text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
+                            <input type="date" name="endDate" class="text-sm border-gray-300 rounded-md">
                         </div>
                     </div>
 
                      <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
                         <label for="keyset" class="text-sm font-medium text-gray-700">Keyset</label>
-                        <select name="keyset" class="w-1/2 text-sm bg-transparent border-none text-gray-600 focus:ring-0 text-right">
+                        <select name="keyset" class="w-1/2 text-sm bg-white border-gray-300 rounded-md focus:ring-0 text-right">
                             <option value="all">All Keys</option>
                             ${keysetOptions.map(k => `<option value="${k}">${k}</option>`).join('')}
                         </select>
