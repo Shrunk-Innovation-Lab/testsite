@@ -531,20 +531,6 @@
         .modal-content p {
              color: #6b7280; margin-top: 16px;
         }
-        .modal-input {
-            width: 100%;
-            padding: 10px;
-            margin-bottom: 16px;
-            border: 1px solid #d1d5db;
-            border-radius: 8px;
-            font-size: 14px;
-        }
-        .modal-buttons {
-            display: flex;
-            justify-content: flex-end;
-            gap: 10px;
-            margin-top: 20px;
-        }
         
         .modal-icon {
             width: 64px;
@@ -725,7 +711,6 @@
 
             <form id="prdForm" onsubmit="return false;"> 
                 <div class="form-content">
-                    <!-- Sections remain the same -->
                     <!-- Section 1: Product Overview -->
                     <div class="section active" data-section="1">
                         <div class="section-header">
@@ -964,6 +949,9 @@
                 <!-- Navigation -->
                 <div class="form-navigation">
                      <div class="form-actions-left">
+                        <button type="button" class="btn btn-secondary" onclick="startNewForm()">
+                            ✨ New Form
+                        </button>
                         <button type="button" class="btn btn-secondary" onclick="saveDraft()">
                             💾 Save Draft
                         </button>
@@ -1166,6 +1154,16 @@
         window.navigateToSection = (sectionNumber) => { currentSection = sectionNumber; showSection(currentSection); }
         
         // --- Local Draft and PDF Handlers ---
+        window.startNewForm = () => {
+            if (confirm("Are you sure you want to start a new form? All current progress will be lost.")) {
+                gebi('prdForm').reset();
+                clearAllDynamicLists();
+                initializeDefaultDynamicItems();
+                showSection(1);
+                showAppMessage("Form cleared. You can start fresh!", "info");
+            }
+        }
+        
         window.saveDraft = () => {
             const draftName = gebi('productName').value.trim() || `PRD-Draft-${Date.now()}`;
             const data = getFormDataObject();
