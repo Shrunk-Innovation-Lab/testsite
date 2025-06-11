@@ -5,6 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <title>PRD Studio - Product Requirements Document Generator</title>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
     <style>
         * {
             margin: 0;
@@ -30,7 +31,7 @@
         .header {
             background: white;
             border-radius: 16px;
-            padding: 20px; 
+            padding: 16px; /* Reduced padding */
             margin-bottom: 32px;
             box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
             border: 1px solid rgba(0, 0, 0, 0.05);
@@ -41,7 +42,7 @@
             flex-direction: column; 
             align-items: center; 
             justify-content: center;
-            gap: 12px; 
+            gap: 8px; /* Reduced gap */
         }
 
         .logo-section { 
@@ -53,12 +54,12 @@
 
         .logo {
             width: 350px; 
-            height: 300px; 
+            height: 100px; /* Reduced height to remove extra space */
             background-image: url('https://i.imgur.com/iB983sa.png'); 
             background-size: contain;
             background-repeat: no-repeat;
             background-position: center;
-            margin-bottom: 12px; 
+            margin-bottom: 8px; /* Reduced margin */
         }
         
         .logo img { 
@@ -77,7 +78,7 @@
             -webkit-background-clip: text;
             -webkit-text-fill-color: transparent;
             background-clip: text;
-            margin-bottom: 6px; 
+            margin-bottom: 4px; 
         }
 
         .brand-subtitle {
@@ -544,34 +545,7 @@
             gap: 10px;
             margin-top: 20px;
         }
-        .drafts-list {
-            max-height: 300px;
-            overflow-y: auto;
-            text-align: left;
-            border: 1px solid #e5e7eb;
-            border-radius: 8px;
-            margin-top: 16px;
-        }
-        .drafts-list-item {
-            padding: 10px 15px;
-            border-bottom: 1px solid #e5e7eb;
-            cursor: pointer;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-        }
-        .drafts-list-item:last-child {
-            border-bottom: none;
-        }
-        .drafts-list-item:hover {
-            background-color: #f9fafb;
-        }
-        .draft-delete-btn {
-            background: #ef4444; color: white; border:none; border-radius: 4px; padding: 5px 8px; font-size:12px;
-        }
-        .draft-delete-btn:hover { background: #dc2626; }
-
-
+        
         .modal-icon {
             width: 64px;
             height: 64px;
@@ -751,6 +725,7 @@
 
             <form id="prdForm" onsubmit="return false;"> 
                 <div class="form-content">
+                    <!-- Sections remain the same -->
                     <!-- Section 1: Product Overview -->
                     <div class="section active" data-section="1">
                         <div class="section-header">
@@ -800,7 +775,6 @@
                         </div>
                     </div>
 
-                    <!-- Other Sections remain the same -->
                     <!-- Section 2: Users & Goals -->
                     <div class="section" data-section="2">
                         <div class="section-header">
@@ -993,9 +967,6 @@
                         <button type="button" class="btn btn-secondary" onclick="saveDraft()">
                             💾 Save Draft
                         </button>
-                         <button type="button" class="btn btn-secondary" onclick="showLoadDraftModal()">
-                            📂 Load Draft
-                        </button>
                          <button type="button" class="btn btn-secondary" onclick="triggerFileUpload()">
                             📤 Upload Draft
                         </button>
@@ -1008,8 +979,8 @@
                         <button type="button" class="btn btn-primary" id="nextBtn" onclick="nextSection()">
                             Next →
                         </button>
-                        <button type="button" class="btn btn-primary" id="generateBtn" onclick="handleSaveFinal()" style="display: none;">
-                            📤 Save Final PDF to Drive
+                        <button type="button" class="btn btn-primary" id="generateBtn" onclick="downloadFinalPDF()" style="display: none;">
+                            📄 Download Final PDF
                         </button>
                     </div>
                 </div>
@@ -1029,7 +1000,6 @@
     </div>
 
     <!-- Modals (Load, Loading) -->
-    <div class="modal" id="loadDraftModal"><div class="modal-content"><h3>Load Draft</h3><p>Select a draft to load. This will overwrite current form content.</p><div id="draftsListContainer" class="drafts-list"></div><div id="noDraftsMessage" style="display:none;margin-top:10px;color:#6b7280;">No drafts found.</div><div class="modal-buttons"><button type="button" class="btn btn-secondary" onclick="hideModal('loadDraftModal')">Cancel</button></div></div></div>
     <div class="modal" id="loadingSpinnerModal"><div class="modal-content"><div class="modal-icon">⏳</div><h3 id="loadingSpinnerText">Processing...</h3><div class="spinner"></div></div></div>
 
     <script>
@@ -1050,11 +1020,7 @@
             setTimeout(() => { box.style.display = 'none'; }, 5000);
         }
         
-        // --- API & Data Functions ---
-        const getApiUrl = () => {
-            return 'https://script.google.com/a/macros/shrunk.ai/s/AKfycbx5FqtfTTKg_4GO4_6Jxs1a5829_x6qwr-waEOQTssz9JtZdwNyrSr5dg8Lre7KOQ_fVg/exec';
-        }
-
+        // --- Data Functions ---
         const getFormDataObject = () => {
             const data = {};
             new FormData(gebi('prdForm')).forEach((value, key) => {
@@ -1199,120 +1165,86 @@
         window.previousSection = () => { if (currentSection > 1) { currentSection--; showSection(currentSection); } }
         window.navigateToSection = (sectionNumber) => { currentSection = sectionNumber; showSection(currentSection); }
         
-        // --- API Handlers ---
-        window.saveDraft = async () => {
-            const apiUrl = getApiUrl(); if (!apiUrl) return;
-            const draftName = gebi('productName').value.trim(); if (!draftName) return showAppMessage("Please enter a Product Name before saving a draft.", "error");
-            showModalSpinner("Saving draft...");
-            const payload = { action: 'saveDraft', fileName: draftName, data: getFormDataObject() };
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
-                const result = await response.json();
-                if (result.status !== 'success') throw new Error(result.message);
-                showAppMessage(`Draft "${draftName}" saved successfully!`, "success");
-            } catch (error) { showAppMessage(`Error saving draft: ${error.message}`, "error"); }
+        // --- Local Draft and PDF Handlers ---
+        window.saveDraft = () => {
+            const draftName = gebi('productName').value.trim() || `PRD-Draft-${Date.now()}`;
+            const data = getFormDataObject();
+            const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = `${draftName}.json`;
+            document.body.appendChild(a);
+            a.click();
+            document.body.removeChild(a);
+            URL.revokeObjectURL(url);
+            showAppMessage(`Draft "${draftName}.json" downloaded.`, 'success');
+        };
+
+        window.downloadFinalPDF = () => {
+            const finalName = gebi('productName').value.trim() || `Final-PRD`;
+            showModalSpinner("Generating PDF...");
+            const markdown = createPRDMarkdown();
+            const { jsPDF } = window.jspdf;
+            const doc = new jsPDF();
+            const margin = 15; let y = margin; const pageHeight = doc.internal.pageSize.height; const contentWidth = doc.internal.pageSize.width - 2 * margin;
+            const addText = (text, fontSize, style, yOffset = 7) => {
+                if (y + yOffset > pageHeight - margin) { doc.addPage(); y = margin; }
+                doc.setFontSize(fontSize).setFont(undefined, style);
+                const splitText = doc.splitTextToSize(text, contentWidth);
+                doc.text(splitText, margin, y);
+                y += (splitText.length * (fontSize * 0.35)) + (yOffset / 2);
+            };
+            markdown.split('\n').forEach(line => {
+                if (line.startsWith('# ')) addText(line.substring(2), 18, 'bold', 10);
+                else if (line.startsWith('## ')) addText(line.substring(3), 16, 'bold', 9);
+                else if (line.startsWith('### ')) addText(line.substring(4), 14, 'bold', 8);
+                else if (line.startsWith('**') && line.includes(':**')) {
+                    const parts = line.split(':**'); const label = parts[0].substring(2); const value = parts[1] ? parts[1].trim() : '';
+                    if (y + 7 > pageHeight - margin) { doc.addPage(); y = margin; }
+                    doc.setFontSize(10).setFont(undefined, 'bold'); doc.text(`${label}:`, margin, y);
+                    const labelWidth = doc.getTextWidth(`${label}: `) + 2;
+                    doc.setFont(undefined, 'normal'); doc.text(doc.splitTextToSize(value, contentWidth - labelWidth), margin + labelWidth, y);
+                    y += (doc.splitTextToSize(value, contentWidth - labelWidth).length * (10 * 0.35)) + 2;
+                } else if (line.startsWith('- ')) addText(`  • ${line.substring(2)}`, 10, 'normal', 5);
+                else if (line.trim() === '---') { if (y + 5 > pageHeight - margin) { doc.addPage(); y = margin; } doc.setLineWidth(0.2).line(margin, y, contentWidth + margin, y); y += 5; } 
+                else if (line.trim() !== '') addText(line, 10, 'normal', 5);
+                else y += 3;
+            });
+            doc.save(`${finalName}.pdf`);
             hideModalSpinner();
-        }
-        window.showLoadDraftModal = async () => {
-            const apiUrl = getApiUrl(); if (!apiUrl) return;
-            showModal('loadDraftModal');
-            const listContainer = gebi('draftsListContainer'), noDraftsMsg = gebi('noDraftsMessage');
-            listContainer.innerHTML = '<p>Loading drafts...</p>'; noDraftsMsg.style.display = 'none';
-            try {
-                const response = await fetch(`${apiUrl}?action=listDrafts`);
-                const result = await response.json();
-                if (result.status !== 'success') throw new Error(result.message);
-                if (!result.drafts || result.drafts.length === 0) { listContainer.innerHTML = ''; noDraftsMsg.style.display = 'block'; return; }
-                listContainer.innerHTML = '';
-                result.drafts.forEach(draft => {
-                    const item = document.createElement('div');
-                    item.className = 'drafts-list-item';
-                    item.innerHTML = `<span>${draft.name}</span><div><button class="btn btn-sm btn-primary" style="padding:4px 8px;font-size:12px;margin-right:5px;">Load</button><button class="draft-delete-btn">Delete</button></div>`;
-                    item.querySelector('.btn-primary').onclick = () => loadSelectedDraft(draft.id);
-                    item.querySelector('.draft-delete-btn').onclick = (e) => { e.stopPropagation(); confirmDeleteDraft(draft.id, draft.name); };
-                    listContainer.appendChild(item);
-                });
-            } catch (error) { listContainer.innerHTML = '<p>Error loading drafts.</p>'; showAppMessage(`Error: ${error.message}`, "error"); }
-        }
-        async function loadSelectedDraft(fileId) {
-            const apiUrl = getApiUrl(); if (!apiUrl) return;
-            showModalSpinner(`Loading draft...`); hideModal('loadDraftModal');
-            try {
-                const response = await fetch(`${apiUrl}?action=loadDraft&fileId=${fileId}`);
-                const result = await response.json();
-                if (result.status !== 'success') throw new Error(result.message);
-                populateFormFromData(result.data);
-                showAppMessage(`Draft loaded successfully.`, "success");
-            } catch (error) { showAppMessage(`Error loading draft: ${error.message}`, "error"); }
-            hideModalSpinner();
-        }
-        function confirmDeleteDraft(fileId, fileName) { if (confirm(`Are you sure you want to delete the draft "${fileName}"?`)) { deleteSelectedDraft(fileId); } }
-        async function deleteSelectedDraft(fileId) {
-            const apiUrl = getApiUrl(); if (!apiUrl) return;
-            showModalSpinner(`Deleting draft...`);
-            const payload = { action: 'deleteDraft', fileId: fileId };
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
-                const result = await response.json();
-                if (result.status !== 'success') throw new Error(result.message);
-                showAppMessage(`Draft deleted.`, "success");
-                await showLoadDraftModal();
-            } catch (error) { showAppMessage(`Error deleting draft: ${error.message}`, "error"); }
-            hideModalSpinner();
-        }
-        window.handleSaveFinal = async () => {
-            const apiUrl = getApiUrl(); if (!apiUrl) return;
-            const finalName = gebi('productName').value.trim() || `Final-PRD-${Date.now()}`;
-            if (!confirm(`This will save a final PDF named "${finalName}.pdf" to your Google Drive. Continue?`)) return;
-            showModalSpinner("Saving final PDF to Google Drive...");
-            const payload = { action: 'saveFinalPdf', fileName: finalName, markdown: createPRDMarkdown() };
-            try {
-                const response = await fetch(apiUrl, { method: 'POST', body: JSON.stringify(payload), redirect: 'follow', headers: {'Content-Type': 'application/json'} });
-                const result = await response.json();
-                if (result.status !== 'success') throw new Error(result.message);
-                showAppMessage(`Final PDF saved to Google Drive!`, "success");
-            } catch (error) { showAppMessage(`Error saving final PDF: ${error.message}`, "error"); }
-            hideModalSpinner();
-        }
-        
+            showAppMessage(`Final PDF "${finalName}.pdf" downloaded.`, "success");
+        };
+
         window.triggerFileUpload = () => { gebi('uploadDraftInput').click(); };
         
-        async function handleFileUpload(event) {
+        function handleFileUpload(event) {
             const file = event.target.files[0];
-            if (!file) return;
-            if (file.type !== 'application/json') return showAppMessage('Invalid file type. Please upload a .json draft file.', 'error');
-
+            if (!file || file.type !== 'application/json') return showAppMessage('Please select a valid .json draft file.', 'error');
             const reader = new FileReader();
-            reader.onload = function(e) {
+            reader.onload = (e) => {
                 try {
                     const draftData = JSON.parse(e.target.result);
                     if (draftData && draftData.productName !== undefined) {
                         populateFormFromData(draftData);
                         showAppMessage(`Draft "${file.name}" loaded successfully from file.`, 'success');
-                    } else {
-                        showAppMessage('The uploaded file does not seem to be a valid PRD draft.', 'error');
-                    }
-                } catch (error) {
-                    showAppMessage(`Error reading or parsing the file: ${error.message}`, 'error');
-                }
+                    } else { throw new Error('Invalid draft file format.'); }
+                } catch (error) { showAppMessage(`Error reading or parsing the file: ${error.message}`, 'error'); }
             };
-            reader.onerror = () => showAppMessage(`Error reading file: ${reader.error}`, 'error');
+            reader.onerror = () => showAppMessage('Error reading file.', 'error');
             reader.readAsText(file);
-            event.target.value = ''; // Reset input to allow uploading the same file again
+            event.target.value = '';
         }
 
-
         // Modal helpers
-        window.showModal = (modalId) => gebi(modalId).classList.add('active');
-        window.hideModal = (modalId) => gebi(modalId).classList.remove('active');
-        const showModalSpinner = (text = "Processing...") => { gebi('loadingSpinnerText').textContent = text; showModal('loadingSpinnerModal'); }
-        const hideModalSpinner = () => hideModal('loadingSpinnerModal');
+        const showModalSpinner = (text = "Processing...") => { gebi('loadingSpinnerText').textContent = text; gebi('loadingSpinnerModal').classList.add('active'); }
+        const hideModalSpinner = () => gebi('loadingSpinnerModal').classList.remove('active');
 
 
         // --- Initialization ---
         document.addEventListener('DOMContentLoaded', () => {
             gebi('currentYear').textContent = new Date().getFullYear();
-            gebi('uploadDraftInput').addEventListener('change', handleFileUpload); // Add listener for the file input
+            gebi('uploadDraftInput').addEventListener('change', handleFileUpload); 
             initializeDefaultDynamicItems(); 
             updateNavigation();
             showSection(currentSection); 
