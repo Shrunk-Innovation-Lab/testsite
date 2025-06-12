@@ -534,7 +534,7 @@
                                 const lat = parseFloat(row.locationlatitude);
                                 const lon = parseFloat(row.locationlongitude);
                                 const keyNumber = parseInt(row.name, 10);
-                                return row.datetime && row.name && row.name.length > 0 && !isNaN(lat) && !isNaN(lon) && !isNaN(keyNumber) && keyNumber >= 70000 && keyNumber < 80000;
+                                return row.datetime && row.name && row.name.length > 0 && !isNaN(lat) && !isNaN(lon) && !isNaN(keyNumber) && keyNumber >= 60000 && keyNumber < 80000;
                             });
 
                         allData = validData.map(row => ({
