@@ -8,100 +8,42 @@
   <title>Vehicle Incident Report Form - Victoria, Australia</title>
   <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
   <style>
-    * {
-      box-sizing: border-box;
-      margin: 0;
-      padding: 0;
-    }
+    * { box-sizing: border-box; margin: 0; padding: 0; }
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
       line-height: 1.5;
       color: #333;
       background-color: #f8f9fa;
       min-height: 100vh;
-      padding: env(safe-area-inset-top, 20px) 20px 20px env(safe-area-inset-left, 20px);
+      padding: env(safe-area-inset-top,20px) 20px 20px env(safe-area-inset-left,20px);
     }
-    header {
-      display: flex;
-      justify-content: center;
-      align-items: center;
-      margin-bottom: 20px;
-    }
-    .logo {
-      height: 40px;
-      margin: 20px auto;
-      display: block;
-    }
+    header { display: flex; justify-content: center; align-items: center; margin-bottom: 20px; }
+    .logo { height: 40px; display: block; }
     form {
-      background: #fff;
-      padding: 20px;
-      border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
-      max-width: 100%;
-      margin: auto;
+      background: #fff; padding: 20px; border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05); max-width: 800px; margin: auto;
     }
-    section {
-      margin-bottom: 24px;
-    }
-    h1 {
-      font-size: 1.6rem;
-      margin-bottom: 1rem;
-      text-align: center;
-    }
-    h2 {
-      font-size: 1.25rem;
-      margin-bottom: 0.5rem;
-    }
-    label {
-      display: block;
-      margin-top: 12px;
-    }
+    section { margin-bottom: 24px; }
+    h1 { font-size: 1.6rem; margin-bottom: 1rem; text-align: center; }
+    h2 { font-size: 1.25rem; margin-bottom: 0.5rem; }
+    label { display: block; margin-top: 12px; }
     input, textarea, select, input[type="date"], input[type="time"] {
-      width: 100%;
-      padding: 12px;
-      margin-top: 6px;
-      border: 1px solid #ccc;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-family: inherit;
+      width: 100%; padding: 12px; margin-top: 6px;
+      border: 1px solid #ccc; border-radius: 8px;
+      font-size: 1rem; font-family: inherit;
     }
-    button {
-      display: block;
-      width: 100%;
-      padding: 14px;
-      background-color: #0066ff;
-      color: white;
-      border: none;
-      border-radius: 8px;
-      font-size: 1rem;
-      font-weight: 600;
-      cursor: pointer;
-      margin-top: 24px;
+    button { display: block; width: 100%; padding: 14px;
+      background-color: #0066ff; color: white; border: none; border-radius: 8px;
+      font-size: 1rem; font-weight: 600; cursor: pointer; margin-top: 24px;
       transition: background-color 0.3s ease;
     }
-    button:hover {
-      background-color: #0052cc;
-    }
+    button:hover { background-color: #0052cc; }
     @media (prefers-color-scheme: dark) {
-      body {
-        background-color: #1c1c1e;
-        color: #f8f8f8;
-      }
-      form {
-        background-color: #2c2c2e;
-        color: #f8f8f8;
-      }
-      input, textarea, select {
-        background-color: #3a3a3c;
-        border-color: #5e5e5e;
-        color: #f8f8f8;
-      }
-      button {
-        background-color: #0a84ff;
-      }
-      button:hover {
-        background-color: #0060df;
-      }
+      body { background-color: #1c1c1e; color: #f8f8f8; }
+      form { background-color: #2c2c2e; color: #f8f8f8; }
+      input, textarea, select { background-color: #3a3a3c; border-color: #5e5e5e; color: #f8f8f8; }
+      button { background-color: #0a84ff; }
+      button:hover { background-color: #0060df; }
     }
   </style>
 </head>
@@ -109,100 +51,157 @@
   <header>
     <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo">
   </header>
-
   <h1>Vehicle Incident Report Form</h1>
-  <form id="incidentForm">
-    <!-- Form sections will go here (unchanged) -->
+  <form id="incidentForm" enctype="multipart/form-data">
+    <section>
+      <h2>1. Incident Details</h2>
+      <label>Date of Incident: <input type="date" name="incidentDate" required></label>
+      <label>Time of Incident: <input type="time" name="incidentTime" required></label>
+      <label>Location: <input type="text" name="location" required></label>
+      <label>Weather Conditions:
+        <select name="weather">
+          <option>Clear</option>
+          <option>Rainy</option>
+          <option>Foggy</option>
+          <option>Windy</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label>Road Surface Conditions:
+        <select name="surface">
+          <option>Dry</option>
+          <option>Wet</option>
+          <option>Icy</option>
+          <option>Gravel</option>
+          <option>Other</option>
+        </select>
+      </label>
+      <label>Lighting Conditions:
+        <select name="lighting">
+          <option>Daylight</option>
+          <option>Dawn</option>
+          <option>Dusk</option>
+          <option>Night</option>
+        </select>
+      </label>
+      <label>Traffic Conditions:
+        <select name="traffic">
+          <option>Light</option>
+          <option>Moderate</option>
+          <option>Heavy</option>
+        </select>
+      </label>
+    </section>
+    <section>
+      <h2>2. Your Vehicle Details</h2>
+      <label>Driver's Full Name: <input type="text" name="yourName" required></label>
+      <label>Licence Number & State: <input type="text" name="yourLicence" required></label>
+      <label>Vehicle Make & Model: <input type="text" name="yourVehicle"></label>
+      <label>Registration Number: <input type="text" name="yourReg"></label>
+      <label>Insurance Provider: <input type="text" name="yourInsurer"></label>
+      <label>Policy Number: <input type="text" name="yourPolicy"></label>
+    </section>
+    <section>
+      <h2>3. Other Party Details</h2>
+      <label>Driver's Full Name: <input type="text" name="otherName"></label>
+      <label>Licence Number & State: <input type="text" name="otherLicence"></label>
+      <label>Vehicle Make & Model: <input type="text" name="otherVehicle"></label>
+      <label>Registration Number: <input type="text" name="otherReg"></label>
+      <label>Insurance Provider: <input type="text" name="otherInsurer"></label>
+      <label>Policy Number: <input type="text" name="otherPolicy"></label>
+    </section>
+    <section>
+      <h2>4. Incident Description</h2>
+      <label>Describe how the incident occurred:
+        <textarea name="description" rows="6" required></textarea>
+      </label>
+      <label>Upload Sketch or Photo:
+        <input type="file" name="scenePhoto" accept="image/*">
+      </label>
+    </section>
+    <section>
+      <h2>5. Witness Details</h2>
+      <label>Witness Name 1: <input type="text" name="witness1"></label>
+      <label>Contact Number: <input type="text" name="contact1"></label>
+      <label>Witness Name 2: <input type="text" name="witness2"></label>
+      <label>Contact Number: <input type="text" name="contact2"></label>
+    </section>
+    <section>
+      <h2>6. Police Involvement</h2>
+      <label>Police Notified? <select name="policeNotified"><option>Yes</option><option>No</option></select></label>
+      <label>Officer/Station Name: <input type="text" name="policeStation"></label>
+      <label>Report Number: <input type="text" name="reportNumber"></label>
+    </section>
+    <section>
+      <h2>7. Damage Report</h2>
+      <label>Your Vehicle Damage:
+        <textarea name="yourDamage" rows="4"></textarea>
+      </label>
+      <label>Other Vehicle/Property Damage:
+        <textarea name="otherDamage" rows="4"></textarea>
+      </label>
+      <label>Photos of Damage:
+        <input type="file" name="damagePhotos" multiple accept="image/*">
+      </label>
+      <label>Dash Cam Footage Available? <select name="dashcam"><option>Yes</option><option>No</option></select></label>
+    </section>
     <section>
       <h2>8. Declaration</h2>
       <label>Your Name: <input type="text" name="declName" required></label>
       <label>Signature:
-        <canvas id="signatureCanvas" width="300" height="150" style="border:1px solid #ccc; border-radius: 8px; width: 100%;"></canvas>
+        <canvas id="signatureCanvas" width="300" height="150" style="border:1px solid #ccc; border-radius:8px; width:100%;"></canvas>
         <input type="hidden" name="signature" id="signatureInput">
-        <button type="button" onclick="clearSignature()" style="margin-top: 10px;">Clear Signature</button>
+        <button type="button" onclick="clearSignature()" style="margin-top:10px;">Clear Signature</button>
       </label>
       <label>Date: <input type="text" name="declDate" id="declDate" readonly></label>
     </section>
     <button type="button" onclick="exportToPDF()">Export as PDF</button>
   </form>
-
   <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
   <script>
-    window.addEventListener('DOMContentLoaded', () => {
-      const canvas = document.getElementById("signatureCanvas");
-      const signatureInput = document.getElementById("signatureInput");
-      const ctx = canvas.getContext("2d");
-      let drawing = false;
-
-      // Fill date field
-      const now = new Date();
-      const formatted = now.toLocaleString('en-AU', { dateStyle: 'short', timeStyle: 'short' });
-      document.getElementById("declDate").value = formatted;
-
+    window.addEventListener('DOMContentLoaded', function() {
+      var canvas = document.getElementById('signatureCanvas');
+      var signatureInput = document.getElementById('signatureInput');
+      var ctx = canvas.getContext('2d');
+      var drawing = false;
+      // Auto-fill date
+      var now = new Date();
+      var formatted = now.toLocaleString('en-AU', { dateStyle: 'short', timeStyle: 'short' });
+      document.getElementById('declDate').value = formatted;
       function draw(e) {
         if (!drawing) return;
-        const rect = canvas.getBoundingClientRect();
-        const x = (e.clientX || e.pageX) - rect.left;
-        const y = (e.clientY || e.pageY) - rect.top;
-        ctx.lineWidth = 2;
-        ctx.lineCap = "round";
-        ctx.strokeStyle = "#000";
-        ctx.lineTo(x, y);
-        ctx.stroke();
-        ctx.beginPath();
-        ctx.moveTo(x, y);
+        var rect = canvas.getBoundingClientRect();
+        var x = (e.clientX||e.pageX) - rect.left;
+        var y = (e.clientY||e.pageY) - rect.top;
+        ctx.lineWidth = 2; ctx.lineCap = 'round'; ctx.strokeStyle = '#000';
+        ctx.lineTo(x, y); ctx.stroke(); ctx.beginPath(); ctx.moveTo(x, y);
       }
-
-      canvas.addEventListener("mousedown", () => drawing = true);
-      canvas.addEventListener("mouseup", () => { drawing = false; ctx.beginPath(); });
-      canvas.addEventListener("mouseout", () => drawing = false);
-      canvas.addEventListener("mousemove", draw);
-
-      canvas.addEventListener("touchstart", e => {
-        e.preventDefault();
-        drawing = true;
-      }, { passive: false });
-      canvas.addEventListener("touchend", e => {
-        e.preventDefault();
-        drawing = false;
-        ctx.beginPath();
-      }, { passive: false });
-      canvas.addEventListener("touchmove", e => {
-        e.preventDefault();
-        draw(e.touches[0]);
-      }, { passive: false });
-
-      window.clearSignature = function () {
-        ctx.clearRect(0, 0, canvas.width, canvas.height);
-        ctx.beginPath();
-        signatureInput.value = "";
-      };
-
-      window.exportToPDF = function () {
+      canvas.addEventListener('mousedown', function(){ drawing=true; });
+      canvas.addEventListener('mouseup', function(){ drawing=false; ctx.beginPath(); });
+      canvas.addEventListener('mouseout', function(){ drawing=false; });
+      canvas.addEventListener('mousemove', draw);
+      canvas.addEventListener('touchstart', function(e){ e.preventDefault(); drawing=true; }, {passive:false});
+      canvas.addEventListener('touchend', function(e){ e.preventDefault(); drawing=false; ctx.beginPath(); }, {passive:false});
+      canvas.addEventListener('touchmove', function(e){ e.preventDefault(); draw(e.touches[0]); }, {passive:false});
+      window.clearSignature = function(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.beginPath(); signatureInput.value=''; };
+      window.exportToPDF = function(){
         signatureInput.value = canvas.toDataURL();
-        const form = document.getElementById("incidentForm");
-        const formData = new FormData(form);
-
-        let content = "Vehicle Incident Report (Victoria, Australia)\n\n";
-        for (const [key, value] of formData.entries()) {
-          if (typeof value === "string" && key !== "signature") {
-            content += `${key}: ${value}\n`;
-          }
+        var form = document.getElementById('incidentForm');
+        var formData = new FormData(form);
+        var content = 'Vehicle Incident Report (Victoria, Australia)\n\n';
+        for (var pair of formData.entries()) {
+          if (pair[0]!=='signature') { content += pair[0] + ': ' + pair[1] + '\n'; }
         }
-
-        const { jsPDF } = window.jspdf;
-        const doc = new jsPDF();
-        const lines = doc.splitTextToSize(content, 180);
+        var doc = new window.jspdf.jsPDF();
+        var lines = doc.splitTextToSize(content, 180);
         doc.text(lines, 15, 20);
-
-        const signatureImg = canvas.toDataURL("image/png");
-        doc.addImage(signatureImg, 'PNG', 15, doc.internal.pageSize.height - 60, 60, 30);
-        doc.save("vehicle-incident-report.pdf");
+        var signatureImg = canvas.toDataURL('image/png');
+        doc.addImage(signatureImg, 'PNG', 15, doc.internal.pageSize.height-60, 60, 30);
+        doc.save('vehicle-incident-report.pdf');
       };
     });
   </script>
-
-  <footer style="text-align: center; padding: 20px; font-size: 0.875rem; color: #666;">
+  <footer style="text-align:center;padding:20px;font-size:0.875rem;color:#666;">
     ©2025 | Shrunk Innovation Group | All Rights Reserved
   </footer>
 </body>
