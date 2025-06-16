@@ -59,37 +59,16 @@
       <label>Time of Incident: <input type="time" name="incidentTime" required></label>
       <label>Location: <input type="text" name="location" required></label>
       <label>Weather Conditions:
-        <select name="weather">
-          <option>Clear</option>
-          <option>Rainy</option>
-          <option>Foggy</option>
-          <option>Windy</option>
-          <option>Other</option>
-        </select>
+        <select name="weather"><option>Clear</option><option>Rainy</option><option>Foggy</option><option>Windy</option><option>Other</option></select>
       </label>
       <label>Road Surface Conditions:
-        <select name="surface">
-          <option>Dry</option>
-          <option>Wet</option>
-          <option>Icy</option>
-          <option>Gravel</option>
-          <option>Other</option>
-        </select>
+        <select name="surface"><option>Dry</option><option>Wet</option><option>Icy</option><option>Gravel</option><option>Other</option></select>
       </label>
       <label>Lighting Conditions:
-        <select name="lighting">
-          <option>Daylight</option>
-          <option>Dawn</option>
-          <option>Dusk</option>
-          <option>Night</option>
-        </select>
+        <select name="lighting"><option>Daylight</option><option>Dawn</option><option>Dusk</option><option>Night</option></select>
       </label>
       <label>Traffic Conditions:
-        <select name="traffic">
-          <option>Light</option>
-          <option>Moderate</option>
-          <option>Heavy</option>
-        </select>
+        <select name="traffic"><option>Light</option><option>Moderate</option><option>Heavy</option></select>
       </label>
     </section>
     <section>
@@ -184,7 +163,7 @@
       canvas.addEventListener('touchend', function(e){ e.preventDefault(); drawing=false; ctx.beginPath(); }, {passive:false});
       canvas.addEventListener('touchmove', function(e){ e.preventDefault(); draw(e.touches[0]); }, {passive:false});
       window.clearSignature = function(){ ctx.clearRect(0,0,canvas.width,canvas.height); ctx.beginPath(); signatureInput.value=''; };
-      window.exportToPDF = function(){
+      window.exportToPDF = async function(){
         signatureInput.value = canvas.toDataURL();
         var form = document.getElementById('incidentForm');
         var formData = new FormData(form);
@@ -192,11 +171,30 @@
         for (var pair of formData.entries()) {
           if (pair[0]!=='signature') { content += pair[0] + ': ' + pair[1] + '\n'; }
         }
-        var doc = new window.jspdf.jsPDF();
+        var { jsPDF } = window.jspdf;
+        var doc = new jsPDF();
         var lines = doc.splitTextToSize(content, 180);
         doc.text(lines, 15, 20);
+        // Signature
+        var y = 20 + lines.length * 10;
         var signatureImg = canvas.toDataURL('image/png');
-        doc.addImage(signatureImg, 'PNG', 15, doc.internal.pageSize.height-60, 60, 30);
+        doc.addImage(signatureImg, 'PNG', 15, y, 60, 30);
+        y += 40;
+        // Attach uploaded images
+        var fileInputs = document.querySelectorAll('input[type=file]');
+        for (var input of fileInputs) {
+          for (var file of input.files) {
+            var dataUrl = await new Promise(function(resolve, reject) {
+              var reader = new FileReader();
+              reader.onload = function(e) { resolve(e.target.result); };
+              reader.onerror = reject;
+              reader.readAsDataURL(file);
+            });
+            if (y > doc.internal.pageSize.height - 65) { doc.addPage(); y = 20; }
+            doc.addImage(dataUrl, 'PNG', 15, y, 60, 60);
+            y += 65;
+          }
+        }
         doc.save('vehicle-incident-report.pdf');
       };
     });
