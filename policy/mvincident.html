@@ -1,0 +1,135 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-status-bar-style" content="default">
+  <title>Vehicle Incident Report Form - Victoria, Australia</title>
+  <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
+  <style>
+    * {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+    }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+      line-height: 1.5;
+      color: #333;
+      background-color: #f8f9fa;
+      min-height: 100vh;
+      padding: env(safe-area-inset-top, 20px) 20px 20px env(safe-area-inset-left, 20px);
+    }
+    header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 20px;
+    }
+    .logo {
+      height: 40px;
+      margin: 20px;
+      margin-top: 20px;
+    }
+    form {
+      background: #fff;
+      padding: 20px;
+      border-radius: 12px;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+      max-width: 100%;
+      margin: auto;
+    }
+    section {
+      margin-bottom: 24px;
+    }
+    h1 {
+      font-size: 1.6rem;
+      margin-bottom: 1rem;
+      text-align: center;
+    }
+    h2 {
+      font-size: 1.25rem;
+      margin-bottom: 0.5rem;
+    }
+    label {
+      display: block;
+      margin-top: 12px;
+    }
+    input, textarea, select, input[type="date"], input[type="time"] {
+      width: 100%;
+      padding: 12px;
+      margin-top: 6px;
+      border: 1px solid #ccc;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-family: inherit;
+    }
+    button {
+      display: block;
+      width: 100%;
+      padding: 14px;
+      background-color: #0066ff;
+      color: white;
+      border: none;
+      border-radius: 8px;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      margin-top: 24px;
+      transition: background-color 0.3s ease;
+    }
+    button:hover {
+      background-color: #0052cc;
+    }
+    @media (prefers-color-scheme: dark) {
+      body {
+        background-color: #1c1c1e;
+        color: #f8f8f8;
+      }
+      form {
+        background-color: #2c2c2e;
+        color: #f8f8f8;
+      }
+      input, textarea, select {
+        background-color: #3a3a3c;
+        border-color: #5e5e5e;
+        color: #f8f8f8;
+      }
+      button {
+        background-color: #0a84ff;
+      }
+      button:hover {
+        background-color: #0060df;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo">
+    <div></div>
+  </header>
+
+  <h1>Vehicle Incident Report Form</h1>
+  <form id="incidentForm" enctype="multipart/form-data">
+    <!-- FORM CONTENT OMITTED FOR BREVITY -->
+  </form>
+
+  <script>
+    document.getElementById("incidentForm").addEventListener("submit", function(event) {
+      event.preventDefault();
+      const form = event.target;
+      const formData = new FormData(form);
+      let body = "Vehicle Incident Report (Victoria, Australia)%0D%0A%0D%0A";
+      for (const [key, value] of formData.entries()) {
+        if (typeof value === "string") {
+          body += `${key}: ${value}%0D%0A`;
+        }
+      }
+      const mailtoLink = `mailto:?subject=Vehicle Incident Report&body=${encodeURIComponent(body)}`;
+      window.location.href = mailtoLink;
+    });
+  </script>
+</body>
+</html>
