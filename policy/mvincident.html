@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Vehicle Incident Report Form - Victoria, Australia</title>
+  <title>Vehicle Incident Report Form - Shrunk</title>
   <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
   <style>
     * {
@@ -221,7 +221,11 @@
     <section>
       <h2>8. Declaration</h2>
       <label>Your Name: <input type="text" name="declName" required></label>
-      <label>Signature (type full name): <input type="text" name="signature" required></label>
+      <label>Signature:
+        <canvas id="signatureCanvas" width="300" height="150" style="border:1px solid #ccc; border-radius: 8px; width: 100%;"></canvas>
+        <input type="hidden" name="signature" id="signatureInput">
+        <button type="button" onclick="clearSignature()" style="margin-top: 10px;">Clear Signature</button>
+      </label>
       <label>Date: <input type="date" name="declDate" required></label>
     </section>
 
@@ -241,6 +245,50 @@
       }
       const mailtoLink = `mailto:?subject=Vehicle Incident Report&body=${encodeURIComponent(body)}`;
       window.location.href = mailtoLink;
+    });
+  
+    const canvas = document.getElementById("signatureCanvas");
+    const signatureInput = document.getElementById("signatureInput");
+    const ctx = canvas.getContext("2d");
+    let drawing = false;
+
+    canvas.addEventListener("mousedown", () => drawing = true);
+    canvas.addEventListener("mouseup", () => drawing = false);
+    canvas.addEventListener("mouseout", () => drawing = false);
+    canvas.addEventListener("mousemove", draw);
+
+    canvas.addEventListener("touchstart", e => {
+      drawing = true;
+      draw(e.touches[0]);
+    }, { passive: true });
+
+    canvas.addEventListener("touchend", () => drawing = false, { passive: true });
+    canvas.addEventListener("touchcancel", () => drawing = false, { passive: true });
+    canvas.addEventListener("touchmove", e => draw(e.touches[0]), { passive: true });
+
+    function draw(e) {
+      if (!drawing) return;
+      const rect = canvas.getBoundingClientRect();
+      const x = (e.clientX || e.pageX) - rect.left;
+      const y = (e.clientY || e.pageY) - rect.top;
+      ctx.lineWidth = 2;
+      ctx.lineCap = "round";
+      ctx.strokeStyle = "#000";
+      ctx.lineTo(x, y);
+      ctx.stroke();
+      ctx.beginPath();
+      ctx.moveTo(x, y);
+    }
+
+    function clearSignature() {
+      ctx.clearRect(0, 0, canvas.width, canvas.height);
+      ctx.beginPath();
+      signatureInput.value = "";
+    }
+
+    document.getElementById("incidentForm").addEventListener("submit", function(event) {
+      const signatureDataUrl = canvas.toDataURL();
+      signatureInput.value = signatureDataUrl;
     });
   </script>
 <footer style="text-align: center; padding: 20px; font-size: 0.875rem; color: #666;">
