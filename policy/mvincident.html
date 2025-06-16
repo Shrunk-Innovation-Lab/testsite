@@ -5,7 +5,7 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
   <meta name="apple-mobile-web-app-capable" content="yes">
   <meta name="apple-mobile-web-app-status-bar-style" content="default">
-  <title>Vehicle Incident Report Form - Shrunk</title>
+  <title>Vehicle Incident Report Form - Victoria, Australia</title>
   <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
   <style>
     * {
@@ -106,9 +106,8 @@
   </style>
 </head>
 <body>
-  <header>
+  <header style="justify-content: center;">
     <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo">
-    <div></div>
   </header>
 
   <h1>Vehicle Incident Report Form</h1>
@@ -226,10 +225,10 @@
         <input type="hidden" name="signature" id="signatureInput">
         <button type="button" onclick="clearSignature()" style="margin-top: 10px;">Clear Signature</button>
       </label>
-      <label>Date: <input type="date" name="declDate" required></label>
+      <label>Date: <input type="text" name="declDate" id="declDate" readonly></label>
     </section>
 
-    <button type="submit">Generate Email</button>
+    <button type="button" onclick="exportToPDF()">Export as PDF</button>
   </form>
 
   <script>
@@ -290,7 +289,48 @@
       const signatureDataUrl = canvas.toDataURL();
       signatureInput.value = signatureDataUrl;
     });
-  </script>
+  
+    function exportToPDF() {
+      const form = document.getElementById("incidentForm");
+      const formData = new FormData(form);
+      let content = "Vehicle Incident Report (Victoria, Australia)
+
+";
+      for (const [key, value] of formData.entries()) {
+        if (typeof value === "string") {
+          content += `${key}: ${value}
+`;
+        }
+      }
+
+      const signatureCanvas = document.getElementById("signatureCanvas");
+      const signatureImg = signatureCanvas.toDataURL("image/png");
+
+      const doc = new jsPDF();
+      const lines = doc.splitTextToSize(content, 180);
+      doc.text(lines, 15, 20);
+      doc.addImage(signatureImg, 'PNG', 15, doc.autoTableEndPosY ? doc.autoTableEndPosY() + 10 : 100, 60, 30);
+      doc.save("vehicle-incident-report.pdf");
+    }
+    document.addEventListener("DOMContentLoaded", () => {
+    const now = new Date();
+    const formatted = now.toLocaleString('en-AU', { dateStyle: 'short', timeStyle: 'short' });
+    document.getElementById("declDate").value = formatted;
+  });
+
+  // Prevent iOS screen shift on touch
+  canvas.addEventListener("touchstart", e => {
+    e.preventDefault();
+    drawing = true;
+    draw(e.touches[0]);
+  }, { passive: false });
+
+  canvas.addEventListener("touchmove", e => {
+    e.preventDefault();
+    draw(e.touches[0]);
+  }, { passive: false });
+</script>
+  <script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
 <footer style="text-align: center; padding: 20px; font-size: 0.875rem; color: #666;">
     ©2025 | Shrunk Innovation Group | All Rights Reserved
   </footer>
