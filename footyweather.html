@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-  <title>Weather Lookup (NXTplay)</title>
+  <title>Weather Lookup (Tesla UI Style)</title>
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <!-- Ionicons for icons -->
@@ -163,10 +163,26 @@
       });
 
       // Tesla-style red marker icon
-      const teslaIcon = L.icon({
-        iconUrl: 'https://raw.githubusercontent.com/pointhi/leaflet-color-markers/master/img/marker-icon-red.png',
-        shadowUrl: 'https://unpkg.com/leaflet@1.7.1/dist/images/marker-shadow.png',
-        iconSize: [25,41], iconAnchor: [12,41], shadowSize: [41,41]
+      // AFL football icon marker
+      // AFL football SVG icon marker
+      const footballIcon = L.divIcon({
+        html: `
+          <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32">
+            <!-- Outer oval -->
+            <ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red" />
+            <!-- Central seam -->
+            <line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round" />
+            <!-- 3 lace bars -->
+            <g stroke="#000" stroke-width="6" stroke-linecap="round">
+              <line x1="40" y1="80" x2="80" y2="80" />
+              <line x1="40" y1="100" x2="80" y2="100" />
+              <line x1="40" y1="120" x2="80" y2="120" />
+            </g>
+          </svg>
+        `,
+        className: '',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
       });
 
       let marker = null;
@@ -175,7 +191,7 @@
       // Set marker and pan
       const setMarker = (lat, lon) => {
         if (marker) map.removeLayer(marker);
-        marker = L.marker([lat, lon], { icon: teslaIcon }).addTo(map);
+        marker = L.marker([lat, lon], { icon: footballIcon }).addTo(map);
         map.panTo([lat, lon]);
       };
 
