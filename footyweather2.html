@@ -5,178 +5,112 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
   <title>Training Diary (NXTplay)</title>
+  <!-- Ionicons for back icon -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <style>
     :root {
       --bg-page-dark: #121212;
       --bg-page-light: #f0f0f0;
-      --text-dark: #fff;
-      --text-light: #000;
+      --text-dark: #ffffff;
+      --text-light: #000000;
       --bg-sheet-dark: #1b1b1b;
-      --bg-sheet-light: #fff;
+      --bg-sheet-light: #ffffff;
       --tesla-red: #e82127;
       --tesla-red-dark: #c11f23;
     }
-
-    body {
-      margin: 0;
-      padding: 0;
-      font-family: "Helvetica Neue", sans-serif;
-      background: var(--bg-page-dark);
-      color: var(--text-dark);
-      transition: background 0.3s, color 0.3s;
+    html, body {
+      margin:0; padding:0;
+      width:100%; height:100%;
+      background:var(--bg-page-dark);
+      color:var(--text-dark);
+      font-family:Helvetica Neue, sans-serif;
+      overflow:auto;
+      transition:background 0.3s, color 0.3s;
     }
-
     body.light-mode {
-      background: var(--bg-page-light);
-      color: var(--text-light);
+      background:var(--bg-page-light);
+      color:var(--text-light);
     }
-
     .container {
-      max-width: 600px;
-      margin: 0 auto;
-      padding: 16px;
+      max-width:600px; margin:0 auto; padding:16px;
     }
-
     h1 {
-      text-align: center;
-      margin-top: 24px;
-      font-size: 24px;
+      text-align:center; margin-top:24px; font-size:24px;
     }
-
     #backBtn {
-      display: block;
-      margin: 12px auto;
-      background: none;
-      border: none;
-      font-size: 18px;
-      color: #007aff;
-      cursor: pointer;
+      display:flex; align-items:center; justify-content:center;
+      width:36px; height:36px;
+      background:var(--tesla-red); color:#fff;
+      border:none; border-radius:50%;
+      cursor:pointer; margin:0 auto 12px;
+      transition:background 0.2s;
     }
-
+    #backBtn:hover { background:var(--tesla-red-dark); }
     .entry {
-      background: var(--bg-sheet-dark);
-      border-radius: 8px;
-      padding: 12px;
-      margin-bottom: 12px;
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.5);
-      transition: background 0.3s;
+      background:var(--bg-sheet-dark); border-radius:8px; padding:12px;
+      margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.5);
+      transition:background 0.3s;
     }
-
     .entry.light-mode {
-      background: var(--bg-sheet-light);
-      color: var(--text-light);
-      box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+      background:var(--bg-sheet-light); color:var(--text-light);
+      box-shadow:0 1px 3px rgba(0,0,0,0.1);
     }
-
-    .entry h2 {
-      margin: 0 0 8px;
-      font-size: 18px;
-    }
-
-    .entry p {
-      margin: 4px 0;
-      font-size: 14px;
-    }
-
+    .entry h2 { margin:0 0 8px; font-size:18px; }
+    .entry p { margin:4px 0; font-size:14px; }
     #clearAll {
-      display: block;
-      margin: 16px auto;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      background: var(--tesla-red);
-      color: #fff;
-      transition: background 0.2s;
+      display:block; margin:16px auto; padding:8px 16px;
+      border:none; border-radius:4px; font-size:14px;
+      cursor:pointer; background:var(--tesla-red); color:#fff;
+      transition:background 0.2s;
     }
-
-    #clearAll:hover {
-      background: var(--tesla-red-dark);
-    }
+    #clearAll:hover { background:var(--tesla-red-dark); }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Your Training Diary</h1>
-    <button id="backBtn">← Back to Map</button>
+    <button id="backBtn"><ion-icon name="arrow-back-outline"></ion-icon></button>
     <div id="entries"></div>
     <button id="clearAll">Clear All Entries</button>
   </div>
 
   <script>
     const loadEntries = () =>
-      JSON.parse(
-        localStorage.getItem("trainingSessions") || "[]"
-      );
-    const saveEntries = (arr) =>
-      localStorage.setItem(
-        "trainingSessions",
-        JSON.stringify(arr)
-      );
+      JSON.parse(localStorage.getItem("trainingSessions") || "[]");
 
     const renderEntries = () => {
-      const list = document.getElementById("entries");
+      const ctr = document.getElementById("entries");
       const sessions = loadEntries();
       if (!sessions.length) {
-        list.innerHTML = "<p>No sessions saved yet.</p>";
+        ctr.innerHTML = "<p>No sessions saved yet.</p>";
         return;
       }
-      list.innerHTML = sessions
+      ctr.innerHTML = sessions
         .map((s) => {
-          const mins = Math.floor(s.durationMs / 60000);
-          const secs = Math.floor(
-            (s.durationMs % 60000) / 1000
-          );
           return `
-          <div class="entry${
-            document.body.classList.contains(
-              "light-mode"
-            )
-              ? " light-mode"
-              : ""
-          }">
-            <h2>${new Date(
-              s.time
-            ).toLocaleString()}</h2>
-            <p><strong>Duration:</strong> ${mins}m ${secs}s</p>
-            <p><strong>Location:</strong> ${s.address}</p>
-            <p>
-              <strong>Temp:</strong> ${s.weather.temperature}°C,
-              <strong>Wind:</strong> ${s.weather.windspeed} km/h @
-              ${s.weather.winddirection}°
-            </p>
-            <p>
-              <strong>Precip:</strong> ${s.weather.precipitation}
-              mm
-            </p>
-          </div>`;
+        <div class="entry${document.body.classList.contains("light-mode") ? " light-mode" : ""}">
+          <h2>${new Date(s.time).toLocaleString()}</h2>
+          <p><strong>Duration:</strong> ${s.durationMin} mins</p>
+          <p><strong>Location:</strong> ${s.address}</p>
+          <p><strong>Temp:</strong> ${s.weather.temperature}°C, <strong>Wind:</strong> ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°</p>
+          <p><strong>Precip:</strong> ${s.weather.precipitation} mm</p>
+        </div>`;
         })
         .join("");
     };
 
-    document
-      .getElementById("backBtn")
-      .addEventListener("click", () => {
-        window.location.href = "footyweather.html";
-      });
-    document
-      .getElementById("clearAll")
-      .addEventListener("click", () => {
-        if (
-          confirm("Clear all diary entries?")
-        ) {
-          localStorage.removeItem(
-            "trainingSessions"
-          );
-          renderEntries();
-        }
-      });
+    document.getElementById("backBtn").addEventListener("click", () => {
+      window.location.href = "footyweather.html";
+    });
+    document.getElementById("clearAll").addEventListener("click", () => {
+      if (confirm("Clear all diary entries?")) {
+        localStorage.removeItem("trainingSessions");
+        renderEntries();
+      }
+    });
 
-    window.addEventListener(
-      "load",
-      renderEntries
-    );
+    window.addEventListener("load", renderEntries);
     window
       .matchMedia("(prefers-color-scheme: light)")
       .addEventListener("change", renderEntries);
