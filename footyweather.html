@@ -15,7 +15,7 @@
       --bg-page-dark: #121212;
       --bg-page-light: #f0f0f0;
       --text-dark: #ffffff;
-      --text-light: #000;
+      --text-light: #000000;
       --bg-control-dark: rgba(18,18,18,0.95);
       --bg-control-light: rgba(255,255,255,0.8);
       --bg-sheet-dark: #1b1b1b;
@@ -40,10 +40,8 @@
     #controls {
       position: fixed;
       top: 0; left: 0; right: 0;
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      align-items: center;
+      display: flex; flex-wrap: wrap;
+      justify-content: center; align-items: center;
       gap: 8px;
       padding: env(safe-area-inset-top) 12px 12px;
       background: var(--bg-control-dark);
@@ -60,11 +58,7 @@
       margin: 4px auto;
     }
     /* Inputs and toggles */
-    .switch {
-      flex: 0 0 auto;
-      position: relative;
-      width: 40px; height: 20px;
-    }
+    .switch { flex: 0 0 auto; position: relative; width: 40px; height: 20px; }
     .switch input { opacity: 0; width: 0; height: 0; }
     .slider {
       position: absolute; cursor: pointer;
@@ -106,24 +100,26 @@
     .btn.clear:hover { background: rgba(232,33,39,0.3); }
     #searchBtn, #locateBtn, #clearBtn { margin-left: 4px; }
     #diaryBtn {
-      flex:0 0 auto; background: var(--tesla-red);
+      flex:0 0 auto;
+      background: var(--tesla-red);
       color:#fff; width:36px; height:36px;
       display:flex;align-items:center;justify-content:center;
       border-radius:50%; margin-left:4px;
       transition: background 0.2s;
     }
     #diaryBtn:hover { background: var(--tesla-red-dark); }
-    /* Move zoom controls below header */
+    /* Position Leaflet zoom controls below header */
     .leaflet-top.leaflet-left,
     .leaflet-top.leaflet-right {
       top: calc(56px + env(safe-area-inset-top) + 4px);
     }
-    /* Map and weather panel */
+    /* Map area */
     #map {
       position:absolute;
       top: calc(56px + env(safe-area-inset-top));
       bottom:0; left:0; right:0;
     }
+    /* Weather panel */
     #weather {
       position: fixed; bottom:0; left:50%;
       transform: translate(-50%,100%);
@@ -191,12 +187,13 @@
         map.addLayer(currentLayer);
       });
 
-      // Go to diary
-      document.getElementById('diaryBtn').addEventListener('click',() => window.location.href='diary.html');
+      // Navigate to diary
+      document.getElementById('diaryBtn').addEventListener('click', () => window.location.href='diary.html');
 
-      // Full football icon
-      const footballIcon=L.divIcon({
-        html:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32">
+      // Football icon marker
+      const footballIcon = L.divIcon({
+        html: `
+        <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32">
           <ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/>
           <line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/>
           <g stroke="#000" stroke-width="6" stroke-linecap="round">
@@ -204,7 +201,8 @@
             <line x1="40" y1="100" x2="80" y2="100"/>
             <line x1="40" y1="120" x2="80" y2="120"/>
           </g>
-        </svg>`,
+        </svg>
+        `,
         className:'', iconSize:[32,32], iconAnchor:[16,32]
       });
 
@@ -246,22 +244,20 @@
             saveBtn.id = 'saveBtn';
             saveBtn.innerHTML = '<ion-icon name="save-outline"></ion-icon>';
             weatherDiv.appendChild(saveBtn);
+
+            const routines = ['Drop punts', 'Torpedos', 'On the Run Kicking', 'Set Shots for Goal', 'Kick at Target'];
+
             saveBtn.addEventListener('click', () => {
               const sessions = JSON.parse(localStorage.getItem('trainingSessions') || '[]');
-              const duration = Math.floor(Math.random()*51) + 10;
-              sessions.push({
-                time: Date.now(),
-                durationMin: duration,
-                lat, lon,
-                address,
-                weather: { temperature: w.temperature, windspeed: w.windspeed, winddirection: w.winddirection, precipitation }
-              });
-              localStorage.setItem('trainingSessions', JSON.stringify(sessions));
-              alert(`Session saved! Duration: ${duration} mins`);
-              window.location.href = 'diary.html';
+              const duration = Math.floor(Math.random()*51)+10;
+              const routine = routines[Math.floor(Math.random()*routines.length)];
+              sessions.push({time:Date.now(),durationMin:duration,routine,lat,lon,address,weather:{temperature:w.temperature,windspeed:w.windspeed,winddirection:w.winddirection,precipitation}});
+              localStorage.setItem('trainingSessions',JSON.stringify(sessions));
+              alert(`Session saved! Duration: ${duration} mins, Routine: ${routine}`);
+              window.location.href='diary.html';
             });
+            showWeather();
           }
-          showWeather();
         } catch {
           weatherDiv.innerHTML = '<div class="row">Error fetching weather.</div>';
           showWeather();
@@ -270,14 +266,12 @@
 
       map.on('click', e => { setMarker(e.latlng.lat, e.latlng.lng); fetchWeather(e.latlng.lat, e.latlng.lng); });
       document.getElementById('searchBtn').addEventListener('click', () => {
-        const q = document.getElementById('addressInput').value.trim();
-        if(!q) return;
+        const q = document.getElementById('addressInput').value.trim(); if(!q) return;
         fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
-          .then(r => r.json())
-          .then(res => { if(!res.length) return; setMarker(res[0].lat, res[0].lon); fetchWeather(res[0].lat, res[0].lon); });
+          .then(r=>r.json()).then(res=>{ if(!res.length)return; setMarker(res[0].lat,res[0].lon); fetchWeather(res[0].lat,res[0].lon); });
       });
       document.getElementById('locateBtn').addEventListener('click', () => {
-        navigator.geolocation?.getCurrentPosition(p => { setMarker(p.coords.latitude, p.coords.longitude); fetchWeather(p.coords.latitude, p.coords.longitude); });
+        navigator.geolocation?.getCurrentPosition(p=>{ setMarker(p.coords.latitude,p.coords.longitude); fetchWeather(p.coords.latitude,p.coords.longitude); });
       });
       document.getElementById('clearBtn').addEventListener('click', clearAll);
     });
