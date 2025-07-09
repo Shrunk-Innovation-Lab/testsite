@@ -42,7 +42,13 @@
       margin-top: 24px;
       font-size: 24px;
     }
-    #backBtn {
+    .toolbar {
+      display: flex;
+      justify-content: center;
+      gap: 12px;
+      margin-bottom: 12px;
+    }
+    .toolbar button {
       display: flex;
       align-items: center;
       justify-content: center;
@@ -53,12 +59,13 @@
       border: none;
       border-radius: 50%;
       cursor: pointer;
-      margin: 0 auto 12px;
       transition: background 0.2s;
     }
-    #backBtn:hover {
+    .toolbar button:hover {
       background: var(--tesla-red-dark);
     }
+    .toolbar button.clear { background: transparent; color: var(--tesla-red); width: auto; height: auto; padding: 8px 12px; border-radius: 4px; font-size: 14px; }
+    .toolbar button.clear:hover { background: rgba(232,33,39,0.1); }
     .entry {
       background: var(--bg-sheet-dark);
       border-radius: 8px;
@@ -80,35 +87,43 @@
       margin: 4px 0;
       font-size: 14px;
     }
-    #clearAll {
-      display: block;
-      margin: 16px auto;
-      padding: 8px 16px;
-      border: none;
-      border-radius: 4px;
-      font-size: 14px;
-      cursor: pointer;
-      background: var(--tesla-red);
-      color: #fff;
-      transition: background 0.2s;
-    }
-    #clearAll:hover {
-      background: var(--tesla-red-dark);
-    }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Your Training Diary</h1>
-    <button id="backBtn" title="Back to Map">
-      <ion-icon name="arrow-back-outline"></ion-icon>
-    </button>
+    <div class="toolbar">
+      <button id="backBtn" title="Back to Map">
+        <ion-icon name="arrow-back-outline"></ion-icon>
+      </button>
+      <button id="shareBtn" title="Share Diary">
+        <ion-icon name="share-social-outline"></ion-icon>
+      </button>
+      <button id="downloadBtn" title="Download Diary">
+        <ion-icon name="download-outline"></ion-icon>
+      </button>
+      <button id="clearAll" class="clear">Clear All</button>
+    </div>
     <div id="entries"></div>
-    <button id="clearAll">Clear All Entries</button>
   </div>
 
   <script>
     const loadEntries = () => JSON.parse(localStorage.getItem('trainingSessions') || '[]');
+
+    const formatEntries = () => {
+      const sessions = loadEntries();
+      if (!sessions.length) return 'No sessions saved.';
+      return sessions.map(s => {
+        return (
+          `${new Date(s.time).toLocaleString()}\n` +
+          `Training Duration: ${s.durationMin} mins\n` +
+          `Location: ${s.address}\n` +
+          `Temp: ${s.weather.temperature}°C, Wind: ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°\n` +
+          `Precip: ${s.weather.precipitation} mm\n` +
+          '---'
+        );
+      }).join('\n');
+    };
 
     const renderEntries = () => {
       const container = document.getElementById('entries');
@@ -117,16 +132,15 @@
         container.innerHTML = '<p>No sessions saved yet.</p>';
         return;
       }
-      container.innerHTML = sessions.map(s => {
-        return `
-          <div class="entry${document.body.classList.contains('light-mode') ? ' light-mode' : ''}">
-            <h2>${new Date(s.time).toLocaleString()}</h2>
-            <p><strong>Training Duration:</strong> ${s.durationMin} mins</p>
-            <p><strong>Location:</strong> ${s.address}</p>
-            <p><strong>Temp:</strong> ${s.weather.temperature}°C, <strong>Wind:</strong> ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°</p>
-            <p><strong>Precip:</strong> ${s.weather.precipitation} mm</p>
-          </div>`;
-      }).join('');
+      container.innerHTML = sessions.map(s => `
+        <div class="entry${document.body.classList.contains('light-mode') ? ' light-mode' : ''}">
+          <h2>${new Date(s.time).toLocaleString()}</h2>
+          <p><strong>Training Duration:</strong> ${s.durationMin} mins</p>
+          <p><strong>Location:</strong> ${s.address}</p>
+          <p><strong>Temp:</strong> ${s.weather.temperature}°C, <strong>Wind:</strong> ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°</p>
+          <p><strong>Precip:</strong> ${s.weather.precipitation} mm</p>
+        </div>
+      `).join('');
     };
 
     document.getElementById('backBtn').addEventListener('click', () => {
@@ -138,6 +152,29 @@
         localStorage.removeItem('trainingSessions');
         renderEntries();
       }
+    });
+
+    document.getElementById('shareBtn').addEventListener('click', async () => {
+      const text = formatEntries();
+      if (navigator.share) {
+        await navigator.share({ title: 'My Training Diary', text });
+      } else {
+        navigator.clipboard.writeText(text);
+        alert('Diary copied to clipboard.');
+      }
+    });
+
+    document.getElementById('downloadBtn').addEventListener('click', () => {
+      const text = formatEntries();
+      const blob = new Blob([text], { type: 'text/plain' });
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = 'training_diary.txt';
+      document.body.appendChild(a);
+      a.click();
+      document.body.removeChild(a);
+      URL.revokeObjectURL(url);
     });
 
     window.addEventListener('load', renderEntries);
