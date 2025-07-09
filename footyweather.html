@@ -7,8 +7,14 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <!-- Ionicons -->
-  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
-  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <script
+    type="module"
+    src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
+  ></script>
+  <script
+    nomodule
+    src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
+  ></script>
   <style>
     :root {
       --bg-page-dark: #121212;
@@ -142,13 +148,18 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const defaultCoords=[-37.8136,144.9631], defaultZoom=13;
-      const darkLayer=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors'});
-      const lightLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'});
+      const darkLayer=L.tileLayer(
+        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
+        { attribution:'© OpenStreetMap contributors' }
+      );
+      const lightLayer=L.tileLayer(
+        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
+        { attribution:'© OpenStreetMap contributors' }
+      );
       const map=L.map('map',{layers:[darkLayer]}).setView(defaultCoords,defaultZoom);
-      let currentLayer=darkLayer;
-      let selectedDuration=0;
+      let currentLayer=darkLayer, selectedDuration=0;
 
-      // Toggle theme
+      // Theme toggle
       document.getElementById('modeToggle').addEventListener('change', e => {
         document.body.classList.toggle('light-mode', e.target.checked);
         map.removeLayer(currentLayer);
@@ -156,17 +167,17 @@
         map.addLayer(currentLayer);
       });
 
-      // Go to diary
+      // Go to diary page
       document.getElementById('diaryBtn').addEventListener('click', () => {
-        window.location.href = 'diary.html';
+        window.location.href = 'footyweather2.html';
       });
 
       // Custom football icon
       const footballIcon = L.divIcon({
         html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32"><ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/><line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/><g stroke="#000" stroke-width="6" stroke-linecap="round"><line x1="40" y1="80" x2="80" y2="80"/><line x1="40" y1="100" x2="80" y2="100"/><line x1="40" y1="120" x2="80" y2="120"/></g></svg>`,
         className: '',
-        iconSize: [32, 32],
-        iconAnchor: [16, 32]
+        iconSize: [32,32],
+        iconAnchor: [16,32]
       });
 
       let marker = null;
@@ -178,12 +189,8 @@
         map.panTo([lat, lon]);
       }
 
-      function showWeather() {
-        weatherDiv.classList.add('show');
-      }
-      function hideWeather() {
-        weatherDiv.classList.remove('show');
-      }
+      function showWeather() { weatherDiv.classList.add('show'); }
+      function hideWeather() { weatherDiv.classList.remove('show'); }
       function clearAll() {
         if (marker) map.removeLayer(marker);
         marker = null;
@@ -196,7 +203,7 @@
         try {
           const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
           const [wRes, gRes] = await Promise.all([
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`, { cache: 'no-store' }),
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`, { cache:'no-store' }),
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
           ]);
           const wData = await wRes.json();
@@ -242,7 +249,6 @@
               alert(`Session saved! Duration: ${selectedDuration} mins`);
             });
           }
-
           showWeather();
         } catch {
           weatherDiv.innerHTML = '<div class="row">Error fetching weather.</div>';
