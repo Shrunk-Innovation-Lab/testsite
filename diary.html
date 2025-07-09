@@ -61,17 +61,25 @@
       cursor: pointer;
       transition: background 0.2s;
     }
-    .toolbar button:hover {
-      background: var(--tesla-red-dark);
+    .toolbar button:hover { background: var(--tesla-red-dark); }
+    .toolbar button.clear {
+      background: transparent;
+      color: var(--tesla-red);
+      width: auto;
+      height: auto;
+      padding: 8px 12px;
+      border-radius: 4px;
+      font-size: 14px;
     }
-    .toolbar button.clear { background: transparent; color: var(--tesla-red); width: auto; height: auto; padding: 8px 12px; border-radius: 4px; font-size: 14px; }
     .toolbar button.clear:hover { background: rgba(232,33,39,0.1); }
     .entry {
+      position: relative;
       background: var(--bg-sheet-dark);
       border-radius: 8px;
-      padding: 12px;
+      padding: 12px 60px 12px 12px;
       margin-bottom: 12px;
       box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      overflow: hidden;
       transition: background 0.3s;
     }
     .entry.light-mode {
@@ -79,29 +87,30 @@
       color: var(--text-light);
       box-shadow: 0 1px 3px rgba(0,0,0,0.1);
     }
-    .entry h2 {
-      margin: 0 0 8px;
-      font-size: 18px;
+    .entry h2 { margin: 0 0 8px; font-size: 18px; }
+    .entry p { margin: 4px 0; font-size: 14px; }
+    .delete-btn {
+      position: absolute;
+      top: 50%; right: 16px;
+      transform: translateY(-50%);
+      width: 40px; height: 40px;
+      background: var(--tesla-red);
+      color: #fff;
+      border: none;
+      border-radius: 50%;
+      opacity: 0;
+      transition: opacity 0.3s;
     }
-    .entry p {
-      margin: 4px 0;
-      font-size: 14px;
-    }
+    .entry.show-delete .delete-btn { opacity: 1; }
   </style>
 </head>
 <body>
   <div class="container">
     <h1>Your Training Diary</h1>
     <div class="toolbar">
-      <button id="backBtn" title="Back to Map">
-        <ion-icon name="arrow-back-outline"></ion-icon>
-      </button>
-      <button id="shareBtn" title="Share Diary">
-        <ion-icon name="share-social-outline"></ion-icon>
-      </button>
-      <button id="downloadBtn" title="Download Diary">
-        <ion-icon name="download-outline"></ion-icon>
-      </button>
+      <button id="backBtn" title="Back to Map"><ion-icon name="arrow-back-outline"></ion-icon></button>
+      <button id="shareBtn" title="Share Diary"><ion-icon name="share-social-outline"></ion-icon></button>
+      <button id="downloadBtn" title="Download Diary"><ion-icon name="download-outline"></ion-icon></button>
       <button id="clearAll" class="clear">Clear All</button>
     </div>
     <div id="entries"></div>
@@ -127,54 +136,59 @@
     const renderEntries = () => {
       const container = document.getElementById('entries');
       const sessions = loadEntries();
+      container.innerHTML = '';
       if (!sessions.length) {
         container.innerHTML = '<p>No sessions saved yet.</p>';
         return;
       }
-      container.innerHTML = sessions.map(s => `
-        <div class="entry${document.body.classList.contains('light-mode') ? ' light-mode' : ''}">
+      sessions.forEach((s, idx) => {
+        const div = document.createElement('div');
+        div.className = 'entry';
+        div.innerHTML = `
           <h2>${new Date(s.time).toLocaleString()}</h2>
           <p><strong>Training Duration:</strong> ${s.durationMin} mins</p>
           <p><strong>Routine:</strong> ${s.routine}</p>
           <p><strong>Location:</strong> ${s.address}</p>
           <p><strong>Temp:</strong> ${s.weather.temperature}°C, <strong>Wind:</strong> ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°</p>
           <p><strong>Precip:</strong> ${s.weather.precipitation} mm</p>
-        </div>
-      `).join('');
+        `;
+        const delBtn = document.createElement('button');
+        delBtn.className = 'delete-btn';
+        delBtn.innerHTML = '<ion-icon name="trash-outline"></ion-icon>';
+        delBtn.addEventListener('click', () => {
+          sessions.splice(idx, 1);
+          localStorage.setItem('trainingSessions', JSON.stringify(sessions));
+          renderEntries();
+        });
+        div.appendChild(delBtn);
+        let startX = 0;
+        div.addEventListener('touchstart', e => { startX = e.touches[0].clientX; });
+        div.addEventListener('touchmove', e => {
+          const delta = e.touches[0].clientX - startX;
+          if (delta < -50) div.classList.add('show-delete');
+        });
+        div.addEventListener('touchend', () => {});
+        container.appendChild(div);
+      });
     };
 
-    document.getElementById('backBtn').addEventListener('click', () => {
-      window.location.href = 'footyweather.html';
-    });
-
+    document.getElementById('backBtn').addEventListener('click', () => { window.location.href = 'index.html'; });
     document.getElementById('clearAll').addEventListener('click', () => {
       if (confirm('Clear all diary entries?')) {
-        localStorage.removeItem('trainingSessions');
-        renderEntries();
+        localStorage.removeItem('trainingSessions'); renderEntries();
       }
     });
-
     document.getElementById('shareBtn').addEventListener('click', async () => {
       const text = formatEntries();
-      if (navigator.share) {
-        await navigator.share({ title: 'My Training Diary', text });
-      } else {
-        navigator.clipboard.writeText(text);
-        alert('Diary copied to clipboard.');
-      }
+      if (navigator.share) await navigator.share({ title: 'My Training Diary', text });
+      else { navigator.clipboard.writeText(text); alert('Diary copied to clipboard.'); }
     });
-
     document.getElementById('downloadBtn').addEventListener('click', () => {
       const text = formatEntries();
       const blob = new Blob([text], { type: 'text/plain' });
       const url = URL.createObjectURL(blob);
-      const a = document.createElement('a');
-      a.href = url;
-      a.download = 'training_diary.txt';
-      document.body.appendChild(a);
-      a.click();
-      document.body.removeChild(a);
-      URL.revokeObjectURL(url);
+      const a = document.createElement('a'); a.href = url; a.download = 'training_diary.txt'; document.body.appendChild(a);
+      a.click(); document.body.removeChild(a); URL.revokeObjectURL(url);
     });
 
     window.addEventListener('load', renderEntries);
