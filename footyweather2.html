@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+  <title>Training Diary (NXTplay)</title>
+  <style>
+    body {
+      margin: 0; padding: 0;
+      font-family: Helvetica Neue, sans-serif;
+      background: var(--bg-page-dark, #121212);
+      color: var(--text-dark, #fff);
+      transition: background 0.3s, color 0.3s;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      padding: 16px;
+    }
+    h1 {
+      text-align: center;
+      margin-top: 24px;
+      font-size: 24px;
+    }
+    .entry {
+      background: var(--bg-sheet-dark, #1b1b1b);
+      border-radius: 8px;
+      padding: 12px;
+      margin-bottom: 12px;
+      box-shadow: 0 1px 3px rgba(0,0,0,0.5);
+      transition: background 0.3s;
+    }
+    .entry.light-mode {
+      background: var(--bg-sheet-light, #fff);
+      color: var(--text-light, #000);
+      box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+    }
+    .entry h2 {
+      margin: 0 0 8px;
+      font-size: 18px;
+    }
+    .entry p {
+      margin: 4px 0;
+      font-size: 14px;
+    }
+    #clearAll {
+      display: block;
+      margin: 16px auto;
+      padding: 8px 16px;
+      border: none;
+      border-radius: 4px;
+      font-size: 14px;
+      cursor: pointer;
+      background: #e82127;
+      color: #fff;
+      transition: background 0.2s;
+    }
+    #clearAll:hover { background: #c11f23; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Training Diary</h1>
+    <div id="entries"></div>
+    <button id="clearAll">Clear All Entries</button>
+  </div>
+
+  <script>
+    const loadEntries = () => JSON.parse(localStorage.getItem('trainingSessions') || '[]');
+    const saveEntries = arr => localStorage.setItem('trainingSessions', JSON.stringify(arr));
+
+    const renderEntries = () => {
+      const list = document.getElementById('entries');
+      const sessions = loadEntries();
+      list.innerHTML = sessions.length
+        ? sessions.map(s => `
+            <div class="entry${document.body.classList.contains('light-mode') ? ' light-mode' : ''}">
+              <h2>${new Date(s.time).toLocaleString()}</h2>
+              <p><strong>Location:</strong> ${s.address}</p>
+              <p><strong>Temp:</strong> ${s.weather.temperature}°C,
+                 <strong>Wind:</strong> ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°
+              </p>
+              <p><strong>Precip:</strong> ${s.weather.precipitation} mm</p>
+            </div>
+          `).join('')
+        : '<p>No sessions saved yet.</p>';
+    };
+
+    document.getElementById('clearAll').addEventListener('click', () => {
+      if (confirm('Clear all diary entries?')) {
+        localStorage.removeItem('trainingSessions');
+        renderEntries();
+      }
+    });
+
+    window.addEventListener('load', renderEntries);
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change', renderEntries);
+  </script>
+</body>
+</html>
