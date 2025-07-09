@@ -1,0 +1,287 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Weather Lookup (NXTplay)</title>
+  <!-- Leaflet CSS -->
+  <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
+  <!-- Ionicons -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <style>
+    :root {
+      --bg-page-dark: #121212;
+      --bg-page-light: #f0f0f0;
+      --text-dark: #ffffff;
+      --text-light: #000000;
+      --bg-control-dark: rgba(18,18,18,0.95);
+      --bg-control-light: rgba(255,255,255,0.8);
+      --bg-sheet-dark: #1b1b1b;
+      --bg-sheet-light: #ffffff;
+      --tesla-red: #e82127;
+      --tesla-red-dark: #c11f23;
+    }
+    html, body {
+      margin: 0; padding: 0;
+      width: 100%; height: 100%;
+      background: var(--bg-page-dark);
+      color: var(--text-dark);
+      font-family: Helvetica Neue, sans-serif;
+      overflow: hidden;
+      transition: background 0.3s, color 0.3s;
+    }
+    body.light-mode {
+      background: var(--bg-page-light);
+      color: var(--text-light);
+    }
+    #controls {
+      position: fixed; top: 0; left: 0; right: 0;
+      display: flex; align-items: center; gap: 8px;
+      flex-wrap: nowrap; overflow-x: auto; white-space: nowrap;
+      padding: env(safe-area-inset-top) 12px 12px;
+      background: var(--bg-control-dark);
+      backdrop-filter: blur(12px);
+      z-index: 1001;
+    }
+    body.light-mode #controls { background: var(--bg-control-light); }
+    #logo { height: 32px; margin-right: 8px; flex: 0 0 auto; }
+    .switch { position: relative; display: inline-block; width: 40px; height: 20px; flex: 0 0 auto; }
+    .switch input { opacity: 0; width: 0; height: 0; }
+    .slider { position: absolute; cursor: pointer; top: 0; left: 0; right: 0; bottom: 0;
+      background: #ccc; transition: 0.4s; border-radius: 20px; }
+    .slider:before { position: absolute; content: ""; height: 16px; width: 16px; left: 2px; bottom: 2px;
+      background: white; transition: 0.4s; border-radius: 50%; }
+    input:checked + .slider { background: #007aff; }
+    input:checked + .slider:before { transform: translateX(20px); }
+    #addressInput {
+      flex: 1 1 auto; min-width: 120px; height: 36px; padding: 6px 10px; font-size: 16px;
+      background: var(--bg-control-dark); color: var(--text-dark);
+      border: none; border-radius: 8px;
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.7);
+      transition: background 0.3s;
+    }
+    body.light-mode #addressInput {
+      background: var(--bg-sheet-light);
+      box-shadow: inset 0 1px 2px rgba(0,0,0,0.1);
+      color: var(--text-light);
+    }
+    #addressInput:focus { outline: none; }
+    .btn {
+      flex: 0 0 auto;
+      background: none; border: none;
+      color: inherit; font-size: 20px;
+      padding: 6px; border-radius: 50%; cursor: pointer;
+      transition: background 0.2s;
+    }
+    .btn:hover { background: rgba(232,33,39,0.2); }
+    .btn.clear:hover { background: rgba(232,33,39,0.3); }
+    #diaryBtn, #saveBtn {
+      flex: 0 0 auto;
+      background: var(--tesla-red); color: #fff;
+      width: 36px; height: 36px;
+      display: flex; align-items: center; justify-content: center;
+      border-radius: 50%; padding: 0; margin-left: 4px;
+      transition: background 0.2s;
+    }
+    #diaryBtn:hover, #saveBtn:hover { background: var(--tesla-red-dark); }
+    #durationInput {
+      flex: 0 0 auto;
+      width: 60px; padding: 4px; font-size: 14px;
+      border-radius: 4px; border: none;
+      margin-left: 8px; text-align: center;
+    }
+    #map {
+      position: absolute;
+      top: calc(56px + env(safe-area-inset-top)); bottom: 0;
+      left: 0; right: 0;
+      filter: brightness(1.3);
+      transition: filter 0.3s;
+    }
+    #weather {
+      position: fixed; bottom: 0; left: 50%; transform: translate(-50%, 100%);
+      width: 90%; max-width: 400px;
+      background: var(--bg-sheet-dark);
+      border-radius: 16px 16px 0 0;
+      padding: 16px;
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.5);
+      opacity: 0;
+      transition: transform 0.3s ease, opacity 0.3s ease, background 0.3s;
+      z-index: 1002;
+    }
+    body.light-mode #weather {
+      background: var(--bg-sheet-light);
+      box-shadow: 0 -4px 20px rgba(0,0,0,0.1);
+    }
+    #weather.show { transform: translate(-50%, 0); opacity: 1; }
+    #weather .row {
+      display: flex; align-items: center; gap: 8px;
+      margin: 4px 0; font-size: 14px;
+    }
+    #weather .row ion-icon {
+      font-size: 24px !important; width: 24px; height: 24px;
+    }
+  </style>
+</head>
+<body>
+  <div id="controls">
+    <img id="logo" src="https://i.imgur.com/lIOr2wQ.png" alt="Logo" />
+    <label class="switch"><input type="checkbox" id="modeToggle" /><span class="slider"></span></label>
+    <input id="addressInput" placeholder="Search address..." />
+    <button id="searchBtn" class="btn"><ion-icon name="search-outline"></ion-icon></button>
+    <button id="locateBtn" class="btn"><ion-icon name="locate-outline"></ion-icon></button>
+    <button id="clearBtn" class="btn clear"><ion-icon name="trash-outline"></ion-icon></button>
+    <button id="diaryBtn" class="btn" title="Open Diary"><ion-icon name="book-outline"></ion-icon></button>
+  </div>
+  <div id="map"></div>
+  <div id="weather"></div>
+
+  <script src="https://unpkg.com/leaflet/dist/leaflet.js"></script>
+  <script>
+    document.addEventListener('DOMContentLoaded', () => {
+      const defaultCoords=[-37.8136,144.9631], defaultZoom=13;
+      const darkLayer=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors'});
+      const lightLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'});
+      const map=L.map('map',{layers:[darkLayer]}).setView(defaultCoords,defaultZoom);
+      let currentLayer=darkLayer;
+      let selectedDuration=0;
+
+      document.getElementById('modeToggle').addEventListener('change', e => {
+        document.body.classList.toggle('light-mode', e.target.checked);
+        map.removeLayer(currentLayer);
+        currentLayer=e.target.checked?lightLayer:darkLayer;
+        map.addLayer(currentLayer);
+      });
+
+      document.getElementById('diaryBtn').addEventListener('click',()=>{
+        window.location.href='diary.html';
+      });
+
+      const footballIcon=L.divIcon({ html:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32"><ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/><line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/><g stroke="#000" stroke-width="6" stroke-linecap="round"><line x1="40" y1="80" x2="80" y2="80"/><line x1="40" y1="100" x2="80" y2="100"/><line x1="40" y1="120" x2="80" y2="120"/></g></svg>`, className:'', iconSize:[32,32], iconAnchor:[16,32] });
+      let marker=null;
+      const weatherDiv=document.getElementById('weather');
+
+      const setMarker=(lat,lon)=>{
+        if(marker) map.removeLayer(marker);
+        marker=L.marker([lat,lon],{icon:footballIcon}).addTo(map);
+        map.panTo([lat,lon]);
+      };
+      const showWeather=()=>weatherDiv.classList.add('show');
+      const hideWeather=()=>weatherDiv.classList.remove('show');
+      const clearAll=()=>{ if(marker) map.removeLayer(marker); marker=null; hideWeather(); document.getElementById('addressInput').value=''; map.setView(defaultCoords,defaultZoom); };
+
+      const fetchWeather=(lat,lon)=>{
+        const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+        Promise.all([
+          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`,{cache:'no-store'}).then(r=>r.json()),
+          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`).then(r=>r.json())
+        ]).then(([wData,gData])=>{
+          const w=wData.current_weather;
+          const idx=wData.hourly.time.indexOf(w.time);
+          const precipitation=idx!==-1?wData.hourly.precipitation[idx]:'—';
+          const address=gData.display_name;
+          weatherDiv.innerHTML=`
+            <div class="row"><ion-icon name="location-outline"></ion-icon>${address}</div>
+            <div class="row"><ion-icon name="thermometer-outline"></ion-icon><strong>${w.temperature}°C</strong></div>
+            <div class="row"><ion-icon name="speedometer-outline"></ion-icon>${w.windspeed} km/h @ ${w.winddirection}°</div>
+            <div class="row"><ion-icon name="rainy-outline"></ion-icon>${precipitation} mm</div>
+            <div class="row"><ion-icon name="time-outline"></ion-icon>${new Date(w.time).toLocaleString()}</div>
+            <div class="row"><ion-icon name="timer-outline"></ion-icon><input id="durationInput" type="number" min="0" placeholder="mins" /></div>
+          `;
+          if(!document.getElementById('saveBtn')){
+            const saveBtn=document.createElement('button');
+            saveBtn.id='saveBtn'; saveBtn.className='btn';
+            saveBtn.innerHTML='<ion-icon name="save-outline"></ion-icon>';
+            weatherDiv.appendChild(saveBtn);
+            document.getElementById('durationInput').addEventListener('input', e=>selectedDuration=parseInt(e.target.value)||0);
+            saveBtn.addEventListener('click',()=>{
+              const sessions=JSON.parse(localStorage.getItem('trainingSessions')||'[]');
+              sessions.push({ time:Date.now(), durationMin:selectedDuration, lat, lon, address, weather:{ temperature:w.temperature, windspeed:w.windspeed, winddirection:w.winddirection, precipitation } });
+              localStorage.setItem('trainingSessions',JSON.stringify(sessions));
+              alert(`Session saved! Duration: ${selectedDuration} mins`);
+            });
+          }
+          showWeather();
+        }).catch(()=>{ weatherDiv.innerHTML='<div class="row">Error fetching weather.</div>'; showWeather(); });
+      };
+
+      map.on('click',e=>{ setMarker(e.latlng.lat,e.latlng.lng); fetchWeather(e.latlng.lat,e.latlng.lng); });
+      document.getElementById('searchBtn').addEventListener('click',()=>{
+        const q=document.getElementById('addressInput').value.trim(); if(!q) return;
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
+          .then(r=>r.json()).then(res=>{ if(!res.length) return; setMarker(res[0].lat,res[0].lon); fetchWeather(res[0].lat,res[0].lon); });
+      });
+      document.getElementById('locateBtn').addEventListener('click',()=>navigator.geolocation?.getCurrentPosition(p=>{ setMarker(p.coords.latitude,p.coords.longitude); fetchWeather(p.coords.latitude,p.coords.longitude); }));
+      document.getElementById('clearBtn').addEventListener('click',clearAll);
+    });
+  </script>
+
+<!-- diary.html -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
+  <title>Training Diary (NXTplay)</title>
+  <!-- Ionicons for back icon -->
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
+  <style>
+    :root {
+      --bg-page-dark: #121212;
+      --bg-page-light: #f0f0f0;
+      --text-dark: #ffffff;
+      --text-light: #000000;
+      --bg-sheet-dark: #1b1b1b;
+      --bg-sheet-light: #ffffff;
+      --tesla-red: #e82127;
+      --tesla-red-dark: #c11f23;
+    }
+    html, body {
+      margin:0; padding:0;
+      width:100%; height:100%;
+      background:var(--bg-page-dark);
+      color:var(--text-dark);
+      font-family:Helvetica Neue, sans-serif;
+      overflow:auto;
+      transition:background 0.3s, color 0.3s;
+    }
+    body.light-mode {
+      background:var(--bg-page-light);
+      color:var(--text-light);
+    }
+    .container { max-width:600px; margin:0 auto; padding:16px; }
+    h1 { text-align:center; margin-top:24px; font-size:24px; }
+    #backBtn { display:flex; align-items:center; justify-content:center; width:36px; height:36px; background:var(--tesla-red); color:#fff; border:none; border-radius:50%; cursor:pointer; margin:0 auto 12px; transition:background 0.2s; }
+    #backBtn:hover { background:var(--tesla-red-dark); }
+    .entry { background:var(--bg-sheet-dark); border-radius:8px; padding:12px; margin-bottom:12px; box-shadow:0 1px 3px rgba(0,0,0,0.5); transition:background 0.3s; }
+    .entry.light-mode { background:var(--bg-sheet-light); color:var(--text-light); box-shadow:0 1px 3px rgba(0,0,0,0.1); }
+    .entry h2 { margin:0 0 8px; font-size:18px; }
+    .entry p { margin:4px 0; font-size:14px; }
+    #clearAll { display:block; margin:16px auto; padding:8px 16px; border:none; border-radius:4px; font-size:14px; cursor:pointer; background:var(--tesla-red); color:#fff; transition:background 0.2s; }
+    #clearAll:hover { background:var(--tesla-red-dark); }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h1>Your Training Diary</h1>
+    <button id="backBtn"><ion-icon name="arrow-back-outline"></ion-icon></button>
+    <div id="entries"></div>
+    <button id="clearAll">Clear All Entries</button>
+  </div>
+
+  <script>
+    const loadEntries=()=>JSON.parse(localStorage.getItem('trainingSessions')||'[]');
+    const renderEntries=()=>{
+      const ctr=document.getElementById('entries'); const sessions=loadEntries();
+      if(!sessions.length){ ctr.innerHTML='<p>No sessions saved yet.</p>'; return; }
+      ctr.innerHTML=sessions.map(s=>`<div class="entry${document.body.classList.contains('light-mode')?' light-mode':''}">\n          <h2>${new Date(s.time).toLocaleString()}</h2>\n          <p><strong>Training Duration:</strong> ${s.durationMin} mins</p>\n          <p><strong>Location:</strong> ${s.address}</p>\n          <p><strong>Temp:</strong> ${s.weather.temperature}°C, <strong>Wind:</strong> ${s.weather.windspeed} km/h @ ${s.weather.winddirection}°</p>\n          <p><strong>Precip:</strong> ${s.weather.precipitation} mm</p>\n        </div>`).join('');
+    };
+    document.getElementById('backBtn').addEventListener('click',()=>window.location.href='footyweather.html');
+    document.getElementById('clearAll').addEventListener('click',()=>{if(confirm('Clear all diary entries?')){localStorage.removeItem('trainingSessions');renderEntries();}});
+    window.addEventListener('load',renderEntries);
+    window.matchMedia('(prefers-color-scheme: light)').addEventListener('change',renderEntries);
+  </script>
+</body>
+</html>
