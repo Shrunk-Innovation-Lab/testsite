@@ -7,14 +7,8 @@
   <!-- Leaflet CSS -->
   <link rel="stylesheet" href="https://unpkg.com/leaflet/dist/leaflet.css" />
   <!-- Ionicons -->
-  <script
-    type="module"
-    src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"
-  ></script>
-  <script
-    nomodule
-    src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"
-  ></script>
+  <script type="module" src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@5.5.2/dist/ionicons/ionicons.js"></script>
   <style>
     :root {
       --bg-page-dark: #121212;
@@ -132,9 +126,7 @@
 <body>
   <div id="controls">
     <img id="logo" src="https://i.imgur.com/lIOr2wQ.png" alt="Logo" />
-    <label class="switch">
-      <input type="checkbox" id="modeToggle" /><span class="slider"></span>
-    </label>
+    <label class="switch"><input type="checkbox" id="modeToggle" /><span class="slider"></span></label>
     <input id="addressInput" placeholder="Search address..." />
     <button id="searchBtn" class="btn"><ion-icon name="search-outline"></ion-icon></button>
     <button id="locateBtn" class="btn"><ion-icon name="locate-outline"></ion-icon></button>
@@ -148,72 +140,44 @@
   <script>
     document.addEventListener('DOMContentLoaded', () => {
       const defaultCoords=[-37.8136,144.9631], defaultZoom=13;
-      const darkLayer=L.tileLayer(
-        'https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',
-        { attribution:'© OpenStreetMap contributors' }
-      );
-      const lightLayer=L.tileLayer(
-        'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',
-        { attribution:'© OpenStreetMap contributors' }
-      );
+      const darkLayer=L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png',{attribution:'© OpenStreetMap contributors'});
+      const lightLayer=L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png',{attribution:'© OpenStreetMap contributors'});
       const map=L.map('map',{layers:[darkLayer]}).setView(defaultCoords,defaultZoom);
-      let currentLayer=darkLayer, selectedDuration=0;
+      let currentLayer=darkLayer;
+      let selectedDuration=0;
 
-      // Theme toggle
       document.getElementById('modeToggle').addEventListener('change', e => {
         document.body.classList.toggle('light-mode', e.target.checked);
         map.removeLayer(currentLayer);
-        currentLayer = e.target.checked ? lightLayer : darkLayer;
+        currentLayer=e.target.checked?lightLayer:darkLayer;
         map.addLayer(currentLayer);
       });
 
-      // Go to diary page
-      document.getElementById('diaryBtn').addEventListener('click', () => {
-        window.location.href = 'footyweather2.html';
-      });
+      document.getElementById('diaryBtn').addEventListener('click',()=> window.location.href='diary.html');
 
-      // Custom football icon
-      const footballIcon = L.divIcon({
-        html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32"><ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/><line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/><g stroke="#000" stroke-width="6" stroke-linecap="round"><line x1="40" y1="80" x2="80" y2="80"/><line x1="40" y1="100" x2="80" y2="100"/><line x1="40" y1="120" x2="80" y2="120"/></g></svg>`,
-        className: '',
-        iconSize: [32,32],
-        iconAnchor: [16,32]
-      });
+      const footballIcon=L.divIcon({ html:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32"><ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/><line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/><g stroke="#000" stroke-width="6" stroke-linecap="round"><line x1="40" y1="80" x2="80" y2="80"/><line x1="40" y1="100" x2="80" y2="100"/><line x1="40" y1="120" x2="80" y2="120"/></g></svg>`, className:'', iconSize:[32,32], iconAnchor:[16,32] });
+      let marker=null;
+      const weatherDiv=document.getElementById('weather');
 
-      let marker = null;
-      const weatherDiv = document.getElementById('weather');
+      function setMarker(lat,lon){ if(marker) map.removeLayer(marker); marker=L.marker([lat,lon],{icon:footballIcon}).addTo(map); map.panTo([lat,lon]); }
+      function showWeather(){ weatherDiv.classList.add('show'); }
+      function hideWeather(){ weatherDiv.classList.remove('show'); }
+      function clearAll(){ if(marker) map.removeLayer(marker); marker=null; hideWeather(); document.getElementById('addressInput').value=''; map.setView(defaultCoords,defaultZoom); }
 
-      function setMarker(lat, lon) {
-        if (marker) map.removeLayer(marker);
-        marker = L.marker([lat, lon], { icon: footballIcon }).addTo(map);
-        map.panTo([lat, lon]);
-      }
-
-      function showWeather() { weatherDiv.classList.add('show'); }
-      function hideWeather() { weatherDiv.classList.remove('show'); }
-      function clearAll() {
-        if (marker) map.removeLayer(marker);
-        marker = null;
-        hideWeather();
-        document.getElementById('addressInput').value = '';
-        map.setView(defaultCoords, defaultZoom);
-      }
-
-      async function fetchWeather(lat, lon) {
-        try {
-          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
-          const [wRes, gRes] = await Promise.all([
-            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`, { cache:'no-store' }),
+      async function fetchWeather(lat,lon){
+        try{
+          const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const [wRes,gRes]=await Promise.all([
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`,{cache:'no-store'}),
             fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
           ]);
-          const wData = await wRes.json();
-          const gData = await gRes.json();
-          const w = wData.current_weather;
-          const idx = wData.hourly.time.indexOf(w.time);
-          const precipitation = idx !== -1 ? wData.hourly.precipitation[idx] : '—';
-          const address = gData.display_name;
-
-          weatherDiv.innerHTML = `
+          const wData=await wRes.json();
+          const gData=await gRes.json();
+          const w=wData.current_weather;
+          const idx=wData.hourly.time.indexOf(w.time);
+          const precipitation=idx!==-1?wData.hourly.precipitation[idx]:'—';
+          const address=gData.display_name;
+          weatherDiv.innerHTML=`
             <div class="row"><ion-icon name="location-outline"></ion-icon>${address}</div>
             <div class="row"><ion-icon name="thermometer-outline"></ion-icon><strong>${w.temperature}°C</strong></div>
             <div class="row"><ion-icon name="speedometer-outline"></ion-icon>${w.windspeed} km/h @ ${w.winddirection}°</div>
@@ -221,66 +185,31 @@
             <div class="row"><ion-icon name="time-outline"></ion-icon>${new Date(w.time).toLocaleString()}</div>
             <div class="row"><ion-icon name="timer-outline"></ion-icon><input id="durationInput" type="number" min="0" placeholder="mins" /></div>
           `;
-          if (!document.getElementById('saveBtn')) {
-            const saveBtn = document.createElement('button');
-            saveBtn.id = 'saveBtn';
-            saveBtn.className = 'btn';
-            saveBtn.innerHTML = '<ion-icon name="save-outline"></ion-icon>';
+          if(!document.getElementById('saveBtn')){
+            const saveBtn=document.createElement('button');
+            saveBtn.id='saveBtn'; saveBtn.className='btn';
+            saveBtn.innerHTML='<ion-icon name="save-outline"></ion-icon>';
             weatherDiv.appendChild(saveBtn);
-
-            document.getElementById('durationInput').addEventListener('input', e => {
-              selectedDuration = parseInt(e.target.value) || 0;
-            });
-
-            saveBtn.addEventListener('click', () => {
-              const sessions = JSON.parse(localStorage.getItem('trainingSessions') || '[]');
-              sessions.push({
-                time: Date.now(),
-                durationMin: selectedDuration,
-                lat, lon, address,
-                weather: {
-                  temperature: w.temperature,
-                  windspeed: w.windspeed,
-                  winddirection: w.winddirection,
-                  precipitation
-                }
-              });
-              localStorage.setItem('trainingSessions', JSON.stringify(sessions));
+            document.getElementById('durationInput').addEventListener('input', e=>selectedDuration=parseInt(e.target.value)||0);
+            saveBtn.addEventListener('click',()=>{
+              const sessions=JSON.parse(localStorage.getItem('trainingSessions')||'[]');
+              sessions.push({ time:Date.now(), durationMin:selectedDuration, lat, lon, address, weather:{ temperature:w.temperature, windspeed:w.windspeed, winddirection:w.winddirection, precipitation } });
+              localStorage.setItem('trainingSessions',JSON.stringify(sessions));
               alert(`Session saved! Duration: ${selectedDuration} mins`);
+              window.location.href='diary.html';
             });
           }
           showWeather();
-        } catch {
-          weatherDiv.innerHTML = '<div class="row">Error fetching weather.</div>';
+        }catch{
+          weatherDiv.innerHTML='<div class="row">Error fetching weather.</div>';
           showWeather();
         }
       }
 
-      map.on('click', e => {
-        setMarker(e.latlng.lat, e.latlng.lng);
-        fetchWeather(e.latlng.lat, e.latlng.lng);
-      });
-
-      document.getElementById('searchBtn').addEventListener('click', () => {
-        const q = document.getElementById('addressInput').value.trim();
-        if (!q) return;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
-          .then(r => r.json())
-          .then(res => {
-            if (!res.length) return;
-            setMarker(res[0].lat, res[0].lon);
-            fetchWeather(res[0].lat, res[0].lon);
-          });
-      });
-
-      document.getElementById('locateBtn').addEventListener('click', () => {
-        navigator.geolocation?.getCurrentPosition(pos => {
-          setMarker(pos.coords.latitude, pos.coords.longitude);
-          fetchWeather(pos.coords.latitude, pos.coords.longitude);
-        });
-      });
-
-      document.getElementById('clearBtn').addEventListener('click', clearAll);
+      map.on('click',e=>{ setMarker(e.latlng.lat,e.latlng.lng); fetchWeather(e.latlng.lat,e.latlng.lng); });
+      document.getElementById('searchBtn').addEventListener('click',()=>{ const q=document.getElementById('addressInput').value.trim(); if(!q) return; fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`).then(r=>r.json()).then(res=>{ if(!res.length) return; setMarker(res[0].lat,res[0].lon); fetchWeather(res[0].lat,res[0].lon); }); });
+      document.getElementById('locateBtn').addEventListener('click',()=>navigator.geolocation?.getCurrentPosition(p=>{ setMarker(p.coords.latitude,p.coords.longitude); fetchWeather(p.coords.latitude,p.coords.longitude); }));
+      document.getElementById('clearBtn').addEventListener('click',clearAll);
     });
   </script>
 </body>
