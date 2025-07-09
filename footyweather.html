@@ -1,4 +1,3 @@
-<!-- index.html -->
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -94,8 +93,8 @@
     }
     #map {
       position: absolute;
-      top: calc(56px + env(safe-area-inset-top));
-      bottom: 0; left: 0; right: 0;
+      top: calc(56px + env(safe-area-inset-top)); bottom: 0;
+      left: 0; right: 0;
       filter: brightness(1.3);
       transition: filter 0.3s;
     }
@@ -149,49 +148,65 @@
       let currentLayer=darkLayer;
       let selectedDuration=0;
 
+      // Toggle theme
       document.getElementById('modeToggle').addEventListener('change', e => {
         document.body.classList.toggle('light-mode', e.target.checked);
         map.removeLayer(currentLayer);
-        currentLayer=e.target.checked?lightLayer:darkLayer;
+        currentLayer = e.target.checked ? lightLayer : darkLayer;
         map.addLayer(currentLayer);
       });
 
-      document.getElementById('diaryBtn').addEventListener('click',()=>{
-        window.location.href='footyweather2.html';
+      // Go to diary
+      document.getElementById('diaryBtn').addEventListener('click', () => {
+        window.location.href = 'diary.html';
       });
 
-      const footballIcon=L.divIcon({
-        html:`<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32"><ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/><line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/><g stroke="#000" stroke-width="6" stroke-linecap="round"><line x1="40" y1="80" x2="80" y2="80"/><line x1="40" y1="100" x2="80" y2="100"/><line x1="40" y1="120" x2="80" y2="120"/></g></svg>`,
-        className:'', iconSize:[32,32], iconAnchor:[16,32]
+      // Custom football icon
+      const footballIcon = L.divIcon({
+        html: `<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 200" width="32" height="32"><ellipse cx="60" cy="100" rx="50" ry="90" stroke="#000" stroke-width="10" fill="red"/><line x1="60" y1="20" x2="60" y2="180" stroke="#000" stroke-width="10" stroke-linecap="round"/><g stroke="#000" stroke-width="6" stroke-linecap="round"><line x1="40" y1="80" x2="80" y2="80"/><line x1="40" y1="100" x2="80" y2="100"/><line x1="40" y1="120" x2="80" y2="120"/></g></svg>`,
+        className: '',
+        iconSize: [32, 32],
+        iconAnchor: [16, 32]
       });
-      let marker=null;
-      const weatherDiv=document.getElementById('weather');
 
-      const setMarker=(lat,lon)=>{
-        if(marker) map.removeLayer(marker);
-        marker=L.marker([lat,lon],{icon:footballIcon}).addTo(map);
-        map.panTo([lat,lon]);
-      };
-      const showWeather=()=>weatherDiv.classList.add('show');
-      const hideWeather=()=>weatherDiv.classList.remove('show');
-      const clearAll=()=>{
-        if(marker) map.removeLayer(marker);
-        marker=null; hideWeather();
-        document.getElementById('addressInput').value='';
-        map.setView(defaultCoords,defaultZoom);
-      };
+      let marker = null;
+      const weatherDiv = document.getElementById('weather');
 
-      const fetchWeather=(lat,lon)=>{
-        const tz=Intl.DateTimeFormat().resolvedOptions().timeZone;
-        Promise.all([
-          fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`,{cache:'no-store'}).then(r=>r.json()),
-          fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`).then(r=>r.json())
-        ]).then(([wData,gData])=>{
-          const w=wData.current_weather;
-          const idx=wData.hourly.time.indexOf(w.time);
-          const precipitation=idx!==-1?wData.hourly.precipitation[idx]:'—';
-          const address=gData.display_name;
-          weatherDiv.innerHTML=`
+      function setMarker(lat, lon) {
+        if (marker) map.removeLayer(marker);
+        marker = L.marker([lat, lon], { icon: footballIcon }).addTo(map);
+        map.panTo([lat, lon]);
+      }
+
+      function showWeather() {
+        weatherDiv.classList.add('show');
+      }
+      function hideWeather() {
+        weatherDiv.classList.remove('show');
+      }
+      function clearAll() {
+        if (marker) map.removeLayer(marker);
+        marker = null;
+        hideWeather();
+        document.getElementById('addressInput').value = '';
+        map.setView(defaultCoords, defaultZoom);
+      }
+
+      async function fetchWeather(lat, lon) {
+        try {
+          const tz = Intl.DateTimeFormat().resolvedOptions().timeZone;
+          const [wRes, gRes] = await Promise.all([
+            fetch(`https://api.open-meteo.com/v1/forecast?latitude=${lat}&longitude=${lon}&current_weather=true&hourly=precipitation&timezone=${encodeURIComponent(tz)}`, { cache: 'no-store' }),
+            fetch(`https://nominatim.openstreetmap.org/reverse?format=json&lat=${lat}&lon=${lon}`)
+          ]);
+          const wData = await wRes.json();
+          const gData = await gRes.json();
+          const w = wData.current_weather;
+          const idx = wData.hourly.time.indexOf(w.time);
+          const precipitation = idx !== -1 ? wData.hourly.precipitation[idx] : '—';
+          const address = gData.display_name;
+
+          weatherDiv.innerHTML = `
             <div class="row"><ion-icon name="location-outline"></ion-icon>${address}</div>
             <div class="row"><ion-icon name="thermometer-outline"></ion-icon><strong>${w.temperature}°C</strong></div>
             <div class="row"><ion-icon name="speedometer-outline"></ion-icon>${w.windspeed} km/h @ ${w.winddirection}°</div>
@@ -199,34 +214,67 @@
             <div class="row"><ion-icon name="time-outline"></ion-icon>${new Date(w.time).toLocaleString()}</div>
             <div class="row"><ion-icon name="timer-outline"></ion-icon><input id="durationInput" type="number" min="0" placeholder="mins" /></div>
           `;
-          if(!document.getElementById('saveBtn')){
-            const saveBtn=document.createElement('button');
-            saveBtn.id='saveBtn'; saveBtn.className='btn';
-            saveBtn.innerHTML='<ion-icon name="save-outline"></ion-icon>';
+          if (!document.getElementById('saveBtn')) {
+            const saveBtn = document.createElement('button');
+            saveBtn.id = 'saveBtn';
+            saveBtn.className = 'btn';
+            saveBtn.innerHTML = '<ion-icon name="save-outline"></ion-icon>';
             weatherDiv.appendChild(saveBtn);
-            document.getElementById('durationInput').addEventListener('input', e=>selectedDuration=parseInt(e.target.value)||0);
-            saveBtn.addEventListener('click',()=>{
-              const sessions=JSON.parse(localStorage.getItem('trainingSessions')||'[]');
-              sessions.push({ time:Date.now(), durationMin:selectedDuration, lat, lon, address, weather:{ temperature:w.temperature, windspeed:w.windspeed, winddirection:w.winddirection, precipitation } });
-              localStorage.setItem('trainingSessions',JSON.stringify(sessions));
+
+            document.getElementById('durationInput').addEventListener('input', e => {
+              selectedDuration = parseInt(e.target.value) || 0;
+            });
+
+            saveBtn.addEventListener('click', () => {
+              const sessions = JSON.parse(localStorage.getItem('trainingSessions') || '[]');
+              sessions.push({
+                time: Date.now(),
+                durationMin: selectedDuration,
+                lat, lon, address,
+                weather: {
+                  temperature: w.temperature,
+                  windspeed: w.windspeed,
+                  winddirection: w.winddirection,
+                  precipitation
+                }
+              });
+              localStorage.setItem('trainingSessions', JSON.stringify(sessions));
               alert(`Session saved! Duration: ${selectedDuration} mins`);
             });
           }
-          showWeather();
-        }).catch(()=>{
-          weatherDiv.innerHTML='<div class="row">Error fetching weather.</div>';
-          showWeather();
-        });
-      };
 
-      map.on('click',e=>{ setMarker(e.latlng.lat,e.latlng.lng); fetchWeather(e.latlng.lat,e.latlng.lng); });
-      document.getElementById('searchBtn').addEventListener('click',()=>{
-        const q=document.getElementById('addressInput').value.trim(); if(!q) return;
-        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
-          .then(r=>r.json()).then(res=>{ if(!res.length) return; setMarker(res[0].lat,res[0].lon); fetchWeather(res[0].lat,res[0].lon); });
+          showWeather();
+        } catch {
+          weatherDiv.innerHTML = '<div class="row">Error fetching weather.</div>';
+          showWeather();
+        }
+      }
+
+      map.on('click', e => {
+        setMarker(e.latlng.lat, e.latlng.lng);
+        fetchWeather(e.latlng.lat, e.latlng.lng);
       });
-      document.getElementById('locateBtn').addEventListener('click',()=>navigator.geolocation?.getCurrentPosition(p=>{ setMarker(p.coords.latitude,p.coords.longitude); fetchWeather(p.coords.latitude,p.coords.longitude); }));
-      document.getElementById('clearBtn').addEventListener('click',clearAll);
+
+      document.getElementById('searchBtn').addEventListener('click', () => {
+        const q = document.getElementById('addressInput').value.trim();
+        if (!q) return;
+        fetch(`https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(q)}`)
+          .then(r => r.json())
+          .then(res => {
+            if (!res.length) return;
+            setMarker(res[0].lat, res[0].lon);
+            fetchWeather(res[0].lat, res[0].lon);
+          });
+      });
+
+      document.getElementById('locateBtn').addEventListener('click', () => {
+        navigator.geolocation?.getCurrentPosition(pos => {
+          setMarker(pos.coords.latitude, pos.coords.longitude);
+          fetchWeather(pos.coords.latitude, pos.coords.longitude);
+        });
+      });
+
+      document.getElementById('clearBtn').addEventListener('click', clearAll);
     });
   </script>
 </body>
