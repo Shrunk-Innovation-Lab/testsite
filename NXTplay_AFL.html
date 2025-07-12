@@ -71,7 +71,7 @@
       flex-wrap: nowrap;
     }
     .actions {
-      justify-content: center; /* centered buttons */
+      justify-content: center;
     }
     .field {
       display: flex;
@@ -151,6 +151,12 @@
     }
     tbody tr:nth-child(odd) td { background: #28282a; }
     tbody tr:nth-child(even) td { background: #232325; }
+    footer {
+      margin: 2rem 0 1rem;
+      color: var(--text-secondary);
+      font-size: 0.8rem;
+      text-align: center;
+    }
     @media (max-width: 500px) {
       h1 { font-size: 1.75rem; margin: 2.5rem 0 0.5rem; }
       #subtitle { font-size: 1rem; margin-bottom: 1rem; }
@@ -160,6 +166,7 @@
       .controls select { padding: 0.6rem; }
       .field-header { font-size: 0.85rem; }
       .logo { width: 70px; top: 0.75rem; left: 0.75rem; }
+      footer { font-size: 0.7rem; margin: 1.5rem 0 0.75rem; }
     }
   </style>
 </head>
@@ -196,6 +203,8 @@
       </tbody>
     </table>
   </div>
+
+  <footer>©2025 NXTplay Worldwide Pty Ltd</footer>
 
   <script>
     feather.replace({ 'stroke-width': 2 });
