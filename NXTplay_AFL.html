@@ -1,0 +1,171 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <title>Configurable AFL Ladder with CSV Export</title>
+  <link href="https://fonts.googleapis.com/css?family=Roboto:400,500&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/feather-icons/dist/feather.min.js"></script>
+  <style>
+    :root {
+      --bg: #111;
+      --card-bg: #1c1c1e;
+      --surface: #222;
+      --text-primary: #fff;
+      --text-secondary: #aaa;
+      --accent: #8e44ad;
+      --radius: 8px;
+      --font: 'Roboto', sans-serif;
+    }
+    * { box-sizing: border-box; margin:0; padding:0; }
+    body {
+      position: relative;
+      background: var(--bg);
+      color: var(--text-primary);
+      font-family: var(--font);
+      display: flex;
+      flex-direction: column;
+      min-height: 100vh;
+      align-items: center;
+      padding: 2rem;
+    }
+    .logo {
+      position: absolute;
+      top: 2rem;
+      left: 2rem;
+      width: 80px;
+      height: auto;
+    }
+    h1 {
+      font-size: 2.5rem;
+      font-weight: 500;
+      margin-bottom: 2rem;
+      letter-spacing: 1px;
+    }
+    .controls {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      align-items: center;
+      gap: 1rem;
+      background: var(--card-bg);
+      padding: 1.5rem;
+      border-radius: var(--radius);
+      box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+    }
+    .controls label {
+      display: flex;
+      flex-direction: column;
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+    }
+    .controls select {
+      margin-top: 0.5rem;
+      background: var(--surface);
+      color: var(--text-primary);
+      border: none;
+      padding: 0.6rem 0.8rem;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      min-width: 90px;
+      text-align: center;
+    }
+    .controls button {
+      background: var(--accent);
+      color: var(--text-primary);
+      border: none;
+      border-radius: var(--radius);
+      padding: 0.7rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: background 0.3s ease;
+      width: 45px;
+      height: 45px;
+    }
+    .controls button:disabled {
+      background: #555;
+      cursor: default;
+    }
+    .controls button:not(:disabled):hover {
+      background: #a569bd;
+    }
+    .controls button i {
+      stroke: var(--text-primary);
+    }
+    table {
+      width: 100%;
+      max-width: 900px;
+      margin-top: 2rem;
+      border-collapse: collapse;
+      background: var(--surface);
+      border-radius: var(--radius);
+      overflow: hidden;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.5);
+    }
+    th, td {
+      padding: 0.8rem;
+      text-align: center;
+    }
+    th {
+      background: #2c2c2e;
+      font-weight: 500;
+      font-size: 0.95rem;
+      color: var(--text-secondary);
+    }
+    td {
+      color: var(--text-primary);
+      border-top: 1px solid #333;
+      font-size: 0.9rem;
+    }
+    tbody tr:nth-child(odd) td { background: #28282a; }
+    tbody tr:nth-child(even) td { background: #232325; }
+  </style>
+</head>
+<body>
+
+  <img class="logo" src="https://i.imgur.com/lIOr2wQ.png" alt="Logo">
+  <h1 id="title">AFL Ladder</h1>
+
+  <div class="controls">
+    <label>
+      Year
+      <select id="year-select"></select>
+    </label>
+    <label>
+      Round
+      <select id="round-select" disabled></select>
+    </label>
+    <button id="load-btn" aria-label="Load Ladder"><i data-feather="search"></i></button>
+    <button id="export-btn" aria-label="Export CSV" disabled><i data-feather="download-cloud"></i></button>
+  </div>
+
+  <table>
+    <thead>
+      <tr><th>Rank</th><th>Team</th><th>Played</th><th>W</th><th>L</th><th>D</th><th>Pts</th><th>%</th></tr>
+    </thead>
+    <tbody id="ladder-body">
+      <tr><td colspan="8">Select year, then round.</td></tr>
+    </tbody>
+  </table>
+
+  <script>
+    feather.replace({ 'stroke-width': 2, width: '20px', height: '20px' });
+    const yearRounds = {2000:22,2001:22,2002:22,2003:22,2004:22,2005:22,2006:22,2007:22,2008:22,2009:22,2010:22,2011:24,2012:23,2013:23,2014:23,2015:23,2016:23,2017:23,2018:23,2019:23,2020:18,2021:23,2022:23,2023:23,2024:25,2025:25};
+    const maxYear = Math.min(new Date().getFullYear(),2025);
+    const yearSelect=document.getElementById('year-select');
+    const roundSelect=document.getElementById('round-select');
+    const loadBtn=document.getElementById('load-btn');
+    const exportBtn=document.getElementById('export-btn');
+    const titleEl=document.getElementById('title');
+    const tbody=document.getElementById('ladder-body');
+    let currentStandings=[];
+    for(let y=2000;y<=maxYear;y++){const opt=document.createElement('option');opt.value=y;opt.textContent=y;yearSelect.appendChild(opt);}yearSelect.value=2025;
+    function updateRounds(){const y=+yearSelect.value;const maxR=yearRounds[y]||0;roundSelect.innerHTML='';if(maxR>0){for(let r=1;r<=maxR;r++){const o=document.createElement('option');o.value=r;o.textContent=r;roundSelect.appendChild(o);}roundSelect.disabled=false;roundSelect.value=1;}else{roundSelect.disabled=true;}}
+    updateRounds();roundSelect.value=1;yearSelect.addEventListener('change',updateRounds);
+    loadBtn.addEventListener('click',async()=>{const y=yearSelect.value,r=roundSelect.value;titleEl.textContent=`AFL Ladder — ${y} • Round ${r}`;tbody.innerHTML='<tr><td colspan="8">Loading…</td></tr>';exportBtn.disabled=true;try{const res=await fetch(`https://api.squiggle.com.au/?q=standings;year=${y};round=${r}`);const {standings}=await res.json();currentStandings=standings||[];if(!currentStandings.length){tbody.innerHTML='<tr><td colspan="8">No data for that year/round.</td></tr>';return;}tbody.innerHTML='';currentStandings.forEach(rw=>{const tr=document.createElement('tr');tr.innerHTML=`<td>${rw.rank}</td><td>${rw.name}</td><td>${rw.played}</td><td>${rw.wins}</td><td>${rw.losses}</td><td>${rw.draws}</td><td>${rw.pts}</td><td>${rw.percentage.toFixed(1)}</td>`;tbody.appendChild(tr);});exportBtn.disabled=false;}catch(e){console.error(e);tbody.innerHTML='<tr><td colspan="8">Failed to load ladder.</td></tr>';}},false);
+    exportBtn.addEventListener('click',()=>{if(!currentStandings.length)return;const hdr=['Rank','Team','Played','W','L','D','Pts','%'];const rows=currentStandings.map(r=>[r.rank,r.name,r.played,r.wins,r.losses,r.draws,r.pts,r.percentage.toFixed(1)]);const csv=[hdr,...rows].map(r=>r.join(',')).join('\n');const blob=new Blob([csv],{type:'text/csv'});const url=URL.createObjectURL(blob);const a=document.createElement('a');a.href=url;a.download=`ladder_${yearSelect.value}_${roundSelect.value}.csv`;a.click();URL.revokeObjectURL(url);});
+  </script>
+
+</body>
+</html>
