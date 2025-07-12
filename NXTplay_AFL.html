@@ -33,39 +33,57 @@
       position: absolute;
       top: 1rem;
       left: 1rem;
-      width: 100px; /* larger logo */
+      width: 100px;
       height: auto;
     }
     h1 {
       font-size: 2rem;
       font-weight: 500;
-      margin: 3rem 0 1.5rem;
+      margin: 3rem 0 0.5rem;
       letter-spacing: 1px;
       text-align: center;
     }
+    #subtitle {
+      font-size: 1.25rem;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-bottom: 1.5rem;
+    }
     .controls {
       display: flex;
-      flex-wrap: nowrap; /* keep buttons on same level */
-      justify-content: center;
-      align-items: center;
-      gap: 0.75rem;
+      flex-direction: column;
+      gap: 1rem;
       background: var(--card-bg);
       padding: 1rem;
       border-radius: var(--radius);
       box-shadow: 0 4px 10px rgba(0,0,0,0.5);
       width: 100%;
       max-width: 400px;
-      overflow-x: auto; /* allow horizontal scroll if needed */
     }
-    .controls label {
+    .selectors,
+    .actions {
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 0.75rem;
+    }
+    .selectors {
+      flex-wrap: nowrap;
+    }
+    .actions {
+      justify-content: center; /* centered buttons */
+    }
+    .field {
       display: flex;
       flex-direction: column;
-      font-size: 0.9rem;
-      color: var(--text-secondary);
       flex: 1 1 120px;
     }
+    .field-header {
+      font-size: 0.9rem;
+      color: var(--text-secondary);
+      margin-bottom: 0.25rem;
+    }
     .controls select {
-      margin-top: 0.5rem;
       background: var(--surface);
       color: var(--text-primary);
       border: none;
@@ -134,10 +152,13 @@
     tbody tr:nth-child(odd) td { background: #28282a; }
     tbody tr:nth-child(even) td { background: #232325; }
     @media (max-width: 500px) {
-      h1 { font-size: 1.75rem; margin: 2.5rem 0 1rem; }
-      .controls { max-width: 100%; padding: 0.75rem; gap: 0.5rem; }
+      h1 { font-size: 1.75rem; margin: 2.5rem 0 0.5rem; }
+      #subtitle { font-size: 1rem; margin-bottom: 1rem; }
+      .controls { max-width: 100%; padding: 0.75rem; }
+      .selectors, .actions { gap: 0.5rem; }
       .controls button { width: 40px; height: 40px; padding: 0.6rem; }
       .controls select { padding: 0.6rem; }
+      .field-header { font-size: 0.85rem; }
       .logo { width: 70px; top: 0.75rem; left: 0.75rem; }
     }
   </style>
@@ -145,19 +166,24 @@
 <body>
 
   <img class="logo" src="https://i.imgur.com/lIOr2wQ.png" alt="Logo">
-  <h1 id="title">AFL Ladder</h1>
+  <h1>AFL Ladder</h1>
+  <div id="subtitle">2025 • Round 1</div>
 
   <div class="controls">
-    <label>
-      Year
-      <select id="year-select"></select>
-    </label>
-    <label>
-      Round
-      <select id="round-select" disabled></select>
-    </label>
-    <button id="load-btn" aria-label="Search Ladder"><i data-feather="search"></i></button>
-    <button id="export-btn" aria-label="Export CSV" disabled><i data-feather="download-cloud"></i></button>
+    <div class="selectors">
+      <div class="field">
+        <div class="field-header">Year</div>
+        <select id="year-select"></select>
+      </div>
+      <div class="field">
+        <div class="field-header">Round</div>
+        <select id="round-select" disabled></select>
+      </div>
+    </div>
+    <div class="actions">
+      <button id="load-btn" aria-label="Search Ladder"><i data-feather="search"></i></button>
+      <button id="export-btn" aria-label="Export CSV" disabled><i data-feather="download-cloud"></i></button>
+    </div>
   </div>
 
   <div class="table-wrapper">
@@ -179,74 +205,54 @@
     const roundSelect = document.getElementById('round-select');
     const loadBtn = document.getElementById('load-btn');
     const exportBtn = document.getElementById('export-btn');
-    const titleEl = document.getElementById('title');
+    const subtitleEl = document.getElementById('subtitle');
     const tbodyEl = document.getElementById('ladder-body');
     let currentStandings = [];
 
     for(let y=2000; y<=maxYear; y++){
-      const opt = document.createElement('option');
-      opt.value = y;
-      opt.textContent = y;
+      const opt = document.createElement('option'); opt.value = y; opt.textContent = y;
       yearSelect.appendChild(opt);
     }
     yearSelect.value = 2025;
 
     function updateRounds() {
-      const y = +yearSelect.value;
-      const maxR = yearRounds[y] || 0;
+      const y = +yearSelect.value; const maxR = yearRounds[y] || 0;
       roundSelect.innerHTML = '';
-      if(maxR > 0) {
-        for(let r=1; r<=maxR; r++){
-          const o = document.createElement('option'); o.value = r; o.textContent = r;
-          roundSelect.appendChild(o);
-        }
-        roundSelect.disabled = false;
-        roundSelect.value = 1;
-      } else {
-        roundSelect.disabled = true;
-      }
+      if(maxR>0) { for(let r=1;r<=maxR;r++){ const o=document.createElement('option'); o.value=r; o.textContent=r; roundSelect.appendChild(o);} roundSelect.disabled=false; roundSelect.value=1; }
+      else { roundSelect.disabled=true; }
+      subtitleEl.textContent = `${yearSelect.value} • Round ${roundSelect.value}`;
     }
 
-    updateRounds();
-    roundSelect.value = 1;
+    updateRounds(); roundSelect.value=1;
     yearSelect.addEventListener('change', updateRounds);
+    roundSelect.addEventListener('change', ()=> {
+      subtitleEl.textContent = `${yearSelect.value} • Round ${roundSelect.value}`;
+    });
 
-    loadBtn.addEventListener('click', async () => {
+    loadBtn.addEventListener('click', async ()=>{
       const y = yearSelect.value, r = roundSelect.value;
-      titleEl.textContent = `AFL Ladder — ${y} • Round ${r}`;
+      subtitleEl.textContent = `${y} • Round ${r}`;
       tbodyEl.innerHTML = '<tr><td colspan="8">Loading…</td></tr>';
       exportBtn.disabled = true;
       try {
         const res = await fetch(`https://api.squiggle.com.au/?q=standings;year=${y};round=${r}`);
-        const { standings } = await res.json();
-        currentStandings = standings || [];
-        if(!currentStandings.length) {
-          tbodyEl.innerHTML = '<tr><td colspan="8">No data for that year/round.</td></tr>';
-          return;
-        }
-        tbodyEl.innerHTML = '';
-        currentStandings.forEach(row => {
-          const tr = document.createElement('tr');
-          tr.innerHTML = `<td>${row.rank}</td><td>${row.name}</td><td>${row.played}</td><td>${row.wins}</td><td>${row.losses}</td><td>${row.draws}</td><td>${row.pts}</td><td>${row.percentage.toFixed(1)}</td>`;
+        const { standings } = await res.json(); currentStandings = standings||[];
+        if(!currentStandings.length) { tbodyEl.innerHTML = '<tr><td colspan="8">No data for that year/round.</td></tr>'; return; }
+        tbodyEl.innerHTML='';
+        currentStandings.forEach(row=>{ const tr=document.createElement('tr');
+          tr.innerHTML=`<td>${row.rank}</td><td>${row.name}</td><td>${row.played}</td><td>${row.wins}</td><td>${row.losses}</td><td>${row.draws}</td><td>${row.pts}</td><td>${row.percentage.toFixed(1)}</td>`;
           tbodyEl.appendChild(tr);
         });
-        exportBtn.disabled = false;
-      } catch (e) {
-        console.error(e);
-        tbodyEl.innerHTML = '<tr><td colspan="8">Failed to load ladder.</td></tr>';
-      }
-    });
+        exportBtn.disabled=false;
+      } catch(e){ console.error(e); tbodyEl.innerHTML = '<tr><td colspan="8">Failed to load ladder.</td></tr>';}    });
 
-    exportBtn.addEventListener('click', () => {
+    exportBtn.addEventListener('click', ()=>{
       if(!currentStandings.length) return;
-      const headers = ['Rank','Team','Played','W','L','D','Pts','%'];
-      const rows = currentStandings.map(r => [r.rank, r.name, r.played, r.wins, r.losses, r.draws, r.pts, r.percentage.toFixed(1)]);
-      const csv = [headers, ...rows].map(r => r.join(',')).join('\n');
-      const blob = new Blob([csv], { type: 'text/csv' });
-      const url = URL.createObjectURL(blob);
-      const a = document.createElement('a'); a.href = url;
-      a.download = `ladder_${yearSelect.value}_${roundSelect.value}.csv`;
-      a.click(); URL.revokeObjectURL(url);
+      const headers=['Rank','Team','Played','W','L','D','Pts','%'];
+      const rows = currentStandings.map(r=>[r.rank,r.name,r.played,r.wins,r.losses,r.draws,r.pts,r.percentage.toFixed(1)]);
+      const csv = [headers,...rows].map(r=>r.join(',')).join('\n');
+      const blob=new Blob([csv],{type:'text/csv'}); const url=URL.createObjectURL(blob);
+      const a=document.createElement('a');a.href=url; a.download=`ladder_${yearSelect.value}_${roundSelect.value}.csv`; a.click(); URL.revokeObjectURL(url);
     });
   </script>
 
