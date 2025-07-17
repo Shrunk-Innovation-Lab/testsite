@@ -1,203 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <title>VFL Competition Ladder</title>
-    <script src="https://cdn.tailwindcss.com"></script>
-    <link rel="preconnect" href="https://fonts.googleapis.com">
-    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <style>
-        :root {
-            --bg-page: #121212;
-            --bg-header: rgba(18, 18, 18, 0.8);
-            --bg-sheet: rgba(27, 27, 27, 0.6);
-            --text-primary: #f0f0f0;
-            --text-secondary: #a0a0a0;
-            --border-color: rgba(255, 255, 255, 0.1);
-            --accent-purple: #9333ea; /* Purple-600 */
-            --accent-purple-glow: rgba(147, 51, 234, 0.1);
-        }
-
-        body {
-            font-family: 'Inter', sans-serif;
-            background-color: var(--bg-page);
-            color: var(--text-primary);
-        }
-
-        /* Header with blurred background */
-        .header-controls {
-            background: var(--bg-header);
-            backdrop-filter: blur(12px);
-            -webkit-backdrop-filter: blur(12px);
-            border-bottom: 1px solid var(--border-color);
-        }
-
-        /* Main content panel styling */
-        .content-panel {
-            background-color: var(--bg-sheet);
-            border: 1px solid var(--border-color);
-            box-shadow: 0 8px 32px 0 var(--accent-purple-glow);
-        }
-        
-        /* Table header styling */
-        .table-header {
-            background-color: rgba(255, 255, 255, 0.05);
-        }
-
-        /* Table row hover effect */
-        .table-row:hover {
-            background-color: rgba(255, 255, 255, 0.03);
-        }
-
-        /* Style for top 8 teams */
-        .top-finalist {
-            border-left: 4px solid var(--accent-purple);
-        }
-        
-        .border-transparent {
-             border-left: 4px solid transparent;
-        }
-
-        /* Custom scrollbar */
-        ::-webkit-scrollbar {
-            width: 8px;
-        }
-        ::-webkit-scrollbar-track {
-            background: #1a1a1a;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #4a4a4a;
-            border-radius: 10px;
-        }
-        ::-webkit-scrollbar-thumb:hover {
-            background: #6a6a6a;
-        }
-    </style>
-</head>
-<body class="antialiased">
-
-    <!-- Header -->
-    <header class="header-controls sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3">
-        <div class="max-w-6xl mx-auto flex items-center justify-between">
-            <div class="flex items-center space-x-4">
-                <img src="https://i.imgur.com/lIOr2wQ.png" alt="Logo" class="h-9 w-9 rounded-full object-cover" onerror="this.onerror=null;this.src='https://placehold.co/36x36/111827/ffffff?text=L';">
-                <div>
-                    <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-none">VFL LADDER</h1>
-                    <p class="text-xs font-medium" style="color: var(--text-secondary);">Round 17</p>
-                </div>
-            </div>
-            <div id="last-updated" class="text-xs text-right" style="color: var(--text-secondary);"></div>
-        </div>
-    </header>
-
-    <!-- Main Container -->
-    <div class="flex flex-col items-center p-4 sm:p-6 lg:p-8">
-        
-        <!-- Ladder Table Container -->
-        <main class="w-full max-w-6xl content-panel rounded-2xl overflow-hidden mt-4">
-            <div class="overflow-x-auto">
-                <table class="w-full text-sm text-left">
-                    <thead class="text-xs uppercase table-header" style="color: var(--text-secondary);">
-                        <tr>
-                            <th scope="col" class="px-4 py-4 text-center">Pos</th>
-                            <th scope="col" class="px-6 py-4">Team</th>
-                            <th scope="col" class="px-4 py-4 text-center">P</th>
-                            <th scope="col" class="px-4 py-4 text-center">W</th>
-                            <th scope="col" class="px-4 py-4 text-center">L</th>
-                            <th scope="col" class="px-4 py-4 text-center">D</th>
-                            <th scope="col" class="px-6 py-4 text-right">Pts</th>
-                        </tr>
-                    </thead>
-                    <tbody id="ladder-body">
-                        <!-- Table rows will be dynamically inserted here -->
-                    </tbody>
-                </table>
-            </div>
-        </main>
-        
-        <!-- Footer -->
-        <footer class="w-full max-w-5xl mt-8 text-center text-xs" style="color: var(--text-secondary);">
-            <!-- MODIFICATION: Updated footer text -->
-            <p>@2025 | NXTplay Worldwide | All Rights Reserved</p>
-        </footer>
-
-    </div>
-
-    <script>
-        // Ladder data obtained from the successful script run
-        const ladderData = [
-            { Pos: '1', Team: 'Box Hill', W: '12', D: '0', L: '2', Goals: '1418 : 970', PTS: '24' },
-            { Pos: '2', Team: 'Southport', W: '10', D: '1', L: '3', Goals: '1454 : 1033', PTS: '21' },
-            { Pos: '3', Team: 'Footscray', W: '10', D: '0', L: '3', Goals: '1151 : 891', PTS: '20' },
-            { Pos: '4', Team: 'Greater Western Sydney Reserves', W: '9', D: '0', L: '5', Goals: '1351 : 1079', PTS: '18' },
-            { Pos: '5', Team: 'Brisbane Reserves', W: '9', D: '0', L: '4', Goals: '1298 : 1160', PTS: '18' },
-            { Pos: '6', Team: 'Williamstown', W: '9', D: '0', L: '5', Goals: '1232 : 1140', PTS: '18' },
-            { Pos: '7', Team: 'Collingwood Reserves', W: '9', D: '0', L: '5', Goals: '1209 : 1170', PTS: '18' },
-            { Pos: '8', Team: 'Richmond Reserves', W: '9', D: '0', L: '5', Goals: '1038 : 1088', PTS: '18' },
-            { Pos: '9', Team: 'Frankston', W: '8', D: '0', L: '5', Goals: '1106 : 1086', PTS: '16' },
-            { Pos: '10', Team: 'Casey', W: '7', D: '1', L: '6', Goals: '1299 : 1040', PTS: '15' },
-            { Pos: '11', Team: 'North Melbourne Reserves', W: '7', D: '1', L: '5', Goals: '1052 : 1010', PTS: '15' },
-            { Pos: '12', Team: 'Coburg', W: '7', D: '0', L: '7', Goals: '1195 : 1109', PTS: '14' },
-            { Pos: '13', Team: 'Carlton Reserves', W: '7', D: '0', L: '7', Goals: '1152 : 1128', PTS: '14' },
-            { Pos: '14', Team: 'Geelong Reserves', W: '6', D: '0', L: '8', Goals: '1124 : 1164', PTS: '12' },
-            { Pos: '15', Team: 'Werribee', W: '5', D: '0', L: '9', Goals: '1031 : 1089', PTS: '10' },
-            { Pos: '16', Team: 'Port Melbourne', W: '4', D: '1', L: '9', Goals: '1075 : 1099', PTS: '9' },
-            { Pos: '17', Team: 'Gold Coast Reserves', W: '4', D: '1', L: '8', Goals: '1088 : 1142', PTS: '9' },
-            { Pos: '18', Team: 'Essendon Reserves', W: '3', D: '0', L: '10', Goals: '987 : 1137', PTS: '6' },
-            { Pos: '19', Team: 'Sandringham', W: '2', D: '1', L: '11', Goals: '969 : 1313', PTS: '5' },
-            { Pos: '20', Team: 'Sydney Reserves', W: '2', D: '0', L: '12', Goals: '883 : 1329', PTS: '4' },
-            { Pos: '21', Team: 'Northern Bullants', W: '2', D: '0', L: '12', Goals: '773 : 1708', PTS: '4' }
-        ];
-
-        // Function to dynamically populate the table
-        function populateTable() {
-            const tableBody = document.getElementById('ladder-body');
-            if (!tableBody) return;
-
-            tableBody.innerHTML = '';
-
-            ladderData.forEach((team, index) => {
-                const played = parseInt(team.W) + parseInt(team.L) + parseInt(team.D);
-                const row = document.createElement('tr');
-                row.className = 'table-row border-b transition-colors duration-200';
-                row.style.borderColor = 'var(--border-color)';
-                
-                // Add a purple left border for the top 8 teams
-                if (index < 8) {
-                    row.classList.add('top-finalist');
-                } else {
-                    row.classList.add('border-transparent');
-                }
-
-                row.innerHTML = `
-                    <td class="px-4 py-4 text-center font-medium" style="color: var(--text-secondary);">${team.Pos}</td>
-                    <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">${team.Team}</td>
-                    <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${played}</td>
-                    <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.W}</td>
-                    <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.L}</td>
-                    <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.D}</td>
-                    <td class="px-6 py-4 text-right font-bold" style="color: var(--accent-purple);">${team.PTS}</td>
-                `;
-                tableBody.appendChild(row);
-            });
-        }
-        
-        // Function to set the "Last Updated" timestamp
-        function setLastUpdated() {
-             const lastUpdatedDiv = document.getElementById('last-updated');
-             if(!lastUpdatedDiv) return;
-             const now = new Date();
-             const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-             lastUpdatedDiv.textContent = `Last Updated: ${now.toLocaleDateString('en-AU', options)}`;
-        }
-
-        document.addEventListener('DOMContentLoaded', () => {
-            populateTable();
+<script>
+    async function fetchLadder() {
+        try {
+            const res = await fetch('https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/Ladders/VFLladder.json');
+            const ladderData = await res.json();
+            populateTable(ladderData);
             setLastUpdated();
-        });
-    </script>
+        } catch (err) {
+            console.error("❌ Failed to load ladder.json:", err);
+        }
+    }
 
-</body>
-</html>
+    function populateTable(ladderData) {
+        const tableBody = document.getElementById('ladder-body');
+        if (!tableBody) return;
+        tableBody.innerHTML = '';
+
+        ladderData.forEach((team, index) => {
+            const played = team.P;
+            const row = document.createElement('tr');
+            row.className = 'table-row border-b transition-colors duration-200';
+            row.style.borderColor = 'var(--border-color)';
+            row.classList.add(index < 8 ? 'top-finalist' : 'border-transparent');
+
+            row.innerHTML = `
+                <td class="px-4 py-4 text-center font-medium" style="color: var(--text-secondary);">${team.POS}</td>
+                <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">${team.TEAM}</td>
+                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${played}</td>
+                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.W}</td>
+                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.L}</td>
+                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.D}</td>
+                <td class="px-6 py-4 text-right font-bold" style="color: var(--accent-purple);">${team.PTS}</td>
+            `;
+            tableBody.appendChild(row);
+        });
+    }
+
+    function setLastUpdated() {
+        const lastUpdatedDiv = document.getElementById('last-updated');
+        if (!lastUpdatedDiv) return;
+        const now = new Date();
+        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+        lastUpdatedDiv.textContent = `Last Updated: ${now.toLocaleDateString('en-AU', options)}`;
+    }
+
+    document.addEventListener('DOMContentLoaded', fetchLadder);
+</script>
