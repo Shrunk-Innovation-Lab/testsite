@@ -1,47 +1,141 @@
-<script>
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <title>VFL Competition Ladder</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --bg-page: #121212;
+      --bg-header: rgba(18, 18, 18, 0.8);
+      --bg-sheet: rgba(27, 27, 27, 0.6);
+      --text-primary: #f0f0f0;
+      --text-secondary: #a0a0a0;
+      --border-color: rgba(255, 255, 255, 0.1);
+      --accent-purple: #9333ea;
+      --accent-purple-glow: rgba(147, 51, 234, 0.1);
+    }
+    body {
+      font-family: 'Inter', sans-serif;
+      background-color: var(--bg-page);
+      color: var(--text-primary);
+    }
+    .header-controls {
+      background: var(--bg-header);
+      backdrop-filter: blur(12px);
+      -webkit-backdrop-filter: blur(12px);
+      border-bottom: 1px solid var(--border-color);
+    }
+    .content-panel {
+      background-color: var(--bg-sheet);
+      border: 1px solid var(--border-color);
+      box-shadow: 0 8px 32px 0 var(--accent-purple-glow);
+    }
+    .table-header {
+      background-color: rgba(255, 255, 255, 0.05);
+    }
+    .table-row:hover {
+      background-color: rgba(255, 255, 255, 0.03);
+    }
+    .top-finalist {
+      border-left: 4px solid var(--accent-purple);
+    }
+    .border-transparent {
+      border-left: 4px solid transparent;
+    }
+  </style>
+</head>
+<body class="antialiased">
+
+  <!-- Header -->
+  <header class="header-controls sticky top-0 z-50 w-full px-4 sm:px-6 lg:px-8 py-3">
+    <div class="max-w-6xl mx-auto flex items-center justify-between">
+      <div class="flex items-center space-x-4">
+        <img src="https://i.imgur.com/lIOr2wQ.png" alt="Logo" class="h-9 w-9 rounded-full object-cover" />
+        <div>
+          <h1 class="text-xl sm:text-2xl font-bold text-white tracking-tight leading-none">VFL LADDER</h1>
+          <p class="text-xs font-medium" style="color: var(--text-secondary);">Round 17</p>
+        </div>
+      </div>
+      <div id="last-updated" class="text-xs text-right" style="color: var(--text-secondary);"></div>
+    </div>
+  </header>
+
+  <!-- Main Container -->
+  <div class="flex flex-col items-center p-4 sm:p-6 lg:p-8">
+    <main class="w-full max-w-6xl content-panel rounded-2xl overflow-hidden mt-4">
+      <div class="overflow-x-auto">
+        <table class="w-full text-sm text-left">
+          <thead class="text-xs uppercase table-header" style="color: var(--text-secondary);">
+            <tr>
+              <th class="px-4 py-4 text-center">Pos</th>
+              <th class="px-6 py-4">Team</th>
+              <th class="px-4 py-4 text-center">P</th>
+              <th class="px-4 py-4 text-center">W</th>
+              <th class="px-4 py-4 text-center">L</th>
+              <th class="px-4 py-4 text-center">D</th>
+              <th class="px-6 py-4 text-right">Pts</th>
+            </tr>
+          </thead>
+          <tbody id="ladder-body"></tbody>
+        </table>
+      </div>
+    </main>
+
+    <footer class="w-full max-w-5xl mt-8 text-center text-xs" style="color: var(--text-secondary);">
+      <p>@2025 | NXTplay Worldwide | All Rights Reserved</p>
+    </footer>
+  </div>
+
+  <!-- Ladder Fetch & Render -->
+  <script>
     async function fetchLadder() {
-        try {
-            const res = await fetch('https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/Ladders/VFLladder.json');
-            const ladderData = await res.json();
-            populateTable(ladderData);
-            setLastUpdated();
-        } catch (err) {
-            console.error("❌ Failed to load ladder.json:", err);
-        }
+      try {
+        const res = await fetch('https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/Ladders/VFLladder.json');
+        const ladderData = await res.json();
+        populateTable(ladderData);
+        setLastUpdated();
+      } catch (err) {
+        console.error("❌ Failed to load ladder.json:", err);
+      }
     }
 
     function populateTable(ladderData) {
-        const tableBody = document.getElementById('ladder-body');
-        if (!tableBody) return;
-        tableBody.innerHTML = '';
+      const tableBody = document.getElementById('ladder-body');
+      if (!tableBody) return;
+      tableBody.innerHTML = '';
 
-        ladderData.forEach((team, index) => {
-            const played = team.P;
-            const row = document.createElement('tr');
-            row.className = 'table-row border-b transition-colors duration-200';
-            row.style.borderColor = 'var(--border-color)';
-            row.classList.add(index < 8 ? 'top-finalist' : 'border-transparent');
+      ladderData.forEach((team, index) => {
+        const row = document.createElement('tr');
+        row.className = 'table-row border-b transition-colors duration-200';
+        row.style.borderColor = 'var(--border-color)';
+        row.classList.add(index < 8 ? 'top-finalist' : 'border-transparent');
 
-            row.innerHTML = `
-                <td class="px-4 py-4 text-center font-medium" style="color: var(--text-secondary);">${team.POS}</td>
-                <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">${team.TEAM}</td>
-                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${played}</td>
-                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.W}</td>
-                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.L}</td>
-                <td class="px-4 py-4 text-center" style="color: var(--text-secondary);">${team.D}</td>
-                <td class="px-6 py-4 text-right font-bold" style="color: var(--accent-purple);">${team.PTS}</td>
-            `;
-            tableBody.appendChild(row);
-        });
+        row.innerHTML = `
+          <td class="px-4 py-4 text-center font-medium text-gray-400">${team.POS}</td>
+          <td class="px-6 py-4 font-semibold text-white whitespace-nowrap">${team.TEAM}</td>
+          <td class="px-4 py-4 text-center text-gray-300">${team.P}</td>
+          <td class="px-4 py-4 text-center text-gray-300">${team.W}</td>
+          <td class="px-4 py-4 text-center text-gray-300">${team.L}</td>
+          <td class="px-4 py-4 text-center text-gray-300">${team.D}</td>
+          <td class="px-6 py-4 text-right font-bold text-purple-400">${team.PTS}</td>
+        `;
+        tableBody.appendChild(row);
+      });
     }
 
     function setLastUpdated() {
-        const lastUpdatedDiv = document.getElementById('last-updated');
-        if (!lastUpdatedDiv) return;
-        const now = new Date();
-        const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
-        lastUpdatedDiv.textContent = `Last Updated: ${now.toLocaleDateString('en-AU', options)}`;
+      const lastUpdatedDiv = document.getElementById('last-updated');
+      if (!lastUpdatedDiv) return;
+      const now = new Date();
+      const options = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+      lastUpdatedDiv.textContent = `Last Updated: ${now.toLocaleDateString('en-AU', options)}`;
     }
 
     document.addEventListener('DOMContentLoaded', fetchLadder);
-</script>
+  </script>
+
+</body>
+</html>
