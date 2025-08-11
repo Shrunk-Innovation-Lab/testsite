@@ -1,722 +1,730 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
-    <meta name="apple-mobile-web-app-capable" content="yes">
-    <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>Keyzy Key Viewer</title>
-    
-    <!-- Leaflet.js for Mapping -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css" xintegrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==" crossorigin=""/>
-    <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" xintegrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==" crossorigin=""></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+  <meta name="apple-mobile-web-app-capable" content="yes" />
+  <meta name="apple-mobile-web-app-status-bar-style" content="default" />
+  <title>Keyzy Key Viewer</title>
 
-    <!-- Leaflet MarkerCluster for grouping markers -->
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css" />
-    <link rel="stylesheet" href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css" />
-    <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
-    
-    <!-- PapaParse for CSV Parsing -->
-    <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
-    
-    <!-- Tailwind CSS -->
-    <script src="https://cdn.tailwindcss.com"></script>
-    
-    <style>
-        /* Base styles for an iOS look */
-        body {
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
-            background-color: #f2f2f7;
-            /* Prevent scrolling on the body itself */
-            overscroll-behavior-y: contain;
-        }
+  <!-- Leaflet.js for Mapping -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
+    crossorigin=""
+  />
+  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js" crossorigin=""></script>
 
-        #app {
-            /* Use a CSS variable for the dynamic height */
-            height: var(--app-height, 100vh);
-        }
-        
-        /* Custom scrollbar */
-        .custom-scrollbar::-webkit-scrollbar {
-            width: 6px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-track {
-            background: #f2f2f7; 
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb {
-            background: #d1d1d6;
-            border-radius: 3px;
-        }
-        .custom-scrollbar::-webkit-scrollbar-thumb:hover {
-            background: #b2b2b7;
-        }
-        
-        /* Leaflet popup customization */
-        .leaflet-popup-content-wrapper {
-            padding: 1px;
-            border-radius: 12px;
-            background-color: #f9f9f9;
-            color: #1c1c1e; 
-            box-shadow: 0 4px 12px rgba(0,0,0,0.15);
-        }
-        .leaflet-popup-content {
-            margin: 14px 20px;
-            line-height: 1.4;
-        }
-        .leaflet-popup-tip-container {
-            width: 40px;
-            height: 20px;
-        }
-        .leaflet-popup-tip {
-             background-color: #f9f9f9;
-        }
-         .leaflet-popup-close-button {
-            color: #8e8e93;
-        }
-        .leaflet-popup-close-button:hover {
-            color: #1c1c1e;
-        }
-        
-        #loading-overlay {
-            transition: opacity 0.3s ease-in-out;
-        }
-        .leaflet-container {
-            background: #aadaff;
-        }
+  <!-- Leaflet MarkerCluster for grouping markers -->
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.css"
+  />
+  <link
+    rel="stylesheet"
+    href="https://unpkg.com/leaflet.markercluster@1.4.1/dist/MarkerCluster.Default.css"
+  />
+  <script src="https://unpkg.com/leaflet.markercluster@1.4.1/dist/leaflet.markercluster.js"></script>
 
-        /* Style for the emoji marker */
-        .emoji-marker {
-            background: transparent;
-            border: none;
-            font-size: 26px; /* Slightly larger for better visibility */
-            text-shadow: 0 1px 3px rgba(0,0,0,0.4);
-        }
+  <!-- PapaParse for CSV Parsing -->
+  <script src="https://cdn.jsdelivr.net/npm/papaparse@5.3.2/papaparse.min.js"></script>
 
-        /* Sidebar transition */
-        #desktop-sidebar {
-            transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
-        }
-        
-        /* Mobile list drawer transition */
-        #mobile-list-drawer {
-            transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
-        }
-        #mobile-list-drawer.is-collapsed {
-            transform: translateY(calc(100% - 60px - env(safe-area-inset-bottom))); /* Adjust for handle height */
-        }
+  <!-- Tailwind CSS -->
+  <script src="https://cdn.tailwindcss.com"></script>
 
-
-    </style>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto,
+        "Helvetica Neue", Arial, sans-serif;
+      background-color: #f2f2f7;
+      overscroll-behavior-y: contain;
+    }
+    #app {
+      height: var(--app-height, 100vh);
+    }
+    .custom-scrollbar::-webkit-scrollbar {
+      width: 6px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-track {
+      background: #f2f2f7;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb {
+      background: #d1d1d6;
+      border-radius: 3px;
+    }
+    .custom-scrollbar::-webkit-scrollbar-thumb:hover {
+      background: #b2b2b7;
+    }
+    .leaflet-popup-content-wrapper {
+      padding: 1px;
+      border-radius: 12px;
+      background-color: #f9f9f9;
+      color: #1c1c1e;
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    }
+    .leaflet-popup-content {
+      margin: 14px 20px;
+      line-height: 1.4;
+    }
+    .leaflet-popup-tip-container {
+      width: 40px;
+      height: 20px;
+    }
+    .leaflet-popup-tip {
+      background-color: #f9f9f9;
+    }
+    .leaflet-popup-close-button {
+      color: #8e8e93;
+    }
+    .leaflet-popup-close-button:hover {
+      color: #1c1c1e;
+    }
+    #loading-overlay {
+      transition: opacity 0.3s ease-in-out;
+    }
+    .leaflet-container {
+      background: #aadaff;
+    }
+    .emoji-marker {
+      background: transparent;
+      border: none;
+      font-size: 26px;
+      text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
+    }
+    #desktop-sidebar {
+      transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+    }
+    #mobile-list-drawer {
+      transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
+    }
+    #mobile-list-drawer.is-collapsed {
+      transform: translateY(calc(100% - 60px - env(safe-area-inset-bottom)));
+    }
+    .selected-marker {
+      animation: pulse 1.5s ease-in-out infinite;
+    }
+    @keyframes pulse {
+      0% {transform: scale(1)}
+      50% {transform: scale(1.15)}
+      100% {transform: scale(1)}
+    }
+  </style>
 </head>
 <body class="text-black font-sans antialiased">
-
-    <div id="app" class="w-screen flex md:flex-row overflow-hidden bg-gray-100">
-        <!-- Loading Overlay -->
-        <div id="loading-overlay" class="absolute inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center">
-            <div class="text-center">
-                <svg class="mx-auto h-12 w-12 text-gray-400 animate-spin" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                    <circle class="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" stroke-width="4"></circle>
-                    <path class="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                </svg>
-                <h2 class="mt-4 text-xl font-semibold text-gray-700">Loading Key Data...</h2>
-                <p class="text-gray-500">Please wait a moment.</p>
-            </div>
-        </div>
-
-        <!-- Desktop Sidebar -->
-        <aside id="desktop-sidebar" class="w-full md:w-1/3 lg:w-1/4 max-w-sm h-full flex-col flex-shrink-0 bg-gray-100 hidden md:flex">
-            <!-- Filter Panel -->
-            <div class="p-4 bg-gray-100 border-r border-gray-200">
-                 <div class="flex justify-between items-start mb-6 pt-4 px-2">
-                    <div class="flex flex-col items-center w-full">
-                         <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-12 w-12">
-                         <h1 class="text-2xl font-bold text-gray-800 pt-4">Keyzy</h1>
-                    </div>
-                    <button id="collapse-sidebar-btn" title="Collapse Sidebar" class="p-2 text-gray-500 hover:bg-gray-200 rounded-full">
-                         <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z" clip-rule="evenodd" /></svg>
-                    </button>
-                </div>
-                <div id="filter-panel-desktop">
-                    <!-- Sidebar content will be injected here -->
-                </div>
-            </div>
-            <!-- Key List -->
-            <div class="flex-grow min-h-0 bg-gray-100 border-r border-gray-200 px-2">
-                <div id="key-list-container-desktop" class="h-full overflow-y-auto custom-scrollbar">
-                    <!-- Key list items will be injected here -->
-                </div>
-            </div>
-        </aside>
-
-        <!-- Main Content (Map and Mobile UI) -->
-        <main class="flex-grow h-full flex flex-col relative">
-             <!-- Mobile Header -->
-            <header id="mobile-header" class="bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm p-2 flex justify-between items-center z-20 flex-shrink-0 md:hidden" style="padding-top: calc(env(safe-area-inset-top) + 0.5rem); padding-bottom: 0.5rem;">
-               <div class="flex items-center space-x-3 pl-2">
-                <h1 class="text-lg font-bold text-gray-800">Keyzy</h1>
-               </div>
-                <button id="open-filter-btn" class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
-                </button>
-            </header>
-            
-            <div class="flex-grow relative">
-                <div id='map' class='w-full h-full z-10'></div>
-                <button id="expand-sidebar-btn" title="Show Filters" class="hidden absolute top-20 left-4 z-20 bg-white/80 backdrop-blur-lg p-2 rounded-lg shadow-lg text-gray-600 hover:bg-gray-200 border border-gray-200">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z" clip-rule="evenodd" /></svg>
-                </button>
-            </div>
-
-             <!-- Mobile Drawer for Key List -->
-             <div id="mobile-list-drawer" class="is-collapsed absolute bottom-0 left-0 right-0 h-1/3 bg-white/80 backdrop-blur-lg shadow-lg overflow-hidden rounded-t-lg z-20 flex flex-col border-t border-gray-200 md:hidden" style="padding-bottom: env(safe-area-inset-bottom);">
-                <div id="mobile-list-handle" class="p-2 bg-transparent text-center cursor-grab">
-                    <div class="w-8 h-1 bg-gray-300 rounded-full mx-auto"></div>
-                    <h3 id="mobile-list-header" class="font-semibold text-gray-600 text-sm mt-1">0 Keys Found</h3>
-                </div>
-                <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto custom-scrollbar">
-                    <!-- Mobile key list will be injected here -->
-                </div>
-            </div>
-
-            <div id="toast" class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg text-sm transition-opacity duration-300">
-                Location copied to clipboard!
-            </div>
-        </main>
-        
-        <!-- Mobile Drawer for Filters -->
-        <div id="mobile-drawer" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden">
-            <div id="mobile-drawer-content" class="absolute bottom-0 left-0 right-0 max-h-[90vh] bg-gray-100 shadow-xl rounded-t-2xl p-4 transform translate-y-full transition-transform duration-300 ease-in-out overflow-y-auto" style="padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);">
-                <div class="flex justify-between items-center mb-4">
-                    <h2 class="text-xl font-semibold text-gray-800">Filters</h2>
-                    <button id="close-filter-btn" class="p-2 h-auto bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-full">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
-                    </button>
-                </div>
-                <div id="filter-panel-mobile">
-                     <!-- Mobile filter content will be injected here -->
-                </div>
-            </div>
-        </div>
+  <div id="app" class="w-screen flex md:flex-row overflow-hidden bg-gray-100">
+    <!-- Loading Overlay -->
+    <div
+      id="loading-overlay"
+      class="absolute inset-0 bg-gray-100/80 backdrop-blur-sm z-50 flex items-center justify-center"
+    >
+      <div class="text-center">
+        <svg
+          class="mx-auto h-12 w-12 text-gray-400 animate-spin"
+          xmlns="http://www.w3.org/2000/svg"
+          fill="none"
+          viewBox="0 0 24 24"
+        >
+          <circle
+            class="opacity-25"
+            cx="12"
+            cy="12"
+            r="10"
+            stroke="currentColor"
+            stroke-width="4"
+          ></circle>
+          <path
+            class="opacity-75"
+            fill="currentColor"
+            d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+          ></path>
+        </svg>
+        <h2 class="mt-4 text-xl font-semibold text-gray-700">
+          Loading Key Data...
+        </h2>
+        <p class="text-gray-500">Please wait a moment.</p>
+      </div>
     </div>
 
-    <script>
-        // Set dynamic height for mobile browsers
-        const setAppHeight = () => {
-            const doc = document.documentElement;
-            doc.style.setProperty('--app-height', `${window.innerHeight}px`);
+    <!-- Desktop Sidebar -->
+    <aside
+      id="desktop-sidebar"
+      class="w-full md:w-1/3 lg:w-1/4 max-w-sm h-full flex-col flex-shrink-0 bg-gray-100 hidden md:flex"
+    >
+      <div class="p-4 bg-gray-100 border-r border-gray-200">
+        <div class="flex justify-between items-start mb-6 pt-4 px-2">
+          <div class="flex flex-col items-center w-full">
+            <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-12 w-12" />
+            <h1 class="text-2xl font-bold text-gray-800 pt-4">Keyzy</h1>
+          </div>
+          <button
+            id="collapse-sidebar-btn"
+            title="Collapse Sidebar"
+            class="p-2 text-gray-500 hover:bg-gray-200 rounded-full"
+            aria-label="Collapse sidebar"
+          >
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              class="h-5 w-5"
+              viewBox="0 0 20 20"
+              fill="currentColor"
+            >
+              <path
+                fill-rule="evenodd"
+                d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z"
+                clip-rule="evenodd"
+              />
+            </svg>
+          </button>
+        </div>
+        <div id="filter-panel-desktop"></div>
+      </div>
+      <div class="flex-grow min-h-0 bg-gray-100 border-r border-gray-200 px-2">
+        <div id="key-list-container-desktop" class="h-full overflow-y-auto custom-scrollbar"></div>
+      </div>
+    </aside>
+
+    <!-- Main Content -->
+    <main class="flex-grow h-full flex flex-col relative">
+      <header
+        id="mobile-header"
+        class="bg-white/80 backdrop-blur-lg border-b border-gray-200 shadow-sm p-2 flex justify-between items-center z-20 flex-shrink-0 md:hidden"
+        style="padding-top: calc(env(safe-area-inset-top) + 0.5rem); padding-bottom: 0.5rem;"
+      >
+        <div class="flex items-center space-x-3 pl-2">
+          <h1 class="text-lg font-bold text-gray-800">Keyzy</h1>
+        </div>
+        <button
+          id="open-filter-btn"
+          class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md"
+          aria-label="Open filters"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+        </button>
+      </header>
+
+      <div class="flex-grow relative">
+        <div id="map" class="w-full h-full z-10"></div>
+        <button
+          id="expand-sidebar-btn"
+          title="Show Filters"
+          class="hidden absolute top-20 left-4 z-20 bg-white/80 backdrop-blur-lg p-2 rounded-lg shadow-lg text-gray-600 hover:bg-gray-200 border border-gray-200"
+          aria-label="Show filters"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M15 3H5a2 2 0 00-2 2v10a2 2 0 002 2h10a2 2 0 002-2V5a2 2 0 00-2-2zm-4 4H7a1 1 0 000 2h4a1 1 0 100-2zm0 4H7a1 1 0 100 2h4a1 1 0 100-2z" clip-rule="evenodd" /></svg>
+        </button>
+      </div>
+
+      <!-- Mobile Drawer for Key List -->
+      <div
+        id="mobile-list-drawer"
+        class="is-collapsed absolute bottom-0 left-0 right-0 h-1/3 bg-white/80 backdrop-blur-lg shadow-lg overflow-hidden rounded-t-lg z-20 flex flex-col border-t border-gray-200 md:hidden"
+        style="padding-bottom: env(safe-area-inset-bottom);"
+      >
+        <div id="mobile-list-handle" class="p-2 bg-transparent text-center cursor-grab">
+          <div class="w-8 h-1 bg-gray-300 rounded-full mx-auto"></div>
+          <h3 id="mobile-list-header" class="font-semibold text-gray-600 text-sm mt-1">0 Keys Found</h3>
+        </div>
+        <div id="key-list-container-mobile" class="flex-grow min-h-0 overflow-y-auto custom-scrollbar"></div>
+      </div>
+
+      <div id="toast" class="hidden absolute bottom-10 left-1/2 -translate-x-1/2 bg-gray-800 text-white px-4 py-2 rounded-full shadow-lg text-sm transition-opacity duration-300">Location copied to clipboard!</div>
+    </main>
+
+    <!-- Mobile Drawer for Filters -->
+    <div id="mobile-drawer" class="fixed inset-0 bg-black/40 z-30 hidden md:hidden">
+      <div
+        id="mobile-drawer-content"
+        class="absolute bottom-0 left-0 right-0 max-h-[90vh] bg-gray-100 shadow-xl rounded-t-2xl p-4 transform translate-y-full transition-transform duration-300 ease-in-out overflow-y-auto"
+        style="padding-bottom: calc(env(safe-area-inset-bottom) + 1rem);"
+      >
+        <div class="flex justify-between items-center mb-4">
+          <h2 class="text-xl font-semibold text-gray-800">Filters</h2>
+          <button id="close-filter-btn" class="p-2 h-auto bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-full" aria-label="Close filters">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
+          </button>
+        </div>
+        <div id="filter-panel-mobile"></div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // Dynamic height for mobile browsers (reacts to address bar)
+    const setAppHeight = () => {
+      const doc = document.documentElement;
+      const vh = window.visualViewport ? window.visualViewport.height : window.innerHeight;
+      doc.style.setProperty('--app-height', `${vh}px`);
+    };
+    window.addEventListener('resize', setAppHeight);
+    window.visualViewport && window.visualViewport.addEventListener('resize', setAppHeight);
+    setAppHeight();
+
+    // --- CONFIG ---
+    const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
+
+    // NEW: second CSV source (corrected to end with output=csv)
+    const EXTRA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSLBH5SwHiP1E9aeVe4Zc_zGAdwzRHIHJWrdyqzyhlIF--wEY3EAUSqukuWN1MRCTuWeY0-ZHfwCC7V/pub?output=csv';
+
+    // NEW: whitelist for keys from extra sheet (strings to preserve leading zeros if any)
+    const INCLUDED_KEYS = new Set([
+      '163097', // "Key Tag 163097" retained in case it represents a key id
+      '63104','63637','63143','63514','63103','63106','63142','63518','63439','63441','63486','63316','63491','63635','63654','63608','63632','63602','63191','63596','63378','63185','63614','63515','63628','63659'
+    ]);
+
+    const INITIAL_CENTER = [-28.0167, 153.4];
+    const INITIAL_ZOOM = 10;
+    const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
+    const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+
+    // --- STATE ---
+    let map;
+    let markersLayer = L.markerClusterGroup({ chunkedLoading: true, chunkDelay: 16, chunkInterval: 200 });
+    let pathLayer = L.layerGroup();
+    let allData = [];
+    let keysets = [];
+    let selectedKeyId = null;
+    let selectedMarker = null;
+    let filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
+
+    // --- DOM Elements ---
+    const loadingOverlay = document.getElementById('loading-overlay');
+    const desktopSidebar = document.getElementById('desktop-sidebar');
+    const filterPanelDesktop = document.getElementById('filter-panel-desktop');
+    const filterPanelMobile = document.getElementById('filter-panel-mobile');
+    const keyListDesktop = document.getElementById('key-list-container-desktop');
+    const keyListMobile = document.getElementById('key-list-container-mobile');
+    const mobileListHeader = document.getElementById('mobile-list-header');
+    const collapseBtn = document.getElementById('collapse-sidebar-btn');
+    const expandBtn = document.getElementById('expand-sidebar-btn');
+    const toastEl = document.getElementById('toast');
+    const mobileListDrawer = document.getElementById('mobile-list-drawer');
+    const mobileListHandle = document.getElementById('mobile-list-handle');
+
+    // --- Utils ---
+    const esc = (s='') => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+
+    function toISO(s) {
+      if (!s) return null;
+      const [datePart, timePart=''] = String(s).trim().split(/\s+/);
+      const dmy = datePart.match(/^(\d{1,2})\/(\d{1,2})\/(\d{4})$/);
+      if (dmy) {
+        const [, d, m, y] = dmy;
+        const [hh='00', mm='00', ss='00'] = (timePart || '').split(':');
+        return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T${hh.padStart(2,'0')}:${mm.padStart(2,'0')}:${ss.padStart(2,'0')}`;
+      }
+      // assume already ISO-like
+      return datePart + (timePart ? `T${timePart}` : '');
+    }
+
+    function fmtDate(s) {
+      const dt = new Date(toISO(s));
+      return isNaN(dt) ? 'N/A' : dt.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function parseCsv(url) {
+      return new Promise((resolve, reject) => {
+        Papa.parse(url, {
+          download: true,
+          header: true,
+          skipEmptyLines: true,
+          complete: (res) => resolve(res.data || []),
+          error: reject
+        });
+      });
+    }
+
+    function normalizeRow(row, idx) {
+      const nameRaw = row.name ? String(row.name).replace(/^Key\s*/i, '').trim() : '';
+      return {
+        ...row,
+        name: nameRaw,
+        id: idx, // temporary; we reassign later after merging
+      };
+    }
+
+    function validGeo(row) {
+      const lat = parseFloat(row.locationlatitude);
+      const lon = parseFloat(row.locationlongitude);
+      return !isNaN(lat) && !isNaN(lon);
+    }
+
+    function keyIsInRange(row) {
+      const n = parseInt(row.name, 10);
+      return !isNaN(n) && n >= 60000 && n < 80000;
+    }
+
+    function createFeature(row) {
+      return {
+        type: 'Feature',
+        properties: row,
+        geometry: {
+          type: 'Point',
+          coordinates: [parseFloat(row.locationlongitude), parseFloat(row.locationlatitude)]
+        }
+      };
+    }
+
+    /**
+     * ===================================================================
+     * UI RENDERING & EVENT LISTENERS
+     * ===================================================================
+     */
+    function createFilterContent(keysetOptions) {
+      return `
+        <div class="space-y-6">
+          <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm">
+            <div class="p-3 flex justify-between items-center border-b border-gray-200/80">
+              <label for="startDate" class="text-sm font-medium text-gray-700">Start Date</label>
+              <input type="date" name="startDate" class="text-sm border-gray-300 rounded-md" />
+            </div>
+            <div class="p-3 flex justify-between items-center">
+              <label for="endDate" class="text-sm font-medium text-gray-700">End Date</label>
+              <input type="date" name="endDate" class="text-sm border-gray-300 rounded-md" />
+            </div>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
+            <label for="keyset" class="text-sm font-medium text-gray-700">Keyset</label>
+            <select name="keyset" class="w-1/2 text-sm bg-white border-gray-300 rounded-md focus:ring-0 text-right">
+              <option value="all">All Keys</option>
+              ${keysetOptions.map(k => `<option value="${k}">Key ${esc(k)}</option>`).join('')}
+            </select>
+          </div>
+          <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
+            <label for="latest-only" class="text-sm font-medium text-gray-700">Latest Location Only</label>
+            <input id="latest-only" name="latestOnly" type="checkbox" class="h-5 w-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500" ${filters.latestOnly ? 'checked' : ''} />
+          </div>
+          <div class="pt-4 space-y-3">
+            <button name="apply" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-blue-500 text-white hover:bg-blue-600 h-11 px-4 py-2 transition-colors shadow-sm">Find</button>
+            <button name="reset" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 h-11 px-4 py-2 transition-colors">Reset</button>
+          </div>
+        </div>`;
+    }
+
+    function createKeyListItem(item, isSelected) {
+      const dateStr = fmtDate(item.properties.datetime);
+      const locationType = item.properties.locationpositiontype
+        ? item.properties.locationpositiontype.charAt(0).toUpperCase() + item.properties.locationpositiontype.slice(1).toLowerCase()
+        : null;
+      const subtitleHTML = locationType ? `<span class="text-xs font-semibold text-blue-500 bg-blue-100 px-2 py-1 rounded-full">${esc(locationType)}</span>` : '';
+      const shareButtonHTML = isSelected ? `
+        <div class="mt-3 pt-3 border-t border-gray-200">
+          <button class="message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
+            data-lat="${item.geometry.coordinates[1]}"
+            data-lon="${item.geometry.coordinates[0]}"
+            data-name="${esc(item.properties.name)}"
+            data-address="${esc(item.properties.addresslabel || 'N/A')}"
+            data-datetime="${esc(dateStr)}">
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
+            Message Location
+          </button>
+        </div>` : '';
+
+      return `
+        <div class="key-list-item p-4 rounded-xl cursor-pointer transition-shadow duration-300 ${isSelected ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}" data-key-id="${item.properties.__uid}">
+          <div class="flex items-center justify-between">
+            <p class="font-semibold text-gray-800">Key ${esc(item.properties.name)}</p>
+            ${subtitleHTML}
+          </div>
+          <p class="text-sm text-gray-600 truncate pt-1">${esc(item.properties.addresslabel || 'Address not available')}</p>
+          <p class="text-xs text-gray-500 pt-1">${esc(dateStr)}</p>
+          ${shareButtonHTML}
+        </div>`;
+    }
+
+    function renderKeyList(items) {
+      try {
+        if (items.length === 0) {
+          const noResultsHTML = `<div class="p-4 text-center text-gray-500">No keys found.</div>`;
+          keyListDesktop.innerHTML = noResultsHTML;
+          keyListMobile.innerHTML = noResultsHTML;
+          mobileListHeader.textContent = '0 Keys Found';
+          return;
+        }
+        const listHTML = `<div class="space-y-3 p-2">${items.map(item => createKeyListItem(item, item.properties.__uid === selectedKeyId)).join('')}</div>`;
+        keyListDesktop.innerHTML = listHTML;
+        keyListMobile.innerHTML = listHTML;
+        mobileListHeader.textContent = `${items.length} Keys Found`;
+
+        document.querySelectorAll('.key-list-item').forEach(el => {
+          el.addEventListener('click', (e) => {
+            if (e.target.closest('.message-btn')) return;
+            const uid = el.getAttribute('data-key-id');
+            const key = allData.find(d => String(d.properties.__uid) === String(uid));
+            if (key) {
+              selectedKeyId = key.properties.__uid;
+              map.flyTo([key.geometry.coordinates[1], key.geometry.coordinates[0]], 16);
+              runFilters(false);
+            }
+          });
+        });
+
+        document.querySelectorAll('.message-btn').forEach(el => {
+          el.addEventListener('click', handleMessageButtonClick);
+        });
+      } catch (err) {
+        console.error('Error rendering key list:', err);
+      }
+    }
+
+    function setupEventListeners() {
+      const filterForms = [filterPanelDesktop, filterPanelMobile];
+      filterForms.forEach(container => {
+        const applyBtn = container.querySelector('button[name="apply"]');
+        const resetBtn = container.querySelector('button[name="reset"]');
+
+        if (applyBtn) {
+          applyBtn.addEventListener('click', () => {
+            selectedKeyId = null;
+            filters.startDate = container.querySelector('[name="startDate"]').value || null;
+            filters.endDate = container.querySelector('[name="endDate"]').value || null;
+            filters.keyset = container.querySelector('[name="keyset"]').value;
+            filters.latestOnly = container.querySelector('[name="latestOnly"]').checked;
+            runFilters();
+            if (container.id === 'filter-panel-mobile') toggleMobileDrawer(false);
+          });
+        }
+        if (resetBtn) {
+          resetBtn.addEventListener('click', () => {
+            selectedKeyId = null;
+            container.querySelector('[name="startDate"]').value = '';
+            container.querySelector('[name="endDate"]').value = '';
+            container.querySelector('[name="keyset"]').value = 'all';
+            container.querySelector('[name="latestOnly"]').checked = true;
+            filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
+            runFilters();
+          });
+        }
+      });
+
+      collapseBtn.addEventListener('click', () => toggleDesktopSidebar(false));
+      expandBtn.addEventListener('click', () => toggleDesktopSidebar(true));
+
+      const mobileDrawer = document.getElementById('mobile-drawer');
+      document.getElementById('open-filter-btn').addEventListener('click', () => toggleMobileDrawer(true));
+      document.getElementById('close-filter-btn').addEventListener('click', () => toggleMobileDrawer(false));
+      mobileDrawer.addEventListener('click', (e) => { if (e.target === mobileDrawer) toggleMobileDrawer(false); });
+
+      // Mobile list handle tap/drag
+      let touchStartY = 0;
+      mobileListHandle.addEventListener('click', () => setListDrawerState(!mobileListDrawer.classList.contains('is-collapsed')));
+      mobileListHandle.addEventListener('touchstart', (e) => { touchStartY = e.touches[0].clientY; }, { passive: true });
+      mobileListHandle.addEventListener('touchend', (e) => {
+        if (touchStartY === 0) return;
+        const touchEndY = e.changedTouches[0].clientY;
+        const deltaY = touchEndY - touchStartY;
+        touchStartY = 0;
+        if (Math.abs(deltaY) < 50) return;
+        setListDrawerState(deltaY > 0);
+      });
+    }
+
+    async function handleMessageButtonClick(e) {
+      e.stopPropagation();
+      const button = e.currentTarget;
+      const lat = button.dataset.lat;
+      const lon = button.dataset.lon;
+      const name = button.dataset.name;
+      const address = button.dataset.address;
+      const datetime = button.dataset.datetime;
+      const g = `https://maps.google.com/?q=${lat},${lon}`;
+      const a = `http://maps.apple.com/?ll=${lat},${lon}`;
+      const shareData = {
+        title: 'The last Keyzy location for',
+        text: `The last Keyzy location for\n\nKey ${name}\nAddress: ${address}\nTime: ${datetime}\n\nView on map:\nGoogle: ${g}\nApple: ${a}`,
+      };
+      try {
+        if (navigator.share) await navigator.share(shareData);
+        else throw new Error('Web Share API not supported.');
+      } catch (err) {
+        try { await navigator.clipboard.writeText(shareData.text); showToast('Location copied to clipboard!'); }
+        catch { showToast('Failed to copy location.'); }
+      }
+    }
+
+    function showToast(message) {
+      toastEl.textContent = message;
+      toastEl.classList.remove('hidden');
+      setTimeout(() => toastEl.classList.add('hidden'), 3000);
+    }
+
+    function toggleDesktopSidebar(show) {
+      if (show) { desktopSidebar.classList.remove('hidden'); expandBtn.classList.add('hidden'); }
+      else { desktopSidebar.classList.add('hidden'); expandBtn.classList.remove('hidden'); }
+      setTimeout(() => map && map.invalidateSize(), 310);
+    }
+    function setListDrawerState(collapsed) {
+      mobileListDrawer.classList.toggle('is-collapsed', collapsed);
+      setTimeout(() => map && map.invalidateSize(), 310);
+    }
+    function toggleMobileDrawer(show) {
+      const drawer = document.getElementById('mobile-drawer');
+      const content = document.getElementById('mobile-drawer-content');
+      if (show) { drawer.classList.remove('hidden'); setTimeout(() => content.classList.remove('translate-y-full'), 10); }
+      else { content.classList.add('translate-y-full'); setTimeout(() => drawer.classList.add('hidden'), 300); }
+    }
+
+    /**
+     * ===================================================================
+     * DATA FETCHING & PROCESSING
+     * ===================================================================
+     */
+    async function fetchData() {
+      loadingOverlay.style.opacity = '1';
+      loadingOverlay.classList.remove('hidden');
+      try {
+        const [mainRowsRaw, extraRowsRaw] = await Promise.all([
+          parseCsv(GOOGLE_SHEET_URL),
+          parseCsv(EXTRA_SHEET_URL)
+        ]);
+
+        // Normalize
+        let mainRows = mainRowsRaw.map(normalizeRow);
+        let extraRows = extraRowsRaw.map(normalizeRow);
+
+        // From the EXTRA sheet include ONLY whitelisted keys + valid coordinates
+        extraRows = extraRows.filter(r => INCLUDED_KEYS.has(String(r.name)) && validGeo(r));
+
+        // From the MAIN sheet include normal range keys + valid coordinates
+        mainRows = mainRows.filter(r => keyIsInRange(r) && validGeo(r));
+
+        // Merge
+        const merged = [...mainRows, ...extraRows];
+
+        // Assign stable uid per row (source index)
+        merged.forEach((r, i) => (r.__uid = `row_${i}`));
+
+        // Convert to features
+        allData = merged
+          .filter(r => r.datetime && r.name)
+          .sort((a, b) => new Date(toISO(b.datetime)) - new Date(toISO(a.datetime)))
+          .map(r => createFeature(r));
+
+        // Build keyset list from all data
+        keysets = [...new Set(allData.map(item => item.properties.name))].sort((a, b) => {
+          const numA = parseInt(a), numB = parseInt(b);
+          return (!isNaN(numA) && !isNaN(numB)) ? numA - numB : String(a).localeCompare(String(b));
+        });
+
+        const filterHTML = createFilterContent(keysets);
+        filterPanelDesktop.innerHTML = filterHTML;
+        filterPanelMobile.innerHTML = filterHTML;
+
+        setupEventListeners();
+        initializeMap();
+        runFilters();
+      } catch (err) {
+        console.error('Error fetching or parsing data:', err);
+        loadingOverlay.innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Failed to download key data from the source(s).</div>`;
+      } finally {
+        setTimeout(() => {
+          loadingOverlay.style.opacity = '0';
+          setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
+        }, 500);
+      }
+    }
+
+    function runFilters(fitMapToBounds = true) {
+      try {
+        let data = [...allData];
+
+        const dateInRange = (s, startISO, endISO) => {
+          const iso = toISO(s);
+          if (!iso) return false;
+          const d = iso.slice(0,10); // YYYY-MM-DD
+          if (startISO && d < startISO) return false;
+          if (endISO && d > endISO) return false;
+          return true;
         };
-        window.addEventListener('resize', setAppHeight);
-        setAppHeight();
 
-        // --- CONFIG ---
-        const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
-        const INITIAL_CENTER = [-28.0167, 153.4000]; // [Latitude, Longitude] for Leaflet
-        const INITIAL_ZOOM = 10;
-        const TILE_URL = 'https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png';
-        const TILE_ATTRIBUTION = '&copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors';
+        if (filters.startDate) data = data.filter(it => dateInRange(it.properties.datetime, filters.startDate, null));
+        if (filters.endDate) data = data.filter(it => dateInRange(it.properties.datetime, null, filters.endDate));
+        if (filters.keyset !== 'all') data = data.filter(it => String(it.properties.name) === String(filters.keyset));
 
-
-        // --- STATE ---
-        let map;
-        let markersLayer = L.markerClusterGroup();
-        let pathLayer = L.layerGroup();
-        let allData = [];
-        let keysets = [];
-        let selectedKeyId = null;
-        let filters = {
-            startDate: null,
-            endDate: null,
-            keyset: 'all',
-            latestOnly: true, // Default to showing latest location only
-        };
-        
-        // --- DOM Elements ---
-        const loadingOverlay = document.getElementById('loading-overlay');
-        const desktopSidebar = document.getElementById('desktop-sidebar');
-        const filterPanelDesktop = document.getElementById('filter-panel-desktop');
-        const filterPanelMobile = document.getElementById('filter-panel-mobile');
-        const keyListDesktop = document.getElementById('key-list-container-desktop');
-        const keyListMobile = document.getElementById('key-list-container-mobile');
-        const mobileListHeader = document.getElementById('mobile-list-header');
-        const collapseBtn = document.getElementById('collapse-sidebar-btn');
-        const expandBtn = document.getElementById('expand-sidebar-btn');
-        const toastEl = document.getElementById('toast');
-        const mobileListDrawer = document.getElementById('mobile-list-drawer');
-        const mobileListHandle = document.getElementById('mobile-list-handle');
-
-        /**
-         * ===================================================================
-         * UI RENDERING & EVENT LISTENERS
-         * ===================================================================
-         */
-
-        function createFilterContent(keysetOptions) {
-            return `
-                <div class="space-y-6">
-                    <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm">
-                        <div class="p-3 flex justify-between items-center border-b border-gray-200/80">
-                            <label for="startDate" class="text-sm font-medium text-gray-700">Start Date</label>
-                            <input type="date" name="startDate" class="text-sm border-gray-300 rounded-md">
-                        </div>
-                        <div class="p-3 flex justify-between items-center">
-                            <label for="endDate" class="text-sm font-medium text-gray-700">End Date</label>
-                            <input type="date" name="endDate" class="text-sm border-gray-300 rounded-md">
-                        </div>
-                    </div>
-
-                     <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
-                        <label for="keyset" class="text-sm font-medium text-gray-700">Keyset</label>
-                        <select name="keyset" class="w-1/2 text-sm bg-white border-gray-300 rounded-md focus:ring-0 text-right">
-                            <option value="all">All Keys</option>
-                            ${keysetOptions.map(k => `<option value="${k}">Key ${k}</option>`).join('')}
-                        </select>
-                    </div>
-
-                    <div class="bg-white rounded-xl border border-gray-200/80 shadow-sm p-3 flex justify-between items-center">
-                        <label for="latest-only" class="text-sm font-medium text-gray-700">Latest Location Only</label>
-                        <input id="latest-only" name="latestOnly" type="checkbox" class="h-5 w-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500" ${filters.latestOnly ? 'checked' : ''}>
-                    </div>
-                    
-                    <div class="pt-4 space-y-3">
-                        <button name="apply" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-blue-500 text-white hover:bg-blue-600 h-11 px-4 py-2 transition-colors shadow-sm">Find</button>
-                        <button name="reset" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 h-11 px-4 py-2 transition-colors">Reset</button>
-                    </div>
-                </div>
-            `;
+        if (filters.latestOnly) {
+          const latest = new Map();
+          for (const it of data) {
+            const key = it.properties.name;
+            const t = new Date(toISO(it.properties.datetime)).getTime();
+            const prev = latest.get(key);
+            if (!prev || t > prev.t) latest.set(key, { t, it });
+          }
+          data = Array.from(latest.values()).map(v => v.it);
         }
 
-        function createKeyListItem(item, isSelected) {
-            const date = new Date(item.properties.datetime);
-            const dateStr = isNaN(date) ? 'N/A' : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-            
-            const locationType = item.properties.locationpositiontype 
-                ? item.properties.locationpositiontype.charAt(0).toUpperCase() + item.properties.locationpositiontype.slice(1).toLowerCase() 
-                : null;
-                
-            const subtitleHTML = locationType ? `<span class="text-xs font-semibold text-blue-500 bg-blue-100 px-2 py-1 rounded-full">${locationType}</span>` : '';
+        // Keep newest-first for list
+        data.sort((a, b) => new Date(toISO(b.properties.datetime)) - new Date(toISO(a.properties.datetime)));
 
-            const shareButtonHTML = isSelected ? `
-                <div class="mt-3 pt-3 border-t border-gray-200">
-                    <button class="message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
-                        data-lat="${item.geometry.coordinates[1]}"
-                        data-lon="${item.geometry.coordinates[0]}"
-                        data-name="${item.properties.name}"
-                        data-address="${item.properties.addresslabel || 'N/A'}"
-                        data-datetime="${dateStr}">
-                        <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5 mr-2" viewBox="0 0 20 20" fill="currentColor"><path d="M15 8a3 3 0 10-2.977-2.63l-4.94 2.47a3 3 0 100 4.319l4.94 2.47a3 3 0 10.895-1.789l-4.94-2.47a3.027 3.027 0 000-.74l4.94-2.47C13.456 7.68 14.19 8 15 8z" /></svg>
-                        Message Location
-                    </button>
-                </div>
-            ` : '';
+        renderKeyList(data);
+        updateMapData(data, fitMapToBounds);
+      } catch (err) {
+        console.error('Error during filtering:', err);
+      }
+    }
 
-            return `
-                <div
-                    class="key-list-item p-4 rounded-xl cursor-pointer transition-shadow duration-300 ${isSelected ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}"
-                    data-key-id="${item.properties.id}"
-                >
-                    <div class="flex items-center justify-between">
-                        <p class="font-semibold text-gray-800">Key ${item.properties.name}</p>
-                        ${subtitleHTML}
-                    </div>
-                    <p class="text-sm text-gray-600 truncate pt-1">${item.properties.addresslabel || 'Address not available'}</p>
-                    <p class="text-xs text-gray-500 pt-1">${dateStr}</p>
-                    ${shareButtonHTML}
-                </div>
-            `;
-        }
+    /**
+     * ===================================================================
+     * MAP INITIALIZATION & FUNCTIONS (USING LEAFLET.JS)
+     * ===================================================================
+     */
+    function initializeMap() {
+      try {
+        map = L.map('map', { zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
+        L.control.zoom({ position: 'topright' }).addTo(map);
+        L.tileLayer(TILE_URL, { attribution: TILE_ATTRIBUTION, maxZoom: 18 }).addTo(map);
+        markersLayer.addTo(map);
+        pathLayer.addTo(map);
+      } catch (err) {
+        console.error('Failed to initialize map:', err);
+        document.getElementById('map').innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Map could not be loaded.</div>`;
+      }
+    }
 
-        function renderKeyList(items) {
-            try {
-                if (items.length === 0) {
-                    const noResultsHTML = `<div class="p-4 text-center text-gray-500">No keys found.</div>`;
-                    keyListDesktop.innerHTML = noResultsHTML;
-                    keyListMobile.innerHTML = noResultsHTML;
-                    mobileListHeader.textContent = '0 Keys Found';
-                    return;
-                }
+    function updateMapData(data, fitMapToBounds = true) {
+      if (!map) return;
+      markersLayer.clearLayers();
+      pathLayer.clearLayers();
+      selectedMarker = null;
 
-                const listHTML = `<div class="space-y-3 p-2">${items.map(item => createKeyListItem(item, item.properties.id === selectedKeyId)).join('')}</div>`;
-                keyListDesktop.innerHTML = listHTML;
-                keyListMobile.innerHTML = listHTML;
-                mobileListHeader.textContent = `${items.length} Keys Found`;
+      if (!data.length) return;
 
-                document.querySelectorAll('.key-list-item').forEach(el => {
-                    el.addEventListener('click', (e) => {
-                         if (e.target.closest('.message-btn')) return; 
-                        const keyId = parseInt(el.dataset.keyId);
-                        const key = allData.find(d => d.properties.id === keyId);
-                        if (key) {
-                            selectedKeyId = key.properties.id;
-                            map.flyTo([key.geometry.coordinates[1], key.geometry.coordinates[0]], 16);
-                            runFilters(false); 
-                        }
-                    });
-                });
-                
-                 document.querySelectorAll('.message-btn').forEach(el => {
-                    el.addEventListener('click', handleMessageButtonClick);
-                });
+      const keyIcon = (selected = false) => L.divIcon({
+        html: selected ? '🎯' : '🔑',
+        className: 'emoji-marker' + (selected ? ' selected-marker' : ''),
+        iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -25]
+      });
 
-            } catch (err) {
-                console.error("Error rendering key list:", err);
-            }
-        }
-        
-        function setupEventListeners() {
-            const filterForms = [filterPanelDesktop, filterPanelMobile];
-            filterForms.forEach(container => {
-                const applyBtn = container.querySelector('button[name="apply"]');
-                const resetBtn = container.querySelector('button[name="reset"]');
+      const markersByUid = new Map();
+      data.forEach(item => {
+        const lat = item.geometry.coordinates[1];
+        const lon = item.geometry.coordinates[0];
+        const dateStr = fmtDate(item.properties.datetime);
+        const popupContent = `
+          <div class="p-2">
+            <h3 class="font-bold text-base mb-1">Key ${esc(item.properties.name)}</h3>
+            <p class="text-sm text-gray-600">${esc(item.properties.addresslabel || 'Address not available')}</p>
+            <p class="text-xs text-gray-500 mt-1">${esc(dateStr)}</p>
+          </div>`;
+        const m = L.marker([lat, lon], { icon: keyIcon(item.properties.__uid === selectedKeyId) }).bindPopup(popupContent);
+        markersByUid.set(item.properties.__uid, m);
+        markersLayer.addLayer(m);
+      });
 
-                if (applyBtn) {
-                    applyBtn.addEventListener('click', () => {
-                        selectedKeyId = null; 
-                        filters.startDate = container.querySelector('[name="startDate"]').value || null;
-                        filters.endDate = container.querySelector('[name="endDate"]').value || null;
-                        filters.keyset = container.querySelector('[name="keyset"]').value;
-                        filters.latestOnly = container.querySelector('[name="latestOnly"]').checked;
-                        
-                        runFilters();
-                        
-                        if (container.id === 'filter-panel-mobile') {
-                            toggleMobileDrawer(false);
-                        }
-                    });
-                }
-                
-                if (resetBtn) {
-                    resetBtn.addEventListener('click', () => {
-                        selectedKeyId = null; 
-                        container.querySelector('[name="startDate"]').value = '';
-                        container.querySelector('[name="endDate"]').value = '';
-                        container.querySelector('[name="keyset"]').value = 'all';
-                        container.querySelector('[name="latestOnly"]').checked = true; // Reset to default
+      // Draw path if a single keyset is selected and we have a trail
+      if (filters.keyset !== 'all' && !filters.latestOnly && data.length > 1) {
+        const pathData = [...data].sort((a, b) => new Date(toISO(a.properties.datetime)) - new Date(toISO(b.properties.datetime)));
+        const latlngs = pathData.map(it => [it.geometry.coordinates[1], it.geometry.coordinates[0]]);
+        const polyline = L.polyline(latlngs, { color: '#0A84FF', weight: 3, opacity: 0.8 });
+        pathLayer.addLayer(polyline);
+      }
 
-                        filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
-                        runFilters();
-                    });
-                }
-            });
+      if (fitMapToBounds && data.length > 0) {
+        const bounds = markersLayer.getBounds();
+        if (bounds.isValid()) map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
+      }
+    }
 
-            collapseBtn.addEventListener('click', () => toggleDesktopSidebar(false));
-            expandBtn.addEventListener('click', () => toggleDesktopSidebar(true));
-
-            const mobileDrawer = document.getElementById('mobile-drawer');
-            document.getElementById('open-filter-btn').addEventListener('click', () => toggleMobileDrawer(true));
-            document.getElementById('close-filter-btn').addEventListener('click', () => toggleMobileDrawer(false));
-            mobileDrawer.addEventListener('click', (e) => {
-                if (e.target === mobileDrawer) {
-                    toggleMobileDrawer(false);
-                }
-            });
-
-            // Mobile List Drawer Swipe/Tap handler
-            let touchStartY = 0;
-            mobileListHandle.addEventListener('click', () => {
-                setListDrawerState(!mobileListDrawer.classList.contains('is-collapsed'));
-            });
-
-            mobileListHandle.addEventListener('touchstart', (e) => {
-                touchStartY = e.touches[0].clientY;
-            }, { passive: true });
-
-            mobileListHandle.addEventListener('touchend', (e) => {
-                if (touchStartY === 0) return;
-                const touchEndY = e.changedTouches[0].clientY;
-                const deltaY = touchEndY - touchStartY;
-                touchStartY = 0;
-                
-                if (Math.abs(deltaY) < 50) return;
-
-                if (deltaY > 0) { // Swipe down
-                    setListDrawerState(true); // Collapse
-                } else { // Swipe up
-                    setListDrawerState(false); // Expand
-                }
-            });
-        }
-        
-        async function handleMessageButtonClick(e) {
-            e.stopPropagation();
-            const button = e.currentTarget;
-            const lat = button.dataset.lat;
-            const lon = button.dataset.lon;
-            const name = button.dataset.name;
-            const address = button.dataset.address;
-            const datetime = button.dataset.datetime;
-
-            const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
-            const shareData = {
-                title: `The last Keyzy location for;`,
-                text: `The last Keyzy location for;\n\nKey ${name}\nAddress: ${address}\nTime: ${datetime}\n\nView on map:\n${mapUrl}`,
-            };
-
-            try {
-                if (navigator.share) {
-                    await navigator.share(shareData);
-                } else {
-                    throw new Error('Web Share API not supported.');
-                }
-            } catch (err) {
-                console.log('Share failed, falling back to clipboard:', err);
-                const fullMessage = shareData.text;
-                try {
-                    await navigator.clipboard.writeText(fullMessage);
-                    showToast("Location copied to clipboard!");
-                } catch (copyErr) {
-                    console.error('Failed to copy to clipboard:', copyErr);
-                    showToast("Failed to copy location.");
-                }
-            }
-        }
-        
-        function showToast(message) {
-            toastEl.textContent = message;
-            toastEl.classList.remove('hidden');
-            setTimeout(() => {
-                toastEl.classList.add('hidden');
-            }, 3000);
-        }
-
-        function toggleDesktopSidebar(show) {
-            if (show) {
-                desktopSidebar.classList.remove('hidden');
-                expandBtn.classList.add('hidden');
-            } else {
-                desktopSidebar.classList.add('hidden');
-                expandBtn.classList.remove('hidden');
-            }
-            setTimeout(() => map && map.invalidateSize(), 310);
-        }
-        
-        function setListDrawerState(collapsed) {
-             mobileListDrawer.classList.toggle('is-collapsed', collapsed);
-             setTimeout(() => map && map.invalidateSize(), 310);
-        }
-
-        function toggleMobileDrawer(show) {
-            const drawer = document.getElementById('mobile-drawer');
-            const content = document.getElementById('mobile-drawer-content');
-            if (show) {
-                drawer.classList.remove('hidden');
-                setTimeout(() => content.classList.remove('translate-y-full'), 10);
-            } else {
-                content.classList.add('translate-y-full');
-                setTimeout(() => drawer.classList.add('hidden'), 300);
-            }
-        }
-
-        /**
-         * ===================================================================
-         * DATA FETCHING & PROCESSING
-         * ===================================================================
-         */
-        
-        async function fetchData() {
-            loadingOverlay.style.opacity = '1';
-            loadingOverlay.classList.remove('hidden');
-            
-            Papa.parse(GOOGLE_SHEET_URL, {
-                download: true,
-                header: true,
-                skipEmptyLines: true,
-                complete: (results) => {
-                    try {
-                        const validData = results.data
-                            .map((row, index) => {
-                                // Clean up the name by removing any "Key " prefix and trimming whitespace
-                                if (row.name) {
-                                    row.name = String(row.name).replace(/^Key\s*/i, '').trim();
-                                }
-                                return {...row, id: index};
-                            })
-                            .filter(row => {
-                                const lat = parseFloat(row.locationlatitude);
-                                const lon = parseFloat(row.locationlongitude);
-                                const keyNumber = parseInt(row.name, 10);
-                                return row.datetime && row.name && row.name.length > 0 && !isNaN(lat) && !isNaN(lon) && !isNaN(keyNumber) && keyNumber >= 60000 && keyNumber < 80000;
-                            });
-
-                        allData = validData.map(row => ({
-                            type: 'Feature',
-                            properties: row,
-                            geometry: {
-                                type: 'Point',
-                                coordinates: [parseFloat(row.locationlongitude), parseFloat(row.locationlatitude)]
-                            }
-                        }));
-                        
-                        allData.sort((a,b) => new Date(b.properties.datetime) - new Date(a.properties.datetime));
-                        
-                        keysets = [...new Set(allData.map(item => item.properties.name))].sort((a, b) => {
-                            const numA = parseInt(a);
-                            const numB = parseInt(b);
-                            if (!isNaN(numA) && !isNaN(numB)) {
-                                return numA - numB;
-                            }
-                            return a.localeCompare(b);
-                        });
-
-                        const filterHTML = createFilterContent(keysets);
-                        filterPanelDesktop.innerHTML = filterHTML;
-                        filterPanelMobile.innerHTML = filterHTML;
-                        
-                        setupEventListeners();
-                        initializeMap();
-                        runFilters();
-
-                    } catch (err) {
-                        console.error("Error processing CSV data:", err);
-                        loadingOverlay.innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Failed to process data. See console for details.</div>`;
-                    } finally {
-                         setTimeout(() => {
-                            loadingOverlay.style.opacity = '0';
-                            setTimeout(() => loadingOverlay.classList.add('hidden'), 300);
-                        }, 500);
-                    }
-                },
-                error: (error) => {
-                    console.error("Error fetching or parsing data:", error);
-                    loadingOverlay.innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Failed to download key data from the source.</div>`;
-                }
-            });
-        }
-        
-        function runFilters(fitMapToBounds = true) {
-            try {
-                let data = [...allData];
-
-                const parseDateFromCSV = (csvDatetime) => {
-                    if (!csvDatetime || typeof csvDatetime !== 'string') return null;
-                    const [datePart] = csvDatetime.split(' ');
-                    const parts = datePart.split('/');
-                    if (parts.length !== 3) {
-                         const isoParts = datePart.split('-');
-                        if(isoParts.length === 3) return datePart;
-                        return null;
-                    };
-                    const [day, month, year] = parts;
-                    if (!day || !month || !year || String(year).length < 4) return null;
-                    return `${year}-${String(month).padStart(2, '0')}-${String(day).padStart(2, '0')}`;
-                };
-                
-                if (filters.startDate) {
-                    data = data.filter(item => {
-                        const itemDateStr = parseDateFromCSV(item.properties.datetime);
-                        return itemDateStr && itemDateStr >= filters.startDate;
-                    });
-                }
-                if (filters.endDate) {
-                    data = data.filter(item => {
-                        const itemDateStr = parseDateFromCSV(item.properties.datetime);
-                        return itemDateStr && itemDateStr <= filters.endDate;
-                    });
-                }
-
-                if (filters.keyset !== 'all') {
-                    data = data.filter(item => item.properties.name === filters.keyset);
-                }
-
-                if (filters.latestOnly) {
-                    const latestByKey = new Map();
-                    data.forEach(item => {
-                        const key = item.properties.name;
-                        if (!latestByKey.has(key)) {
-                            latestByKey.set(key, item);
-                        }
-                    });
-                    data = Array.from(latestByKey.values());
-                }
-
-                renderKeyList(data);
-                updateMapData(data, fitMapToBounds);
-            } catch (err) {
-                console.error("Error during filtering:", err);
-            }
-        }
-
-        /**
-         * ===================================================================
-         * MAP INITIALIZATION & FUNCTIONS (USING LEAFLET.JS)
-         * ===================================================================
-         */
-
-        function initializeMap() {
-            try {
-                map = L.map('map', { zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
-                L.control.zoom({ position: 'topright' }).addTo(map);
-
-
-                L.tileLayer(TILE_URL, {
-                    attribution: TILE_ATTRIBUTION,
-                    maxZoom: 18,
-                }).addTo(map);
-                
-                markersLayer.addTo(map);
-                pathLayer.addTo(map);
-
-            } catch (err) {
-                 console.error("Failed to initialize map:", err);
-                 document.getElementById('map').innerHTML = `<div class="p-4 text-center text-red-600"><strong>Error:</strong> Map could not be loaded.</div>`;
-            }
-        }
-
-        function updateMapData(data, fitMapToBounds = true) {
-            if (!map) return;
-            markersLayer.clearLayers();
-            pathLayer.clearLayers();
-
-            if (data.length === 0) {
-                return; 
-            }
-            
-            const keyIcon = L.divIcon({
-                html: '🔑',
-                className: 'emoji-marker',
-                iconSize: [30, 30],
-                iconAnchor: [15, 30],
-                popupAnchor: [0, -25]
-            });
-
-            data.forEach(item => {
-                const lat = item.geometry.coordinates[1];
-                const lon = item.geometry.coordinates[0];
-                
-                const date = new Date(item.properties.datetime);
-                const dateStr = isNaN(date) ? 'N/A' : `${date.toLocaleDateString()} ${date.toLocaleTimeString()}`;
-
-                const popupContent = `
-                    <div class="p-2">
-                        <h3 class="font-bold text-base mb-1">Key ${item.properties.name}</h3>
-                        <p class="text-sm text-gray-600">${item.properties.addresslabel || 'Address not available'}</p>
-                        <p class="text-xs text-gray-500 mt-1">${dateStr}</p>
-                    </div>
-                `;
-
-                const marker = L.marker([lat, lon], { icon: keyIcon });
-                marker.bindPopup(popupContent);
-                markersLayer.addLayer(marker);
-            });
-            
-            // Draw path if a single keyset is selected and we have more than one point
-            if (filters.keyset !== 'all' && !filters.latestOnly && data.length > 1) {
-                const pathData = [...data].sort((a,b) => new Date(a.properties.datetime) - new Date(b.properties.datetime));
-                const latlngs = pathData.map(item => [item.geometry.coordinates[1], item.geometry.coordinates[0]]);
-                const polyline = L.polyline(latlngs, { color: '#007aff', weight: 3, opacity: 0.8 });
-                pathLayer.addLayer(polyline);
-            }
-            
-            if (fitMapToBounds && data.length > 0) {
-                const bounds = markersLayer.getBounds();
-                if (bounds.isValid()) {
-                    map.fitBounds(bounds, { padding: [50, 50], maxZoom: 16 });
-                }
-            }
-        }
-
-        // --- KICKOFF ---
-        document.addEventListener('DOMContentLoaded', fetchData);
-    </script>
-
+    // --- KICKOFF ---
+    document.addEventListener('DOMContentLoaded', fetchData);
+  </script>
 </body>
 </html>
