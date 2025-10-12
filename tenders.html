@@ -3,166 +3,410 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Professional tender evaluation dashboard for procurement analysis" />
   <title>Tender Evaluation Dashboard</title>
-  <!-- Tailwind (CDN) -->
-  <script src="https://cdn.tailwindcss.com"></script>
+  
+  <!-- Tailwind CSS with inline config -->
+  <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
   <script>
-    tailwind.config = {
-      darkMode: 'class',
-      theme: {
-        extend: {
-          fontFamily: {
-            sans: [
-              'ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','Inter','Helvetica Neue','Arial','Noto Sans','Apple Color Emoji','Segoe UI Emoji'
-            ]
-          },
-          boxShadow: { soft: '0 10px 30px rgba(0,0,0,0.08)' }
-        }
+    // Wait for Tailwind to load before configuring
+    window.addEventListener('load', function() {
+      if (typeof tailwind !== 'undefined' && tailwind.config) {
+        tailwind.config = {
+          darkMode: 'class',
+          theme: {
+            extend: {
+              fontFamily: {
+                sans: ['ui-sans-serif','system-ui','-apple-system','Segoe UI','Roboto','Inter','Helvetica Neue','Arial','Noto Sans','Apple Color Emoji','Segoe UI Emoji']
+              },
+              boxShadow: { 
+                soft: '0 10px 30px rgba(0,0,0,0.08)',
+                'soft-lg': '0 20px 40px rgba(0,0,0,0.12)'
+              }
+            }
+          }
+        };
       }
-    }
+    });
   </script>
-  <!-- React 18 + Babel for JSX (UMD) -->
+  
+  <!-- React 18 -->
   <script crossorigin src="https://unpkg.com/react@18/umd/react.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
+  
   <!-- Papa Parse for CSV -->
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
-  <!-- Apache ECharts (UMD) -->
+  
+  <!-- Apache ECharts -->
   <script crossorigin src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
+  
   <style>
-    .glass { background: rgba(255,255,255,0.7); backdrop-filter: blur(10px); }
-    .glass-dark { background: rgba(28,28,30,0.6); backdrop-filter: blur(10px); }
+    .glass { 
+      background: rgba(255,255,255,0.7); 
+      backdrop-filter: blur(10px); 
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .glass-dark { 
+      background: rgba(28,28,30,0.6); 
+      backdrop-filter: blur(10px); 
+      -webkit-backdrop-filter: blur(10px);
+    }
+    .spinner {
+      border: 2px solid rgba(0,0,0,0.1);
+      border-left-color: currentColor;
+      border-radius: 50%;
+      width: 1rem;
+      height: 1rem;
+      animation: spin 0.8s linear infinite;
+    }
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+    /* Smooth transitions */
+    * {
+      transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
+      transition-duration: 150ms;
+      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    }
   </style>
 </head>
-<body class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 min-h-screen font-sans">
+<body class="bg-gradient-to-br from-slate-50 to-slate-100 dark:from-slate-900 dark:to-slate-950 text-slate-900 dark:text-slate-100 min-h-screen font-sans antialiased">
   <div id="root"></div>
-
+  
   <script type="text/babel">
-    const { useState, useMemo, useEffect, useRef } = React;
+    const { useState, useMemo, useEffect, useRef, useCallback } = React;
 
-    /* ===================== Utilities (ES5-safe) ===================== */
-    function isDefined(v){ return !(v === undefined || v === null); }
-    function coalesce(v, alt){ return isDefined(v) ? v : alt; }
-    function safeLocale(n, opts){
-      if (typeof n === 'number' && !isNaN(n) && n !== null && n !== undefined && n.toLocaleString) {
-        return n.toLocaleString(undefined, opts || {});
+    /* ===================== CONFIGURATION ===================== */
+    const CONFIG = {
+      FIXED_HEADERS: [
+        'State', 'Site Name', 'Service Description', 'Service Type', 'Waste Stream',
+        'Bin Size', 'UoM', 'QTY', 'Frequency', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 
+        'Sat', 'Sun', 'Average Collected', 'Frequency', 'Collections Per Annum',
+        'Average Density', 'Current EA Rate', 'Current Annual Cost', 'Notes'
+      ],
+      COLUMN_MAPPING: {
+        filterCols: [0, 1, 2, 3, 4],
+        tenderValueCol: 7,
+        actualAvgCol: 16
+      },
+      PAGINATION: {
+        pageSize: 15
+      },
+      AI: {
+        defaultModel: 'gpt-4o-mini',
+        maxRowsToSend: 120,
+        defaultTimeout: 30000
+      },
+      STORAGE_KEYS: {
+        theme: 'tender-dashboard-theme',
+        navOpen: 'tender-dashboard-nav-open'
       }
-      return String(n);
-    }
-    function numberify(v){
-      if (v === null || v === undefined) return null;
-      var s = String(v).replace(/[$£€,%\s]/g, '');
-      var n = parseFloat(s);
-      return isNaN(n) ? null : n;
-    }
-    function uniqueSorted(arr){
-      return Array.from(new Set(arr.filter(function(v){ return v !== '' && v !== null && v !== undefined; })))
-        .sort(function(a,b){ return String(a).localeCompare(String(b)); });
-    }
-    function downloadCSV(rows, filename){
-      if (!filename) filename = 'export.csv';
-      var csv = Papa.unparse(rows);
-      var blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
-      var url = URL.createObjectURL(blob);
-      var link = document.createElement('a');
-      link.href = url; link.download = filename; link.click();
-      URL.revokeObjectURL(url);
-    }
-
-    /* ===================== Fixed Column Headings ===================== */
-    var FIXED_HEADERS = [
-      'State',
-      'Site Name',
-      'Service Description',
-      'Service Type',
-      'Waste Stream',
-      'Bin Size',
-      'UoM',
-      'QTY',
-      'Frequency',
-      'Mon',
-      'Tue',
-      'Wed',
-      'Thu',
-      'Fri',
-      'Sat',
-      'Sun',
-      'Average Collected',
-      'Frequency',
-      'Collections Per Annum',
-      'Average Density',
-      'Current EA Rate',
-      'Current Annual Cost',
-      'Notes'
-    ];
-
-    /* ===================== Mapping (A–E filters; H vs Q analytics) ===================== */
-    // Keep as-is until you confirm your Tender/Actual definitions.
-    // A–E = indices 0..4 ; Tender = H (7); Actual = Q (16)
-    var MAPPING = {
-      filterCols: [0,1,2,3,4],
-      tenderValueCol: 7,
-      actualAvgCol: 16
     };
 
-    /* ===================== Hooks & Components ===================== */
-    function useTheme(){
-      var initial = (typeof localStorage !== 'undefined' && localStorage.getItem('theme') === 'dark');
-      const [dark, setDark] = useState(initial);
-      useEffect(function(){
-        var root = document.documentElement;
-        if (dark) { root.classList.add('dark'); if (localStorage) localStorage.setItem('theme','dark'); }
-        else { root.classList.remove('dark'); if (localStorage) localStorage.setItem('theme','light'); }
-      }, [dark]);
-      return { dark: dark, setDark: setDark };
+    /* ===================== UTILITIES ===================== */
+    const Utils = {
+      isDefined(v) { 
+        return v !== undefined && v !== null; 
+      },
+      
+      coalesce(v, alt) { 
+        return this.isDefined(v) ? v : alt; 
+      },
+      
+      safeLocale(n, opts = {}) {
+        if (typeof n === 'number' && !isNaN(n) && n !== null && n !== undefined) {
+          try {
+            return n.toLocaleString(undefined, opts);
+          } catch (e) {
+            console.warn('Locale formatting error:', e);
+            return String(n);
+          }
+        }
+        return String(n);
+      },
+      
+      numberify(v) {
+        if (v === null || v === undefined || v === '') return null;
+        const s = String(v).replace(/[$£€,%\s]/g, '');
+        const n = parseFloat(s);
+        return isNaN(n) ? null : n;
+      },
+      
+      uniqueSorted(arr) {
+        return Array.from(new Set(
+          arr.filter(v => v !== '' && v !== null && v !== undefined)
+        )).sort((a, b) => String(a).localeCompare(String(b)));
+      },
+      
+      sanitizeHTML(str) {
+        const div = document.createElement('div');
+        div.textContent = str;
+        return div.innerHTML;
+      },
+      
+      debounce(func, wait) {
+        let timeout;
+        return function executedFunction(...args) {
+          const later = () => {
+            clearTimeout(timeout);
+            func(...args);
+          };
+          clearTimeout(timeout);
+          timeout = setTimeout(later, wait);
+        };
+      },
+
+      downloadCSV(rows, filename = 'export.csv') {
+        try {
+          if (!rows || rows.length === 0) {
+            throw new Error('No data to export');
+          }
+          const csv = Papa.unparse(rows);
+          const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+          const url = URL.createObjectURL(blob);
+          const link = document.createElement('a');
+          link.href = url;
+          link.download = filename;
+          link.click();
+          URL.revokeObjectURL(url);
+          return { success: true };
+        } catch (error) {
+          console.error('Export failed:', error);
+          return { success: false, error: error.message };
+        }
+      },
+
+      validateCSVStructure(rows, expectedMinCols = 10) {
+        if (!rows || rows.length === 0) {
+          return { valid: false, error: 'No data found in CSV' };
+        }
+        if (rows[0].length < expectedMinCols) {
+          return { 
+            valid: false, 
+            error: `CSV has only ${rows[0].length} columns, expected at least ${expectedMinCols}` 
+          };
+        }
+        return { valid: true };
+      }
+    };
+
+    /* ===================== ERROR BOUNDARY ===================== */
+    class ErrorBoundary extends React.Component {
+      constructor(props) {
+        super(props);
+        this.state = { hasError: false, error: null };
+      }
+
+      static getDerivedStateFromError(error) {
+        return { hasError: true, error };
+      }
+
+      componentDidCatch(error, errorInfo) {
+        console.error('Dashboard Error:', error, errorInfo);
+      }
+
+      render() {
+        if (this.state.hasError) {
+          return (
+            <div className="min-h-screen flex items-center justify-center p-4">
+              <div className="glass dark:glass-dark rounded-3xl p-8 max-w-lg text-center border border-rose-200 dark:border-rose-800">
+                <div className="text-4xl mb-4">⚠️</div>
+                <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
+                <p className="text-sm opacity-70 mb-4">
+                  {this.state.error?.message || 'An unexpected error occurred'}
+                </p>
+                <button 
+                  onClick={() => window.location.reload()} 
+                  className="px-4 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900"
+                >
+                  Reload Dashboard
+                </button>
+              </div>
+            </div>
+          );
+        }
+        return this.props.children;
+      }
     }
 
-    function Chip(props){
+    /* ===================== CUSTOM HOOKS ===================== */
+    function useTheme() {
+      const getInitialTheme = () => {
+        try {
+          const stored = localStorage.getItem(CONFIG.STORAGE_KEYS.theme);
+          return stored === 'dark';
+        } catch {
+          return window.matchMedia?.('(prefers-color-scheme: dark)').matches || false;
+        }
+      };
+
+      const [dark, setDark] = useState(getInitialTheme);
+
+      useEffect(() => {
+        const root = document.documentElement;
+        if (dark) {
+          root.classList.add('dark');
+          try { localStorage.setItem(CONFIG.STORAGE_KEYS.theme, 'dark'); } catch {}
+        } else {
+          root.classList.remove('dark');
+          try { localStorage.setItem(CONFIG.STORAGE_KEYS.theme, 'light'); } catch {}
+        }
+      }, [dark]);
+
+      return { dark, setDark };
+    }
+
+    function useLocalStorage(key, defaultValue) {
+      const [value, setValue] = useState(() => {
+        try {
+          const stored = localStorage.getItem(key);
+          return stored !== null ? JSON.parse(stored) : defaultValue;
+        } catch {
+          return defaultValue;
+        }
+      });
+
+      useEffect(() => {
+        try {
+          localStorage.setItem(key, JSON.stringify(value));
+        } catch (e) {
+          console.warn('localStorage unavailable:', e);
+        }
+      }, [key, value]);
+
+      return [value, setValue];
+    }
+
+    /* ===================== COMPONENTS ===================== */
+    function LoadingSpinner({ className = "" }) {
+      return <div className={`spinner ${className}`} />;
+    }
+
+    function Alert({ type = 'info', message, onClose }) {
+      const colors = {
+        success: 'bg-emerald-50 dark:bg-emerald-900/20 border-emerald-200 dark:border-emerald-800 text-emerald-900 dark:text-emerald-100',
+        error: 'bg-rose-50 dark:bg-rose-900/20 border-rose-200 dark:border-rose-800 text-rose-900 dark:text-rose-100',
+        warning: 'bg-amber-50 dark:bg-amber-900/20 border-amber-200 dark:border-amber-800 text-amber-900 dark:text-amber-100',
+        info: 'bg-blue-50 dark:bg-blue-900/20 border-blue-200 dark:border-blue-800 text-blue-900 dark:text-blue-100'
+      };
+
+      return (
+        <div className={`rounded-2xl p-4 border ${colors[type]} flex items-start gap-3`} role="alert">
+          <span className="flex-1 text-sm">{message}</span>
+          {onClose && (
+            <button 
+              onClick={onClose} 
+              className="opacity-60 hover:opacity-100"
+              aria-label="Close alert"
+            >
+              ✕
+            </button>
+          )}
+        </div>
+      );
+    }
+
+    function Chip({ children, onRemove }) {
       return (
         <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs bg-slate-900/5 dark:bg-white/10">
-          {props.children}
-          <button className="opacity-60 hover:opacity-100" onClick={props.onRemove} title="Remove">✕</button>
+          {children}
+          <button 
+            className="opacity-60 hover:opacity-100 focus:opacity-100 focus:outline-none" 
+            onClick={onRemove} 
+            aria-label={`Remove ${children}`}
+          >
+            ✕
+          </button>
         </span>
       );
     }
 
-    function MultiSelect(props){
+    function MultiSelect({ label, options, selected, onChange }) {
       const [open, setOpen] = useState(false);
       const ref = useRef(null);
-      useEffect(function(){
-        function handler(e){ if (ref.current && !ref.current.contains(e.target)) setOpen(false); }
+
+      useEffect(() => {
+        function handler(e) {
+          if (ref.current && !ref.current.contains(e.target)) {
+            setOpen(false);
+          }
+        }
         document.addEventListener('click', handler);
-        return function(){ document.removeEventListener('click', handler); };
-      },[]);
+        return () => document.removeEventListener('click', handler);
+      }, []);
+
+      const handleKeyDown = (e) => {
+        if (e.key === 'Escape') setOpen(false);
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          setOpen(!open);
+        }
+      };
+
       return (
         <div className="relative" ref={ref}>
-          <label className="block text-xs uppercase tracking-wide opacity-70 mb-1">{props.label}</label>
-          <button onClick={function(){ setOpen(!open); }} className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl px-3 py-2 text-left shadow-soft">
+          <label className="block text-xs uppercase tracking-wide opacity-70 mb-1">
+            {label}
+          </label>
+          <button
+            onClick={() => setOpen(!open)}
+            onKeyDown={handleKeyDown}
+            className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl px-3 py-2 text-left shadow-soft focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
+            aria-haspopup="listbox"
+            aria-expanded={open}
+          >
             <div className="flex flex-wrap gap-1 min-h-[1.5rem]">
-              {props.selected.length === 0 && <span className="opacity-50">All</span>}
-              {props.selected.map(function(v){ return <Chip key={v} onRemove={function(){ props.onChange(props.selected.filter(function(s){return s!==v;})); }}>{v}</Chip>; })}
+              {selected.length === 0 && <span className="opacity-50">All</span>}
+              {selected.map(v => (
+                <Chip key={v} onRemove={(e) => {
+                  e.stopPropagation();
+                  onChange(selected.filter(s => s !== v));
+                }}>
+                  {v}
+                </Chip>
+              ))}
             </div>
           </button>
           {open && (
-            <div className="absolute z-20 mt-2 max-h-64 overflow-auto w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-2 shadow-soft">
+            <div 
+              className="absolute z-20 mt-2 max-h-64 overflow-auto w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-2 shadow-soft-lg"
+              role="listbox"
+            >
               <div className="flex items-center justify-between mb-2">
-                <button className="text-xs underline" onClick={function(){ props.onChange([]); }}>Select none</button>
-                <button className="text-xs underline" onClick={function(){ props.onChange([].concat(props.options)); }}>Select all</button>
+                <button 
+                  className="text-xs underline hover:no-underline" 
+                  onClick={() => onChange([])}
+                >
+                  Select none
+                </button>
+                <button 
+                  className="text-xs underline hover:no-underline" 
+                  onClick={() => onChange([...options])}
+                >
+                  Select all
+                </button>
               </div>
               <ul className="space-y-1">
-                {props.options.map(function(opt){
-                  return (
-                    <li key={opt}>
-                      <label className="flex items-center gap-2 cursor-pointer">
-                        <input type="checkbox" className="accent-slate-900 dark:accent-slate-100" checked={props.selected.includes(opt)} onChange={function(e){
-                          if (e.target.checked) props.onChange([].concat(props.selected, [opt]));
-                          else props.onChange(props.selected.filter(function(v){ return v!==opt; }));
-                        }} />
-                        <span>{opt}</span>
-                      </label>
-                    </li>
-                  );
-                })}
+                {options.map(opt => (
+                  <li key={opt}>
+                    <label className="flex items-center gap-2 cursor-pointer hover:bg-slate-900/5 dark:hover:bg-white/10 rounded-xl px-2 py-1">
+                      <input
+                        type="checkbox"
+                        className="accent-slate-900 dark:accent-slate-100"
+                        checked={selected.includes(opt)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            onChange([...selected, opt]);
+                          } else {
+                            onChange(selected.filter(v => v !== opt));
+                          }
+                        }}
+                      />
+                      <span>{opt}</span>
+                    </label>
+                  </li>
+                ))}
               </ul>
             </div>
           )}
@@ -170,392 +414,663 @@
       );
     }
 
-    function DataTable(props){
+    function DataTable({ headers, rows }) {
       const [page, setPage] = useState(1);
-      const pageSize = 15;
-      const totalPages = Math.max(1, Math.ceil(props.rows.length / pageSize));
-      const view = props.rows.slice((page-1)*pageSize, page*pageSize);
-      useEffect(function(){ setPage(1); }, [props.rows]);
+      const pageSize = CONFIG.PAGINATION.pageSize;
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      const view = rows.slice((page - 1) * pageSize, page * pageSize);
+
+      useEffect(() => setPage(1), [rows]);
+
+      if (rows.length === 0) {
+        return (
+          <div className="glass dark:glass-dark rounded-3xl p-12 text-center border border-slate-200/60 dark:border-slate-700/50">
+            <div className="text-4xl mb-4 opacity-30">📊</div>
+            <p className="opacity-70">No data to display. Upload a CSV or adjust filters.</p>
+          </div>
+        );
+      }
+
       return (
         <div className="glass dark:glass-dark rounded-3xl border border-slate-200/60 dark:border-slate-700/50">
           <div className="overflow-x-auto rounded-3xl">
             <table className="min-w-full text-sm">
-              <thead className="bg-slate-900/5 dark:bg-white/10">
+              <thead className="bg-slate-900/5 dark:bg-white/10 sticky top-0">
                 <tr>
-                  {props.headers.map(function(h,i){ return <th key={i} className="text-left px-4 py-2 whitespace-nowrap">{h || ('Column ' + String.fromCharCode(65+i))}</th>; })}
+                  {headers.map((h, i) => (
+                    <th key={i} className="text-left px-4 py-3 whitespace-nowrap font-semibold">
+                      {h || `Column ${String.fromCharCode(65 + i)}`}
+                    </th>
+                  ))}
                 </tr>
               </thead>
               <tbody>
-                {view.map(function(row, ri){
-                  return (
-                    <tr key={ri} className="odd:bg-white/40 even:bg-white/20 dark:odd:bg-slate-900/30 dark:even:bg-slate-900/20">
-                      {row.map(function(cell,ci){ return <td key={ci} className="px-4 py-2 whitespace-nowrap">{String(cell)}</td>; })}
-                    </tr>
-                  );
-                })}
+                {view.map((row, ri) => (
+                  <tr key={ri} className="odd:bg-white/40 even:bg-white/20 dark:odd:bg-slate-900/30 dark:even:bg-slate-900/20 hover:bg-slate-900/10 dark:hover:bg-white/5">
+                    {row.map((cell, ci) => (
+                      <td key={ci} className="px-4 py-3 whitespace-nowrap">
+                        {String(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
               </tbody>
             </table>
           </div>
-          <div className="flex items-center justify-between p-3 text-xs">
-            <span>Page {page} of {totalPages}</span>
+          <div className="flex items-center justify-between p-3 text-xs border-t border-slate-200/60 dark:border-slate-700/50">
+            <span>
+              Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, rows.length)} of {rows.length}
+            </span>
             <div className="flex items-center gap-2">
-              <button className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600" disabled={page===1} onClick={function(){ setPage(function(p){ return Math.max(1,p-1); }); }}>Previous</button>
-              <button className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600" disabled={page===totalPages} onClick={function(){ setPage(function(p){ return Math.min(totalPages,p+1); }); }}>Next</button>
+              <button
+                className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                disabled={page === 1}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                aria-label="Previous page"
+              >
+                Previous
+              </button>
+              <span>Page {page} of {totalPages}</span>
+              <button
+                className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed"
+                disabled={page === totalPages}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                aria-label="Next page"
+              >
+                Next
+              </button>
             </div>
           </div>
         </div>
       );
     }
 
-    function EChart(props){
+    function EChart({ option, className = 'h-[36rem]' }) {
       const ref = useRef(null);
-      useEffect(function(){
+      const chartRef = useRef(null);
+
+      useEffect(() => {
         if (!window.echarts || !ref.current) return;
-        var chart = echarts.init(ref.current);
-        chart.setOption(props.option);
-        function onResize(){ chart.resize(); }
-        window.addEventListener('resize', onResize);
-        return function(){ window.removeEventListener('resize', onResize); chart.dispose(); };
-      }, [props.option]);
-      return <div ref={ref} className={props.className || 'h-[36rem]'} />;
+
+        chartRef.current = echarts.init(ref.current);
+        chartRef.current.setOption(option);
+
+        const handleResize = () => chartRef.current?.resize();
+        window.addEventListener('resize', handleResize);
+
+        return () => {
+          window.removeEventListener('resize', handleResize);
+          chartRef.current?.dispose();
+        };
+      }, [option]);
+
+      return <div ref={ref} className={className} />;
     }
 
-    /* ===================== App ===================== */
-    function App(){
-      var theme = useTheme();
-      const [navOpen, setNavOpen] = useState(function(){ return (typeof localStorage==='undefined') ? true : (localStorage.getItem('navOpen') !== 'false'); });
-      useEffect(function(){ if (localStorage) localStorage.setItem('navOpen', String(navOpen)); setTimeout(function(){ window.dispatchEvent(new Event('resize')); }, 50); }, [navOpen]);
-
-      const [headers, setHeaders] = useState(FIXED_HEADERS.slice());
+    /* ===================== MAIN APP ===================== */
+    function App() {
+      const theme = useTheme();
+      const [navOpen, setNavOpen] = useLocalStorage(CONFIG.STORAGE_KEYS.navOpen, true);
+      const [headers, setHeaders] = useState([...CONFIG.FIXED_HEADERS]);
       const [rawRows, setRawRows] = useState([]);
-      const [filters, setFilters] = useState([[],[],[],[],[]]);
+      const [filters, setFilters] = useState([[], [], [], [], []]);
+      const [loading, setLoading] = useState(false);
+      const [alert, setAlert] = useState(null);
 
-      // Diagnostics tests
-      const tests = useMemo(function(){
-        var results = [];
-        results.push({ name: 'Charts library available (echarts)', pass: !!window.echarts });
-        results.push({ name: 'numberify parses currency', pass: numberify('$1,234.50') === 1234.5 });
-        var mini = [['A','B'], ['r1','x'], ['r2','y']];
-        var selected = ['x'];
-        var filtered = mini.slice(1).filter(function(r){ return selected.length===0 || selected.includes(r[1]); });
-        results.push({ name: 'filter includes only selected', pass: filtered.length === 1 && filtered[0][0] === 'r1' });
-        var csvOk = Papa.parse('col1,col2\n1,2').data.length === 2;
-        results.push({ name: 'CSV parser basic', pass: csvOk });
-        results.push({ name: 'uniqueSorted dedups & sorts', pass: JSON.stringify(uniqueSorted(['b','a','a'])) === JSON.stringify(['a','b']) });
-        results.push({ name: 'numberify strips spaces/%', pass: numberify('1 234.0%') === 1234.0 });
-        results.push({ name: 'delta average sanity', pass: (function(){ var tv=[100,200]; var aa=[80,150]; var avg=function(a){return a.reduce(function(s,x){return s+x;},0)/a.length;}; return Math.abs((avg(tv)-avg(aa)) - (150-115)) < 1e-9; })() });
-        results.push({ name: 'coalesce helper', pass: coalesce(undefined,'x')==='x' && coalesce(null,'y')==='y' && coalesce('v','z')==='v' });
-        results.push({ name: 'safeLocale number', pass: safeLocale(1234.56, { maximumFractionDigits: 2 }).length > 0 });
-        // New: group index detection prefers "Site Name"
-        var testHeaders = ['State','Site Name','X'];
-        var tIdx = (function(h){ var idx=-1; for (var i=0;i<h.length;i++){ var a=String(h[i]||'').toLowerCase(); if(a==='site name'){ idx=i; break; } } if(idx===-1) idx=1; return idx; })(testHeaders);
-        results.push({ name: 'group index prefers Site Name', pass: tIdx === 1 });
-        return results;
-      }, []);
-
-      // Normalize rows to fixed headers & strip incoming header row if present
-      function applyHeaderOverride(rows){
-        var first = rows[0] || [];
-        var looksLikeHeader = false;
-        if (first && first.length){
-          var tokens = first.slice(0,5).map(function(x){ return String(x||'').toLowerCase(); });
-          if (tokens.indexOf('state') !== -1 || tokens.indexOf('site name') !== -1) looksLikeHeader = true;
+      // Auto-dismiss alerts
+      useEffect(() => {
+        if (alert) {
+          const timer = setTimeout(() => setAlert(null), 5000);
+          return () => clearTimeout(timer);
         }
-        var data = looksLikeHeader ? rows.slice(1) : rows.slice();
-        var targetLen = FIXED_HEADERS.length;
-        var dataRows = data.map(function(r){
-          var copy = r.slice(0, targetLen);
+      }, [alert]);
+
+      // Normalize rows to fixed headers
+      const applyHeaderOverride = useCallback((rows) => {
+        if (rows.length === 0) {
+          return { dataRows: [] };
+        }
+
+        const first = rows[0] || [];
+        let looksLikeHeader = false;
+
+        if (first && first.length) {
+          const tokens = first.slice(0, 5).map(x => String(x || '').toLowerCase());
+          if (tokens.includes('state') || tokens.includes('site name')) {
+            looksLikeHeader = true;
+          }
+        }
+
+        const data = looksLikeHeader ? rows.slice(1) : rows;
+        const targetLen = CONFIG.FIXED_HEADERS.length;
+
+        const dataRows = data.map(r => {
+          const copy = r.slice(0, targetLen);
           while (copy.length < targetLen) copy.push('');
           return copy;
         });
-        return { dataRows: dataRows };
-      }
 
-      // Auto-load data.csv if present
-      useEffect(function(){
-        fetch('data.csv', { cache: 'no-store' })
-          .then(function(res){ return res.ok ? res.text() : Promise.reject('no file'); })
-          .then(function(text){ return Papa.parse(text, { header: false }); })
-          .then(function(result){
-            if (result && result.data && result.data.length){
-              var rows = result.data.filter(function(r){ return r && r.length; });
-              var out = applyHeaderOverride(rows);
-              setHeaders(FIXED_HEADERS);
-              setRawRows(out.dataRows);
-            }
-          }).catch(function(){ /* ignore missing file */ });
+        return { dataRows };
       }, []);
 
-      // Upload
-      function onUpload(file){
+      // Auto-load data.csv
+      useEffect(() => {
+        setLoading(true);
+        fetch('data.csv', { cache: 'no-store' })
+          .then(res => res.ok ? res.text() : Promise.reject('no file'))
+          .then(text => Papa.parse(text, { header: false }))
+          .then(result => {
+            if (result?.data?.length) {
+              const rows = result.data.filter(r => r && r.length);
+              const validation = Utils.validateCSVStructure(rows, 10);
+              
+              if (!validation.valid) {
+                throw new Error(validation.error);
+              }
+
+              const { dataRows } = applyHeaderOverride(rows);
+              setHeaders([...CONFIG.FIXED_HEADERS]);
+              setRawRows(dataRows);
+              setAlert({ type: 'success', message: `Loaded ${dataRows.length} rows from data.csv` });
+            }
+          })
+          .catch(() => {
+            // Silently fail - no default file is okay
+          })
+          .finally(() => setLoading(false));
+      }, [applyHeaderOverride]);
+
+      // Upload handler
+      const onUpload = useCallback((file) => {
+        if (!file) return;
+        
+        if (!file.name.endsWith('.csv')) {
+          setAlert({ type: 'error', message: 'Please upload a CSV file' });
+          return;
+        }
+
+        setLoading(true);
         Papa.parse(file, {
           header: false,
-          complete: function(res){
-            var rows = res.data.filter(function(r){ return r && r.length; });
-            var out = applyHeaderOverride(rows);
-            setHeaders(FIXED_HEADERS);
-            setRawRows(out.dataRows);
+          complete: (res) => {
+            try {
+              const rows = res.data.filter(r => r && r.length);
+              
+              const validation = Utils.validateCSVStructure(rows, 10);
+              if (!validation.valid) {
+                throw new Error(validation.error);
+              }
+
+              const { dataRows } = applyHeaderOverride(rows);
+              setHeaders([...CONFIG.FIXED_HEADERS]);
+              setRawRows(dataRows);
+              setFilters([[], [], [], [], []]);
+              setAlert({ type: 'success', message: `Successfully imported ${dataRows.length} rows` });
+            } catch (error) {
+              setAlert({ type: 'error', message: `Import failed: ${error.message}` });
+            } finally {
+              setLoading(false);
+            }
+          },
+          error: (error) => {
+            setAlert({ type: 'error', message: `Parse error: ${error.message}` });
+            setLoading(false);
           }
         });
-      }
+      }, [applyHeaderOverride]);
 
-      // Filter options & apply filters
-      const filterOptions = useMemo(function(){
-        return MAPPING.filterCols.map(function(colIdx){ return uniqueSorted(rawRows.map(function(r){ return r[colIdx]; })); });
+      // Filter options
+      const filterOptions = useMemo(() => {
+        return CONFIG.COLUMN_MAPPING.filterCols.map(colIdx =>
+          Utils.uniqueSorted(rawRows.map(r => r[colIdx]))
+        );
       }, [rawRows]);
 
-      const filteredRows = useMemo(function(){
-        return rawRows.filter(function(r){
-          return MAPPING.filterCols.every(function(colIdx, i){
-            var sel = filters[i];
-            if (!sel || sel.length === 0) return true;
-            return sel.includes(r[colIdx]);
-          });
-        });
+      // Apply filters
+      const filteredRows = useMemo(() => {
+        return rawRows.filter(r =>
+          CONFIG.COLUMN_MAPPING.filterCols.every((colIdx, i) => {
+            const sel = filters[i];
+            return !sel || sel.length === 0 || sel.includes(r[colIdx]);
+          })
+        );
       }, [rawRows, filters]);
 
       // Metrics
-      const metrics = useMemo(function(){
-        var tv = filteredRows.map(function(r){ return numberify(r[MAPPING.tenderValueCol]); }).filter(function(v){ return v !== null; });
-        var aa = filteredRows.map(function(r){ return numberify(r[MAPPING.actualAvgCol]); }).filter(function(v){ return v !== null; });
-        var avg = function(arr){ return arr.length ? arr.reduce(function(a,b){return a+b;},0)/arr.length : 0; };
-        var min = function(arr){ return arr.length ? Math.min.apply(null, arr) : 0; };
-        var max = function(arr){ return arr.length ? Math.max.apply(null, arr) : 0; };
+      const metrics = useMemo(() => {
+        const tenderValues = filteredRows
+          .map(r => Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]))
+          .filter(v => v !== null);
+        
+        const actualValues = filteredRows
+          .map(r => Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]))
+          .filter(v => v !== null);
+
+        const avg = arr => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : 0;
+        const min = arr => arr.length ? Math.min(...arr) : 0;
+        const max = arr => arr.length ? Math.max(...arr) : 0;
+
+        const tenderAvg = avg(tenderValues);
+        const actualAvg = avg(actualValues);
+
         return {
           count: filteredRows.length,
-          tenderAvg: avg(tv), tenderMin: min(tv), tenderMax: max(tv),
-          actualAvg: avg(aa), actualMin: min(aa), actualMax: max(aa),
-          deltaAvg: avg(tv) - avg(aa)
+          tenderAvg,
+          tenderMin: min(tenderValues),
+          tenderMax: max(tenderValues),
+          actualAvg,
+          actualMin: min(actualValues),
+          actualMax: max(actualValues),
+          deltaAvg: tenderAvg - actualAvg
         };
       }, [filteredRows]);
 
-      // Grouping: default to **Site Name**; fallback to column B (index 1)
-      const groupLabelIdx = useMemo(function(){
-        var idx = -1;
-        for (var i=0; i<headers.length; i++){
-          var h = String(headers[i] || '').toLowerCase();
-          if (h === 'site name') { idx = i; break; }
-        }
-        if (idx === -1) idx = 1; // fallback to column B
-        return idx;
+      // Group by Site Name
+      const groupLabelIdx = useMemo(() => {
+        const idx = headers.findIndex(h => 
+          String(h || '').toLowerCase() === 'site name'
+        );
+        return idx !== -1 ? idx : 1;
       }, [headers]);
 
-      const grouped = useMemo(function(){
-        var g = new Map();
-        filteredRows.forEach(function(r){
-          var label = isDefined(r[groupLabelIdx]) ? r[groupLabelIdx] : '—';
-          var tv = numberify(r[MAPPING.tenderValueCol]);
-          var aa = numberify(r[MAPPING.actualAvgCol]);
-          if (!g.has(label)) g.set(label, { label: label, tvs: [], aas: [] });
-          if (tv !== null) g.get(label).tvs.push(tv);
-          if (aa !== null) g.get(label).aas.push(aa);
+      const grouped = useMemo(() => {
+        const groups = new Map();
+        
+        filteredRows.forEach(r => {
+          const label = Utils.isDefined(r[groupLabelIdx]) ? r[groupLabelIdx] : '—';
+          const tender = Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]);
+          const actual = Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]);
+
+          if (!groups.has(label)) {
+            groups.set(label, { label, tenders: [], actuals: [] });
+          }
+
+          if (tender !== null) groups.get(label).tenders.push(tender);
+          if (actual !== null) groups.get(label).actuals.push(actual);
         });
-        return Array.from(g.values()).map(function(x){
-          return {
-            label: x.label,
-            tender: x.tvs.length ? x.tvs.reduce(function(a,b){return a+b;},0)/x.tvs.length : 0,
-            actual: x.aas.length ? x.aas.reduce(function(a,b){return a+b;},0)/x.aas.length : 0
-          };
-        }).sort(function(a,b){ return String(a.label).localeCompare(String(b.label)); });
+
+        return Array.from(groups.values())
+          .map(g => ({
+            label: g.label,
+            tender: g.tenders.length ? g.tenders.reduce((a, b) => a + b, 0) / g.tenders.length : 0,
+            actual: g.actuals.length ? g.actuals.reduce((a, b) => a + b, 0) / g.actuals.length : 0
+          }))
+          .sort((a, b) => String(a.label).localeCompare(String(b.label)));
       }, [filteredRows, groupLabelIdx]);
 
-      // Scatter H vs Q
-      const scatter = useMemo(function(){
-        return filteredRows.map(function(r){
-          return { x: numberify(r[MAPPING.tenderValueCol]), y: numberify(r[MAPPING.actualAvgCol]), label: r[groupLabelIdx] };
-        }).filter(function(p){ return p.x !== null && p.y !== null; });
+      // Scatter data
+      const scatter = useMemo(() => {
+        return filteredRows
+          .map(r => ({
+            x: Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]),
+            y: Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]),
+            label: r[groupLabelIdx]
+          }))
+          .filter(p => p.x !== null && p.y !== null);
       }, [filteredRows, groupLabelIdx]);
 
-      // Export
-      function exportFiltered(){ downloadCSV([headers].concat(filteredRows), 'tenders_filtered.csv'); }
+      // Export handler
+      const exportFiltered = useCallback(() => {
+        const result = Utils.downloadCSV(
+          [headers, ...filteredRows],
+          `tenders_filtered_${new Date().toISOString().split('T')[0]}.csv`
+        );
+        
+        if (result.success) {
+          setAlert({ type: 'success', message: 'Export successful!' });
+        } else {
+          setAlert({ type: 'error', message: `Export failed: ${result.error}` });
+        }
+      }, [headers, filteredRows]);
 
-      // Expose for AI
-      useEffect(function(){ window.__TENDER_STATE__ = { headers: headers, filteredRows: filteredRows }; }, [headers, filteredRows]);
+      // Expose state for AI
+      useEffect(() => {
+        window.__TENDER_STATE__ = { headers, filteredRows };
+      }, [headers, filteredRows]);
+
+      // Toggle nav with keyboard
+      useEffect(() => {
+        const handleKeyPress = (e) => {
+          if (e.ctrlKey && e.key === 'b') {
+            e.preventDefault();
+            setNavOpen(v => !v);
+          }
+        };
+        window.addEventListener('keydown', handleKeyPress);
+        return () => window.removeEventListener('keydown', handleKeyPress);
+      }, [setNavOpen]);
+
+      // Dispatch resize after nav toggle
+      useEffect(() => {
+        setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
+      }, [navOpen]);
 
       // Chart options
-      const barOption = useMemo(function(){ return ({
-        tooltip: { trigger: 'axis', axisPointer: { type: 'shadow' } },
-        legend: { data: ['Tender (H)', 'Actual (Q)'] },
-        grid: { left: 160, right: 30, top: 30, bottom: 40 },
-        xAxis: { type: 'value' },
+      const barOption = useMemo(() => ({
+        tooltip: { 
+          trigger: 'axis', 
+          axisPointer: { type: 'shadow' },
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          borderColor: '#ddd',
+          textStyle: { color: '#333' }
+        },
+        legend: { 
+          data: ['Tender (H)', 'Actual (Q)'],
+          bottom: 0
+        },
+        grid: { left: 160, right: 30, top: 30, bottom: 60 },
+        xAxis: { type: 'value', name: 'Average Value' },
         yAxis: {
           type: 'category',
-          data: grouped.map(function(d){ return d.label; }),
-          axisLabel: { interval: 0, fontSize: 11, width: 140, overflow: 'truncate' }
+          data: grouped.map(d => d.label),
+          axisLabel: { 
+            interval: 0, 
+            fontSize: 11, 
+            width: 140, 
+            overflow: 'truncate' 
+          }
         },
-        dataZoom: [ { type: 'slider', yAxisIndex: 0, start: 0, end: 100, width: 14, right: 6 }, { type: 'inside', yAxisIndex: 0, start: 0, end: 100 } ],
+        dataZoom: [
+          { type: 'slider', yAxisIndex: 0, start: 0, end: 100, width: 14, right: 6 },
+          { type: 'inside', yAxisIndex: 0, start: 0, end: 100 }
+        ],
         series: [
-          { type: 'bar', name: 'Tender (H)', data: grouped.map(function(d){ return d.tender; }), barMaxWidth: 18 },
-          { type: 'bar', name: 'Actual (Q)', data: grouped.map(function(d){ return d.actual; }), barMaxWidth: 18 }
+          { 
+            type: 'bar', 
+            name: 'Tender (H)', 
+            data: grouped.map(d => d.tender), 
+            barMaxWidth: 18,
+            itemStyle: { color: '#3b82f6' }
+          },
+          { 
+            type: 'bar', 
+            name: 'Actual (Q)', 
+            data: grouped.map(d => d.actual), 
+            barMaxWidth: 18,
+            itemStyle: { color: '#10b981' }
+          }
         ]
-      }); }, [grouped]);
+      }), [grouped]);
 
-      const scatterOption = useMemo(function(){ return ({
-        tooltip: { trigger: 'item', formatter: function(p){
-          var xv = (p.value && isDefined(p.value[0])) ? p.value[0] : (p.data && isDefined(p.data.x) ? p.data.x : '');
-          var yv = (p.value && isDefined(p.value[1])) ? p.value[1] : (p.data && isDefined(p.data.y) ? p.data.y : '');
-          var xStr = (xv && xv.toLocaleString) ? xv.toLocaleString() : xv;
-          var yStr = (yv && yv.toLocaleString) ? yv.toLocaleString() : yv;
-          var nm = p.name || 'Row';
-          return nm + '<br/>H: ' + xStr + '<br/>Q: ' + yStr;
-        }},
-        grid: { left: 50, right: 20, top: 30, bottom: 40 },
-        xAxis: { name: 'Tender (H)', type: 'value' },
-        yAxis: { name: 'Actual (Q)', type: 'value' },
-        series: [ { type: 'scatter', name: 'Rows', data: scatter.map(function(p){ return { name: String(isDefined(p.label) ? p.label : ''), value: [p.x, p.y] }; }) } ]
-      }); }, [scatter]);
+      const scatterOption = useMemo(() => ({
+        tooltip: {
+          trigger: 'item',
+          formatter: (p) => {
+            const xv = p.value?.[0] ?? p.data?.x ?? '';
+            const yv = p.value?.[1] ?? p.data?.y ?? '';
+            const xStr = typeof xv === 'number' ? xv.toLocaleString() : xv;
+            const yStr = typeof yv === 'number' ? yv.toLocaleString() : yv;
+            const nm = p.name || 'Row';
+            return `${nm}<br/>Tender (H): ${xStr}<br/>Actual (Q): ${yStr}`;
+          },
+          backgroundColor: 'rgba(255,255,255,0.9)',
+          borderColor: '#ddd',
+          textStyle: { color: '#333' }
+        },
+        grid: { left: 60, right: 30, top: 40, bottom: 60 },
+        xAxis: { 
+          name: 'Tender (H)', 
+          type: 'value',
+          nameLocation: 'center',
+          nameGap: 40
+        },
+        yAxis: { 
+          name: 'Actual (Q)', 
+          type: 'value',
+          nameLocation: 'center',
+          nameGap: 50
+        },
+        series: [{
+          type: 'scatter',
+          name: 'Rows',
+          data: scatter.map(p => ({
+            name: String(Utils.isDefined(p.label) ? p.label : ''),
+            value: [p.x, p.y]
+          })),
+          symbolSize: 8,
+          itemStyle: { color: '#8b5cf6' }
+        }]
+      }), [scatter]);
 
-      /* ===================== Render ===================== */
+      /* ===================== RENDER ===================== */
       return (
         <>
-          {!navOpen && (
-            <button onClick={function(){ setNavOpen(true); }} className="fixed left-4 top-4 z-50 px-3 py-2 rounded-2xl glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 shadow-soft text-sm" aria-label="Show sidebar" title="Show sidebar">☰ Show Filters</button>
+          {/* Loading Overlay */}
+          {loading && (
+            <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
+              <div className="glass dark:glass-dark rounded-3xl p-8 flex items-center gap-4">
+                <LoadingSpinner className="w-6 h-6" />
+                <span>Processing...</span>
+              </div>
+            </div>
           )}
+
+          {/* Mobile Nav Toggle */}
+          {!navOpen && (
+            <button
+              onClick={() => setNavOpen(true)}
+              className="fixed left-4 top-4 z-40 px-3 py-2 rounded-2xl glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 shadow-soft text-sm lg:hidden"
+              aria-label="Show sidebar"
+            >
+              ☰ Show Filters
+            </button>
+          )}
+
           <div className="max-w-7xl mx-auto p-4 md:p-8">
+            {/* Alert */}
+            {alert && (
+              <div className="mb-4">
+                <Alert {...alert} onClose={() => setAlert(null)} />
+              </div>
+            )}
+
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
+              {/* Sidebar */}
               {navOpen && (
                 <aside className="lg:col-span-3 space-y-4">
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft sticky top-4">
                     <div className="flex items-center justify-between mb-1">
                       <h2 className="text-lg font-semibold">Navigation</h2>
-                      <button onClick={function(){ setNavOpen(false); }} className="text-xs px-2 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50 hover:bg-slate-900/5 dark:hover:bg-white/10" title="Hide sidebar">Hide</button>
+                      <button
+                        onClick={() => setNavOpen(false)}
+                        className="text-xs px-2 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50 hover:bg-slate-900/5 dark:hover:bg-white/10"
+                        aria-label="Hide sidebar"
+                      >
+                        Hide
+                      </button>
                     </div>
-                    <p className="text-xs opacity-70 mb-3">Apple-inspired side nav • Filters & actions</p>
-                    <nav className="space-y-1 text-sm mb-4">
-                      <a href="#overview" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">Overview</a>
-                      <a href="#charts" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">Charts</a>
-                      <a href="#table" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">Table</a>
-                      <a href="#ai" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">AI Feedback</a>
-                      <a href="#diagnostics" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">Diagnostics</a>
+                    <p className="text-xs opacity-70 mb-3">
+                      Keyboard shortcut: Ctrl+B
+                    </p>
+
+                    <nav className="space-y-1 text-sm mb-4" role="navigation">
+                      <a href="#overview" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
+                        Overview
+                      </a>
+                      <a href="#charts" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
+                        Charts
+                      </a>
+                      <a href="#table" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
+                        Table
+                      </a>
+                      <a href="#ai" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
+                        AI Analysis
+                      </a>
                     </nav>
+
                     <div className="space-y-2">
-                      <label className="inline-flex items-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 w-full">
-                        <input type="checkbox" checked={theme.dark} onChange={function(e){ theme.setDark(e.target.checked); }} className="accent-slate-900 dark:accent-slate-100" />
+                      <label className="inline-flex items-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 w-full cursor-pointer">
+                        <input
+                          type="checkbox"
+                          checked={theme.dark}
+                          onChange={e => theme.setDark(e.target.checked)}
+                          className="accent-slate-900 dark:accent-slate-100"
+                        />
                         <span>Dark Mode</span>
                       </label>
-                      <label className="inline-flex items-center justify-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 cursor-pointer w-full">
-                        <input type="file" accept=".csv" className="hidden" onChange={function(e){ if (e.target.files && e.target.files[0]) onUpload(e.target.files[0]); }} />
-                        <span>Upload CSV</span>
+
+                      <label className="inline-flex items-center justify-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 cursor-pointer w-full hover:bg-slate-900/5 dark:hover:bg-white/10">
+                        <input
+                          type="file"
+                          accept=".csv"
+                          className="hidden"
+                          onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])}
+                          aria-label="Upload CSV file"
+                        />
+                        <span>📁 Upload CSV</span>
                       </label>
-                      <button className="px-3 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft w-full" onClick={exportFiltered}>Export (CSV)</button>
+
+                      <button
+                        className="px-3 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft w-full hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        onClick={exportFiltered}
+                        disabled={filteredRows.length === 0}
+                        aria-label="Export filtered data"
+                      >
+                        💾 Export CSV
+                      </button>
                     </div>
+
                     <div className="mt-4 space-y-3">
-                      <h3 className="font-medium">Filters (A–E)</h3>
-                      {MAPPING.filterCols.slice(0,5).map(function(colIdx, i){
-                        return (
-                          <MultiSelect
-                            key={i}
-                            label={'Filter ' + String.fromCharCode(65+i) + (headers[colIdx] ? ' — ' + headers[colIdx] : '')}
-                            options={filterOptions[i] || []}
-                            selected={filters[i]}
-                            onChange={function(vals){ var next = filters.slice(); next[i] = vals; setFilters(next); }}
-                          />
-                        );
-                      })}
+                      <h3 className="font-medium">Filters</h3>
+                      {CONFIG.COLUMN_MAPPING.filterCols.slice(0, 5).map((colIdx, i) => (
+                        <MultiSelect
+                          key={i}
+                          label={`${String.fromCharCode(65 + i)} — ${headers[colIdx] || 'Column'}`}
+                          options={filterOptions[i] || []}
+                          selected={filters[i]}
+                          onChange={vals => {
+                            const next = [...filters];
+                            next[i] = vals;
+                            setFilters(next);
+                          }}
+                        />
+                      ))}
                     </div>
                   </div>
                 </aside>
               )}
 
-              <main className={(navOpen ? 'lg:col-span-9 ' : 'lg:col-span-12 ') + 'space-y-6'}>
+              {/* Main Content */}
+              <main className={`${navOpen ? 'lg:col-span-9' : 'lg:col-span-12'} space-y-6`}>
+                {/* Header */}
                 <section id="overview" className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Tender Evaluation Dashboard</h1>
-                    <button onClick={function(){ setNavOpen(function(v){ return !v; }); }} className="text-sm px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:bg-slate-900/5 dark:hover:bg-white/10" title={navOpen ? 'Hide sidebar' : 'Show sidebar'}>{navOpen ? 'Hide sidebar' : 'Show sidebar'}</button>
+                    <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
+                      Tender Evaluation Dashboard
+                    </h1>
+                    <button
+                      onClick={() => setNavOpen(v => !v)}
+                      className="hidden lg:block text-sm px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:bg-slate-900/5 dark:hover:bg-white/10"
+                      aria-label={navOpen ? 'Hide sidebar' : 'Show sidebar'}
+                    >
+                      {navOpen ? '← Hide' : '→ Show'} Sidebar
+                    </button>
                   </div>
-                  <p className="opacity-70">Fixed mapping: Filters A–E; Tender Value (H); Actual Avg Collected (Q).</p>
+                  <p className="opacity-70 text-sm">
+                    Production-ready tender analysis • Fixed mapping: Filters (A–E), Tender Value (H), Actual Collected (Q)
+                  </p>
                 </section>
 
-                <section className="grid grid-cols-1 md:grid-cols-3 lg:grid-cols-6 gap-4">
+                {/* Metrics Cards */}
+                <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs opacity-70">Records</div>
-                    <div className="text-2xl font-semibold">{metrics.count}</div>
+                    <div className="text-xs uppercase tracking-wide opacity-70">Records</div>
+                    <div className="text-3xl font-semibold mt-1">{metrics.count.toLocaleString()}</div>
+                    <div className="text-xs opacity-70 mt-1">
+                      {rawRows.length > 0 && `${((metrics.count / rawRows.length) * 100).toFixed(1)}% of total`}
+                    </div>
                   </div>
+
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs opacity-70">Tender Avg (H)</div>
-                    <div className="text-2xl font-semibold">{safeLocale(metrics.tenderAvg, { maximumFractionDigits: 2 })}</div>
-                    <div className="text-xs opacity-70">Min {safeLocale(metrics.tenderMin)} · Max {safeLocale(metrics.tenderMax)}</div>
+                    <div className="text-xs uppercase tracking-wide opacity-70">Tender Avg (H)</div>
+                    <div className="text-3xl font-semibold mt-1">
+                      {Utils.safeLocale(metrics.tenderAvg, { maximumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-xs opacity-70 mt-1">
+                      Range: {Utils.safeLocale(metrics.tenderMin)} – {Utils.safeLocale(metrics.tenderMax)}
+                    </div>
                   </div>
+
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs opacity-70">Actual Avg (Q)</div>
-                    <div className="text-2xl font-semibold">{safeLocale(metrics.actualAvg, { maximumFractionDigits: 2 })}</div>
-                    <div className="text-xs opacity-70">Min {safeLocale(metrics.actualMin)} · Max {safeLocale(metrics.actualMax)}</div>
+                    <div className="text-xs uppercase tracking-wide opacity-70">Actual Avg (Q)</div>
+                    <div className="text-3xl font-semibold mt-1">
+                      {Utils.safeLocale(metrics.actualAvg, { maximumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-xs opacity-70 mt-1">
+                      Range: {Utils.safeLocale(metrics.actualMin)} – {Utils.safeLocale(metrics.actualMax)}
+                    </div>
                   </div>
+
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs opacity-70">Δ Avg (H − Q)</div>
-                    <div className={'text-2xl font-semibold ' + (metrics.deltaAvg>=0?'text-emerald-600':'text-rose-600')}>{safeLocale(metrics.deltaAvg, { maximumFractionDigits: 2 })}</div>
-                    <div className="text-xs opacity-70">Positive = higher tender than actual</div>
-                  </div>
-                  <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft col-span-1 md:col-span-2">
-                    <div className="text-xs opacity-70 mb-2">BAFO Helper</div>
-                    <p className="text-sm opacity-80">Filter your shortlist in the side nav, then <strong>Export</strong> to share for BAFO.</p>
+                    <div className="text-xs uppercase tracking-wide opacity-70">Delta (H − Q)</div>
+                    <div className={`text-3xl font-semibold mt-1 ${metrics.deltaAvg >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                      {metrics.deltaAvg >= 0 ? '+' : ''}{Utils.safeLocale(metrics.deltaAvg, { maximumFractionDigits: 2 })}
+                    </div>
+                    <div className="text-xs opacity-70 mt-1">
+                      {metrics.deltaAvg >= 0 ? 'Tender exceeds actual' : 'Actual exceeds tender'}
+                    </div>
                   </div>
                 </section>
 
+                {/* BAFO Helper */}
+                <section className="glass dark:glass-dark rounded-3xl p-4 border border-blue-200/60 dark:border-blue-700/50 bg-blue-50/50 dark:bg-blue-900/20">
+                  <div className="flex items-start gap-3">
+                    <span className="text-2xl">💡</span>
+                    <div className="flex-1">
+                      <h3 className="font-semibold mb-1">BAFO Helper</h3>
+                      <p className="text-sm opacity-80">
+                        Use filters to narrow your shortlist, then export to CSV for Best and Final Offer negotiations.
+                        Focus on entries with positive deltas for cost reduction opportunities.
+                      </p>
+                    </div>
+                  </div>
+                </section>
+
+                {/* Charts */}
                 <section id="charts" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">Avg Tender vs Actual — by Group</h3>
-                      <span className="text-xs opacity-70">Grouped by Site Name • showing all sites</span>
+                      <h3 className="font-semibold">Tender vs Actual by Site</h3>
+                      <span className="text-xs opacity-70">Grouped by Site Name</span>
                     </div>
-                    <EChart option={barOption} className="h-[40rem]" />
+                    {grouped.length > 0 ? (
+                      <EChart option={barOption} className="h-[40rem]" />
+                    ) : (
+                      <div className="h-[40rem] flex items-center justify-center opacity-50">
+                        No data to visualize
+                      </div>
+                    )}
                   </div>
+
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
                     <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">Tender (H) vs Actual (Q) — Scatter</h3>
-                      <span className="text-xs opacity-70">Each dot is a row · label = {headers[groupLabelIdx] || ('Col ' + String.fromCharCode(65+groupLabelIdx))}</span>
+                      <h3 className="font-semibold">Scatter: Tender vs Actual</h3>
+                      <span className="text-xs opacity-70">Each point = one row</span>
                     </div>
-                    <EChart option={scatterOption} />
+                    {scatter.length > 0 ? (
+                      <EChart option={scatterOption} className="h-[40rem]" />
+                    ) : (
+                      <div className="h-[40rem] flex items-center justify-center opacity-50">
+                        No data to visualize
+                      </div>
+                    )}
                   </div>
                 </section>
 
+                {/* Data Table */}
                 <section id="table">
+                  <h3 className="font-semibold mb-3">Filtered Data</h3>
                   <DataTable headers={headers} rows={filteredRows} />
                 </section>
 
-                <section id="ai" className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 space-y-4">
-                  <h3 className="font-medium">ChatGPT AI Feedback</h3>
-                  <p className="text-sm opacity-80">Run quick on-device heuristics or call ChatGPT with an API key you provide (client-side). Do not paste secrets unless you accept that risk.</p>
-                  <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
-                    <div className="lg:col-span-2 space-y-3">
-                      <div>
-                        <label className="block text-xs uppercase tracking-wide opacity-70 mb-1">Question / Focus</label>
-                        <textarea id="ai-question" className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-3 h-24" placeholder="e.g., Identify outliers where Tender (H) materially exceeds Actual (Q), suggest BAFO targets by region." />
-                      </div>
-                      <div className="glass dark:glass-dark rounded-2xl p-3 border border-slate-200/60 dark:border-slate-700/50 space-y-2">
-                        <div className="text-xs uppercase tracking-wide opacity-70">ChatGPT (API) – Optional</div>
-                        <input id="ai-api-base" className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-xl px-3 py-2" placeholder="API Base (e.g., https://api.openai.com/v1)" />
-                        <input id="ai-api-key" className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-xl px-3 py-2" placeholder="API Key (Bearer)" />
-                        <div className="text-xs opacity-70">Default model in code: gpt-4o-mini</div>
-                      </div>
-                      <div className="flex gap-2">
-                        <button id="btn-local" className="px-3 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft">Run Quick (Local)</button>
-                        <button id="btn-remote" className="px-3 py-2 rounded-2xl border border-slate-300 dark:border-slate-600 shadow-soft">Ask ChatGPT</button>
-                      </div>
-                    </div>
-                    <div className="lg:col-span-3">
-                      <div className="glass dark:glass-dark rounded-2xl p-3 border border-slate-200/60 dark:border-slate-700/50 h-full min-h-[12rem]">
-                        <div className="text-xs uppercase tracking-wide opacity-70 mb-2">Response</div>
-                        <div id="ai-output" className="prose prose-sm prose-slate dark:prose-invert max-w-none"><p className="opacity-70">No analysis yet. Choose a mode to generate insights.</p></div>
-                      </div>
-                    </div>
-                  </div>
-                </section>
+                {/* AI Analysis */}
+                <AIAnalysis />
 
-                <section id="diagnostics" className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50">
-                  <h3 className="font-medium">Diagnostics & Tests</h3>
-                  <ul className="mt-2 space-y-1 text-sm">
-                    {tests.map(function(t,i){ return (
-                      <li key={i} className="flex items-center gap-2">
-                        <span className={'inline-block w-2 h-2 rounded-full ' + (t.pass?'bg-emerald-500':'bg-rose-500')} />
-                        <span>{t.name} — <strong>{t.pass?'PASS':'FAIL'}</strong></span>
-                      </li>
-                    ); })}
-                  </ul>
-                  {!window.echarts && (<p className="mt-2 text-xs opacity-70">If charts do not render on GitHub Pages, ensure this script is reachable: <code>https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js</code></p>)}
-                </section>
-
-                <div className="text-xs opacity-70 text-center py-6">Built for Tender Evaluation Panels • Apple-inspired UI • React + Tailwind + ECharts • CSV-in, CSV-out</div>
+                {/* Footer */}
+                <footer className="text-xs opacity-70 text-center py-6 border-t border-slate-200/60 dark:border-slate-700/50">
+                  <p>Production-ready Tender Evaluation Dashboard</p>
+                  <p className="mt-1">Built with React • Tailwind CSS • Apache ECharts • PapaParse</p>
+                </footer>
               </main>
             </div>
           </div>
@@ -563,133 +1078,301 @@
       );
     }
 
-    const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(<App />);
+    /* ===================== AI ANALYSIS COMPONENT ===================== */
+    function AIAnalysis() {
+      const [question, setQuestion] = useState('');
+      const [apiBase, setApiBase] = useState('https://api.openai.com/v1');
+      const [apiKey, setApiKey] = useState('');
+      const [output, setOutput] = useState('');
+      const [loading, setLoading] = useState(false);
 
-    /* ===================== AI Feedback wiring ===================== */
-    function summarizeLocally(headers, rows){
-      if (!rows.length) return 'No rows selected after filters. Add or relax filters and try again.';
-      var H = 7, Q = 16;
-      var values = rows.map(function(r){
-        var grp = isDefined(r[1]) ? String(r[1]) : (isDefined(r[0]) ? String(r[0]) : '');
-        return { h: numberify(r[H]), q: numberify(r[Q]), group: grp };
-      }).filter(function(v){ return v.h !== null && v.q !== null; });
-      var n = values.length;
-      var avg = function(a){ return a.reduce(function(s,x){return s+x;},0)/a.length; };
-      var byGroup = {};
-      for (var i=0;i<values.length;i++){
-        var v = values[i];
-        if (!byGroup[v.group]) byGroup[v.group] = { h: [], q: [] };
-        byGroup[v.group].h.push(v.h); byGroup[v.group].q.push(v.q);
-      }
-      var groups = Object.keys(byGroup).map(function(g){ var d = byGroup[g]; return { g: g, hAvg: avg(d.h), qAvg: avg(d.q), delta: avg(d.h) - avg(d.q) }; })
-        .sort(function(a,b){ return Math.abs(b.delta) - Math.abs(a.delta); }).slice(0, 10);
-      var overallH = avg(values.map(function(v){return v.h;}));
-      var overallQ = avg(values.map(function(v){return v.q;}));
-      var overallDelta = overallH - overallQ;
-      var topOver = groups.filter(function(x){return x.delta>0;}).slice(0,5);
-      var topUnder = groups.filter(function(x){return x.delta<0;}).slice(0,5);
-      var md = '';
-      md += '**Snapshot ('+n+' rows)**\n';
-      md += '• Avg Tender (H): ' + safeLocale(overallH, {maximumFractionDigits:2}) + '\n';
-      md += '• Avg Actual (Q): ' + safeLocale(overallQ, {maximumFractionDigits:2}) + '\n';
-      md += '• Δ (H−Q): ' + safeLocale(overallDelta, {maximumFractionDigits:2}) + ' ' + (overallDelta>=0?'(tender above actual)':'(actual above tender)') + '\n\n';
-      if (topOver.length) {
-        md += '**Groups with Tender > Actual (largest deltas)**\n';
-        for (var j=0;j<topOver.length;j++){
-          var x = topOver[j];
-          md += '• ' + x.g + ': Δ ' + safeLocale(x.delta, {maximumFractionDigits:2}) + ' (H ' + safeLocale(x.hAvg,{maximumFractionDigits:1}) + ' vs Q ' + safeLocale(x.qAvg,{maximumFractionDigits:1}) + ')\n';
+      const summarizeLocally = useCallback(() => {
+        const state = window.__TENDER_STATE__ || { headers: [], filteredRows: [] };
+        const { headers, filteredRows } = state;
+
+        if (filteredRows.length === 0) {
+          return 'No rows available after filters. Please adjust your filters and try again.';
         }
-        md += '\n';
-      }
-      if (topUnder.length) {
-        md += '**Groups with Actual ≥ Tender (largest negatives)**\n';
-        for (var k=0;k<topUnder.length;k++){
-          var x2 = topUnder[k];
-          md += '• ' + x2.g + ': Δ ' + safeLocale(x2.delta, {maximumFractionDigits:2}) + ' (H ' + safeLocale(x2.hAvg,{maximumFractionDigits:1}) + ' vs Q ' + safeLocale(x2.qAvg,{maximumFractionDigits:1}) + ')\n';
+
+        const H = CONFIG.COLUMN_MAPPING.tenderValueCol;
+        const Q = CONFIG.COLUMN_MAPPING.actualAvgCol;
+
+        const values = filteredRows
+          .map(r => ({
+            h: Utils.numberify(r[H]),
+            q: Utils.numberify(r[Q]),
+            group: Utils.isDefined(r[1]) ? String(r[1]) : (Utils.isDefined(r[0]) ? String(r[0]) : '—')
+          }))
+          .filter(v => v.h !== null && v.q !== null);
+
+        if (values.length === 0) {
+          return 'No numeric data found in Tender (H) and Actual (Q) columns.';
         }
-        md += '\n';
-      }
-      md += 'Tips: Use positive-Δ groups to negotiate BAFO reductions; investigate negatives for scope/quality assumptions.';
-      return md;
-    }
 
-    function buildPrompt(headers, rows, question){
-      var H = 7, Q = 16, maxRows = 120;
-      var keys = headers.map(function(h,i){ return h || ('Column ' + String.fromCharCode(65+i)); });
-      var sliced = rows.slice(0, maxRows);
-      var payload = sliced.map(function(r){ return { A:r[0], B:r[1], C:r[2], D:r[3], E:r[4], H:r[H], Q:r[Q] }; });
-      return 'You are an expert procurement analyst. The user has tender data with fixed mapping: filters A–E, tender value=H, actual average collected=Q. Analyze H vs Q for the provided filtered rows and answer the user\'s question. Be concise, bullet-pointed, and actionable for BAFO.' +
-             '\n\nQuestion: ' + (question || 'Identify outliers and BAFO opportunities.') +
-             '\n\nColumns: ' + JSON.stringify(keys) +
-             '\nSample (first ' + sliced.length + ' rows):\n' + JSON.stringify(payload);
-    }
+        const avg = arr => arr.reduce((s, x) => s + x, 0) / arr.length;
 
-    async function askChatGPT(base, key, prompt, model){
-      model = model || 'gpt-4o-mini';
-      var url = base.replace(/\/$/,'') + '/chat/completions';
-      var res = await fetch(url, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model: model, messages: [ { role: 'system', content: 'You are a concise, rigorous procurement analyst.' }, { role: 'user', content: prompt } ], temperature: 0.2 })
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      var choice0 = data && data.choices && data.choices[0];
-      return (choice0 && choice0.message && choice0.message.content) ? choice0.message.content : '(No content)';
-    }
+        const byGroup = {};
+        values.forEach(v => {
+          if (!byGroup[v.group]) byGroup[v.group] = { h: [], q: [] };
+          byGroup[v.group].h.push(v.h);
+          byGroup[v.group].q.push(v.q);
+        });
 
-    function markedToHtml(md){
-      return md
-        .replace(/^### (.*$)/gim, '<h3>$1<\/h3>')
-        .replace(/^## (.*$)/gim, '<h2>$1<\/h2>')
-        .replace(/^# (.*$)/gim, '<h1>$1<\/h1>')
-        .replace(/\*\*([^*]+)\*\*/gim, '<strong>$1<\/strong>')
-        .replace(/^\* (.*)$/gim, '<li>$1<\/li>')
-        .replace(/\n\n/g, '<br/><br/>')
-        .replace(/\n/g, '<br/>' );
-    }
+        const groups = Object.keys(byGroup)
+          .map(g => {
+            const data = byGroup[g];
+            return {
+              g,
+              hAvg: avg(data.h),
+              qAvg: avg(data.q),
+              delta: avg(data.h) - avg(data.q)
+            };
+          })
+          .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
 
-    function setOutput(html){
-      var out = document.getElementById('ai-output');
-      if (out) out.innerHTML = markedToHtml(html);
-    }
+        const overallH = avg(values.map(v => v.h));
+        const overallQ = avg(values.map(v => v.q));
+        const overallDelta = overallH - overallQ;
 
-    setTimeout(function(){
-      var btnLocal = document.getElementById('btn-local');
-      var btnRemote = document.getElementById('btn-remote');
-      var q = document.getElementById('ai-question');
-      var base = document.getElementById('ai-api-base');
-      var key = document.getElementById('ai-api-key');
-      function getState(){ return window.__TENDER_STATE__ || { headers: [], filteredRows: [] }; }
-      if (btnLocal) btnLocal.onclick = function(){ var s = getState(); var md = summarizeLocally(s.headers, s.filteredRows); setOutput(md); };
-      if (btnRemote) btnRemote.onclick = async function(){
-        var s = getState();
-        var prompt = buildPrompt(s.headers, s.filteredRows, (q && q.value) ? q.value : '');
-        var baseVal = (base && base.value) ? base.value.trim() : '';
-        var keyVal = (key && key.value) ? key.value.trim() : '';
-        if (!baseVal || !keyVal){ setOutput('Please provide both **API Base** and **API Key** to use ChatGPT mode.'); return; }
-        setOutput('Running ChatGPT analysis…');
-        try { var answer = await askChatGPT(baseVal, keyVal, prompt); setOutput(answer); }
-        catch(e){ setOutput('Failed to call API: ' + e.message + '. Check CORS, API base, and key.'); }
+        const topOver = groups.filter(x => x.delta > 0).slice(0, 5);
+        const topUnder = groups.filter(x => x.delta < 0).slice(0, 5);
+
+        let md = `**Quick Analysis (${values.length} rows)**\n\n`;
+        md += `• Average Tender (H): ${Utils.safeLocale(overallH, { maximumFractionDigits: 2 })}\n`;
+        md += `• Average Actual (Q): ${Utils.safeLocale(overallQ, { maximumFractionDigits: 2 })}\n`;
+        md += `• Delta (H−Q): ${Utils.safeLocale(overallDelta, { maximumFractionDigits: 2 })} ${overallDelta >= 0 ? '(tender above actual)' : '(actual above tender)'}\n\n`;
+
+        if (topOver.length > 0) {
+          md += `**Top Sites: Tender > Actual** _(BAFO opportunities)_\n`;
+          topOver.forEach(x => {
+            md += `• **${Utils.sanitizeHTML(x.g)}**: Δ ${Utils.safeLocale(x.delta, { maximumFractionDigits: 2 })} (H: ${Utils.safeLocale(x.hAvg, { maximumFractionDigits: 1 })}, Q: ${Utils.safeLocale(x.qAvg, { maximumFractionDigits: 1 })})\n`;
+          });
+          md += '\n';
+        }
+
+        if (topUnder.length > 0) {
+          md += `**Top Sites: Actual ≥ Tender** _(review scope/assumptions)_\n`;
+          topUnder.forEach(x => {
+            md += `• **${Utils.sanitizeHTML(x.g)}**: Δ ${Utils.safeLocale(x.delta, { maximumFractionDigits: 2 })} (H: ${Utils.safeLocale(x.hAvg, { maximumFractionDigits: 1 })}, Q: ${Utils.safeLocale(x.qAvg, { maximumFractionDigits: 1 })})\n`;
+          });
+          md += '\n';
+        }
+
+        md += '**Recommendation:** Prioritize sites with positive deltas for BAFO negotiations. Investigate negative deltas for scope discrepancies.';
+
+        return md;
+      }, []);
+
+      const askChatGPT = useCallback(async () => {
+        const state = window.__TENDER_STATE__ || { headers: [], filteredRows: [] };
+        const { headers, filteredRows } = state;
+
+        if (!apiBase.trim() || !apiKey.trim()) {
+          setOutput('**Error:** Please provide both API Base and API Key.');
+          return;
+        }
+
+        if (filteredRows.length === 0) {
+          setOutput('**Error:** No data to analyze. Please upload data or adjust filters.');
+          return;
+        }
+
+        const H = CONFIG.COLUMN_MAPPING.tenderValueCol;
+        const Q = CONFIG.COLUMN_MAPPING.actualAvgCol;
+        const maxRows = CONFIG.AI.maxRowsToSend;
+
+        const sliced = filteredRows.slice(0, maxRows);
+        const payload = sliced.map(r => ({
+          State: r[0],
+          Site: r[1],
+          Service: r[2],
+          Type: r[3],
+          Stream: r[4],
+          TenderH: r[H],
+          ActualQ: r[Q]
+        }));
+
+        const prompt = `You are an expert procurement analyst. Analyze the following tender data where:
+- Tender Value is in column H (TenderH)
+- Actual Average Collected is in column Q (ActualQ)
+
+User's question: ${question || 'Identify outliers and BAFO opportunities based on delta between tender and actual values.'}
+
+Data sample (first ${sliced.length} rows):
+${JSON.stringify(payload, null, 2)}
+
+Provide a concise, bullet-pointed analysis suitable for procurement decision-making. Focus on:
+1. Key insights about tender vs actual performance
+2. Outliers or anomalies
+3. Specific BAFO (Best and Final Offer) recommendations`;
+
+        setLoading(true);
+        setOutput('Analyzing data with ChatGPT...');
+
+        try {
+          const url = apiBase.replace(/\/$/, '') + '/chat/completions';
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+              'Authorization': `Bearer ${apiKey.trim()}`
+            },
+            body: JSON.stringify({
+              model: CONFIG.AI.defaultModel,
+              messages: [
+                {
+                  role: 'system',
+                  content: 'You are a concise, rigorous procurement analyst specializing in tender evaluation.'
+                },
+                {
+                  role: 'user',
+                  content: prompt
+                }
+              ],
+              temperature: 0.2,
+              max_tokens: 1000
+            })
+          });
+
+          if (!response.ok) {
+            const errorText = await response.text();
+            throw new Error(`HTTP ${response.status}: ${errorText}`);
+          }
+
+          const data = await response.json();
+          const content = data?.choices?.[0]?.message?.content;
+
+          if (content) {
+            setOutput(content);
+          } else {
+            setOutput('**Error:** No response content from API.');
+          }
+        } catch (error) {
+          console.error('ChatGPT API Error:', error);
+          setOutput(`**Error:** ${error.message}\n\nPlease check:\n• API endpoint is correct\n• API key is valid\n• CORS is properly configured\n• You have sufficient API credits`);
+        } finally {
+          setLoading(false);
+        }
+      }, [question, apiBase, apiKey]);
+
+      const formatMarkdown = (md) => {
+        return md
+          .replace(/^### (.*$)/gim, '<h3 class="font-semibold text-lg mt-4 mb-2">$1</h3>')
+          .replace(/^## (.*$)/gim, '<h2 class="font-semibold text-xl mt-4 mb-2">$1</h2>')
+          .replace(/^# (.*$)/gim, '<h1 class="font-semibold text-2xl mt-4 mb-2">$1</h1>')
+          .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold">$1</strong>')
+          .replace(/\*([^*]+)\*/g, '<em>$1</em>')
+          .replace(/^• (.*)$/gim, '<li class="ml-4">$1</li>')
+          .replace(/\n\n/g, '</p><p class="mt-2">')
+          .replace(/\n/g, '<br/>');
       };
-    }, 0);
+
+      return (
+        <section id="ai" className="glass dark:glass-dark rounded-3xl p-6 border border-slate-200/60 dark:border-slate-700/50 space-y-4">
+          <div className="flex items-center justify-between">
+            <h3 className="font-semibold text-lg">AI-Powered Analysis</h3>
+            <span className="text-xs opacity-70 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
+              Optional
+            </span>
+          </div>
+
+          <p className="text-sm opacity-80">
+            Run local heuristic analysis or connect to ChatGPT for advanced insights. 
+            API keys are used client-side only and never stored.
+          </p>
+
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+            {/* Input Panel */}
+            <div className="space-y-4">
+              <div>
+                <label htmlFor="ai-question" className="block text-xs uppercase tracking-wide opacity-70 mb-1">
+                  Analysis Focus (Optional)
+                </label>
+                <textarea
+                  id="ai-question"
+                  value={question}
+                  onChange={e => setQuestion(e.target.value)}
+                  className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-3 h-24 focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
+                  placeholder="e.g., Identify sites with highest tender-to-actual variance for BAFO negotiations"
+                />
+              </div>
+
+              <div className="glass dark:glass-dark rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/50 space-y-3">
+                <div className="flex items-center justify-between">
+                  <span className="text-xs uppercase tracking-wide opacity-70">ChatGPT API</span>
+                  <span className="text-xs opacity-50">Optional</span>
+                </div>
+                <input
+                  id="ai-api-base"
+                  type="url"
+                  value={apiBase}
+                  onChange={e => setApiBase(e.target.value)}
+                  className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-xl px-3 py-2 text-sm"
+                  placeholder="API Base URL"
+                />
+                <input
+                  id="ai-api-key"
+                  type="password"
+                  value={apiKey}
+                  onChange={e => setApiKey(e.target.value)}
+                  className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-xl px-3 py-2 text-sm"
+                  placeholder="API Key (stored locally)"
+                  autoComplete="off"
+                />
+                <p className="text-xs opacity-60">
+                  Default model: {CONFIG.AI.defaultModel}. Your credentials never leave your browser.
+                </p>
+              </div>
+
+              <div className="flex gap-3">
+                <button
+                  onClick={() => setOutput(summarizeLocally())}
+                  disabled={loading}
+                  className="flex-1 px-4 py-3 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {loading ? <LoadingSpinner className="mx-auto" /> : '⚡ Quick Analysis'}
+                </button>
+                <button
+                  onClick={askChatGPT}
+                  disabled={loading || !apiKey.trim()}
+                  className="flex-1 px-4 py-3 rounded-2xl border-2 border-slate-300 dark:border-slate-600 shadow-soft hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
+                >
+                  {loading ? <LoadingSpinner className="mx-auto" /> : '🤖 Ask ChatGPT'}
+                </button>
+              </div>
+            </div>
+
+            {/* Output Panel */}
+            <div>
+              <div className="glass dark:glass-dark rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/50 h-full min-h-[24rem] overflow-auto">
+                <div className="text-xs uppercase tracking-wide opacity-70 mb-3">Analysis Results</div>
+                {output ? (
+                  <div
+                    className="prose prose-sm prose-slate dark:prose-invert max-w-none"
+                    dangerouslySetInnerHTML={{ __html: formatMarkdown(output) }}
+                  />
+                ) : (
+                  <div className="flex items-center justify-center h-48 opacity-50">
+                    <div className="text-center">
+                      <div className="text-3xl mb-2">🎯</div>
+                      <p className="text-sm">No analysis yet. Choose an analysis mode above.</p>
+                    </div>
+                  </div>
+                )}
+              </div>
+            </div>
+          </div>
+        </section>
+      );
+    }
+
+    /* ===================== RENDER APP ===================== */
+    const root = ReactDOM.createRoot(document.getElementById('root'));
+    root.render(
+      <ErrorBoundary>
+        <App />
+      </ErrorBoundary>
+    );
   </script>
 </body>
-      var btnRemote = document.getElementById('btn-remote');
-      var q = document.getElementById('ai-question');
-      var base = document.getElementById('ai-api-base');
-      var key = document.getElementById('ai-api-key');
-      function getState(){ return window.__TENDER_STATE__ || { headers: [], filteredRows: [] }; }
-      if (btnLocal) btnLocal.onclick = function(){ var s = getState(); var md = summarizeLocally(s.headers, s.filteredRows); setOutput(md); };
-      if (btnRemote) btnRemote.onclick = async function(){
-        var s = getState();
-        var prompt = buildPrompt(s.headers, s.filteredRows, (q && q.value) ? q.value : '');
-        var baseVal = (base && base.value) ? base.value.trim() : '';
-        var keyVal = (key && key.value) ? key.value.trim() : '';
-        if (!baseVal || !keyVal){ setOutput('Please provide both **API Base** and **API Key** to use ChatGPT mode.'); return; }
-        setOutput('Running ChatGPT analysis…');
-        try { var answer = await askChatGPT(baseVal, keyVal, prompt); setOutput(answer); }
-        catch(e){ setOutput('Failed to call API: ' + e.message + '. Check CORS, API base, and key.'); }
-      };
-    }, 0);
-  <
+</html>
