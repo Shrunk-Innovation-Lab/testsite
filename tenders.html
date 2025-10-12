@@ -3,13 +3,12 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
-  <meta name="description" content="Professional tender evaluation dashboard for procurement analysis" />
-  <title>Tender Evaluation Dashboard</title>
+  <meta name="description" content="Enhanced tender evaluation dashboard with executive insights" />
+  <title>Tender Evaluation Dashboard - Enhanced</title>
   
   <!-- Tailwind CSS with inline config -->
   <script src="https://cdn.tailwindcss.com?plugins=forms,typography,aspect-ratio"></script>
   <script>
-    // Wait for Tailwind to load before configuring
     window.addEventListener('load', function() {
       if (typeof tailwind !== 'undefined' && tailwind.config) {
         tailwind.config = {
@@ -35,10 +34,10 @@
   <script crossorigin src="https://unpkg.com/react-dom@18/umd/react-dom.production.min.js"></script>
   <script crossorigin src="https://unpkg.com/@babel/standalone/babel.min.js"></script>
   
-  <!-- Papa Parse for CSV -->
+  <!-- Papa Parse -->
   <script src="https://unpkg.com/papaparse@5.4.1/papaparse.min.js"></script>
   
-  <!-- Apache ECharts -->
+  <!-- ECharts -->
   <script crossorigin src="https://cdn.jsdelivr.net/npm/echarts@5/dist/echarts.min.js"></script>
   
   <style>
@@ -63,11 +62,26 @@
     @keyframes spin {
       to { transform: rotate(360deg); }
     }
-    /* Smooth transitions */
-    * {
-      transition-property: background-color, border-color, color, fill, stroke, opacity, box-shadow, transform;
-      transition-duration: 150ms;
-      transition-timing-function: cubic-bezier(0.4, 0, 0.2, 1);
+    .tooltip {
+      visibility: hidden;
+      opacity: 0;
+      transition: opacity 0.2s, visibility 0.2s;
+    }
+    .tooltip-trigger:hover .tooltip {
+      visibility: visible;
+      opacity: 1;
+    }
+    .gradient-border {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      padding: 2px;
+      border-radius: 1.5rem;
+    }
+    .gradient-border-inner {
+      background: white;
+      border-radius: 1.5rem;
+    }
+    .dark .gradient-border-inner {
+      background: rgb(15, 23, 42);
     }
   </style>
 </head>
@@ -90,14 +104,7 @@
         tenderValueCol: 7,
         actualAvgCol: 16
       },
-      PAGINATION: {
-        pageSize: 15
-      },
-      AI: {
-        defaultModel: 'gpt-4o-mini',
-        maxRowsToSend: 120,
-        defaultTimeout: 30000
-      },
+      PAGINATION: { pageSize: 15 },
       STORAGE_KEYS: {
         theme: 'tender-dashboard-theme',
         navOpen: 'tender-dashboard-nav-open'
@@ -106,129 +113,53 @@
 
     /* ===================== UTILITIES ===================== */
     const Utils = {
-      isDefined(v) { 
-        return v !== undefined && v !== null; 
-      },
-      
-      coalesce(v, alt) { 
-        return this.isDefined(v) ? v : alt; 
-      },
-      
+      isDefined(v) { return v !== undefined && v !== null; },
+      coalesce(v, alt) { return this.isDefined(v) ? v : alt; },
       safeLocale(n, opts = {}) {
         if (typeof n === 'number' && !isNaN(n) && n !== null && n !== undefined) {
-          try {
-            return n.toLocaleString(undefined, opts);
-          } catch (e) {
-            console.warn('Locale formatting error:', e);
-            return String(n);
-          }
+          try { return n.toLocaleString(undefined, opts); }
+          catch (e) { return String(n); }
         }
         return String(n);
       },
-      
       numberify(v) {
         if (v === null || v === undefined || v === '') return null;
         const s = String(v).replace(/[$£€,%\s]/g, '');
         const n = parseFloat(s);
         return isNaN(n) ? null : n;
       },
-      
       uniqueSorted(arr) {
-        return Array.from(new Set(
-          arr.filter(v => v !== '' && v !== null && v !== undefined)
-        )).sort((a, b) => String(a).localeCompare(String(b)));
+        return Array.from(new Set(arr.filter(v => v !== '' && v !== null && v !== undefined)))
+          .sort((a, b) => String(a).localeCompare(String(b)));
       },
-      
       sanitizeHTML(str) {
         const div = document.createElement('div');
         div.textContent = str;
         return div.innerHTML;
       },
-      
-      debounce(func, wait) {
-        let timeout;
-        return function executedFunction(...args) {
-          const later = () => {
-            clearTimeout(timeout);
-            func(...args);
-          };
-          clearTimeout(timeout);
-          timeout = setTimeout(later, wait);
-        };
-      },
-
       downloadCSV(rows, filename = 'export.csv') {
         try {
-          if (!rows || rows.length === 0) {
-            throw new Error('No data to export');
-          }
+          if (!rows || rows.length === 0) throw new Error('No data to export');
           const csv = Papa.unparse(rows);
           const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
           const url = URL.createObjectURL(blob);
           const link = document.createElement('a');
-          link.href = url;
-          link.download = filename;
-          link.click();
+          link.href = url; link.download = filename; link.click();
           URL.revokeObjectURL(url);
           return { success: true };
         } catch (error) {
-          console.error('Export failed:', error);
           return { success: false, error: error.message };
         }
       },
-
-      validateCSVStructure(rows, expectedMinCols = 10) {
-        if (!rows || rows.length === 0) {
-          return { valid: false, error: 'No data found in CSV' };
-        }
-        if (rows[0].length < expectedMinCols) {
-          return { 
-            valid: false, 
-            error: `CSV has only ${rows[0].length} columns, expected at least ${expectedMinCols}` 
-          };
-        }
-        return { valid: true };
+      formatCurrency(n) {
+        if (n === null || n === undefined) return '$0';
+        return '$' + Math.abs(n).toLocaleString(undefined, { maximumFractionDigits: 0 });
+      },
+      formatPercent(n) {
+        if (n === null || n === undefined || isNaN(n)) return '0%';
+        return n.toFixed(1) + '%';
       }
     };
-
-    /* ===================== ERROR BOUNDARY ===================== */
-    class ErrorBoundary extends React.Component {
-      constructor(props) {
-        super(props);
-        this.state = { hasError: false, error: null };
-      }
-
-      static getDerivedStateFromError(error) {
-        return { hasError: true, error };
-      }
-
-      componentDidCatch(error, errorInfo) {
-        console.error('Dashboard Error:', error, errorInfo);
-      }
-
-      render() {
-        if (this.state.hasError) {
-          return (
-            <div className="min-h-screen flex items-center justify-center p-4">
-              <div className="glass dark:glass-dark rounded-3xl p-8 max-w-lg text-center border border-rose-200 dark:border-rose-800">
-                <div className="text-4xl mb-4">⚠️</div>
-                <h2 className="text-xl font-semibold mb-2">Something went wrong</h2>
-                <p className="text-sm opacity-70 mb-4">
-                  {this.state.error?.message || 'An unexpected error occurred'}
-                </p>
-                <button 
-                  onClick={() => window.location.reload()} 
-                  className="px-4 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900"
-                >
-                  Reload Dashboard
-                </button>
-              </div>
-            </div>
-          );
-        }
-        return this.props.children;
-      }
-    }
 
     /* ===================== CUSTOM HOOKS ===================== */
     function useTheme() {
@@ -268,11 +199,8 @@
       });
 
       useEffect(() => {
-        try {
-          localStorage.setItem(key, JSON.stringify(value));
-        } catch (e) {
-          console.warn('localStorage unavailable:', e);
-        }
+        try { localStorage.setItem(key, JSON.stringify(value)); }
+        catch (e) { console.warn('localStorage unavailable:', e); }
       }, [key, value]);
 
       return [value, setValue];
@@ -295,14 +223,20 @@
         <div className={`rounded-2xl p-4 border ${colors[type]} flex items-start gap-3`} role="alert">
           <span className="flex-1 text-sm">{message}</span>
           {onClose && (
-            <button 
-              onClick={onClose} 
-              className="opacity-60 hover:opacity-100"
-              aria-label="Close alert"
-            >
-              ✕
-            </button>
+            <button onClick={onClose} className="opacity-60 hover:opacity-100" aria-label="Close">✕</button>
           )}
+        </div>
+      );
+    }
+
+    function Tooltip({ children, content }) {
+      return (
+        <div className="relative inline-block tooltip-trigger">
+          {children}
+          <div className="tooltip absolute z-50 px-3 py-2 text-xs bg-slate-900 dark:bg-slate-100 text-white dark:text-slate-900 rounded-lg whitespace-nowrap -top-10 left-1/2 transform -translate-x-1/2">
+            {content}
+            <div className="absolute w-2 h-2 bg-slate-900 dark:bg-slate-100 transform rotate-45 -bottom-1 left-1/2 -translate-x-1/2"></div>
+          </div>
         </div>
       );
     }
@@ -311,13 +245,7 @@
       return (
         <span className="inline-flex items-center gap-1 rounded-full px-2 py-1 text-xs bg-slate-900/5 dark:bg-white/10">
           {children}
-          <button 
-            className="opacity-60 hover:opacity-100 focus:opacity-100 focus:outline-none" 
-            onClick={onRemove} 
-            aria-label={`Remove ${children}`}
-          >
-            ✕
-          </button>
+          <button className="opacity-60 hover:opacity-100" onClick={onRemove} aria-label={`Remove ${children}`}>✕</button>
         </span>
       );
     }
@@ -328,33 +256,18 @@
 
       useEffect(() => {
         function handler(e) {
-          if (ref.current && !ref.current.contains(e.target)) {
-            setOpen(false);
-          }
+          if (ref.current && !ref.current.contains(e.target)) setOpen(false);
         }
         document.addEventListener('click', handler);
         return () => document.removeEventListener('click', handler);
       }, []);
 
-      const handleKeyDown = (e) => {
-        if (e.key === 'Escape') setOpen(false);
-        if (e.key === 'Enter' || e.key === ' ') {
-          e.preventDefault();
-          setOpen(!open);
-        }
-      };
-
       return (
         <div className="relative" ref={ref}>
-          <label className="block text-xs uppercase tracking-wide opacity-70 mb-1">
-            {label}
-          </label>
+          <label className="block text-xs uppercase tracking-wide opacity-70 mb-1">{label}</label>
           <button
             onClick={() => setOpen(!open)}
-            onKeyDown={handleKeyDown}
-            className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl px-3 py-2 text-left shadow-soft focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
-            aria-haspopup="listbox"
-            aria-expanded={open}
+            className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl px-3 py-2 text-left shadow-soft"
           >
             <div className="flex flex-wrap gap-1 min-h-[1.5rem]">
               {selected.length === 0 && <span className="opacity-50">All</span>}
@@ -369,23 +282,10 @@
             </div>
           </button>
           {open && (
-            <div 
-              className="absolute z-20 mt-2 max-h-64 overflow-auto w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-2 shadow-soft-lg"
-              role="listbox"
-            >
+            <div className="absolute z-20 mt-2 max-h-64 overflow-auto w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-2 shadow-soft-lg">
               <div className="flex items-center justify-between mb-2">
-                <button 
-                  className="text-xs underline hover:no-underline" 
-                  onClick={() => onChange([])}
-                >
-                  Select none
-                </button>
-                <button 
-                  className="text-xs underline hover:no-underline" 
-                  onClick={() => onChange([...options])}
-                >
-                  Select all
-                </button>
+                <button className="text-xs underline" onClick={() => onChange([])}>Select none</button>
+                <button className="text-xs underline" onClick={() => onChange([...options])}>Select all</button>
               </div>
               <ul className="space-y-1">
                 {options.map(opt => (
@@ -396,11 +296,8 @@
                         className="accent-slate-900 dark:accent-slate-100"
                         checked={selected.includes(opt)}
                         onChange={(e) => {
-                          if (e.target.checked) {
-                            onChange([...selected, opt]);
-                          } else {
-                            onChange(selected.filter(v => v !== opt));
-                          }
+                          if (e.target.checked) onChange([...selected, opt]);
+                          else onChange(selected.filter(v => v !== opt));
                         }}
                       />
                       <span>{opt}</span>
@@ -410,77 +307,6 @@
               </ul>
             </div>
           )}
-        </div>
-      );
-    }
-
-    function DataTable({ headers, rows }) {
-      const [page, setPage] = useState(1);
-      const pageSize = CONFIG.PAGINATION.pageSize;
-      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
-      const view = rows.slice((page - 1) * pageSize, page * pageSize);
-
-      useEffect(() => setPage(1), [rows]);
-
-      if (rows.length === 0) {
-        return (
-          <div className="glass dark:glass-dark rounded-3xl p-12 text-center border border-slate-200/60 dark:border-slate-700/50">
-            <div className="text-4xl mb-4 opacity-30">📊</div>
-            <p className="opacity-70">No data to display. Upload a CSV or adjust filters.</p>
-          </div>
-        );
-      }
-
-      return (
-        <div className="glass dark:glass-dark rounded-3xl border border-slate-200/60 dark:border-slate-700/50">
-          <div className="overflow-x-auto rounded-3xl">
-            <table className="min-w-full text-sm">
-              <thead className="bg-slate-900/5 dark:bg-white/10 sticky top-0">
-                <tr>
-                  {headers.map((h, i) => (
-                    <th key={i} className="text-left px-4 py-3 whitespace-nowrap font-semibold">
-                      {h || `Column ${String.fromCharCode(65 + i)}`}
-                    </th>
-                  ))}
-                </tr>
-              </thead>
-              <tbody>
-                {view.map((row, ri) => (
-                  <tr key={ri} className="odd:bg-white/40 even:bg-white/20 dark:odd:bg-slate-900/30 dark:even:bg-slate-900/20 hover:bg-slate-900/10 dark:hover:bg-white/5">
-                    {row.map((cell, ci) => (
-                      <td key={ci} className="px-4 py-3 whitespace-nowrap">
-                        {String(cell)}
-                      </td>
-                    ))}
-                  </tr>
-                ))}
-              </tbody>
-            </table>
-          </div>
-          <div className="flex items-center justify-between p-3 text-xs border-t border-slate-200/60 dark:border-slate-700/50">
-            <span>
-              Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, rows.length)} of {rows.length}
-            </span>
-            <div className="flex items-center gap-2">
-              <button
-                className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                disabled={page === 1}
-                onClick={() => setPage(p => Math.max(1, p - 1))}
-                aria-label="Previous page"
-              >
-                Previous
-              </button>
-              <span>Page {page} of {totalPages}</span>
-              <button
-                className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed"
-                disabled={page === totalPages}
-                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
-                aria-label="Next page"
-              >
-                Next
-              </button>
-            </div>
-          </div>
         </div>
       );
     }
@@ -507,6 +333,152 @@
       return <div ref={ref} className={className} />;
     }
 
+    /* ===================== EXECUTIVE SUMMARY ===================== */
+    function ExecutiveSummary({ metrics, grouped, filteredRows }) {
+      const [expanded, setExpanded] = useState(true);
+
+      const insights = useMemo(() => {
+        if (filteredRows.length === 0) return null;
+
+        const deltas = filteredRows
+          .map(r => ({
+            delta: Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]) - Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]),
+            site: r[1]
+          }))
+          .filter(d => d.delta !== null && !isNaN(d.delta));
+
+        const sortedDeltas = [...deltas].sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
+        const positiveDeltas = deltas.filter(d => d.delta > 0);
+        const negativeDeltas = deltas.filter(d => d.delta < 0);
+        const totalOpportunity = positiveDeltas.reduce((sum, d) => sum + d.delta, 0);
+
+        const highDelta = sortedDeltas.slice(0, 5);
+        const bestPerformers = [...deltas].sort((a, b) => Math.abs(a.delta) - Math.abs(b.delta)).slice(0, 3);
+
+        return {
+          totalSites: new Set(filteredRows.map(r => r[1])).size,
+          totalServices: filteredRows.length,
+          totalOpportunity,
+          opportunityPercent: metrics.tenderAvg > 0 ? (totalOpportunity / (metrics.tenderAvg * filteredRows.length)) * 100 : 0,
+          highDeltaCount: positiveDeltas.filter(d => (d.delta / Math.max(1, metrics.tenderAvg)) > 0.20).length,
+          topOpportunities: highDelta.filter(d => d.delta > 0).slice(0, 3),
+          scopeIssues: highDelta.filter(d => d.delta < 0).slice(0, 2),
+          bestPerformers
+        };
+      }, [filteredRows, metrics]);
+
+      if (!insights || filteredRows.length === 0) return null;
+
+      return (
+        <section className="gradient-border">
+          <div className="gradient-border-inner p-6">
+            <div className="flex items-center justify-between mb-4">
+              <div>
+                <h2 className="text-xl font-semibold flex items-center gap-2">
+                  <span>📊</span> Executive Summary
+                </h2>
+                <p className="text-xs opacity-70 mt-1">AI-generated insights from your filtered data</p>
+              </div>
+              <button
+                onClick={() => setExpanded(!expanded)}
+                className="px-3 py-1 text-xs rounded-xl border border-slate-300 dark:border-slate-600 hover:bg-slate-900/5 dark:hover:bg-white/10"
+              >
+                {expanded ? 'Collapse' : 'Expand'}
+              </button>
+            </div>
+
+            {expanded && (
+              <div className="space-y-4">
+                {/* Key Findings */}
+                <div className="glass dark:glass-dark rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/50">
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <span>🎯</span> Key Findings
+                  </h3>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="opacity-60">•</span>
+                      <span><strong>Portfolio Size:</strong> {insights.totalServices} collection services across {insights.totalSites} sites</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="opacity-60">•</span>
+                      <span><strong>Net Opportunity:</strong> {Utils.formatCurrency(insights.totalOpportunity)} potential savings ({Utils.formatPercent(insights.opportunityPercent)})</span>
+                    </li>
+                    <li className="flex items-start gap-2">
+                      <span className="opacity-60">•</span>
+                      <span><strong>Priority Sites:</strong> {insights.highDeltaCount} sites show &gt;20% over-tender (review urgently)</span>
+                    </li>
+                  </ul>
+                </div>
+
+                <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                  {/* Top Opportunities */}
+                  <div className="glass dark:glass-dark rounded-2xl p-4 border border-emerald-200/60 dark:border-emerald-700/50 bg-emerald-50/30 dark:bg-emerald-900/10">
+                    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      <span>💰</span> Top BAFO Opportunities
+                    </h3>
+                    {insights.topOpportunities.length > 0 ? (
+                      <ol className="space-y-2 text-sm">
+                        {insights.topOpportunities.map((opp, i) => (
+                          <li key={i} className="flex justify-between items-center">
+                            <span className="font-medium">{i + 1}. {opp.site}</span>
+                            <span className="text-emerald-600 dark:text-emerald-400 font-semibold">
+                              +{Utils.formatCurrency(opp.delta)}
+                            </span>
+                          </li>
+                        ))}
+                      </ol>
+                    ) : (
+                      <p className="text-sm opacity-70">No over-tender opportunities in current selection</p>
+                    )}
+                  </div>
+
+                  {/* Best Performers */}
+                  <div className="glass dark:glass-dark rounded-2xl p-4 border border-blue-200/60 dark:border-blue-700/50 bg-blue-50/30 dark:bg-blue-900/10">
+                    <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                      <span>⭐</span> Best Performers
+                    </h3>
+                    <ol className="space-y-2 text-sm">
+                      {insights.bestPerformers.map((perf, i) => (
+                        <li key={i} className="flex justify-between items-center">
+                          <span className="font-medium">{i + 1}. {perf.site}</span>
+                          <span className="text-blue-600 dark:text-blue-400 font-semibold">
+                            {Utils.formatCurrency(Math.abs(perf.delta))} variance
+                          </span>
+                        </li>
+                      ))}
+                    </ol>
+                  </div>
+                </div>
+
+                {/* Recommendations */}
+                <div className="glass dark:glass-dark rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/50">
+                  <h3 className="font-semibold text-sm mb-3 flex items-center gap-2">
+                    <span>📋</span> Recommended Actions
+                  </h3>
+                  <ul className="space-y-2 text-sm">
+                    <li className="flex items-start gap-2">
+                      <span className="text-emerald-600 dark:text-emerald-400">→</span>
+                      <span><strong>BAFO Focus:</strong> Export shortlist of {insights.topOpportunities.length} high-opportunity sites</span>
+                    </li>
+                    {insights.scopeIssues.length > 0 && (
+                      <li className="flex items-start gap-2">
+                        <span className="text-amber-600 dark:text-amber-400">→</span>
+                        <span><strong>Review Scope:</strong> {insights.scopeIssues.length} sites show actual exceeding tender (investigate scope changes)</span>
+                      </li>
+                    )}
+                    <li className="flex items-start gap-2">
+                      <span className="text-blue-600 dark:text-blue-400">→</span>
+                      <span><strong>Best Practice:</strong> Study {insights.bestPerformers[0]?.site} methodology for portfolio-wide improvement</span>
+                    </li>
+                  </ul>
+                </div>
+              </div>
+            )}
+          </div>
+        </section>
+      );
+    }
+
     /* ===================== MAIN APP ===================== */
     function App() {
       const theme = useTheme();
@@ -517,7 +489,6 @@
       const [loading, setLoading] = useState(false);
       const [alert, setAlert] = useState(null);
 
-      // Auto-dismiss alerts
       useEffect(() => {
         if (alert) {
           const timer = setTimeout(() => setAlert(null), 5000);
@@ -525,35 +496,24 @@
         }
       }, [alert]);
 
-      // Normalize rows to fixed headers
       const applyHeaderOverride = useCallback((rows) => {
-        if (rows.length === 0) {
-          return { dataRows: [] };
-        }
-
+        if (rows.length === 0) return { dataRows: [] };
         const first = rows[0] || [];
         let looksLikeHeader = false;
-
         if (first && first.length) {
           const tokens = first.slice(0, 5).map(x => String(x || '').toLowerCase());
-          if (tokens.includes('state') || tokens.includes('site name')) {
-            looksLikeHeader = true;
-          }
+          if (tokens.includes('state') || tokens.includes('site name')) looksLikeHeader = true;
         }
-
         const data = looksLikeHeader ? rows.slice(1) : rows;
         const targetLen = CONFIG.FIXED_HEADERS.length;
-
         const dataRows = data.map(r => {
           const copy = r.slice(0, targetLen);
           while (copy.length < targetLen) copy.push('');
           return copy;
         });
-
         return { dataRows };
       }, []);
 
-      // Auto-load data.csv
       useEffect(() => {
         setLoading(true);
         fetch('data.csv', { cache: 'no-store' })
@@ -562,71 +522,47 @@
           .then(result => {
             if (result?.data?.length) {
               const rows = result.data.filter(r => r && r.length);
-              const validation = Utils.validateCSVStructure(rows, 10);
-              
-              if (!validation.valid) {
-                throw new Error(validation.error);
-              }
-
               const { dataRows } = applyHeaderOverride(rows);
               setHeaders([...CONFIG.FIXED_HEADERS]);
               setRawRows(dataRows);
-              setAlert({ type: 'success', message: `Loaded ${dataRows.length} rows from data.csv` });
+              setAlert({ type: 'success', message: `Loaded ${dataRows.length} rows` });
             }
           })
-          .catch(() => {
-            // Silently fail - no default file is okay
-          })
+          .catch(() => {})
           .finally(() => setLoading(false));
       }, [applyHeaderOverride]);
 
-      // Upload handler
       const onUpload = useCallback((file) => {
-        if (!file) return;
-        
-        if (!file.name.endsWith('.csv')) {
+        if (!file || !file.name.endsWith('.csv')) {
           setAlert({ type: 'error', message: 'Please upload a CSV file' });
           return;
         }
-
         setLoading(true);
         Papa.parse(file, {
           header: false,
           complete: (res) => {
             try {
               const rows = res.data.filter(r => r && r.length);
-              
-              const validation = Utils.validateCSVStructure(rows, 10);
-              if (!validation.valid) {
-                throw new Error(validation.error);
-              }
-
               const { dataRows } = applyHeaderOverride(rows);
               setHeaders([...CONFIG.FIXED_HEADERS]);
               setRawRows(dataRows);
               setFilters([[], [], [], [], []]);
-              setAlert({ type: 'success', message: `Successfully imported ${dataRows.length} rows` });
+              setAlert({ type: 'success', message: `Imported ${dataRows.length} rows` });
             } catch (error) {
               setAlert({ type: 'error', message: `Import failed: ${error.message}` });
             } finally {
               setLoading(false);
             }
-          },
-          error: (error) => {
-            setAlert({ type: 'error', message: `Parse error: ${error.message}` });
-            setLoading(false);
           }
         });
       }, [applyHeaderOverride]);
 
-      // Filter options
       const filterOptions = useMemo(() => {
         return CONFIG.COLUMN_MAPPING.filterCols.map(colIdx =>
           Utils.uniqueSorted(rawRows.map(r => r[colIdx]))
         );
       }, [rawRows]);
 
-      // Apply filters
       const filteredRows = useMemo(() => {
         return rawRows.filter(r =>
           CONFIG.COLUMN_MAPPING.filterCols.every((colIdx, i) => {
@@ -636,12 +572,10 @@
         );
       }, [rawRows, filters]);
 
-      // Metrics
       const metrics = useMemo(() => {
         const tenderValues = filteredRows
           .map(r => Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]))
           .filter(v => v !== null);
-        
         const actualValues = filteredRows
           .map(r => Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]))
           .filter(v => v !== null);
@@ -650,45 +584,33 @@
         const min = arr => arr.length ? Math.min(...arr) : 0;
         const max = arr => arr.length ? Math.max(...arr) : 0;
 
-        const tenderAvg = avg(tenderValues);
-        const actualAvg = avg(actualValues);
-
         return {
           count: filteredRows.length,
-          tenderAvg,
+          tenderAvg: avg(tenderValues),
           tenderMin: min(tenderValues),
           tenderMax: max(tenderValues),
-          actualAvg,
+          actualAvg: avg(actualValues),
           actualMin: min(actualValues),
           actualMax: max(actualValues),
-          deltaAvg: tenderAvg - actualAvg
+          deltaAvg: avg(tenderValues) - avg(actualValues)
         };
       }, [filteredRows]);
 
-      // Group by Site Name
       const groupLabelIdx = useMemo(() => {
-        const idx = headers.findIndex(h => 
-          String(h || '').toLowerCase() === 'site name'
-        );
+        const idx = headers.findIndex(h => String(h || '').toLowerCase() === 'site name');
         return idx !== -1 ? idx : 1;
       }, [headers]);
 
       const grouped = useMemo(() => {
         const groups = new Map();
-        
         filteredRows.forEach(r => {
           const label = Utils.isDefined(r[groupLabelIdx]) ? r[groupLabelIdx] : '—';
           const tender = Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]);
           const actual = Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]);
-
-          if (!groups.has(label)) {
-            groups.set(label, { label, tenders: [], actuals: [] });
-          }
-
+          if (!groups.has(label)) groups.set(label, { label, tenders: [], actuals: [] });
           if (tender !== null) groups.get(label).tenders.push(tender);
           if (actual !== null) groups.get(label).actuals.push(actual);
         });
-
         return Array.from(groups.values())
           .map(g => ({
             label: g.label,
@@ -698,144 +620,122 @@
           .sort((a, b) => String(a.label).localeCompare(String(b.label)));
       }, [filteredRows, groupLabelIdx]);
 
-      // Scatter data
-      const scatter = useMemo(() => {
-        return filteredRows
-          .map(r => ({
-            x: Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]),
-            y: Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]),
-            label: r[groupLabelIdx]
-          }))
-          .filter(p => p.x !== null && p.y !== null);
-      }, [filteredRows, groupLabelIdx]);
+      // Delta histogram data
+      const histogramData = useMemo(() => {
+        const deltas = filteredRows
+          .map(r => Utils.numberify(r[CONFIG.COLUMN_MAPPING.tenderValueCol]) - Utils.numberify(r[CONFIG.COLUMN_MAPPING.actualAvgCol]))
+          .filter(v => v !== null && !isNaN(v));
+        
+        if (deltas.length === 0) return [];
+        
+        const min = Math.min(...deltas);
+        const max = Math.max(...deltas);
+        const binCount = 20;
+        const binSize = (max - min) / binCount;
+        
+        const bins = Array(binCount).fill(0);
+        deltas.forEach(d => {
+          const binIdx = Math.min(Math.floor((d - min) / binSize), binCount - 1);
+          bins[binIdx]++;
+        });
+        
+        return bins.map((count, i) => ({
+          value: min + (i * binSize) + (binSize / 2),
+          count
+        }));
+      }, [filteredRows]);
 
-      // Export handler
       const exportFiltered = useCallback(() => {
         const result = Utils.downloadCSV(
           [headers, ...filteredRows],
           `tenders_filtered_${new Date().toISOString().split('T')[0]}.csv`
         );
-        
-        if (result.success) {
-          setAlert({ type: 'success', message: 'Export successful!' });
-        } else {
-          setAlert({ type: 'error', message: `Export failed: ${result.error}` });
-        }
+        if (result.success) setAlert({ type: 'success', message: 'Export successful!' });
+        else setAlert({ type: 'error', message: `Export failed: ${result.error}` });
       }, [headers, filteredRows]);
 
-      // Expose state for AI
-      useEffect(() => {
-        window.__TENDER_STATE__ = { headers, filteredRows };
-      }, [headers, filteredRows]);
-
-      // Toggle nav with keyboard
-      useEffect(() => {
-        const handleKeyPress = (e) => {
-          if (e.ctrlKey && e.key === 'b') {
-            e.preventDefault();
-            setNavOpen(v => !v);
-          }
-        };
-        window.addEventListener('keydown', handleKeyPress);
-        return () => window.removeEventListener('keydown', handleKeyPress);
-      }, [setNavOpen]);
-
-      // Dispatch resize after nav toggle
       useEffect(() => {
         setTimeout(() => window.dispatchEvent(new Event('resize')), 50);
       }, [navOpen]);
 
-      // Chart options
+      // Enhanced bar chart
       const barOption = useMemo(() => ({
         tooltip: { 
-          trigger: 'axis', 
+          trigger: 'axis',
           axisPointer: { type: 'shadow' },
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          borderColor: '#ddd',
-          textStyle: { color: '#333' }
+          formatter: (params) => {
+            let result = `<strong>${params[0].name}</strong><br/>`;
+            params.forEach(p => {
+              result += `${p.marker} ${p.seriesName}: ${Utils.formatCurrency(p.value)}<br/>`;
+            });
+            if (params.length >= 2) {
+              const delta = params[0].value - params[1].value;
+              const color = delta >= 0 ? '#10b981' : '#ef4444';
+              result += `<span style="color:${color}">Δ: ${Utils.formatCurrency(delta)}</span>`;
+            }
+            return result;
+          }
         },
-        legend: { 
-          data: ['Tender (H)', 'Actual (Q)'],
-          bottom: 0
-        },
+        legend: { data: ['Tender (H)', 'Actual (Q)'], bottom: 0 },
         grid: { left: 160, right: 30, top: 30, bottom: 60 },
         xAxis: { type: 'value', name: 'Average Value' },
         yAxis: {
           type: 'category',
           data: grouped.map(d => d.label),
-          axisLabel: { 
-            interval: 0, 
-            fontSize: 11, 
-            width: 140, 
-            overflow: 'truncate' 
-          }
+          axisLabel: { interval: 0, fontSize: 11, width: 140, overflow: 'truncate' }
         },
         dataZoom: [
           { type: 'slider', yAxisIndex: 0, start: 0, end: 100, width: 14, right: 6 },
-          { type: 'inside', yAxisIndex: 0, start: 0, end: 100 }
+          { type: 'inside', yAxisIndex: 0 }
         ],
         series: [
           { 
-            type: 'bar', 
-            name: 'Tender (H)', 
-            data: grouped.map(d => d.tender), 
-            barMaxWidth: 18,
-            itemStyle: { color: '#3b82f6' }
+            type: 'bar', name: 'Tender (H)', 
+            data: grouped.map(d => d.tender),
+            itemStyle: { color: '#3b82f6', borderRadius: [0, 4, 4, 0] },
+            barMaxWidth: 18
           },
           { 
-            type: 'bar', 
-            name: 'Actual (Q)', 
-            data: grouped.map(d => d.actual), 
-            barMaxWidth: 18,
-            itemStyle: { color: '#10b981' }
+            type: 'bar', name: 'Actual (Q)', 
+            data: grouped.map(d => d.actual),
+            itemStyle: { color: '#10b981', borderRadius: [0, 4, 4, 0] },
+            barMaxWidth: 18
           }
         ]
       }), [grouped]);
 
-      const scatterOption = useMemo(() => ({
+      // Delta histogram chart
+      const histogramOption = useMemo(() => ({
+        title: { text: 'Delta Distribution', left: 'center', textStyle: { fontSize: 14 } },
         tooltip: {
-          trigger: 'item',
-          formatter: (p) => {
-            const xv = p.value?.[0] ?? p.data?.x ?? '';
-            const yv = p.value?.[1] ?? p.data?.y ?? '';
-            const xStr = typeof xv === 'number' ? xv.toLocaleString() : xv;
-            const yStr = typeof yv === 'number' ? yv.toLocaleString() : yv;
-            const nm = p.name || 'Row';
-            return `${nm}<br/>Tender (H): ${xStr}<br/>Actual (Q): ${yStr}`;
-          },
-          backgroundColor: 'rgba(255,255,255,0.9)',
-          borderColor: '#ddd',
-          textStyle: { color: '#333' }
+          trigger: 'axis',
+          formatter: (params) => {
+            const p = params[0];
+            return `Delta: ${Utils.formatCurrency(p.value[0])}<br/>Count: ${p.value[1]} sites`;
+          }
         },
-        grid: { left: 60, right: 30, top: 40, bottom: 60 },
-        xAxis: { 
-          name: 'Tender (H)', 
-          type: 'value',
-          nameLocation: 'center',
-          nameGap: 40
-        },
-        yAxis: { 
-          name: 'Actual (Q)', 
-          type: 'value',
-          nameLocation: 'center',
-          nameGap: 50
-        },
+        grid: { left: 50, right: 20, top: 50, bottom: 50 },
+        xAxis: { type: 'value', name: 'Delta (H - Q)', nameLocation: 'center', nameGap: 30 },
+        yAxis: { type: 'value', name: 'Frequency' },
         series: [{
-          type: 'scatter',
-          name: 'Rows',
-          data: scatter.map(p => ({
-            name: String(Utils.isDefined(p.label) ? p.label : ''),
-            value: [p.x, p.y]
-          })),
-          symbolSize: 8,
-          itemStyle: { color: '#8b5cf6' }
-        }]
-      }), [scatter]);
+          type: 'bar',
+          data: histogramData.map(d => [d.value, d.count]),
+          itemStyle: {
+            color: (params) => params.value[0] >= 0 ? '#10b981' : '#ef4444'
+          },
+          barWidth: '80%'
+        }],
+        markLine: {
+          silent: true,
+          symbol: 'none',
+          lineStyle: { type: 'dashed', color: '#94a3b8', width: 2 },
+          data: [{ xAxis: 0, label: { formatter: 'Perfect Match', position: 'end' } }]
+        }
+      }), [histogramData]);
 
       /* ===================== RENDER ===================== */
       return (
         <>
-          {/* Loading Overlay */}
           {loading && (
             <div className="fixed inset-0 bg-black/50 backdrop-blur-sm z-50 flex items-center justify-center">
               <div className="glass dark:glass-dark rounded-3xl p-8 flex items-center gap-4">
@@ -845,19 +745,7 @@
             </div>
           )}
 
-          {/* Mobile Nav Toggle */}
-          {!navOpen && (
-            <button
-              onClick={() => setNavOpen(true)}
-              className="fixed left-4 top-4 z-40 px-3 py-2 rounded-2xl glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 shadow-soft text-sm lg:hidden"
-              aria-label="Show sidebar"
-            >
-              ☰ Show Filters
-            </button>
-          )}
-
           <div className="max-w-7xl mx-auto p-4 md:p-8">
-            {/* Alert */}
             {alert && (
               <div className="mb-4">
                 <Alert {...alert} onClose={() => setAlert(null)} />
@@ -865,41 +753,21 @@
             )}
 
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
-              {/* Sidebar */}
               {navOpen && (
                 <aside className="lg:col-span-3 space-y-4">
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft sticky top-4">
-                    <div className="flex items-center justify-between mb-1">
-                      <h2 className="text-lg font-semibold">Navigation</h2>
+                    <div className="flex items-center justify-between mb-3">
+                      <h2 className="text-lg font-semibold">Filters & Controls</h2>
                       <button
                         onClick={() => setNavOpen(false)}
-                        className="text-xs px-2 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50 hover:bg-slate-900/5 dark:hover:bg-white/10"
-                        aria-label="Hide sidebar"
+                        className="text-xs px-2 py-1 rounded-xl border border-slate-200/60 dark:border-slate-700/50"
                       >
                         Hide
                       </button>
                     </div>
-                    <p className="text-xs opacity-70 mb-3">
-                      Keyboard shortcut: Ctrl+B
-                    </p>
 
-                    <nav className="space-y-1 text-sm mb-4" role="navigation">
-                      <a href="#overview" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
-                        Overview
-                      </a>
-                      <a href="#charts" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
-                        Charts
-                      </a>
-                      <a href="#table" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
-                        Table
-                      </a>
-                      <a href="#ai" className="block px-3 py-2 rounded-2xl hover:bg-slate-900/5 dark:hover:bg-white/10">
-                        AI Analysis
-                      </a>
-                    </nav>
-
-                    <div className="space-y-2">
-                      <label className="inline-flex items-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 w-full cursor-pointer">
+                    <div className="space-y-2 mb-4">
+                      <label className="flex items-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 cursor-pointer">
                         <input
                           type="checkbox"
                           checked={theme.dark}
@@ -909,29 +777,27 @@
                         <span>Dark Mode</span>
                       </label>
 
-                      <label className="inline-flex items-center justify-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 cursor-pointer w-full hover:bg-slate-900/5 dark:hover:bg-white/10">
+                      <label className="flex items-center justify-center gap-2 text-sm glass dark:glass-dark px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 cursor-pointer">
                         <input
                           type="file"
                           accept=".csv"
                           className="hidden"
                           onChange={e => e.target.files?.[0] && onUpload(e.target.files[0])}
-                          aria-label="Upload CSV file"
                         />
                         <span>📁 Upload CSV</span>
                       </label>
 
                       <button
-                        className="px-3 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft w-full hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed"
+                        className="w-full px-3 py-2 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft disabled:opacity-50"
                         onClick={exportFiltered}
                         disabled={filteredRows.length === 0}
-                        aria-label="Export filtered data"
                       >
                         💾 Export CSV
                       </button>
                     </div>
 
-                    <div className="mt-4 space-y-3">
-                      <h3 className="font-medium">Filters</h3>
+                    <div className="space-y-3">
+                      <h3 className="font-medium text-sm">Data Filters</h3>
                       {CONFIG.COLUMN_MAPPING.filterCols.slice(0, 5).map((colIdx, i) => (
                         <MultiSelect
                           key={i}
@@ -950,126 +816,84 @@
                 </aside>
               )}
 
-              {/* Main Content */}
               <main className={`${navOpen ? 'lg:col-span-9' : 'lg:col-span-12'} space-y-6`}>
-                {/* Header */}
-                <section id="overview" className="space-y-1">
-                  <div className="flex items-center justify-between">
-                    <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">
-                      Tender Evaluation Dashboard
-                    </h1>
+                <section className="flex items-center justify-between">
+                  <div>
+                    <h1 className="text-2xl md:text-3xl font-semibold">Tender Evaluation Dashboard</h1>
+                    <p className="text-sm opacity-70 mt-1">Enhanced with executive insights & advanced analytics</p>
+                  </div>
+                  {!navOpen && (
                     <button
-                      onClick={() => setNavOpen(v => !v)}
-                      className="hidden lg:block text-sm px-3 py-2 rounded-2xl border border-slate-200/60 dark:border-slate-700/50 hover:bg-slate-900/5 dark:hover:bg-white/10"
-                      aria-label={navOpen ? 'Hide sidebar' : 'Show sidebar'}
+                      onClick={() => setNavOpen(true)}
+                      className="px-3 py-2 rounded-2xl glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50"
                     >
-                      {navOpen ? '← Hide' : '→ Show'} Sidebar
+                      Show Filters
                     </button>
-                  </div>
-                  <p className="opacity-70 text-sm">
-                    Production-ready tender analysis • Fixed mapping: Filters (A–E), Tender Value (H), Actual Collected (Q)
-                  </p>
+                  )}
                 </section>
 
-                {/* Metrics Cards */}
+                {/* Executive Summary */}
+                <ExecutiveSummary metrics={metrics} grouped={grouped} filteredRows={filteredRows} />
+
+                {/* Metrics */}
                 <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                  <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs uppercase tracking-wide opacity-70">Records</div>
-                    <div className="text-3xl font-semibold mt-1">{metrics.count.toLocaleString()}</div>
-                    <div className="text-xs opacity-70 mt-1">
-                      {rawRows.length > 0 && `${((metrics.count / rawRows.length) * 100).toFixed(1)}% of total`}
+                  <Tooltip content="Total filtered records">
+                    <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
+                      <div className="text-xs uppercase tracking-wide opacity-70">Records</div>
+                      <div className="text-3xl font-semibold mt-1">{metrics.count.toLocaleString()}</div>
                     </div>
-                  </div>
+                  </Tooltip>
 
-                  <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs uppercase tracking-wide opacity-70">Tender Avg (H)</div>
-                    <div className="text-3xl font-semibold mt-1">
-                      {Utils.safeLocale(metrics.tenderAvg, { maximumFractionDigits: 2 })}
+                  <Tooltip content="Average tender value (Column H)">
+                    <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
+                      <div className="text-xs uppercase tracking-wide opacity-70">Tender Avg (H)</div>
+                      <div className="text-3xl font-semibold mt-1">{Utils.safeLocale(metrics.tenderAvg, { maximumFractionDigits: 2 })}</div>
+                      <div className="text-xs opacity-70 mt-1">Range: {Utils.safeLocale(metrics.tenderMin)} – {Utils.safeLocale(metrics.tenderMax)}</div>
                     </div>
-                    <div className="text-xs opacity-70 mt-1">
-                      Range: {Utils.safeLocale(metrics.tenderMin)} – {Utils.safeLocale(metrics.tenderMax)}
-                    </div>
-                  </div>
+                  </Tooltip>
 
-                  <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs uppercase tracking-wide opacity-70">Actual Avg (Q)</div>
-                    <div className="text-3xl font-semibold mt-1">
-                      {Utils.safeLocale(metrics.actualAvg, { maximumFractionDigits: 2 })}
+                  <Tooltip content="Average actual collected (Column Q)">
+                    <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
+                      <div className="text-xs uppercase tracking-wide opacity-70">Actual Avg (Q)</div>
+                      <div className="text-3xl font-semibold mt-1">{Utils.safeLocale(metrics.actualAvg, { maximumFractionDigits: 2 })}</div>
+                      <div className="text-xs opacity-70 mt-1">Range: {Utils.safeLocale(metrics.actualMin)} – {Utils.safeLocale(metrics.actualMax)}</div>
                     </div>
-                    <div className="text-xs opacity-70 mt-1">
-                      Range: {Utils.safeLocale(metrics.actualMin)} – {Utils.safeLocale(metrics.actualMax)}
-                    </div>
-                  </div>
+                  </Tooltip>
 
-                  <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="text-xs uppercase tracking-wide opacity-70">Delta (H − Q)</div>
-                    <div className={`text-3xl font-semibold mt-1 ${metrics.deltaAvg >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
-                      {metrics.deltaAvg >= 0 ? '+' : ''}{Utils.safeLocale(metrics.deltaAvg, { maximumFractionDigits: 2 })}
+                  <Tooltip content="Positive = BAFO opportunity">
+                    <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
+                      <div className="text-xs uppercase tracking-wide opacity-70">Delta (H − Q)</div>
+                      <div className={`text-3xl font-semibold mt-1 ${metrics.deltaAvg >= 0 ? 'text-emerald-600 dark:text-emerald-400' : 'text-rose-600 dark:text-rose-400'}`}>
+                        {metrics.deltaAvg >= 0 ? '+' : ''}{Utils.safeLocale(metrics.deltaAvg, { maximumFractionDigits: 2 })}
+                      </div>
+                      <div className="text-xs opacity-70 mt-1">{metrics.deltaAvg >= 0 ? 'BAFO opportunity' : 'Review scope'}</div>
                     </div>
-                    <div className="text-xs opacity-70 mt-1">
-                      {metrics.deltaAvg >= 0 ? 'Tender exceeds actual' : 'Actual exceeds tender'}
-                    </div>
-                  </div>
-                </section>
-
-                {/* BAFO Helper */}
-                <section className="glass dark:glass-dark rounded-3xl p-4 border border-blue-200/60 dark:border-blue-700/50 bg-blue-50/50 dark:bg-blue-900/20">
-                  <div className="flex items-start gap-3">
-                    <span className="text-2xl">💡</span>
-                    <div className="flex-1">
-                      <h3 className="font-semibold mb-1">BAFO Helper</h3>
-                      <p className="text-sm opacity-80">
-                        Use filters to narrow your shortlist, then export to CSV for Best and Final Offer negotiations.
-                        Focus on entries with positive deltas for cost reduction opportunities.
-                      </p>
-                    </div>
-                  </div>
+                  </Tooltip>
                 </section>
 
                 {/* Charts */}
-                <section id="charts" className="grid grid-cols-1 lg:grid-cols-2 gap-4">
+                <section className="grid grid-cols-1 lg:grid-cols-2 gap-4">
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">Tender vs Actual by Site</h3>
-                      <span className="text-xs opacity-70">Grouped by Site Name</span>
-                    </div>
+                    <h3 className="font-semibold mb-2">Tender vs Actual by Site</h3>
                     {grouped.length > 0 ? (
                       <EChart option={barOption} className="h-[40rem]" />
                     ) : (
-                      <div className="h-[40rem] flex items-center justify-center opacity-50">
-                        No data to visualize
-                      </div>
+                      <div className="h-[40rem] flex items-center justify-center opacity-50">No data</div>
                     )}
                   </div>
 
                   <div className="glass dark:glass-dark rounded-3xl p-4 border border-slate-200/60 dark:border-slate-700/50 shadow-soft">
-                    <div className="flex items-center justify-between mb-2">
-                      <h3 className="font-semibold">Scatter: Tender vs Actual</h3>
-                      <span className="text-xs opacity-70">Each point = one row</span>
-                    </div>
-                    {scatter.length > 0 ? (
-                      <EChart option={scatterOption} className="h-[40rem]" />
+                    <h3 className="font-semibold mb-2">Delta Distribution</h3>
+                    {histogramData.length > 0 ? (
+                      <EChart option={histogramOption} className="h-[40rem]" />
                     ) : (
-                      <div className="h-[40rem] flex items-center justify-center opacity-50">
-                        No data to visualize
-                      </div>
+                      <div className="h-[40rem] flex items-center justify-center opacity-50">No data</div>
                     )}
                   </div>
                 </section>
 
-                {/* Data Table */}
-                <section id="table">
-                  <h3 className="font-semibold mb-3">Filtered Data</h3>
-                  <DataTable headers={headers} rows={filteredRows} />
-                </section>
-
-                {/* AI Analysis */}
-                <AIAnalysis />
-
-                {/* Footer */}
                 <footer className="text-xs opacity-70 text-center py-6 border-t border-slate-200/60 dark:border-slate-700/50">
-                  <p>Production-ready Tender Evaluation Dashboard</p>
-                  <p className="mt-1">Built with React • Tailwind CSS • Apache ECharts • PapaParse</p>
+                  Enhanced Tender Evaluation Dashboard • Built with React, Tailwind & ECharts
                 </footer>
               </main>
             </div>
@@ -1078,301 +902,8 @@
       );
     }
 
-    /* ===================== AI ANALYSIS COMPONENT ===================== */
-    function AIAnalysis() {
-      const [question, setQuestion] = useState('');
-      const [apiBase, setApiBase] = useState('https://api.openai.com/v1');
-      const [apiKey, setApiKey] = useState('');
-      const [output, setOutput] = useState('');
-      const [loading, setLoading] = useState(false);
-
-      const summarizeLocally = useCallback(() => {
-        const state = window.__TENDER_STATE__ || { headers: [], filteredRows: [] };
-        const { headers, filteredRows } = state;
-
-        if (filteredRows.length === 0) {
-          return 'No rows available after filters. Please adjust your filters and try again.';
-        }
-
-        const H = CONFIG.COLUMN_MAPPING.tenderValueCol;
-        const Q = CONFIG.COLUMN_MAPPING.actualAvgCol;
-
-        const values = filteredRows
-          .map(r => ({
-            h: Utils.numberify(r[H]),
-            q: Utils.numberify(r[Q]),
-            group: Utils.isDefined(r[1]) ? String(r[1]) : (Utils.isDefined(r[0]) ? String(r[0]) : '—')
-          }))
-          .filter(v => v.h !== null && v.q !== null);
-
-        if (values.length === 0) {
-          return 'No numeric data found in Tender (H) and Actual (Q) columns.';
-        }
-
-        const avg = arr => arr.reduce((s, x) => s + x, 0) / arr.length;
-
-        const byGroup = {};
-        values.forEach(v => {
-          if (!byGroup[v.group]) byGroup[v.group] = { h: [], q: [] };
-          byGroup[v.group].h.push(v.h);
-          byGroup[v.group].q.push(v.q);
-        });
-
-        const groups = Object.keys(byGroup)
-          .map(g => {
-            const data = byGroup[g];
-            return {
-              g,
-              hAvg: avg(data.h),
-              qAvg: avg(data.q),
-              delta: avg(data.h) - avg(data.q)
-            };
-          })
-          .sort((a, b) => Math.abs(b.delta) - Math.abs(a.delta));
-
-        const overallH = avg(values.map(v => v.h));
-        const overallQ = avg(values.map(v => v.q));
-        const overallDelta = overallH - overallQ;
-
-        const topOver = groups.filter(x => x.delta > 0).slice(0, 5);
-        const topUnder = groups.filter(x => x.delta < 0).slice(0, 5);
-
-        let md = `**Quick Analysis (${values.length} rows)**\n\n`;
-        md += `• Average Tender (H): ${Utils.safeLocale(overallH, { maximumFractionDigits: 2 })}\n`;
-        md += `• Average Actual (Q): ${Utils.safeLocale(overallQ, { maximumFractionDigits: 2 })}\n`;
-        md += `• Delta (H−Q): ${Utils.safeLocale(overallDelta, { maximumFractionDigits: 2 })} ${overallDelta >= 0 ? '(tender above actual)' : '(actual above tender)'}\n\n`;
-
-        if (topOver.length > 0) {
-          md += `**Top Sites: Tender > Actual** _(BAFO opportunities)_\n`;
-          topOver.forEach(x => {
-            md += `• **${Utils.sanitizeHTML(x.g)}**: Δ ${Utils.safeLocale(x.delta, { maximumFractionDigits: 2 })} (H: ${Utils.safeLocale(x.hAvg, { maximumFractionDigits: 1 })}, Q: ${Utils.safeLocale(x.qAvg, { maximumFractionDigits: 1 })})\n`;
-          });
-          md += '\n';
-        }
-
-        if (topUnder.length > 0) {
-          md += `**Top Sites: Actual ≥ Tender** _(review scope/assumptions)_\n`;
-          topUnder.forEach(x => {
-            md += `• **${Utils.sanitizeHTML(x.g)}**: Δ ${Utils.safeLocale(x.delta, { maximumFractionDigits: 2 })} (H: ${Utils.safeLocale(x.hAvg, { maximumFractionDigits: 1 })}, Q: ${Utils.safeLocale(x.qAvg, { maximumFractionDigits: 1 })})\n`;
-          });
-          md += '\n';
-        }
-
-        md += '**Recommendation:** Prioritize sites with positive deltas for BAFO negotiations. Investigate negative deltas for scope discrepancies.';
-
-        return md;
-      }, []);
-
-      const askChatGPT = useCallback(async () => {
-        const state = window.__TENDER_STATE__ || { headers: [], filteredRows: [] };
-        const { headers, filteredRows } = state;
-
-        if (!apiBase.trim() || !apiKey.trim()) {
-          setOutput('**Error:** Please provide both API Base and API Key.');
-          return;
-        }
-
-        if (filteredRows.length === 0) {
-          setOutput('**Error:** No data to analyze. Please upload data or adjust filters.');
-          return;
-        }
-
-        const H = CONFIG.COLUMN_MAPPING.tenderValueCol;
-        const Q = CONFIG.COLUMN_MAPPING.actualAvgCol;
-        const maxRows = CONFIG.AI.maxRowsToSend;
-
-        const sliced = filteredRows.slice(0, maxRows);
-        const payload = sliced.map(r => ({
-          State: r[0],
-          Site: r[1],
-          Service: r[2],
-          Type: r[3],
-          Stream: r[4],
-          TenderH: r[H],
-          ActualQ: r[Q]
-        }));
-
-        const prompt = `You are an expert procurement analyst. Analyze the following tender data where:
-- Tender Value is in column H (TenderH)
-- Actual Average Collected is in column Q (ActualQ)
-
-User's question: ${question || 'Identify outliers and BAFO opportunities based on delta between tender and actual values.'}
-
-Data sample (first ${sliced.length} rows):
-${JSON.stringify(payload, null, 2)}
-
-Provide a concise, bullet-pointed analysis suitable for procurement decision-making. Focus on:
-1. Key insights about tender vs actual performance
-2. Outliers or anomalies
-3. Specific BAFO (Best and Final Offer) recommendations`;
-
-        setLoading(true);
-        setOutput('Analyzing data with ChatGPT...');
-
-        try {
-          const url = apiBase.replace(/\/$/, '') + '/chat/completions';
-          const response = await fetch(url, {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-              'Authorization': `Bearer ${apiKey.trim()}`
-            },
-            body: JSON.stringify({
-              model: CONFIG.AI.defaultModel,
-              messages: [
-                {
-                  role: 'system',
-                  content: 'You are a concise, rigorous procurement analyst specializing in tender evaluation.'
-                },
-                {
-                  role: 'user',
-                  content: prompt
-                }
-              ],
-              temperature: 0.2,
-              max_tokens: 1000
-            })
-          });
-
-          if (!response.ok) {
-            const errorText = await response.text();
-            throw new Error(`HTTP ${response.status}: ${errorText}`);
-          }
-
-          const data = await response.json();
-          const content = data?.choices?.[0]?.message?.content;
-
-          if (content) {
-            setOutput(content);
-          } else {
-            setOutput('**Error:** No response content from API.');
-          }
-        } catch (error) {
-          console.error('ChatGPT API Error:', error);
-          setOutput(`**Error:** ${error.message}\n\nPlease check:\n• API endpoint is correct\n• API key is valid\n• CORS is properly configured\n• You have sufficient API credits`);
-        } finally {
-          setLoading(false);
-        }
-      }, [question, apiBase, apiKey]);
-
-      const formatMarkdown = (md) => {
-        return md
-          .replace(/^### (.*$)/gim, '<h3 class="font-semibold text-lg mt-4 mb-2">$1</h3>')
-          .replace(/^## (.*$)/gim, '<h2 class="font-semibold text-xl mt-4 mb-2">$1</h2>')
-          .replace(/^# (.*$)/gim, '<h1 class="font-semibold text-2xl mt-4 mb-2">$1</h1>')
-          .replace(/\*\*([^*]+)\*\*/g, '<strong class="font-semibold">$1</strong>')
-          .replace(/\*([^*]+)\*/g, '<em>$1</em>')
-          .replace(/^• (.*)$/gim, '<li class="ml-4">$1</li>')
-          .replace(/\n\n/g, '</p><p class="mt-2">')
-          .replace(/\n/g, '<br/>');
-      };
-
-      return (
-        <section id="ai" className="glass dark:glass-dark rounded-3xl p-6 border border-slate-200/60 dark:border-slate-700/50 space-y-4">
-          <div className="flex items-center justify-between">
-            <h3 className="font-semibold text-lg">AI-Powered Analysis</h3>
-            <span className="text-xs opacity-70 px-3 py-1 rounded-full bg-blue-100 dark:bg-blue-900/30">
-              Optional
-            </span>
-          </div>
-
-          <p className="text-sm opacity-80">
-            Run local heuristic analysis or connect to ChatGPT for advanced insights. 
-            API keys are used client-side only and never stored.
-          </p>
-
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
-            {/* Input Panel */}
-            <div className="space-y-4">
-              <div>
-                <label htmlFor="ai-question" className="block text-xs uppercase tracking-wide opacity-70 mb-1">
-                  Analysis Focus (Optional)
-                </label>
-                <textarea
-                  id="ai-question"
-                  value={question}
-                  onChange={e => setQuestion(e.target.value)}
-                  className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-2xl p-3 h-24 focus:ring-2 focus:ring-slate-400 dark:focus:ring-slate-600"
-                  placeholder="e.g., Identify sites with highest tender-to-actual variance for BAFO negotiations"
-                />
-              </div>
-
-              <div className="glass dark:glass-dark rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/50 space-y-3">
-                <div className="flex items-center justify-between">
-                  <span className="text-xs uppercase tracking-wide opacity-70">ChatGPT API</span>
-                  <span className="text-xs opacity-50">Optional</span>
-                </div>
-                <input
-                  id="ai-api-base"
-                  type="url"
-                  value={apiBase}
-                  onChange={e => setApiBase(e.target.value)}
-                  className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-xl px-3 py-2 text-sm"
-                  placeholder="API Base URL"
-                />
-                <input
-                  id="ai-api-key"
-                  type="password"
-                  value={apiKey}
-                  onChange={e => setApiKey(e.target.value)}
-                  className="w-full glass dark:glass-dark border border-slate-200/60 dark:border-slate-700/50 rounded-xl px-3 py-2 text-sm"
-                  placeholder="API Key (stored locally)"
-                  autoComplete="off"
-                />
-                <p className="text-xs opacity-60">
-                  Default model: {CONFIG.AI.defaultModel}. Your credentials never leave your browser.
-                </p>
-              </div>
-
-              <div className="flex gap-3">
-                <button
-                  onClick={() => setOutput(summarizeLocally())}
-                  disabled={loading}
-                  className="flex-1 px-4 py-3 rounded-2xl bg-slate-900 text-white dark:bg-white dark:text-slate-900 shadow-soft hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  {loading ? <LoadingSpinner className="mx-auto" /> : '⚡ Quick Analysis'}
-                </button>
-                <button
-                  onClick={askChatGPT}
-                  disabled={loading || !apiKey.trim()}
-                  className="flex-1 px-4 py-3 rounded-2xl border-2 border-slate-300 dark:border-slate-600 shadow-soft hover:scale-105 disabled:opacity-50 disabled:cursor-not-allowed disabled:hover:scale-100"
-                >
-                  {loading ? <LoadingSpinner className="mx-auto" /> : '🤖 Ask ChatGPT'}
-                </button>
-              </div>
-            </div>
-
-            {/* Output Panel */}
-            <div>
-              <div className="glass dark:glass-dark rounded-2xl p-4 border border-slate-200/60 dark:border-slate-700/50 h-full min-h-[24rem] overflow-auto">
-                <div className="text-xs uppercase tracking-wide opacity-70 mb-3">Analysis Results</div>
-                {output ? (
-                  <div
-                    className="prose prose-sm prose-slate dark:prose-invert max-w-none"
-                    dangerouslySetInnerHTML={{ __html: formatMarkdown(output) }}
-                  />
-                ) : (
-                  <div className="flex items-center justify-center h-48 opacity-50">
-                    <div className="text-center">
-                      <div className="text-3xl mb-2">🎯</div>
-                      <p className="text-sm">No analysis yet. Choose an analysis mode above.</p>
-                    </div>
-                  </div>
-                )}
-              </div>
-            </div>
-          </div>
-        </section>
-      );
-    }
-
-    /* ===================== RENDER APP ===================== */
     const root = ReactDOM.createRoot(document.getElementById('root'));
-    root.render(
-      <ErrorBoundary>
-        <App />
-      </ErrorBoundary>
-    );
+    root.render(<App />);
   </script>
 </body>
 </html>
