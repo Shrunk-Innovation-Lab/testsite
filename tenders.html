@@ -333,6 +333,77 @@
       return <div ref={ref} className={className} />;
     }
 
+    function DataTable({ headers, rows }) {
+      const [page, setPage] = useState(1);
+      const pageSize = CONFIG.PAGINATION.pageSize;
+      const totalPages = Math.max(1, Math.ceil(rows.length / pageSize));
+      const view = rows.slice((page - 1) * pageSize, page * pageSize);
+
+      useEffect(() => setPage(1), [rows]);
+
+      if (rows.length === 0) {
+        return (
+          <div className="glass dark:glass-dark rounded-3xl p-12 text-center border border-slate-200/60 dark:border-slate-700/50">
+            <div className="text-4xl mb-4 opacity-30">📊</div>
+            <p className="opacity-70">No data to display. Upload a CSV or adjust filters.</p>
+          </div>
+        );
+      }
+
+      return (
+        <div className="glass dark:glass-dark rounded-3xl border border-slate-200/60 dark:border-slate-700/50">
+          <div className="overflow-x-auto rounded-3xl">
+            <table className="min-w-full text-sm">
+              <thead className="bg-slate-900/5 dark:bg-white/10 sticky top-0">
+                <tr>
+                  {headers.map((h, i) => (
+                    <th key={i} className="text-left px-4 py-3 whitespace-nowrap font-semibold">
+                      {h || `Column ${String.fromCharCode(65 + i)}`}
+                    </th>
+                  ))}
+                </tr>
+              </thead>
+              <tbody>
+                {view.map((row, ri) => (
+                  <tr key={ri} className="odd:bg-white/40 even:bg-white/20 dark:odd:bg-slate-900/30 dark:even:bg-slate-900/20 hover:bg-slate-900/10 dark:hover:bg-white/5">
+                    {row.map((cell, ci) => (
+                      <td key={ci} className="px-4 py-3 whitespace-nowrap">
+                        {String(cell)}
+                      </td>
+                    ))}
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+          <div className="flex items-center justify-between p-3 text-xs border-t border-slate-200/60 dark:border-slate-700/50">
+            <span>
+              Showing {((page - 1) * pageSize) + 1}–{Math.min(page * pageSize, rows.length)} of {rows.length}
+            </span>
+            <div className="flex items-center gap-2">
+              <button
+                className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-900/5 dark:hover:bg-white/10"
+                disabled={page === 1}
+                onClick={() => setPage(p => Math.max(1, p - 1))}
+                aria-label="Previous page"
+              >
+                Previous
+              </button>
+              <span>Page {page} of {totalPages}</span>
+              <button
+                className="px-3 py-1 rounded-xl border border-slate-300 dark:border-slate-600 disabled:opacity-30 disabled:cursor-not-allowed hover:bg-slate-900/5 dark:hover:bg-white/10"
+                disabled={page === totalPages}
+                onClick={() => setPage(p => Math.min(totalPages, p + 1))}
+                aria-label="Next page"
+              >
+                Next
+              </button>
+            </div>
+          </div>
+        </div>
+      );
+    }
+
     /* ===================== EXECUTIVE SUMMARY ===================== */
     function ExecutiveSummary({ metrics, grouped, filteredRows }) {
       const [expanded, setExpanded] = useState(true);
@@ -892,8 +963,17 @@
                   </div>
                 </section>
 
+                {/* Data Table */}
+                <section>
+                  <h3 className="font-semibold mb-3 flex items-center justify-between">
+                    <span>Filtered Data</span>
+                    <span className="text-sm font-normal opacity-70">{filteredRows.length} records</span>
+                  </h3>
+                  <DataTable headers={headers} rows={filteredRows} />
+                </section>
+
                 <footer className="text-xs opacity-70 text-center py-6 border-t border-slate-200/60 dark:border-slate-700/50">
-                  Enhanced Tender Evaluation Dashboard • Built with React, Tailwind & ECharts
+                 Shrunk WastEye Tender Evaluation Dashboard 
                 </footer>
               </main>
             </div>
