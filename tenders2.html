@@ -4,6 +4,7 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Tender Evaluation Dashboard</title>
+  <link rel="icon" href="https://i.imgur.com/dZR7M8C.png" type="image/png" />
   <!-- Tailwind (CDN) -->
   <script src="https://cdn.tailwindcss.com"></script>
   <script>
@@ -37,6 +38,13 @@
 
   <script type="text/babel">
     const { useState, useMemo, useEffect, useRef } = React;
+
+    /* ===================== API model & placeholders ===================== */
+    // Locked model per your instruction
+    window.WASTEYE_OPENAI_MODEL = 'gpt-4o-mini';
+    // Local-only placeholder for key/base (kept blank by default for safety). Do NOT commit secrets.
+    window.WASTEYE_OPENAI_URL = 'https://api.openai.com/v1';
+    window.WASTEYE_OPENAI_KEY = window.WASTEYE_OPENAI_KEY || '';
 
     /* ===================== Utilities (ES5-safe) ===================== */
     function isDefined(v){ return !(v === undefined || v === null); }
@@ -94,10 +102,10 @@
     ];
 
     /* ===================== Mapping (Filters use real names; H vs Q analytics) ===================== */
-    // Filters = first five named columns: State, Site Name, Service Description, Service Type, Waste Stream
-    // Analytics default (until you confirm): Tender = H (QTY), Actual = Q (Average Collected)
     var MAPPING = {
+      // First five filters: State, Site Name, Service Description, Service Type, Waste Stream
       filterCols: [0,1,2,3,4],
+      // Analytics default: Tender(H) = QTY (H=7), Actual(Q) = Average Collected (Q=16)
       tenderValueCol: 7,   // H
       actualAvgCol: 16     // Q
     };
@@ -128,7 +136,7 @@
             </div>
           </button>
           {open && (
-            <div className="absolute z-20 mt-2 max-h-64 overflow-auto w-full glass border border-slate-200/60 rounded-2xl p-2 shadow-soft">
+            <div className="absolute z-20 mt-2 max-h-64 overflow-auto w-full glass border border-slate-200/60 rounded-md p-2 shadow-soft">
               <div className="flex items-center justify-between mb-2">
                 <button className="text-xs underline" onClick={function(){ props.onChange([]); }}>Select none</button>
                 <button className="text-xs underline" onClick={function(){ props.onChange([].concat(props.options)); }}>Select all</button>
@@ -212,7 +220,7 @@
       const [filters, setFilters] = useState([[],[],[],[],[]]);
       const [search, setSearch] = useState('');
 
-      // Diagnostics tests
+      // Diagnostics tests (silent)
       const tests = useMemo(function(){
         var results = [];
         results.push({ name: 'Charts library available (echarts)', pass: !!window.echarts });
@@ -225,22 +233,16 @@
         results.push({ name: 'CSV parser basic', pass: csvOk });
         results.push({ name: 'uniqueSorted dedups & sorts', pass: JSON.stringify(uniqueSorted(['b','a','a'])) === JSON.stringify(['a','b']) });
         results.push({ name: 'numberify strips spaces/%', pass: numberify('1 234.0%') === 1234.0 });
-        // site-name detection
         var testHeaders = ['State','Site Name','X'];
         var tIdx = (function(h){ var idx=-1; for (var i=0;i<h.length;i++){ var a=String(h[i]||'').toLowerCase(); if(a==='site name'){ idx=i; break; } } if(idx===-1) idx=1; return idx; })(testHeaders);
         results.push({ name: 'group index prefers Site Name', pass: tIdx === 1 });
-        // New: search logic sanity
-        var searchPass = (function(){
-          var rows=[["alpha"],["beta"],["gamma"]];
-          var q='bet';
-          var out = rows.filter(function(r){ return String(r[0]).toLowerCase().indexOf(q) !== -1; });
-          return out.length===1 && out[0][0]==='beta';
-        })();
+        var searchPass = (function(){ var rows=[["alpha"],["beta"],["gamma"]]; var q='bet'; var out = rows.filter(function(r){ return String(r[0]).toLowerCase().indexOf(q) !== -1; }); return out.length===1 && out[0][0]==='beta'; })();
         results.push({ name: 'search substring filters correctly', pass: searchPass });
-        // New: header detection removes header rows
         var sim = [['Scope Preparation'], ['State','Site Name','Service Description'], ['NSW','Alpha','Wheelie']];
         var norm = applyHeaderOverride(sim);
         results.push({ name: 'header detection strips header line', pass: norm.dataRows.length===1 && norm.dataRows[0][0]==='NSW' });
+        results.push({ name: 'scatter good/watch split', pass: (function(){ var data=[{x:3,y:2},{x:1,y:4}]; return data.filter(function(p){return p.x>=p.y;}).length===1; })() });
+        results.push({ name: 'diagonal min<max', pass: (function(){ var xs=[1,2], ys=[2,3]; var min=Math.min.apply(null,xs.concat(ys)); var max=Math.max.apply(null,xs.concat(ys)); return min<max; })() });
         return results;
       }, []);
 
@@ -256,9 +258,8 @@
           var maxLook = Math.min(6, all.length);
           for (var i=0;i<maxLook;i++){
             var row = all[i] || [];
-            // Skip obvious title rows like "Scope Preparation" (single non-empty cell)
             var nonEmpty = row.filter(function(x){ return String(x||'').trim()!==''; });
-            if (nonEmpty.length <= 1) continue;
+            if (nonEmpty.length <= 1) continue; // skip title rows like "Scope Preparation"
             var tokens = row.map(normalizeHeader);
             var incState = tokens.indexOf('state') !== -1;
             var incSite = tokens.indexOf('site name') !== -1;
@@ -269,7 +270,6 @@
         }
         var headerIdx = findHeaderIndex(rows);
         var data = (headerIdx >= 0) ? rows.slice(headerIdx + 1) : rows.slice();
-        // drop empty rows
         data = data.filter(function(r){ return r && r.some(function(c){ return String(c||'').trim()!==''; }); });
         var targetLen = FIXED_HEADERS.length;
         var dataRows = data.map(function(r){
@@ -323,7 +323,7 @@
         });
       }, [rawRows, filters]);
 
-      // Global table search (case-insensitive across all columns)
+      // Global table search
       const searchedRows = useMemo(function(){
         var q = (search || '').toLowerCase().trim();
         if (!q) return filteredRows;
@@ -335,7 +335,6 @@
           return false;
         });
       }, [filteredRows, search]);
-
 
       // Metrics
       const metrics = useMemo(function(){
@@ -359,7 +358,7 @@
           var h = String(headers[i] || '').toLowerCase();
           if (h === 'site name') { idx = i; break; }
         }
-        if (idx === -1) idx = 1; // fallback to column B
+        if (idx === -1) idx = 1; // column B fallback
         return idx;
       }, [headers]);
 
@@ -414,20 +413,18 @@
       }); }, [grouped]);
 
       const scatterOption = useMemo(function(){ 
-        // compute diagonal limits for y = x reference line and set explicit axis min/max
         var xs = scatter.map(function(p){ return p.x; });
         var ys = scatter.map(function(p){ return p.y; });
         var minVal = 0, maxVal = 1;
         if (xs.length || ys.length){
           var localMin = Math.min.apply(null, xs.concat(ys));
           var localMax = Math.max.apply(null, xs.concat(ys));
-          var pad = (localMax - localMin) * 0.05; // 5% padding
+          var pad = (localMax - localMin) * 0.05;
           minVal = Math.max(0, localMin - pad);
           maxVal = localMax + pad;
           if (!isFinite(minVal)) minVal = 0;
           if (!isFinite(maxVal) || maxVal <= minVal) maxVal = minVal + 1;
         }
-        // split into Good (H >= Q) and Watch (Q > H)
         var good = [], watch = [];
         for (var i=0;i<scatter.length;i++){
           var p = scatter[i];
@@ -449,7 +446,6 @@
           xAxis: { name: 'Tender (H)', type: 'value', min: minVal, max: maxVal },
           yAxis: { name: 'Actual (Q)', type: 'value', min: minVal, max: maxVal },
           series: [
-            // solid y=x reference as a real line series so it always renders
             { type: 'line', name: 'H = Q', data: [[minVal, minVal], [maxVal, maxVal]], showSymbol: false, silent: true, tooltip: { show: false },
               lineStyle: { type: 'dashed', width: 1 } },
             { type: 'scatter', name: 'Good (H ≥ Q)', data: good, itemStyle: { color: '#10B981' } },
@@ -462,7 +458,14 @@
       return (
         <>
           {!navOpen && (
-            <button onClick={function(){ setNavOpen(true); }} className="fixed left-4 top-4 z-50 px-3 py-2 rounded-2xl glass border border-slate-200/60 shadow-soft text-sm" aria-label="Show sidebar" title="Show sidebar">☰ Filters</button>
+            <button
+              onClick={function(){ setNavOpen(true); }}
+              className="fixed z-50 px-3 py-2 rounded-2xl glass border border-slate-200/60 shadow-soft text-sm
+                         top-20 right-4 sm:right-6 md:right-8 lg:right-[calc((100vw-1600px)/2+1rem)] xl:right-[calc((100vw-1800px)/2+1rem)]"
+              aria-label="Show sidebar" title="Show sidebar"
+            >
+              ☰ Filters
+            </button>
           )}
           <div className="w-full max-w-[1600px] xl:max-w-[1800px] mx-auto p-4 md:p-8">
             <div className="grid grid-cols-1 lg:grid-cols-12 gap-6">
@@ -506,7 +509,10 @@
               <main className={(navOpen ? 'lg:col-span-9 ' : 'lg:col-span-12 ') + 'space-y-6'}>
                 <section id="overview" className="space-y-1">
                   <div className="flex items-center justify-between">
-                    <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Tender Evaluation Dashboard</h1>
+                    <div className="flex items-center gap-3">
+                      <img src="https://i.imgur.com/iB983sa.png" alt="Logo" className="h-8 w-auto" />
+                      <h1 className="text-2xl md:text-3xl font-semibold tracking-tight">Tender Evaluation Dashboard</h1>
+                    </div>
                   </div>
                   <p className="opacity-70">Use the filters to refine the view.</p>
                 </section>
@@ -544,18 +550,18 @@
                       <span className="text-xs opacity-70">Grouped by Site Name</span>
                     </div>
                     <EChart option={barOption} className="h-[68vh]" />
-                    <p className="text-xs opacity-70 mt-2">Compares average <strong>Tender (H)</strong> vs <strong>Actual (Q)</strong> for each Site. 
-                      <strong>Good</strong>: Tender ≥ Actual (room to negotiate/BAFO). 
-                      <strong>Watch</strong>: Actual &gt; Tender (risk of underquoted scope or higher-than-expected usage).</p>
+                    <p className="text-xs opacity-70 mt-2">Compares average <strong>Tender (H)</strong> vs <strong>Actual (Q)</strong> for each Site.
+                      <strong> Good</strong>: Tender ≥ Actual (room to negotiate/BAFO).
+                      <strong> Watch</strong>: Actual &gt; Tender (risk of underquoted scope or higher-than-expected usage).</p>
                   </div>
                   <div className="glass rounded-md p-4 border border-slate-200/60 shadow-soft">
                     <div className="flex items-center justify-between mb-2">
                       <h3 className="font-semibold">Tender (H) vs Actual (Q) — Scatter</h3>
                     </div>
                     <EChart option={scatterOption} className="h-[68vh]" />
-                    <p className="text-xs opacity-70 mt-2">Each point is a row (site/service). The diagonal line is <em>H = Q</em>. 
-                      <strong>Good</strong>: points <em>below</em> the line (H &gt; Q). 
-                      <strong>Watch</strong>: points <em>above</em> the line (Q &gt; H).</p>
+                    <p className="text-xs opacity-70 mt-2">Each point is a row (site/service). The diagonal line is <em>H = Q</em>.
+                      <strong> Good</strong>: points <em>below</em> the line (H &gt; Q).
+                      <strong> Watch</strong>: points <em>above</em> the line (Q &gt; H).</p>
                   </div>
                 </section>
 
@@ -575,23 +581,18 @@
 
                 <section id="ai" className="glass rounded-md p-4 border border-slate-200/60 space-y-4">
                   <h3 className="font-medium">WastEye AI Feedback</h3>
-                  <p className="text-sm opacity-80">Run quick on-device heuristics or connect to a compatible AI API you provide (client-side). Do not paste secrets unless you accept that risk.</p>
+                  <p className="text-sm opacity-80">Quick on-device insights or remote via OpenAI. ⚠️ Keys in the browser are visible to anyone—use only for local testing.</p>
                   <div className="grid grid-cols-1 lg:grid-cols-5 gap-4">
                     <div className="lg:col-span-2 space-y-3">
                       <div>
                         <label className="block text-xs uppercase tracking-wide opacity-70 mb-1">Question / Focus</label>
                         <textarea id="ai-question" className="w-full glass border border-slate-200/60 rounded-2xl p-3 h-24" placeholder="e.g., Identify outliers where Tender (H) materially exceeds Actual (Q), suggest BAFO targets by region." />
                       </div>
-                      <div className="glass rounded-md p-3 border border-slate-200/60 space-y-2">
-                        <div className="text-xs uppercase tracking-wide opacity-70">WastEye AI (API) – Optional</div>
-                        <input id="ai-api-base" className="w-full glass border border-slate-200/60 rounded-xl px-3 py-2" placeholder="API Base (e.g., https://api.your-ai.com/v1)" />
-                        <input id="ai-api-key" className="w-full glass border border-slate-200/60 rounded-xl px-3 py-2" placeholder="API Key (Bearer)" />
-                        <div className="text-xs opacity-70">Default model is set by your API</div>
-                      </div>
                       <div className="flex gap-2">
                         <button id="btn-local" className="px-3 py-2 rounded-2xl bg-slate-900 text-white shadow-soft">Run Quick (Local)</button>
                         <button id="btn-remote" className="px-3 py-2 rounded-2xl border border-slate-300 shadow-soft">Ask WastEye AI</button>
                       </div>
+                      <p className="text-xs opacity-60">Uses model <code>{window.WASTEYE_OPENAI_MODEL}</code> at <code>{window.WASTEYE_OPENAI_URL}</code>. Paste your key in code to enable.</p>
                     </div>
                     <div className="lg:col-span-3">
                       <div className="glass rounded-md p-3 border border-slate-200/60 h-full min-h-[12rem]">
@@ -672,17 +673,40 @@
              '\nSample (first ' + sliced.length + ' rows):\n' + JSON.stringify(payload);
     }
 
-    async function askWastEye(base, key, prompt, model){
-      model = model || 'gpt-4o-mini';
+    async function askWastEye(prompt){
+      var base = window.WASTEYE_OPENAI_URL || 'https://api.openai.com/v1';
+      var key = window.WASTEYE_OPENAI_KEY || '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';
+      var model = window.WASTEYE_OPENAI_MODEL || 'gpt-4o-mini';
+      if (!key) throw new Error('No OpenAI key found in code. Set window.WASTEYE_OPENAI_KEY locally for testing.');
       var url = base.replace(/\/$/,'') + '/chat/completions';
-      var res = await fetch(url, {
-        method: 'POST', headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
-        body: JSON.stringify({ model: model, messages: [ { role: 'system', content: 'You are a concise, rigorous procurement analyst.' }, { role: 'user', content: prompt } ], temperature: 0.2 })
-      });
-      if (!res.ok) throw new Error('HTTP ' + res.status);
-      var data = await res.json();
-      var choice0 = data && data.choices && data.choices[0];
-      return (choice0 && choice0.message && choice0.message.content) ? choice0.message.content : '(No content)';
+      var payload = { model: model, messages: [ { role: 'system', content: 'You are a concise, rigorous procurement analyst.' }, { role: 'user', content: prompt } ], temperature: 0.2 };
+
+      var attempts = 3;
+      for (var i=0; i<attempts; i++){
+        var res = await fetch(url, {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json', 'Authorization': 'Bearer ' + key },
+          body: JSON.stringify(payload)
+        });
+
+        if (res.status === 429 || (res.status >= 500 && res.status < 600)){
+          var waitMs = (500 * Math.pow(2, i)) + Math.floor(Math.random()*250);
+          await new Promise(function(r){ setTimeout(r, waitMs); });
+          if (i < attempts - 1) continue;
+        }
+
+        if (!res.ok){
+          var text = '';
+          try { text = await res.text(); } catch(e) {}
+          throw new Error('HTTP ' + res.status + (text ? (' — ' + text.substring(0,180)) : ''));
+        }
+
+        var data = await res.json();
+        var choice0 = data && data.choices && data.choices[0];
+        return (choice0 && choice0.message && choice0.message.content) ? choice0.message.content : '(No content)';
+      }
+
+      throw new Error('Rate limited or server error after retries.');
     }
 
     function markedToHtml(md){
@@ -705,19 +729,14 @@
       var btnLocal = document.getElementById('btn-local');
       var btnRemote = document.getElementById('btn-remote');
       var q = document.getElementById('ai-question');
-      var base = document.getElementById('ai-api-base');
-      var key = document.getElementById('ai-api-key');
       function getState(){ return window.__TENDER_STATE__ || { headers: [], filteredRows: [] }; }
       if (btnLocal) btnLocal.onclick = function(){ var s = getState(); var md = summarizeLocally(s.headers, s.filteredRows); setOutput(md); };
       if (btnRemote) btnRemote.onclick = async function(){
         var s = getState();
         var prompt = buildPrompt(s.headers, s.filteredRows, (q && q.value) ? q.value : '');
-        var baseVal = (base && base.value) ? base.value.trim() : '';
-        var keyVal = (key && key.value) ? key.value.trim() : '';
-        if (!baseVal || !keyVal){ setOutput('Please provide both **API Base** and **API Key** to use WastEye AI mode.'); return; }
         setOutput('Running WastEye AI analysis…');
-        try { var answer = await askWastEye(baseVal, keyVal, prompt); setOutput(answer); }
-        catch(e){ setOutput('Failed to call API: ' + e.message + '. Check CORS, API base, and key.'); }
+        try { var answer = await askWastEye(prompt); setOutput(answer); }
+        catch(e){ setOutput('Failed: ' + e.message + '.'); }
       };
     }, 0);
   </script>
