@@ -262,13 +262,20 @@
     // --- CONFIG ---
     const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
 
-    // NEW: second CSV source (corrected to end with output=csv)
+    // second CSV source
     const EXTRA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSLBH5SwHiP1E9aeVe4Zc_zGAdwzRHIHJWrdyqzyhlIF--wEY3EAUSqukuWN1MRCTuWeY0-ZHfwCC7V/pub?output=csv';
 
-    // NEW: whitelist for keys from extra sheet (strings to preserve leading zeros if any)
+    // whitelist for keys from extra sheet
     const INCLUDED_KEYS = new Set([
-      '163097', // "Key Tag 163097" retained in case it represents a key id
+      '163097',
       '63104','63637','63143','63514','63103','63106','63142','63518','63439','63441','63486','63316','63491','63635','63654','63608','63632','63602','63191','63596','63378','63185','63614','63515','63628','63659'
+    ]);
+
+    // NEW: explicit whitelist for AirTags (ensures your 23 tags appear)
+    const AIRTAG_WHITELIST = new Set([
+      '70880','12924','63174','12889','63100','63679','63690','63645','70865','63685',
+      '63102','63578','63597','63288','63099','63287','12848','36855','12922',
+      '63096','63622','63077','63088'
     ]);
 
     const INITIAL_CENTER = [-28.0167, 153.4];
@@ -584,8 +591,11 @@
         // From the EXTRA sheet include ONLY whitelisted keys + valid coordinates
         extraRows = extraRows.filter(r => INCLUDED_KEYS.has(String(r.name)) && validGeo(r));
 
-        // From the MAIN sheet include normal range keys + valid coordinates
-        mainRows = mainRows.filter(r => keyIsInRange(r) && validGeo(r));
+        // From the MAIN sheet include normal range keys OR whitelisted Airtags + valid coordinates
+        mainRows = mainRows.filter(r =>
+          (keyIsInRange(r) || AIRTAG_WHITELIST.has(String(r.name))) &&
+          validGeo(r)
+        );
 
         // Merge
         const merged = [...mainRows, ...extraRows];
@@ -693,7 +703,6 @@
         iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -25]
       });
 
-      const markersByUid = new Map();
       data.forEach(item => {
         const lat = item.geometry.coordinates[1];
         const lon = item.geometry.coordinates[0];
@@ -705,7 +714,6 @@
             <p class="text-xs text-gray-500 mt-1">${esc(dateStr)}</p>
           </div>`;
         const m = L.marker([lat, lon], { icon: keyIcon(item.properties.__uid === selectedKeyId) }).bindPopup(popupContent);
-        markersByUid.set(item.properties.__uid, m);
         markersLayer.addLayer(m);
       });
 
