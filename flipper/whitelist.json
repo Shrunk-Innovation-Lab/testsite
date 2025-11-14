@@ -5,7 +5,7 @@
       "mac": "bc:57:29:05:7f:f0",
       "alias": "660L General Waste",
       "mfg_len": 25
-    }
+    },
     {
       "mac": "48:ca:43:0f:9d:04",
       "alias": "BinSpy Device",
@@ -13,4 +13,3 @@
     }
   ]
 }
-
