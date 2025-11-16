@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bin Status Tracker</title>
+    <title>BinSpy</title>
     <style>
         * {
             margin: 0;
@@ -211,7 +211,7 @@
 </head>
 <body>
     <div class="container">
-        <h1>🗑️ Bin Status Tracker</h1>
+        <h1>🗑️ BinSpy</h1>
         
         <div class="loading" id="loading">Loading bin data...</div>
         <div class="error" id="error" style="display: none;"></div>
@@ -240,6 +240,45 @@
         let currentFilter = 'all';
         let searchTerm = '';
 
+        // Parse timestamp to Date object
+        function parseTimestamp(timestamp) {
+            // Handle format: 16/11/2025 00:41:23
+            const parts = timestamp.split(' ');
+            const dateParts = parts[0].split('/');
+            const timeParts = parts[1].split(':');
+            
+            // Create Date object (month is 0-indexed in JS)
+            return new Date(
+                parseInt(dateParts[2]), // year
+                parseInt(dateParts[1]) - 1, // month
+                parseInt(dateParts[0]), // day
+                parseInt(timeParts[0]), // hour
+                parseInt(timeParts[1]), // minute
+                parseInt(timeParts[2]) // second
+            );
+        }
+
+        // Group readings by MAC address and keep only the latest
+        function getLatestBinStatus(data) {
+            const binMap = new Map();
+            
+            data.forEach(row => {
+                const mac = row.mac || row.MAC;
+                if (!mac) return;
+                
+                const timestamp = parseTimestamp(row.Timestamp || row.timestamp);
+                
+                if (!binMap.has(mac) || timestamp > binMap.get(mac).timestamp) {
+                    binMap.set(mac, {
+                        ...row,
+                        timestamp: timestamp
+                    });
+                }
+            });
+            
+            return Array.from(binMap.values());
+        }
+
         // Fetch and parse CSV data
         async function loadData() {
             try {
@@ -250,7 +289,8 @@
                     header: true,
                     skipEmptyLines: true,
                     complete: function(results) {
-                        allBins = results.data;
+                        // Get only the latest status for each unique bin
+                        allBins = getLatestBinStatus(results.data);
                         displayData();
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('content').style.display = 'block';
@@ -298,14 +338,9 @@
         }
 
         function isInArea(bin) {
-            // Check common column names for status
-            const status = bin.Status || bin.status || bin.Location || bin.location || bin.Area || bin.area || '';
-            const statusLower = status.toLowerCase().trim();
-            
-            return statusLower.includes('in') || 
-                   statusLower === 'yes' || 
-                   statusLower === 'true' ||
-                   statusLower === '1';
+            // Check the state column specifically
+            const state = (bin.state || bin.State || '').trim().toUpperCase();
+            return state === 'IN';
         }
 
         function displayBins() {
@@ -339,28 +374,25 @@
                 const statusClass = inArea ? 'in' : 'out';
                 const statusText = inArea ? 'In Area' : 'Out of Area';
                 
-                // Get bin identifier (try common column names)
-                const binName = bin.Name || bin.name || bin.ID || bin.id || bin['Bin ID'] || bin['Bin Name'] || 'Unknown Bin';
+                // Use alias as the bin name, or fall back to mac
+                const binName = bin.alias || bin.Alias || bin.mac || bin.MAC || 'Unknown Bin';
                 
-                // Get all other properties as details
-                const details = Object.entries(bin)
-                    .filter(([key, value]) => {
-                        const keyLower = key.toLowerCase();
-                        return value && 
-                               !keyLower.includes('name') && 
-                               !keyLower.includes('id') &&
-                               !keyLower.includes('status') &&
-                               !keyLower.includes('location') &&
-                               !keyLower.includes('area');
-                    })
-                    .map(([key, value]) => `<div><strong>${key}:</strong> ${value}</div>`)
-                    .join('');
+                // Format the timestamp nicely
+                const timestampStr = bin.Timestamp || bin.timestamp || '';
+                
+                // Get relevant details
+                const mac = bin.mac || bin.MAC || '';
+                const rssi = bin.rssi || bin.RSSI || '';
 
                 return `
                     <div class="bin-card ${statusClass}">
                         <div class="bin-name">${binName}</div>
                         <span class="bin-status ${statusClass}">${statusText}</span>
-                        ${details ? `<div class="bin-details">${details}</div>` : ''}
+                        <div class="bin-details">
+                            ${timestampStr ? `<div><strong>Last Seen:</strong> ${timestampStr}</div>` : ''}
+                            ${mac ? `<div><strong>MAC:</strong> ${mac}</div>` : ''}
+                            ${rssi ? `<div><strong>Signal:</strong> ${rssi} dBm</div>` : ''}
+                        </div>
                     </div>
                 `;
             }).join('');
