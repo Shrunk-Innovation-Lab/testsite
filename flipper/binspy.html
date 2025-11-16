@@ -116,6 +116,17 @@
             transform: scale(0.97);
         }
 
+        .refresh-btn {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+
+        .refresh-btn:active {
+            background-color: #0056b3;
+            transform: scale(0.97);
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -610,10 +621,6 @@
                 font-size: 14px;
             }
 
-            .export-btn {
-                width: 100%;
-            }
-
             .filters {
                 padding: 12px;
             }
@@ -719,9 +726,14 @@
                     <button class="view-btn" data-view="week">Weekly</button>
                     <button class="view-btn" data-view="day">Daily</button>
                 </div>
-                <button class="export-btn" id="exportBtn" onclick="exportToCSV()">
-                    Export CSV
-                </button>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 0 1 auto;">
+                    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
+                        Refresh
+                    </button>
+                    <button class="export-btn" id="exportBtn" onclick="exportToCSV()">
+                        Export CSV
+                    </button>
+                </div>
             </div>
 
             <!-- Dashboard View -->
@@ -1148,6 +1160,11 @@
             if (textElement) {
                 textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
             }
+        }
+
+        // Manual Refresh Function
+        function manualRefresh() {
+            loadData(true);
         }
 
         // CSV Export Function
