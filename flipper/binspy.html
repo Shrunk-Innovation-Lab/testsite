@@ -480,23 +480,24 @@
         .day-view {
             border: 1px solid #d2d2d7;
             border-radius: 8px;
-            padding: 15px;
+            padding: 12px;
             background-color: #ffffff;
         }
 
         .timeline {
             display: flex;
             flex-direction: column;
-            gap: 12px;
+            gap: 8px;
         }
 
         .timeline-event {
             display: flex;
             gap: 15px;
-            padding: 12px;
-            border-radius: 8px;
-            border-left: 5px solid;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 4px solid;
             transition: transform 0.2s;
+            font-size: 0.85em;
         }
 
         .timeline-event:active {
@@ -515,7 +516,7 @@
 
         .timeline-time {
             font-weight: 600;
-            font-size: 1em;
+            font-size: 0.95em;
             min-width: 100px;
             color: #1d1d1f;
         }
@@ -526,8 +527,8 @@
 
         .timeline-status {
             font-weight: 600;
-            font-size: 1em;
-            margin-bottom: 4px;
+            font-size: 0.95em;
+            margin-bottom: 3px;
         }
 
         .timeline-status.in {
@@ -540,7 +541,7 @@
 
         .timeline-info {
             color: #666;
-            font-size: 0.85em;
+            font-size: 0.8em;
         }
 
         footer {
@@ -555,7 +556,7 @@
         .last-updated {
             text-align: center;
             color: #666;
-            margin-top: 15px;
+            margin: 10px 0 20px 0;
             font-size: 0.85em;
             display: flex;
             align-items: center;
@@ -691,21 +692,21 @@
             .timeline-event {
                 flex-direction: column;
                 gap: 6px;
-                padding: 10px;
-                border-left-width: 3px;
+                padding: 6px;
+                border-left-width: 4px;
             }
 
             .timeline-time {
                 min-width: auto;
-                font-size: 0.9em;
+                font-size: 0.85em;
             }
 
             .timeline-status {
-                font-size: 0.95em;
+                font-size: 0.85em;
             }
 
             .timeline-info {
-                font-size: 0.75em;
+                font-size: 0.7em;
             }
 
             .day-view {
@@ -713,7 +714,7 @@
             }
 
             .timeline {
-                gap: 10px;
+                gap: 8px;
             }
 
             .stat-number {
@@ -799,6 +800,11 @@
                 </div>
             </div>
 
+            <div class="last-updated" id="lastUpdated">
+                <span class="refresh-indicator" id="refreshIndicator"></span>
+                <span id="lastUpdatedText"></span>
+            </div>
+
             <!-- Dashboard View -->
             <div id="dashboardView">
                 <div class="stats" id="stats"></div>
@@ -829,11 +835,6 @@
                     </div>
                     <div id="calendarContent"></div>
                 </div>
-            </div>
-            
-            <div class="last-updated" id="lastUpdated">
-                <span class="refresh-indicator" id="refreshIndicator"></span>
-                <span id="lastUpdatedText"></span>
             </div>
         </div>
     </div>
