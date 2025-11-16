@@ -544,6 +544,31 @@
             color: #666;
             margin-top: 15px;
             font-size: 0.85em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+        }
+
+        .refresh-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #34c759;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .refresh-indicator.active {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
         }
 
         .hidden {
@@ -688,7 +713,7 @@
                     <button class="view-btn" data-view="day">Daily</button>
                 </div>
                 <button class="export-btn" id="exportBtn" onclick="exportToCSV()">
-                    <span>📥</span> Export CSV
+                    Export CSV
                 </button>
             </div>
 
@@ -724,7 +749,10 @@
                 </div>
             </div>
             
-            <div class="last-updated" id="lastUpdated"></div>
+            <div class="last-updated" id="lastUpdated">
+                <span class="refresh-indicator" id="refreshIndicator"></span>
+                <span id="lastUpdatedText"></span>
+            </div>
         </div>
     </div>
 
@@ -792,6 +820,11 @@
         }
 
         async function loadData() {
+            const indicator = document.getElementById('refreshIndicator');
+            if (indicator) {
+                indicator.classList.add('active');
+            }
+            
             try {
                 const response = await fetch(CSV_URL);
                 const csvText = await response.text();
@@ -810,13 +843,23 @@
                         displayCurrentView();
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('content').style.display = 'block';
+                        
+                        if (indicator) {
+                            setTimeout(() => indicator.classList.remove('active'), 500);
+                        }
                     },
                     error: function(error) {
                         showError('Error parsing CSV: ' + error.message);
+                        if (indicator) {
+                            indicator.classList.remove('active');
+                        }
                     }
                 });
             } catch (error) {
                 showError('Error loading data: ' + error.message);
+                if (indicator) {
+                    indicator.classList.remove('active');
+                }
             }
         }
 
@@ -1093,8 +1136,10 @@
 
         function updateLastUpdated() {
             const now = new Date();
-            document.getElementById('lastUpdated').textContent = 
-                `Last updated: ${now.toLocaleString()}`;
+            const textElement = document.getElementById('lastUpdatedText');
+            if (textElement) {
+                textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
+            }
         }
 
         // CSV Export Function
