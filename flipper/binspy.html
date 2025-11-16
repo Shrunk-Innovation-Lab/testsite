@@ -159,19 +159,19 @@
 
         .bins-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 15px;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 12px;
             margin-bottom: 20px;
         }
 
         .bin-card {
             background-color: #ffffff;
-            padding: 18px;
-            border-radius: 10px;
+            padding: 14px;
+            border-radius: 8px;
             box-shadow: 0 1px 3px rgba(0,0,0,0.1);
             border: 1px solid #d2d2d7;
             transition: transform 0.2s, box-shadow 0.2s;
-            border-left: 5px solid;
+            border-left: 4px solid;
         }
 
         .bin-card:active {
@@ -187,18 +187,18 @@
         }
 
         .bin-name {
-            font-size: 1.2em;
+            font-size: 1.05em;
             font-weight: 600;
-            margin-bottom: 10px;
+            margin-bottom: 8px;
             color: #1d1d1f;
         }
 
         .bin-status {
             display: inline-block;
-            padding: 6px 12px;
-            border-radius: 6px;
+            padding: 5px 10px;
+            border-radius: 5px;
             font-weight: 600;
-            font-size: 0.85em;
+            font-size: 0.75em;
             text-transform: uppercase;
             letter-spacing: 0.5px;
         }
@@ -214,13 +214,13 @@
         }
 
         .bin-details {
-            margin-top: 12px;
+            margin-top: 10px;
             color: #666;
-            font-size: 0.9em;
+            font-size: 0.8em;
         }
 
         .bin-details div {
-            margin: 5px 0;
+            margin: 4px 0;
         }
 
         .loading {
@@ -676,7 +676,8 @@
             }
 
             .bins-grid {
-                grid-template-columns: 1fr;
+                grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
+                gap: 10px;
             }
         }
 
@@ -692,6 +693,10 @@
             .view-btn {
                 font-size: 13px;
                 padding: 8px 10px;
+            }
+
+            .bins-grid {
+                grid-template-columns: 1fr;
             }
         }
     </style>
