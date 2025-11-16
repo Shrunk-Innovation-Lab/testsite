@@ -75,7 +75,7 @@
             flex-wrap: wrap;
         }
 
-        .view-btn, .export-btn, .nav-btn, .filter-btn {
+        .view-btn, .export-btn, .nav-btn, .filter-btn, .refresh-btn {
             padding: 12px 20px;
             border: 1px solid #d2d2d7;
             background-color: #ffffff;
@@ -669,13 +669,51 @@
                 gap: 8px;
             }
 
+            .week-day {
+                padding: 10px;
+                min-height: auto;
+            }
+
+            .week-day-header {
+                font-size: 0.9em;
+                margin-bottom: 8px;
+            }
+
+            .week-event {
+                padding: 6px;
+                font-size: 0.75em;
+            }
+
+            .event-time {
+                font-size: 0.9em;
+            }
+
             .timeline-event {
                 flex-direction: column;
-                gap: 8px;
+                gap: 6px;
+                padding: 10px;
+                border-left-width: 3px;
             }
 
             .timeline-time {
                 min-width: auto;
+                font-size: 0.9em;
+            }
+
+            .timeline-status {
+                font-size: 0.95em;
+            }
+
+            .timeline-info {
+                font-size: 0.75em;
+            }
+
+            .day-view {
+                padding: 10px;
+            }
+
+            .timeline {
+                gap: 10px;
             }
 
             .stat-number {
@@ -685,6 +723,31 @@
             .bins-grid {
                 grid-template-columns: repeat(auto-fill, minmax(140px, 1fr));
                 gap: 10px;
+            }
+
+            .bin-card {
+                padding: 10px;
+                border-radius: 6px;
+                border-left-width: 3px;
+            }
+
+            .bin-name {
+                font-size: 0.95em;
+                margin-bottom: 6px;
+            }
+
+            .bin-status {
+                padding: 4px 8px;
+                font-size: 0.7em;
+            }
+
+            .bin-details {
+                margin-top: 8px;
+                font-size: 0.75em;
+            }
+
+            .bin-details div {
+                margin: 3px 0;
             }
         }
 
