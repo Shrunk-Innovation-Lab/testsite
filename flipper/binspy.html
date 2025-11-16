@@ -552,8 +552,7 @@
         }
 
         .timeline-event {
-            display: flex;
-            gap: 15px;
+            display: block;
             padding: 8px;
             border-radius: 6px;
             border-left: 4px solid;
@@ -562,7 +561,7 @@
         }
 
         .timeline-event:active {
-            transform: translateX(3px);
+            transform: scale(0.98);
         }
 
         .timeline-event.in {
@@ -577,19 +576,16 @@
 
         .timeline-time {
             font-weight: 600;
-            font-size: 0.95em;
-            min-width: 100px;
+            margin-bottom: 2px;
             color: #1d1d1f;
         }
 
         .timeline-details {
-            flex: 1;
+            color: #1d1d1f;
         }
 
         .timeline-status {
             font-weight: 600;
-            font-size: 0.95em;
-            margin-bottom: 3px;
         }
 
         .timeline-status.in {
@@ -603,6 +599,7 @@
         .timeline-info {
             color: #666;
             font-size: 0.8em;
+            margin-top: 2px;
         }
 
         footer {
@@ -756,19 +753,16 @@
             }
 
             .timeline-event {
-                flex-direction: column;
-                gap: 6px;
                 padding: 6px;
                 border-left-width: 4px;
             }
 
             .timeline-time {
-                min-width: auto;
                 font-size: 0.85em;
             }
 
-            .timeline-status {
-                font-size: 0.85em;
+            .timeline-details {
+                font-size: 0.9em;
             }
 
             .timeline-info {
@@ -1143,7 +1137,7 @@
                         const expandBtn = document.createElement('button');
                         expandBtn.id = 'expandAllBtn';
                         expandBtn.className = 'expand-all-btn';
-                        expandBtn.textContent = 'Collapse All';
+                        expandBtn.textContent = 'Expand All';
                         expandBtn.onclick = toggleAllWeekDays;
                         calendarNav.appendChild(expandBtn);
                     }
@@ -1223,6 +1217,9 @@
                 `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
             
             const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            const today = new Date();
+            const todayDayOfWeek = today.getDay();
+            
             let html = '<div class="week-grid">';
             
             const readings = getFilteredReadings();
@@ -1237,13 +1234,15 @@
                 
                 const dayId = `week-day-${i}`;
                 const eventsId = `week-events-${i}`;
+                const isToday = i === todayDayOfWeek;
+                const collapsedClass = isToday ? '' : 'collapsed';
                 
-                html += `<div class="week-day" id="${dayId}">
-                    <div class="week-day-header" onclick="toggleWeekDay(${i})">
+                html += `<div class="week-day ${collapsedClass}" id="${dayId}">
+                    <div class="week-day-header ${collapsedClass}" onclick="toggleWeekDay(${i})">
                         <span class="expand-icon">▼</span>
                         <span>${days[i]}<br>${currentDay.getDate()}</span>
                     </div>
-                    <div class="week-events" id="${eventsId}">`;
+                    <div class="week-events ${collapsedClass}" id="${eventsId}" style="max-height: ${isToday ? 'none' : '0'}">`;
                 
                 if (dayReadings.length === 0) {
                     html += '<div style="text-align: center; color: #999; font-size: 0.85em; padding: 10px;">No events</div>';
@@ -1267,11 +1266,11 @@
             html += '</div>';
             document.getElementById('calendarContent').innerHTML = html;
             
-            // Set initial max-height for all week-events for smooth transitions
+            // Set initial max-height for expanded days only
             setTimeout(() => {
                 for (let i = 0; i < 7; i++) {
                     const eventsElement = document.getElementById(`week-events-${i}`);
-                    if (eventsElement) {
+                    if (eventsElement && !eventsElement.classList.contains('collapsed')) {
                         eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                     }
                 }
@@ -1299,8 +1298,17 @@
         }
 
         function toggleAllWeekDays() {
-            // Check if any day is collapsed
-            const anyCollapsed = document.querySelector('.week-events.collapsed') !== null;
+            // Count how many days are collapsed
+            let collapsedCount = 0;
+            for (let i = 0; i < 7; i++) {
+                const eventsElement = document.getElementById(`week-events-${i}`);
+                if (eventsElement && eventsElement.classList.contains('collapsed')) {
+                    collapsedCount++;
+                }
+            }
+            
+            // If more than half are collapsed, expand all. Otherwise collapse all.
+            const shouldExpand = collapsedCount >= 4;
             
             for (let i = 0; i < 7; i++) {
                 const dayElement = document.getElementById(`week-day-${i}`);
@@ -1309,7 +1317,7 @@
                 
                 if (!dayElement || !eventsElement || !headerElement) continue;
                 
-                if (anyCollapsed) {
+                if (shouldExpand) {
                     // Expand all
                     eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                     eventsElement.classList.remove('collapsed');
@@ -1327,7 +1335,7 @@
             // Update button text
             const btn = document.getElementById('expandAllBtn');
             if (btn) {
-                btn.textContent = anyCollapsed ? 'Collapse All' : 'Expand All';
+                btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
             }
         }
 
@@ -1347,17 +1355,15 @@
                 readings.forEach(reading => {
                     const state = (reading.state || reading.State || '').trim().toUpperCase();
                     const statusClass = state === 'IN' ? 'in' : 'out';
-                    const time = reading.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const time = reading.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
                     const alias = reading.alias || reading.Alias || 'Unknown Bin';
                     const mac = reading.mac || reading.MAC || '';
                     const rssi = reading.rssi || reading.RSSI || '';
                     
                     html += `<div class="timeline-event ${statusClass}">
                         <div class="timeline-time">${time}</div>
-                        <div class="timeline-details">
-                            <div class="timeline-status ${statusClass}">${alias} - ${state}</div>
-                            <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
-                        </div>
+                        <div class="timeline-details">${alias} - ${state}</div>
+                        <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
                     </div>`;
                 });
             }
