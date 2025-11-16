@@ -19,7 +19,7 @@
         }
 
         .container {
-            max-width: 1200px;
+            max-width: 1400px;
             margin: 0 auto;
         }
 
@@ -29,6 +29,39 @@
             margin-bottom: 30px;
             font-size: 2.5em;
             text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+        }
+
+        .view-toggle {
+            background: white;
+            padding: 15px;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: center;
+        }
+
+        .view-btn {
+            padding: 12px 24px;
+            border: 2px solid #667eea;
+            background: white;
+            color: #667eea;
+            border-radius: 25px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.3s;
+            font-size: 1em;
+        }
+
+        .view-btn:hover {
+            background: #f3f4f6;
+        }
+
+        .view-btn.active {
+            background: #667eea;
+            color: white;
         }
 
         .stats {
@@ -200,12 +233,266 @@
             border-color: #667eea;
         }
 
+        /* Calendar Styles */
+        .calendar-container {
+            background: white;
+            padding: 30px;
+            border-radius: 12px;
+            box-shadow: 0 5px 15px rgba(0,0,0,0.1);
+            margin-bottom: 30px;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            flex-wrap: wrap;
+            gap: 15px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+
+        .nav-btn {
+            padding: 10px 15px;
+            background: #667eea;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: background 0.3s;
+        }
+
+        .nav-btn:hover {
+            background: #5568d3;
+        }
+
+        .calendar-title {
+            font-size: 1.8em;
+            font-weight: bold;
+            color: #333;
+        }
+
+        .bin-selector {
+            padding: 10px 15px;
+            border: 2px solid #667eea;
+            border-radius: 8px;
+            font-size: 1em;
+            cursor: pointer;
+        }
+
+        .bin-selector:focus {
+            outline: none;
+            border-color: #5568d3;
+        }
+
+        /* Month View */
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 10px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: bold;
+            padding: 10px;
+            color: #667eea;
+            font-size: 0.9em;
+        }
+
+        .day-cell {
+            min-height: 100px;
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 8px;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .day-cell:hover {
+            border-color: #667eea;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.2);
+        }
+
+        .day-cell.other-month {
+            opacity: 0.3;
+        }
+
+        .day-number {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #333;
+        }
+
+        .day-events {
+            display: flex;
+            flex-direction: column;
+            gap: 3px;
+        }
+
+        .event-dot {
+            width: 100%;
+            padding: 4px 6px;
+            border-radius: 4px;
+            font-size: 0.75em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .event-dot.in {
+            background: #d1fae5;
+            color: #065f46;
+        }
+
+        .event-dot.out {
+            background: #fee2e2;
+            color: #991b1b;
+        }
+
+        /* Week View */
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 15px;
+        }
+
+        .week-day {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 15px;
+            min-height: 300px;
+        }
+
+        .week-day-header {
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #667eea;
+            font-size: 1.1em;
+            text-align: center;
+        }
+
+        .week-events {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .week-event {
+            padding: 8px;
+            border-radius: 6px;
+            font-size: 0.85em;
+            border-left: 4px solid;
+        }
+
+        .week-event.in {
+            background: #d1fae5;
+            border-left-color: #10b981;
+            color: #065f46;
+        }
+
+        .week-event.out {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+            color: #991b1b;
+        }
+
+        .event-time {
+            font-weight: bold;
+            margin-bottom: 3px;
+        }
+
+        /* Day View */
+        .day-view {
+            border: 2px solid #e5e7eb;
+            border-radius: 8px;
+            padding: 20px;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        .timeline-event {
+            display: flex;
+            gap: 20px;
+            padding: 15px;
+            border-radius: 8px;
+            border-left: 5px solid;
+            transition: transform 0.2s;
+        }
+
+        .timeline-event:hover {
+            transform: translateX(5px);
+        }
+
+        .timeline-event.in {
+            background: #d1fae5;
+            border-left-color: #10b981;
+        }
+
+        .timeline-event.out {
+            background: #fee2e2;
+            border-left-color: #ef4444;
+        }
+
+        .timeline-time {
+            font-weight: bold;
+            font-size: 1.1em;
+            min-width: 120px;
+            color: #333;
+        }
+
+        .timeline-details {
+            flex: 1;
+        }
+
+        .timeline-status {
+            font-weight: bold;
+            font-size: 1.1em;
+            margin-bottom: 5px;
+        }
+
+        .timeline-status.in {
+            color: #065f46;
+        }
+
+        .timeline-status.out {
+            color: #991b1b;
+        }
+
+        .timeline-info {
+            color: #666;
+            font-size: 0.9em;
+        }
+
         .last-updated {
             text-align: center;
             color: white;
             margin-top: 20px;
             font-size: 0.9em;
             opacity: 0.8;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media (max-width: 768px) {
+            .week-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .calendar-header {
+                flex-direction: column;
+            }
         }
     </style>
 </head>
@@ -217,16 +504,44 @@
         <div class="error" id="error" style="display: none;"></div>
         
         <div id="content" style="display: none;">
-            <div class="stats" id="stats"></div>
-            
-            <div class="filters">
-                <input type="text" class="search-box" id="searchBox" placeholder="Search bins...">
-                <button class="filter-btn active" data-filter="all">All</button>
-                <button class="filter-btn" data-filter="in">In Area</button>
-                <button class="filter-btn" data-filter="out">Out of Area</button>
+            <div class="view-toggle">
+                <button class="view-btn active" data-view="dashboard">Dashboard</button>
+                <button class="view-btn" data-view="month">Monthly</button>
+                <button class="view-btn" data-view="week">Weekly</button>
+                <button class="view-btn" data-view="day">Daily</button>
             </div>
-            
-            <div class="bins-grid" id="binsGrid"></div>
+
+            <!-- Dashboard View -->
+            <div id="dashboardView">
+                <div class="stats" id="stats"></div>
+                
+                <div class="filters">
+                    <input type="text" class="search-box" id="searchBox" placeholder="Search bins...">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="in">In Area</button>
+                    <button class="filter-btn" data-filter="out">Out of Area</button>
+                </div>
+                
+                <div class="bins-grid" id="binsGrid"></div>
+            </div>
+
+            <!-- Calendar Views -->
+            <div id="calendarView" class="hidden">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="nav-btn" id="prevBtn">← Previous</button>
+                            <button class="nav-btn" id="todayBtn">Today</button>
+                            <button class="nav-btn" id="nextBtn">Next →</button>
+                        </div>
+                        <div class="calendar-title" id="calendarTitle"></div>
+                        <select class="bin-selector" id="binSelector">
+                            <option value="all">All Bins</option>
+                        </select>
+                    </div>
+                    <div id="calendarContent"></div>
+                </div>
+            </div>
             
             <div class="last-updated" id="lastUpdated"></div>
         </div>
@@ -236,25 +551,27 @@
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=0&single=true&output=csv';
         
-        let allBins = [];
+        let allReadings = []; // All historical readings
+        let latestBins = []; // Latest status per bin
+        let currentView = 'dashboard';
         let currentFilter = 'all';
         let searchTerm = '';
+        let currentDate = new Date();
+        let selectedBin = 'all';
 
         // Parse timestamp to Date object
         function parseTimestamp(timestamp) {
-            // Handle format: 16/11/2025 00:41:23
             const parts = timestamp.split(' ');
             const dateParts = parts[0].split('/');
             const timeParts = parts[1].split(':');
             
-            // Create Date object (month is 0-indexed in JS)
             return new Date(
-                parseInt(dateParts[2]), // year
-                parseInt(dateParts[1]) - 1, // month
-                parseInt(dateParts[0]), // day
-                parseInt(timeParts[0]), // hour
-                parseInt(timeParts[1]), // minute
-                parseInt(timeParts[2]) // second
+                parseInt(dateParts[2]),
+                parseInt(dateParts[1]) - 1,
+                parseInt(dateParts[0]),
+                parseInt(timeParts[0]),
+                parseInt(timeParts[1]),
+                parseInt(timeParts[2])
             );
         }
 
@@ -279,6 +596,19 @@
             return Array.from(binMap.values());
         }
 
+        // Get unique bins
+        function getUniqueBins(data) {
+            const bins = new Map();
+            data.forEach(row => {
+                const mac = row.mac || row.MAC;
+                const alias = row.alias || row.Alias || mac;
+                if (mac && !bins.has(mac)) {
+                    bins.set(mac, alias);
+                }
+            });
+            return bins;
+        }
+
         // Fetch and parse CSV data
         async function loadData() {
             try {
@@ -289,9 +619,14 @@
                     header: true,
                     skipEmptyLines: true,
                     complete: function(results) {
-                        // Get only the latest status for each unique bin
-                        allBins = getLatestBinStatus(results.data);
-                        displayData();
+                        allReadings = results.data.map(row => ({
+                            ...row,
+                            timestamp: parseTimestamp(row.Timestamp || row.timestamp)
+                        }));
+                        
+                        latestBins = getLatestBinStatus(results.data);
+                        populateBinSelector();
+                        displayCurrentView();
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('content').style.display = 'block';
                     },
@@ -310,16 +645,39 @@
             document.getElementById('error').textContent = message;
         }
 
-        function displayData() {
-            displayStats();
-            displayBins();
+        function populateBinSelector() {
+            const selector = document.getElementById('binSelector');
+            const bins = getUniqueBins(allReadings);
+            
+            selector.innerHTML = '<option value="all">All Bins</option>';
+            bins.forEach((alias, mac) => {
+                const option = document.createElement('option');
+                option.value = mac;
+                option.textContent = alias;
+                selector.appendChild(option);
+            });
+        }
+
+        function displayCurrentView() {
+            if (currentView === 'dashboard') {
+                displayDashboard();
+            } else {
+                displayCalendar();
+            }
             updateLastUpdated();
         }
 
+        function displayDashboard() {
+            document.getElementById('dashboardView').classList.remove('hidden');
+            document.getElementById('calendarView').classList.add('hidden');
+            displayStats();
+            displayBins();
+        }
+
         function displayStats() {
-            const inCount = allBins.filter(bin => isInArea(bin)).length;
-            const outCount = allBins.filter(bin => !isInArea(bin)).length;
-            const total = allBins.length;
+            const inCount = latestBins.filter(bin => isInArea(bin)).length;
+            const outCount = latestBins.filter(bin => !isInArea(bin)).length;
+            const total = latestBins.length;
 
             document.getElementById('stats').innerHTML = `
                 <div class="stat-card in">
@@ -338,22 +696,19 @@
         }
 
         function isInArea(bin) {
-            // Check the state column specifically
             const state = (bin.state || bin.State || '').trim().toUpperCase();
             return state === 'IN';
         }
 
         function displayBins() {
-            let filteredBins = allBins;
+            let filteredBins = latestBins;
 
-            // Apply filter
             if (currentFilter === 'in') {
                 filteredBins = filteredBins.filter(bin => isInArea(bin));
             } else if (currentFilter === 'out') {
                 filteredBins = filteredBins.filter(bin => !isInArea(bin));
             }
 
-            // Apply search
             if (searchTerm) {
                 filteredBins = filteredBins.filter(bin => {
                     return Object.values(bin).some(value => 
@@ -374,13 +729,8 @@
                 const statusClass = inArea ? 'in' : 'out';
                 const statusText = inArea ? 'In Area' : 'Out of Area';
                 
-                // Use alias as the bin name, or fall back to mac
                 const binName = bin.alias || bin.Alias || bin.mac || bin.MAC || 'Unknown Bin';
-                
-                // Format the timestamp nicely
                 const timestampStr = bin.Timestamp || bin.timestamp || '';
-                
-                // Get relevant details
                 const mac = bin.mac || bin.MAC || '';
                 const rssi = bin.rssi || bin.RSSI || '';
 
@@ -398,6 +748,168 @@
             }).join('');
         }
 
+        function displayCalendar() {
+            document.getElementById('dashboardView').classList.add('hidden');
+            document.getElementById('calendarView').classList.remove('hidden');
+            
+            if (currentView === 'month') {
+                displayMonthView();
+            } else if (currentView === 'week') {
+                displayWeekView();
+            } else if (currentView === 'day') {
+                displayDayView();
+            }
+        }
+
+        function getFilteredReadings() {
+            if (selectedBin === 'all') {
+                return allReadings;
+            }
+            return allReadings.filter(r => (r.mac || r.MAC) === selectedBin);
+        }
+
+        function displayMonthView() {
+            const year = currentDate.getFullYear();
+            const month = currentDate.getMonth();
+            
+            document.getElementById('calendarTitle').textContent = 
+                currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+            
+            const firstDay = new Date(year, month, 1);
+            const lastDay = new Date(year, month + 1, 0);
+            const startDate = new Date(firstDay);
+            startDate.setDate(startDate.getDate() - startDate.getDay());
+            
+            const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+            let html = '<div class="month-grid">';
+            
+            days.forEach(day => {
+                html += `<div class="day-header">${day}</div>`;
+            });
+            
+            const readings = getFilteredReadings();
+            
+            for (let i = 0; i < 42; i++) {
+                const currentDay = new Date(startDate);
+                currentDay.setDate(startDate.getDate() + i);
+                
+                const isOtherMonth = currentDay.getMonth() !== month;
+                const dayReadings = readings.filter(r => 
+                    r.timestamp.toDateString() === currentDay.toDateString()
+                );
+                
+                html += `<div class="day-cell ${isOtherMonth ? 'other-month' : ''}" 
+                         onclick="viewDay(new Date(${currentDay.getTime()}))">
+                    <div class="day-number">${currentDay.getDate()}</div>
+                    <div class="day-events">`;
+                
+                const inCount = dayReadings.filter(r => (r.state || r.State || '').trim().toUpperCase() === 'IN').length;
+                const outCount = dayReadings.filter(r => (r.state || r.State || '').trim().toUpperCase() === 'OUT').length;
+                
+                if (inCount > 0) {
+                    html += `<div class="event-dot in">${inCount} IN</div>`;
+                }
+                if (outCount > 0) {
+                    html += `<div class="event-dot out">${outCount} OUT</div>`;
+                }
+                
+                html += `</div></div>`;
+            }
+            
+            html += '</div>';
+            document.getElementById('calendarContent').innerHTML = html;
+        }
+
+        function displayWeekView() {
+            const startOfWeek = new Date(currentDate);
+            startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+            
+            const endOfWeek = new Date(startOfWeek);
+            endOfWeek.setDate(startOfWeek.getDate() + 6);
+            
+            document.getElementById('calendarTitle').textContent = 
+                `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+            
+            const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+            let html = '<div class="week-grid">';
+            
+            const readings = getFilteredReadings();
+            
+            for (let i = 0; i < 7; i++) {
+                const currentDay = new Date(startOfWeek);
+                currentDay.setDate(startOfWeek.getDate() + i);
+                
+                const dayReadings = readings.filter(r => 
+                    r.timestamp.toDateString() === currentDay.toDateString()
+                ).sort((a, b) => a.timestamp - b.timestamp);
+                
+                html += `<div class="week-day">
+                    <div class="week-day-header">${days[i]}<br>${currentDay.getDate()}</div>
+                    <div class="week-events">`;
+                
+                dayReadings.forEach(reading => {
+                    const state = (reading.state || reading.State || '').trim().toUpperCase();
+                    const statusClass = state === 'IN' ? 'in' : 'out';
+                    const time = reading.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    const alias = reading.alias || reading.Alias || 'Bin';
+                    
+                    html += `<div class="week-event ${statusClass}">
+                        <div class="event-time">${time}</div>
+                        <div>${alias} - ${state}</div>
+                    </div>`;
+                });
+                
+                html += `</div></div>`;
+            }
+            
+            html += '</div>';
+            document.getElementById('calendarContent').innerHTML = html;
+        }
+
+        function displayDayView() {
+            document.getElementById('calendarTitle').textContent = 
+                currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            
+            const readings = getFilteredReadings().filter(r => 
+                r.timestamp.toDateString() === currentDate.toDateString()
+            ).sort((a, b) => a.timestamp - b.timestamp);
+            
+            let html = '<div class="day-view"><div class="timeline">';
+            
+            if (readings.length === 0) {
+                html += '<div style="text-align: center; padding: 40px; color: #666;">No readings for this day</div>';
+            } else {
+                readings.forEach(reading => {
+                    const state = (reading.state || reading.State || '').trim().toUpperCase();
+                    const statusClass = state === 'IN' ? 'in' : 'out';
+                    const time = reading.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit', second: '2-digit' });
+                    const alias = reading.alias || reading.Alias || 'Unknown Bin';
+                    const mac = reading.mac || reading.MAC || '';
+                    const rssi = reading.rssi || reading.RSSI || '';
+                    
+                    html += `<div class="timeline-event ${statusClass}">
+                        <div class="timeline-time">${time}</div>
+                        <div class="timeline-details">
+                            <div class="timeline-status ${statusClass}">${alias} - ${state}</div>
+                            <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
+                        </div>
+                    </div>`;
+                });
+            }
+            
+            html += '</div></div>';
+            document.getElementById('calendarContent').innerHTML = html;
+        }
+
+        function viewDay(date) {
+            currentDate = date;
+            currentView = 'day';
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.view === 'day');
+            });
+            displayCurrentView();
+        }
+
         function updateLastUpdated() {
             const now = new Date();
             document.getElementById('lastUpdated').textContent = 
@@ -407,6 +919,19 @@
         // Event listeners
         document.addEventListener('DOMContentLoaded', () => {
             loadData();
+
+            // View toggle
+            document.querySelectorAll('.view-btn').forEach(btn => {
+                btn.addEventListener('click', () => {
+                    document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    currentView = btn.dataset.view;
+                    if (currentView === 'dashboard') {
+                        currentDate = new Date();
+                    }
+                    displayCurrentView();
+                });
+            });
 
             // Filter buttons
             document.querySelectorAll('.filter-btn').forEach(btn => {
@@ -422,6 +947,40 @@
             document.getElementById('searchBox').addEventListener('input', (e) => {
                 searchTerm = e.target.value;
                 displayBins();
+            });
+
+            // Calendar navigation
+            document.getElementById('prevBtn').addEventListener('click', () => {
+                if (currentView === 'month') {
+                    currentDate.setMonth(currentDate.getMonth() - 1);
+                } else if (currentView === 'week') {
+                    currentDate.setDate(currentDate.getDate() - 7);
+                } else if (currentView === 'day') {
+                    currentDate.setDate(currentDate.getDate() - 1);
+                }
+                displayCalendar();
+            });
+
+            document.getElementById('nextBtn').addEventListener('click', () => {
+                if (currentView === 'month') {
+                    currentDate.setMonth(currentDate.getMonth() + 1);
+                } else if (currentView === 'week') {
+                    currentDate.setDate(currentDate.getDate() + 7);
+                } else if (currentView === 'day') {
+                    currentDate.setDate(currentDate.getDate() + 1);
+                }
+                displayCalendar();
+            });
+
+            document.getElementById('todayBtn').addEventListener('click', () => {
+                currentDate = new Date();
+                displayCalendar();
+            });
+
+            // Bin selector
+            document.getElementById('binSelector').addEventListener('change', (e) => {
+                selectedBin = e.target.value;
+                displayCalendar();
             });
         });
 
