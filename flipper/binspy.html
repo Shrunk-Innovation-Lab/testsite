@@ -821,14 +821,14 @@
             return bins;
         }
 
-        async function loadData() {
+        async function loadData(isAutoRefresh = false) {
             const indicator = document.getElementById('refreshIndicator');
-            if (indicator) {
+            if (indicator && isAutoRefresh) {
                 indicator.classList.add('active');
             }
             
             try {
-                const response = await fetch(CSV_URL);
+                const response = await fetch(CSV_URL + '&t=' + new Date().getTime());
                 const csvText = await response.text();
                 
                 Papa.parse(csvText, {
@@ -843,10 +843,11 @@
                         latestBins = getLatestBinStatus(results.data);
                         populateBinSelector();
                         displayCurrentView();
+                        
                         document.getElementById('loading').style.display = 'none';
                         document.getElementById('content').style.display = 'block';
                         
-                        if (indicator) {
+                        if (indicator && isAutoRefresh) {
                             setTimeout(() => indicator.classList.remove('active'), 500);
                         }
                     },
@@ -1260,7 +1261,7 @@
         }
 
         document.addEventListener('DOMContentLoaded', () => {
-            loadData();
+            loadData(false);
 
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1321,7 +1322,8 @@
             });
         });
 
-        setInterval(loadData, 60000);
+        // Auto-refresh every 60 seconds
+        setInterval(() => loadData(true), 60000);
     </script>
 </body>
 </html>
