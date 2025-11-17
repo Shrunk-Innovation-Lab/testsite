@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>BinSpy</title>
+    <title>BinSpy - Fixed</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <link rel="apple-touch-icon" href="https://i.imgur.com/dZR7M8C.png">
     <style>
@@ -53,6 +53,104 @@
             max-width: 1400px;
             margin: 0 auto;
             width: 100%;
+        }
+
+        /* Settings Panel */
+        .settings-panel {
+            background-color: #ffffff;
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+        }
+
+        .settings-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            cursor: pointer;
+            user-select: none;
+            padding: 5px 0;
+        }
+
+        .settings-header:hover {
+            color: #007aff;
+        }
+
+        .settings-title {
+            font-weight: 600;
+            font-size: 1.05em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .settings-icon {
+            transition: transform 0.3s;
+        }
+
+        .settings-icon.collapsed {
+            transform: rotate(-90deg);
+        }
+
+        .settings-content {
+            margin-top: 15px;
+            padding-top: 15px;
+            border-top: 1px solid #d2d2d7;
+            transition: max-height 0.3s ease-out, opacity 0.3s;
+            overflow: hidden;
+        }
+
+        .settings-content.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin: 0;
+            padding: 0;
+            border: none;
+        }
+
+        .setting-item {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            gap: 15px;
+        }
+
+        .setting-label {
+            font-weight: 500;
+            color: #1d1d1f;
+        }
+
+        .setting-description {
+            font-size: 0.85em;
+            color: #666;
+            margin-top: 2px;
+        }
+
+        .setting-input {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .setting-input input[type="number"] {
+            width: 80px;
+            padding: 8px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            font-size: 15px;
+        }
+
+        .setting-input input[type="number"]:focus {
+            outline: none;
+            border-color: #007aff;
+        }
+
+        .setting-input span {
+            color: #666;
+            font-size: 0.9em;
         }
 
         .controls-row {
@@ -292,7 +390,6 @@
             box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
         }
 
-        /* Calendar Styles */
         .calendar-container {
             background-color: #ffffff;
             padding: 15px;
@@ -378,7 +475,6 @@
             box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
         }
 
-        /* Month View */
         .month-grid {
             display: grid;
             grid-template-columns: repeat(7, 1fr);
@@ -444,7 +540,6 @@
             color: #c41e3a;
         }
 
-        /* Week View */
         .week-grid {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
@@ -537,7 +632,6 @@
             margin-bottom: 2px;
         }
 
-        /* Day View */
         .day-view {
             border: 1px solid #d2d2d7;
             border-radius: 8px;
@@ -647,7 +741,6 @@
             display: none;
         }
 
-        /* Desktop Optimization - Fit calendar on screen */
         @media screen and (min-width: 769px) {
             .month-grid {
                 gap: 5px;
@@ -663,7 +756,6 @@
             }
         }
 
-        /* Mobile Optimizations */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px;
@@ -826,6 +918,17 @@
             .bin-details div {
                 margin: 3px 0;
             }
+
+            .setting-item {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+            
+            .setting-input {
+                width: 100%;
+                justify-content: flex-end;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -859,6 +962,47 @@
         <div class="error" id="error" style="display: none;"></div>
         
         <div id="content" style="display: none;">
+            <!-- Settings Panel -->
+            <div class="settings-panel">
+                <div class="settings-header" onclick="toggleSettings()">
+                    <div class="settings-title">
+                        <span class="settings-icon" id="settingsIcon">▼</span>
+                        <span>⚙️ Filter Settings</span>
+                    </div>
+                    <span style="font-size: 0.85em; color: #666;">Click to expand</span>
+                </div>
+                <div class="settings-content" id="settingsContent">
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">State Change Debounce Time</div>
+                            <div class="setting-description">
+                                Minimum time (in minutes) a state must persist to be considered valid. 
+                                This filters out rapid IN/OUT flickering from weak signals.
+                            </div>
+                        </div>
+                        <div class="setting-input">
+                            <input type="number" id="debounceMinutes" min="1" max="120" value="10" 
+                                   onchange="updateDebounceTime()">
+                            <span>minutes</span>
+                        </div>
+                    </div>
+                    <div class="setting-item">
+                        <div>
+                            <div class="setting-label">Minimum Signal Strength (RSSI)</div>
+                            <div class="setting-description">
+                                Only count readings with signal strength above this threshold (more negative = weaker).
+                                Set to -100 to include all readings.
+                            </div>
+                        </div>
+                        <div class="setting-input">
+                            <input type="number" id="minRSSI" min="-100" max="-20" value="-100" 
+                                   onchange="applyFilters()">
+                            <span>dBm</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
             <div class="controls-row">
                 <div class="view-toggle">
                     <button class="view-btn active" data-view="dashboard">Dashboard</button>
@@ -881,7 +1025,6 @@
                 <span id="lastUpdatedText"></span>
             </div>
 
-            <!-- Dashboard View -->
             <div id="dashboardView">
                 <div class="stats" id="stats"></div>
                 
@@ -895,7 +1038,6 @@
                 <div class="bins-grid" id="binsGrid"></div>
             </div>
 
-            <!-- Calendar Views -->
             <div id="calendarView" class="hidden">
                 <div class="calendar-container">
                     <div class="calendar-header">
@@ -923,7 +1065,12 @@
     <script>
         const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=0&single=true&output=csv';
         
+        // Configuration variables
+        let STATE_CHANGE_DEBOUNCE_MINUTES = 10;
+        let MIN_RSSI = -100;
+        
         let allReadings = [];
+        let filteredReadings = [];
         let latestBins = [];
         let currentView = 'dashboard';
         let currentFilter = 'all';
@@ -946,6 +1093,132 @@
             );
         }
 
+        function toggleSettings() {
+            const content = document.getElementById('settingsContent');
+            const icon = document.getElementById('settingsIcon');
+            
+            if (content.classList.contains('collapsed')) {
+                content.style.maxHeight = content.scrollHeight + 'px';
+                content.classList.remove('collapsed');
+                icon.classList.remove('collapsed');
+            } else {
+                content.style.maxHeight = '0';
+                content.classList.add('collapsed');
+                icon.classList.add('collapsed');
+            }
+        }
+
+        function updateDebounceTime() {
+            const input = document.getElementById('debounceMinutes');
+            STATE_CHANGE_DEBOUNCE_MINUTES = parseInt(input.value) || 10;
+            applyFilters();
+        }
+
+        function applyFilters() {
+            const input = document.getElementById('minRSSI');
+            MIN_RSSI = parseInt(input.value) || -100;
+            
+            filteredReadings = filterByRSSI(allReadings);
+            filteredReadings = debounceStateChanges(filteredReadings);
+            latestBins = getLatestBinStatus(filteredReadings);
+            
+            displayCurrentView();
+        }
+
+        function filterByRSSI(readings) {
+            return readings.filter(reading => {
+                const rssi = parseInt(reading.rssi || reading.RSSI || -100);
+                return rssi >= MIN_RSSI;
+            });
+        }
+
+        function debounceStateChanges(readings) {
+            if (STATE_CHANGE_DEBOUNCE_MINUTES === 0) {
+                return readings;
+            }
+
+            const debounceMs = STATE_CHANGE_DEBOUNCE_MINUTES * 60 * 1000;
+            const binGroups = new Map();
+            
+            readings.forEach(reading => {
+                const mac = reading.mac || reading.MAC;
+                if (!mac) return;
+                
+                if (!binGroups.has(mac)) {
+                    binGroups.set(mac, []);
+                }
+                binGroups.get(mac).push(reading);
+            });
+            
+            const filteredReadings = [];
+            
+            binGroups.forEach((binReadings, mac) => {
+                binReadings.sort((a, b) => a.timestamp - b.timestamp);
+                
+                if (binReadings.length === 0) return;
+                
+                const validReadings = [];
+                let lastValidState = null;
+                let lastValidTimestamp = null;
+                let pendingReading = null;
+                let pendingTimestamp = null;
+                
+                for (let i = 0; i < binReadings.length; i++) {
+                    const reading = binReadings[i];
+                    const currentState = (reading.state || reading.State || '').trim().toUpperCase();
+                    const currentTimestamp = reading.timestamp;
+                    
+                    if (lastValidState === null) {
+                        validReadings.push(reading);
+                        lastValidState = currentState;
+                        lastValidTimestamp = currentTimestamp;
+                        pendingReading = null;
+                        pendingTimestamp = null;
+                    } else if (currentState === lastValidState) {
+                        validReadings.push(reading);
+                        lastValidTimestamp = currentTimestamp;
+                        pendingReading = null;
+                        pendingTimestamp = null;
+                    } else {
+                        if (pendingReading === null) {
+                            pendingReading = reading;
+                            pendingTimestamp = currentTimestamp;
+                        } else if ((reading.state || reading.State || '').trim().toUpperCase() === 
+                                   (pendingReading.state || pendingReading.State || '').trim().toUpperCase()) {
+                            const timeSincePending = currentTimestamp - pendingTimestamp;
+                            
+                            if (timeSincePending >= debounceMs) {
+                                validReadings.push(pendingReading);
+                                validReadings.push(reading);
+                                lastValidState = currentState;
+                                lastValidTimestamp = currentTimestamp;
+                                pendingReading = null;
+                                pendingTimestamp = null;
+                            }
+                        } else {
+                            validReadings.push(reading);
+                            lastValidTimestamp = currentTimestamp;
+                            pendingReading = null;
+                            pendingTimestamp = null;
+                        }
+                    }
+                }
+                
+                if (pendingReading !== null) {
+                    const now = new Date();
+                    const timeSincePending = now - pendingTimestamp;
+                    
+                    if (timeSincePending >= debounceMs) {
+                        validReadings.push(pendingReading);
+                    }
+                }
+                
+                filteredReadings.push(...validReadings);
+            });
+            
+            return filteredReadings;
+        }
+
         function getLatestBinStatus(data) {
             const binMap = new Map();
             
@@ -953,7 +1226,7 @@
                 const mac = row.mac || row.MAC;
                 if (!mac) return;
                 
-                const timestamp = parseTimestamp(row.Timestamp || row.timestamp);
+                const timestamp = row.timestamp;
                 
                 if (!binMap.has(mac) || timestamp > binMap.get(mac).timestamp) {
                     binMap.set(mac, {
@@ -997,7 +1270,8 @@
                             timestamp: parseTimestamp(row.Timestamp || row.timestamp)
                         }));
                         
-                        latestBins = getLatestBinStatus(results.data);
+                        applyFilters();
+                        
                         populateBinSelector();
                         displayCurrentView();
                         
@@ -1085,16 +1359,16 @@
         }
 
         function displayBins() {
-            let filteredBins = latestBins;
+            let displayBins = latestBins;
 
             if (currentFilter === 'in') {
-                filteredBins = filteredBins.filter(bin => isInArea(bin));
+                displayBins = displayBins.filter(bin => isInArea(bin));
             } else if (currentFilter === 'out') {
-                filteredBins = filteredBins.filter(bin => !isInArea(bin));
+                displayBins = displayBins.filter(bin => !isInArea(bin));
             }
 
             if (searchTerm) {
-                filteredBins = filteredBins.filter(bin => {
+                displayBins = displayBins.filter(bin => {
                     return Object.values(bin).some(value => 
                         String(value).toLowerCase().includes(searchTerm.toLowerCase())
                     );
@@ -1103,12 +1377,12 @@
 
             const binsGrid = document.getElementById('binsGrid');
             
-            if (filteredBins.length === 0) {
+            if (displayBins.length === 0) {
                 binsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No bins found</div>';
                 return;
             }
 
-            binsGrid.innerHTML = filteredBins.map(bin => {
+            binsGrid.innerHTML = displayBins.map(bin => {
                 const inArea = isInArea(bin);
                 const statusClass = inArea ? 'in' : 'out';
                 const statusText = inArea ? 'In Area' : 'Out of Area';
@@ -1136,7 +1410,6 @@
             document.getElementById('dashboardView').classList.add('hidden');
             document.getElementById('calendarView').classList.remove('hidden');
             
-            // Show/hide expand all button based on view
             const existingBtn = document.getElementById('expandAllBtn');
             if (existingBtn) {
                 existingBtn.remove();
@@ -1146,7 +1419,6 @@
                 displayMonthView();
             } else if (currentView === 'week') {
                 displayWeekView();
-                // Add expand all button after rendering
                 setTimeout(() => {
                     const calendarNav = document.querySelector('.calendar-nav');
                     if (calendarNav && !document.getElementById('expandAllBtn')) {
@@ -1165,9 +1437,9 @@
 
         function getFilteredReadings() {
             if (selectedBin === 'all') {
-                return allReadings;
+                return filteredReadings;
             }
-            return allReadings.filter(r => (r.mac || r.MAC) === selectedBin);
+            return filteredReadings.filter(r => (r.mac || r.MAC) === selectedBin);
         }
 
         function displayMonthView() {
@@ -1282,7 +1554,6 @@
             html += '</div>';
             document.getElementById('calendarContent').innerHTML = html;
             
-            // Set initial max-height for expanded days only
             setTimeout(() => {
                 for (let i = 0; i < 7; i++) {
                     const eventsElement = document.getElementById(`week-events-${i}`);
@@ -1299,13 +1570,11 @@
             const headerElement = dayElement.querySelector('.week-day-header');
             
             if (eventsElement.classList.contains('collapsed')) {
-                // Expand
                 eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                 eventsElement.classList.remove('collapsed');
                 headerElement.classList.remove('collapsed');
                 dayElement.classList.remove('collapsed');
             } else {
-                // Collapse
                 eventsElement.style.maxHeight = '0';
                 eventsElement.classList.add('collapsed');
                 headerElement.classList.add('collapsed');
@@ -1314,7 +1583,6 @@
         }
 
         function toggleAllWeekDays() {
-            // Count how many days are collapsed
             let collapsedCount = 0;
             for (let i = 0; i < 7; i++) {
                 const eventsElement = document.getElementById(`week-events-${i}`);
@@ -1323,7 +1591,6 @@
                 }
             }
             
-            // If more than half are collapsed, expand all. Otherwise collapse all.
             const shouldExpand = collapsedCount >= 4;
             
             for (let i = 0; i < 7; i++) {
@@ -1334,13 +1601,11 @@
                 if (!dayElement || !eventsElement || !headerElement) continue;
                 
                 if (shouldExpand) {
-                    // Expand all
                     eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                     eventsElement.classList.remove('collapsed');
                     headerElement.classList.remove('collapsed');
                     dayElement.classList.remove('collapsed');
                 } else {
-                    // Collapse all
                     eventsElement.style.maxHeight = '0';
                     eventsElement.classList.add('collapsed');
                     headerElement.classList.add('collapsed');
@@ -1348,7 +1613,6 @@
                 }
             }
             
-            // Update button text
             const btn = document.getElementById('expandAllBtn');
             if (btn) {
                 btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
@@ -1401,39 +1665,38 @@
             const now = new Date();
             const textElement = document.getElementById('lastUpdatedText');
             if (textElement) {
-                textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
+                const filterInfo = STATE_CHANGE_DEBOUNCE_MINUTES > 0 ? 
+                    ` • Debounce: ${STATE_CHANGE_DEBOUNCE_MINUTES}min` : '';
+                textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s${filterInfo}`;
             }
         }
 
-        // Manual Refresh Function
         function manualRefresh() {
             loadData(true);
         }
 
-        // CSV Export Function
         function exportToCSV() {
             let dataToExport = [];
             let filename = '';
 
             if (currentView === 'dashboard') {
-                // Export current dashboard data
-                let filteredBins = latestBins;
+                let exportBins = latestBins;
                 
                 if (currentFilter === 'in') {
-                    filteredBins = filteredBins.filter(bin => isInArea(bin));
+                    exportBins = exportBins.filter(bin => isInArea(bin));
                 } else if (currentFilter === 'out') {
-                    filteredBins = filteredBins.filter(bin => !isInArea(bin));
+                    exportBins = exportBins.filter(bin => !isInArea(bin));
                 }
 
                 if (searchTerm) {
-                    filteredBins = filteredBins.filter(bin => {
+                    exportBins = exportBins.filter(bin => {
                         return Object.values(bin).some(value => 
                             String(value).toLowerCase().includes(searchTerm.toLowerCase())
                         );
                     });
                 }
 
-                dataToExport = filteredBins.map(bin => ({
+                dataToExport = exportBins.map(bin => ({
                     'Bin Name': bin.alias || bin.Alias || 'Unknown',
                     'MAC Address': bin.mac || bin.MAC || '',
                     'Status': isInArea(bin) ? 'IN' : 'OUT',
@@ -1444,7 +1707,6 @@
                 filename = `binspy-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
 
             } else {
-                // Export calendar view data
                 const readings = getFilteredReadings();
                 
                 if (currentView === 'month') {
@@ -1512,10 +1774,7 @@
                 return;
             }
 
-            // Convert to CSV
             const csv = Papa.unparse(dataToExport);
-            
-            // Create download link
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
@@ -1530,6 +1789,16 @@
 
         document.addEventListener('DOMContentLoaded', () => {
             loadData(false);
+
+            setTimeout(() => {
+                const content = document.getElementById('settingsContent');
+                const icon = document.getElementById('settingsIcon');
+                if (content && icon) {
+                    content.style.maxHeight = '0';
+                    content.classList.add('collapsed');
+                    icon.classList.add('collapsed');
+                }
+            }, 100);
 
             document.querySelectorAll('.view-btn').forEach(btn => {
                 btn.addEventListener('click', () => {
@@ -1590,7 +1859,6 @@
             });
         });
 
-        // Auto-refresh every 60 seconds
         setInterval(() => loadData(true), 60000);
     </script>
 </body>
