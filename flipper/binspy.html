@@ -978,6 +978,7 @@
                             <div class="setting-description">
                                 Minimum time (in minutes) a state must persist to be considered valid. 
                                 This filters out rapid IN/OUT flickering from weak signals.
+                                <strong>Note:</strong> Applies to Dashboard view only. Calendar views show all historical data.
                             </div>
                         </div>
                         <div class="setting-input">
@@ -1070,7 +1071,8 @@
         let MIN_RSSI = -100;
         
         let allReadings = [];
-        let filteredReadings = [];
+        let rssiFilteredReadings = [];  // RSSI filtered only (for calendar views)
+        let filteredReadings = [];       // RSSI + debounced (for dashboard)
         let latestBins = [];
         let currentView = 'dashboard';
         let currentFilter = 'all';
@@ -1118,8 +1120,13 @@
             const input = document.getElementById('minRSSI');
             MIN_RSSI = parseInt(input.value) || -100;
             
-            filteredReadings = filterByRSSI(allReadings);
-            filteredReadings = debounceStateChanges(filteredReadings);
+            // Apply RSSI filter only (for calendar views - shows all historical data)
+            rssiFilteredReadings = filterByRSSI(allReadings);
+            
+            // Apply RSSI + debouncing (for dashboard - shows stable states only)
+            filteredReadings = debounceStateChanges(rssiFilteredReadings);
+            
+            // Get latest status from debounced data
             latestBins = getLatestBinStatus(filteredReadings);
             
             displayCurrentView();
@@ -1436,10 +1443,12 @@
         }
 
         function getFilteredReadings() {
+            // Calendar views show ALL historical readings (RSSI filtered only)
+            // This preserves the complete history for analysis
             if (selectedBin === 'all') {
-                return filteredReadings;
+                return rssiFilteredReadings;
             }
-            return filteredReadings.filter(r => (r.mac || r.MAC) === selectedBin);
+            return rssiFilteredReadings.filter(r => (r.mac || r.MAC) === selectedBin);
         }
 
         function displayMonthView() {
@@ -1666,7 +1675,7 @@
             const textElement = document.getElementById('lastUpdatedText');
             if (textElement) {
                 const filterInfo = STATE_CHANGE_DEBOUNCE_MINUTES > 0 ? 
-                    ` • Debounce: ${STATE_CHANGE_DEBOUNCE_MINUTES}min` : '';
+                    ` • Debounce: ${STATE_CHANGE_DEBOUNCE_MINUTES}min (dashboard only)` : '';
                 textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s${filterInfo}`;
             }
         }
@@ -1707,6 +1716,7 @@
                 filename = `binspy-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
 
             } else {
+                // Calendar view exports use ALL historical readings (RSSI filtered only)
                 const readings = getFilteredReadings();
                 
                 if (currentView === 'month') {
