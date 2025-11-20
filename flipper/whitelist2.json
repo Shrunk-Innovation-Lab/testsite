@@ -1,0 +1,25 @@
+{
+  "version": 1763072043717,
+  "entries": [
+    {
+      "mac": "bc:57:29:05:7f:f0",
+      "alias": "240L General Waste",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:05:7f:7f",
+      "alias": "1100L General Waste",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:05:7f:f9",
+      "alias": "1100L Co-Mingled",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:05:7f:b5",
+      "alias": "1100L Cardboard",
+      "mfg_len": 25
+    }
+  ]
+}
