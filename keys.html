@@ -181,6 +181,42 @@
     .key-marker.freshness-old {
       border-color: #ef4444;
     }
+
+    /* Subtle marker drop animation */
+    @keyframes marker-drop {
+      0% {
+        transform: translateY(-20px) scale(0.9);
+        opacity: 0;
+      }
+      100% {
+        transform: translateY(0) scale(1);
+        opacity: 1;
+      }
+    }
+    .leaflet-marker-icon.key-drop {
+      animation: marker-drop 0.35s ease-out;
+      transform-origin: bottom center;
+    }
+
+    /* UX polish for cards/buttons */
+    .key-list-item {
+      transition: transform 0.15s ease, box-shadow 0.15s ease;
+    }
+    .key-list-item:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 18px rgba(15, 23, 42, 0.15);
+    }
+    .soft-button {
+      transition: transform 0.12s ease, box-shadow 0.12s ease, background-color 0.12s ease;
+    }
+    .soft-button:hover {
+      transform: translateY(-1px);
+      box-shadow: 0 6px 12px rgba(15, 23, 42, 0.12);
+    }
+    .soft-button:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 4px rgba(15, 23, 42, 0.16);
+    }
   </style>
 </head>
 <body class="text-black font-sans antialiased">
@@ -230,7 +266,7 @@
           
           <button 
             type="submit" 
-            class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition-colors"
+            class="soft-button w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition-colors"
           >
             Sign In
           </button>
@@ -294,7 +330,7 @@
             <button
               id="collapse-sidebar-btn"
               title="Collapse Sidebar"
-              class="p-2 text-gray-500 hover:bg-gray-200 rounded-full"
+              class="soft-button p-2 text-gray-500 hover:bg-gray-200 rounded-full"
               aria-label="Collapse sidebar"
             >
               <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
@@ -309,7 +345,7 @@
             <button
               id="logout-btn-desktop"
               title="Sign Out"
-              class="p-2 text-red-500 hover:bg-red-100 rounded-full ml-2"
+              class="soft-button p-2 text-red-500 hover:bg-red-100 rounded-full ml-2"
               aria-label="Sign out"
             >
               <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
@@ -333,19 +369,19 @@
         style="padding-top: calc(env(safe-area-inset-top) + 0.5rem); padding-bottom: 0.5rem;"
       >
         <div class="flex items-center space-x-3 pl-2">
-          <h1 class="text-lg font-bold text-gray-800">Keyzy Key Tracking</h1>
+          <h1 class="text-lg font-bold text-gray-800">Keyzy</h1>
         </div>
         <div class="flex items-center">
           <button
             id="open-filter-btn"
-            class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md"
+            class="soft-button p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md"
             aria-label="Open filters"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
           </button>
           <button
             id="logout-btn-mobile"
-            class="p-2 h-auto bg-transparent text-red-500 hover:bg-red-100 rounded-md ml-1"
+            class="soft-button p-2 h-auto bg-transparent text-red-500 hover:bg-red-100 rounded-md ml-1"
             aria-label="Sign out"
           >
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
@@ -360,7 +396,7 @@
         <button
           id="expand-sidebar-btn"
           title="Show Filters"
-          class="hidden absolute top-4 left-4 z-20 bg-white p-3 rounded-lg shadow-lg text-gray-600 hover:bg-gray-100 border border-gray-300 transition-all"
+          class="soft-button hidden absolute top-4 left-4 z-20 bg-white p-3 rounded-lg shadow-lg text-gray-600 hover:bg-gray-100 border border-gray-300 transition-all"
           aria-label="Show filters"
         >
           <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor"><path fill-rule="evenodd" d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z" clip-rule="evenodd" /></svg>
@@ -392,7 +428,7 @@
       >
         <div class="flex justify-between items-center mb-4">
           <h2 class="text-xl font-semibold text-gray-800">Filters</h2>
-          <button id="close-filter-btn" class="p-2 h-auto bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-full" aria-label="Close filters">
+          <button id="close-filter-btn" class="soft-button p-2 h-auto bg-gray-200 text-gray-600 hover:bg-gray-300 rounded-full" aria-label="Close filters">
             <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" /></svg>
           </button>
         </div>
@@ -512,10 +548,6 @@
     let selectedKeyId = null;
     let selectedMarker = null;
     let filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
-
-    // playback state
-    let keyPathPlayback = null;   // { keyName, timeoutId }
-    let playbackMarker = null;    // moving marker during Play Movement
 
     // --- DOM Elements ---
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -672,8 +704,8 @@
             <input id="latest-only" name="latestOnly" type="checkbox" class="h-5 w-5 rounded-md border-gray-300 text-blue-600 focus:ring-blue-500" ${filters.latestOnly ? 'checked' : ''} />
           </div>
           <div class="pt-4 space-y-3">
-            <button name="apply" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-blue-500 text-white hover:bg-blue-600 h-11 px-4 py-2 transition-colors shadow-sm">Find</button>
-            <button name="reset" class="w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 h-11 px-4 py-2 transition-colors">Reset</button>
+            <button name="apply" class="soft-button w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-blue-500 text-white hover:bg-blue-600 h-11 px-4 py-2 transition-colors shadow-sm">Find</button>
+            <button name="reset" class="soft-button w-full inline-flex items-center justify-center rounded-lg text-base font-semibold bg-gray-200 text-gray-700 hover:bg-gray-300 h-11 px-4 py-2 transition-colors">Reset</button>
           </div>
         </div>`;
     }
@@ -699,18 +731,9 @@
         </div>
       `;
 
-      const shareButtonHTML = isSelected ? `
-        <div class="mt-3 pt-3 border-t border-gray-200 grid grid-cols-1 gap-2">
-          <button
-            class="play-path-btn w-full flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
-            data-name="${esc(item.properties.name)}"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none">
-              <path d="M4 19L9 5L14 15L20 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Play Movement
-          </button>
-          <button class="message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
+      const footerHTML = isSelected ? `
+        <div class="mt-3 pt-3 border-t border-gray-200">
+          <button class="soft-button message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
             data-lat="${item.geometry.coordinates[1]}"
             data-lon="${item.geometry.coordinates[0]}"
             data-name="${esc(item.properties.name)}"
@@ -722,14 +745,14 @@
         </div>` : '';
 
       return `
-        <div class="key-list-item p-4 rounded-xl cursor-pointer transition-shadow duration-300 ${isSelected ? 'bg-white shadow-lg' : 'bg-white shadow-sm'}" data-key-id="${item.properties.__uid}">
+        <div class="key-list-item p-4 rounded-xl cursor-pointer bg-white shadow-sm" data-key-id="${item.properties.__uid}">
           <div class="flex items-center justify-between">
             <p class="font-semibold text-gray-800">Key ${esc(item.properties.name)}</p>
             ${subtitleHTML}
           </div>
           <p class="text-sm text-gray-600 truncate pt-1">${esc(item.properties.addresslabel || 'Address not available')}</p>
           <p class="text-xs text-gray-500 pt-1">${esc(dateStr)}</p>
-          ${shareButtonHTML}
+          ${footerHTML}
         </div>`;
     }
 
@@ -749,7 +772,7 @@
 
         document.querySelectorAll('.key-list-item').forEach(el => {
           el.addEventListener('click', (e) => {
-            if (e.target.closest('.message-btn') || e.target.closest('.play-path-btn')) return;
+            if (e.target.closest('.message-btn')) return;
             const uid = el.getAttribute('data-key-id');
             const key = allData.find(d => String(d.properties.__uid) === String(uid));
             if (key) {
@@ -762,14 +785,6 @@
 
         document.querySelectorAll('.message-btn').forEach(el => {
           el.addEventListener('click', handleMessageButtonClick);
-        });
-
-        document.querySelectorAll('.play-path-btn').forEach(el => {
-          el.addEventListener('click', (e) => {
-            e.stopPropagation();
-            const name = el.dataset.name;
-            playKeyPath(name);
-          });
         });
       } catch (err) {
         console.error('Error rendering key list:', err);
@@ -855,82 +870,6 @@
       }
     }
 
-    function stopKeyPathPlayback() {
-      if (keyPathPlayback && keyPathPlayback.timeoutId) {
-        clearTimeout(keyPathPlayback.timeoutId);
-      }
-      keyPathPlayback = null;
-
-      if (playbackMarker && pathLayer) {
-        pathLayer.removeLayer(playbackMarker);
-        playbackMarker = null;
-      }
-    }
-
-    function playKeyPath(keyName) {
-      if (!map) return;
-
-      // Toggle: if already playing this key, stop
-      if (keyPathPlayback && keyPathPlayback.keyName === String(keyName)) {
-        stopKeyPathPlayback();
-        return;
-      }
-
-      // Stop any previous playback
-      stopKeyPathPlayback();
-
-      const points = allData
-        .filter(d => String(d.properties.name) === String(keyName))
-        .sort((a, b) => new Date(toISO(a.properties.datetime)) - new Date(toISO(b.properties.datetime)));
-
-      if (!points.length) return;
-
-      let idx = 0;
-
-      // Create moving 🎯 marker if not present
-      if (!playbackMarker) {
-        const playbackIcon = L.divIcon({
-          html: '<div class="key-marker freshness-fresh selected-marker">🎯</div>',
-          className: '',
-          iconSize: [30, 30],
-          iconAnchor: [15, 30],
-          popupAnchor: [0, -25]
-        });
-
-        playbackMarker = L.marker(
-          [points[0].geometry.coordinates[1], points[0].geometry.coordinates[0]],
-          { icon: playbackIcon }
-        );
-        pathLayer.addLayer(playbackMarker);
-      }
-
-      const step = () => {
-        if (!keyPathPlayback) return; // cancelled
-
-        if (idx >= points.length) {
-          stopKeyPathPlayback();
-          return;
-        }
-
-        const it = points[idx];
-        const lat = it.geometry.coordinates[1];
-        const lon = it.geometry.coordinates[0];
-
-        playbackMarker.setLatLng([lat, lon]);
-        map.flyTo([lat, lon], 16, { duration: 0.75 });
-
-        idx += 1;
-        if (idx < points.length) {
-          keyPathPlayback.timeoutId = setTimeout(step, 900);
-        } else {
-          keyPathPlayback.timeoutId = setTimeout(() => stopKeyPathPlayback(), 900);
-        }
-      };
-
-      keyPathPlayback = { keyName: String(keyName), timeoutId: null };
-      step();
-    }
-
     function showToast(message) {
       toastEl.textContent = message;
       toastEl.classList.remove('hidden');
@@ -1009,9 +948,6 @@
 
     function runFilters(fitMapToBounds = true) {
       try {
-        // stop any ongoing playback when filters change
-        stopKeyPathPlayback();
-
         let data = [...allData];
 
         const dateInRange = (s, startISO, endISO) => {
@@ -1067,17 +1003,11 @@
       pathLayer.clearLayers();
       selectedMarker = null;
 
-      // keep playback marker layer attached
-      if (playbackMarker) {
-        const playbackIcon = playbackMarker.getIcon();
-        pathLayer.addLayer(playbackMarker);
-      }
-
       if (!data.length) return;
 
       const keyIcon = (freshnessClass, selected = false) => L.divIcon({
         html: `<div class="key-marker ${freshnessClass} ${selected ? 'selected-marker' : ''}">🔑</div>`,
-        className: '',
+        className: 'key-drop',
         iconSize: [30, 30],
         iconAnchor: [15, 30],
         popupAnchor: [0, -25]
