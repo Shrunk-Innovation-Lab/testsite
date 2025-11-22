@@ -549,7 +549,7 @@
     let playbackMarker = null;
     let playbackPolyline = null;
 
-    // holds the last filtered set that is actually on the map
+    // holds the last filtered set that is actually used for movement playback
     let lastFilteredData = [];
 
     // --- DOM Elements ---
@@ -597,12 +597,14 @@
       }
       const now = new Date();
       const diffMs = now - dt;
-      const diffHours = diffMs / 36e5;
-      const diffDays = diffMs / 86400000;
-      if (diffHours < 24) {
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHr = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+      if (diffHr < 24) {
         return { label: 'Today', className: 'freshness-fresh' };
       }
-      if (diffDays < 7) {
+      if (diffDay < 7) {
         return { label: 'Last 7 days', className: 'freshness-recent' };
       }
       return { label: '> 7 days ago', className: 'freshness-old' };
@@ -700,7 +702,7 @@
         </div>`;
     }
 
-    function createKeyListItem(item, isSelected) {
+    function createKeyListItem(item, isSelected, canPlayMovement) {
       const dateStr = fmtDate(item.properties.datetime);
       const freshness = getFreshness(item.properties.datetime);
       const relative = formatRelativeTime(item.properties.datetime);
@@ -721,17 +723,21 @@
         </div>
       `;
 
+      const movementButtonHTML = canPlayMovement ? `
+        <button
+          class="soft-button play-path-btn w-full flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+          data-name="${esc(item.properties.name)}"
+        >
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none">
+            <path d="M4 19L9 5L14 15L20 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          Play Movement
+        </button>
+      ` : '';
+
       const footerHTML = isSelected ? `
         <div class="mt-3 pt-3 border-t border-gray-200 grid grid-cols-1 gap-2">
-          <button
-            class="soft-button play-path-btn w-full flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
-            data-name="${esc(item.properties.name)}"
-          >
-            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none">
-              <path d="M4 19L9 5L14 15L20 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
-            </svg>
-            Play Movement
-          </button>
+          ${movementButtonHTML}
           <button class="soft-button message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
             data-lat="${item.geometry.coordinates[1]}"
             data-lon="${item.geometry.coordinates[0]}"
@@ -755,7 +761,7 @@
         </div>`;
     }
 
-    function renderKeyList(items) {
+    function renderKeyList(items, movementEligibleKeys = new Set()) {
       try {
         if (items.length === 0) {
           const noResultsHTML = `<div class="p-4 text-center text-gray-500">No keys found.</div>`;
@@ -764,7 +770,13 @@
           mobileListHeader.textContent = '0 Keys Found';
           return;
         }
-        const listHTML = `<div class="space-y-3 p-2">${items.map(item => createKeyListItem(item, item.properties.__uid === selectedKeyId)).join('')}</div>`;
+        const listHTML = `<div class="space-y-3 p-2">${items.map(item =>
+          createKeyListItem(
+            item,
+            item.properties.__uid === selectedKeyId,
+            movementEligibleKeys.has(String(item.properties.name))
+          )
+        ).join('')}</div>`;
         keyListDesktop.innerHTML = listHTML;
         keyListMobile.innerHTML = listHTML;
         mobileListHeader.textContent = `${items.length} Keys Found`;
@@ -998,7 +1010,7 @@
       // Stop any previous playback
       stopKeyPathPlayback();
 
-      // Use the same dataset that is currently shown on the map
+      // Use the dataset for current filters (before "latest only" compression)
       const source = (lastFilteredData && lastFilteredData.length) ? lastFilteredData : allData;
 
       let points = source.filter(row => String(row.properties.name) === String(keyName));
@@ -1091,7 +1103,7 @@
       const pathBounds = L.latLngBounds(latlngs);
       map.fitBounds(pathBounds, { padding: [40, 40], maxZoom: 16 });
 
-      // NEW: zoom in one extra level after fitBounds finishes
+      // zoom in one extra level after fitBounds finishes
       setTimeout(() => {
         if (!map) return;
         const currentZoom = map.getZoom();
@@ -1170,6 +1182,22 @@
         if (filters.endDate) data = data.filter(it => dateInRange(it.properties.datetime, null, filters.endDate));
         if (filters.keyset !== 'all') data = data.filter(it => String(it.properties.name) === String(filters.keyset));
 
+        // fullTrailData is used for movement eligibility + playback
+        const fullTrailData = [...data];
+
+        // Compute which keys have >1 unique coordinate in this filtered range
+        const coordMap = new Map();
+        for (const it of fullTrailData) {
+          const keyName = String(it.properties.name);
+          const coordStr = `${it.geometry.coordinates[1].toFixed(5)},${it.geometry.coordinates[0].toFixed(5)}`;
+          if (!coordMap.has(keyName)) coordMap.set(keyName, new Set());
+          coordMap.get(keyName).add(coordStr);
+        }
+        const movementEligibleKeys = new Set();
+        for (const [keyName, coords] of coordMap.entries()) {
+          if (coords.size > 1) movementEligibleKeys.add(keyName);
+        }
+
         if (filters.latestOnly) {
           const latest = new Map();
           for (const it of data) {
@@ -1184,9 +1212,10 @@
         // newest first for list
         data.sort((a, b) => new Date(toISO(b.properties.datetime)) - new Date(toISO(a.properties.datetime)));
 
-        lastFilteredData = data; // <- keep exactly what is shown on the map
+        // store full trail for playback
+        lastFilteredData = fullTrailData;
 
-        renderKeyList(data);
+        renderKeyList(data, movementEligibleKeys);
         updateMapData(data, fitMapToBounds);
       } catch (err) {
         console.error('Error during filtering:', err);
