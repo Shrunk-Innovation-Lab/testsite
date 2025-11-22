@@ -93,7 +93,11 @@
       text-shadow: 0 1px 3px rgba(0, 0, 0, 0.4);
     }
     #desktop-sidebar {
-      transition: transform 0.3s ease-in-out, width 0.3s ease-in-out;
+      transition: transform 0.3s ease-in-out;
+      overflow: hidden;
+    }
+    #desktop-sidebar.sidebar-collapsed {
+      transform: translateX(-100%);
     }
     #mobile-list-drawer {
       transition: transform 0.3s cubic-bezier(0.32, 0.72, 0, 1);
@@ -120,6 +124,12 @@
       25% { transform: translateX(-10px); }
       75% { transform: translateX(10px); }
     }
+    @media (min-width: 768px) {
+      #expand-sidebar-btn {
+        top: 1rem;
+        left: 1rem;
+      }
+    }
   </style>
 </head>
 <body class="text-black font-sans antialiased">
@@ -128,7 +138,7 @@
     <div class="w-full max-w-sm">
       <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
         <div class="text-center mb-8">
-          <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-16 w-16 mx-auto mb-4" />
+          <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-40 w-40 mx-auto mb-6" />
           <h1 class="text-3xl font-bold text-gray-800">Keyzy</h1>
           <p class="text-gray-600 mt-2">Please sign in to continue</p>
         </div>
@@ -173,7 +183,7 @@
         </form>
         
         <div class="mt-6 text-center text-xs text-gray-500">
-          <p>Secured Access Only</p>
+          <p>2025 | Shrunk Innovation Group Pty Ltd | All Rights Reserved</p>
         </div>
       </div>
     </div>
@@ -711,8 +721,14 @@
     }
 
     function toggleDesktopSidebar(show) {
-      if (show) { desktopSidebar.classList.remove('hidden'); expandBtn.classList.add('hidden'); }
-      else { desktopSidebar.classList.add('hidden'); expandBtn.classList.remove('hidden'); }
+      if (show) { 
+        desktopSidebar.classList.remove('sidebar-collapsed'); 
+        expandBtn.classList.add('hidden'); 
+      }
+      else { 
+        desktopSidebar.classList.add('sidebar-collapsed'); 
+        expandBtn.classList.remove('hidden'); 
+      }
       setTimeout(() => map && map.invalidateSize(), 310);
     }
     function setListDrawerState(collapsed) {
