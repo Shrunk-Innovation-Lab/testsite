@@ -549,6 +549,11 @@
     let selectedMarker = null;
     let filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
 
+    // movement playback state
+    let keyPathPlayback = null;   // { keyName, timeoutId }
+    let playbackMarker = null;
+    let playbackPolyline = null;
+
     // --- DOM Elements ---
     const loadingOverlay = document.getElementById('loading-overlay');
     const desktopSidebarWrapper = document.getElementById('desktop-sidebar-wrapper');
@@ -732,7 +737,16 @@
       `;
 
       const footerHTML = isSelected ? `
-        <div class="mt-3 pt-3 border-t border-gray-200">
+        <div class="mt-3 pt-3 border-t border-gray-200 grid grid-cols-1 gap-2">
+          <button
+            class="soft-button play-path-btn w-full flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+            data-name="${esc(item.properties.name)}"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none">
+              <path d="M4 19L9 5L14 15L20 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Play Movement
+          </button>
           <button class="soft-button message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
             data-lat="${item.geometry.coordinates[1]}"
             data-lon="${item.geometry.coordinates[0]}"
@@ -772,7 +786,7 @@
 
         document.querySelectorAll('.key-list-item').forEach(el => {
           el.addEventListener('click', (e) => {
-            if (e.target.closest('.message-btn')) return;
+            if (e.target.closest('.message-btn') || e.target.closest('.play-path-btn')) return;
             const uid = el.getAttribute('data-key-id');
             const key = allData.find(d => String(d.properties.__uid) === String(uid));
             if (key) {
@@ -785,6 +799,14 @@
 
         document.querySelectorAll('.message-btn').forEach(el => {
           el.addEventListener('click', handleMessageButtonClick);
+        });
+
+        document.querySelectorAll('.play-path-btn').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const name = el.dataset.name;
+            playKeyPath(name);
+          });
         });
       } catch (err) {
         console.error('Error rendering key list:', err);
@@ -900,6 +922,158 @@
       else { content.classList.add('translate-y-full'); setTimeout(() => drawer.classList.add('hidden'), 300); }
     }
 
+    // ---- Movement helpers ----
+    function distanceMeters(lat1, lon1, lat2, lon2) {
+      const R = 6371000; // metres
+      const toRad = d => d * Math.PI / 180;
+      const dLat = toRad(lat2 - lat1);
+      const dLon = toRad(lon2 - lon1);
+      const a =
+        Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+        Math.cos(toRad(lat1)) * Math.cos(toRad(lat2)) *
+        Math.sin(dLon / 2) * Math.sin(dLon / 2);
+      const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+      return R * c;
+    }
+
+    function stopKeyPathPlayback() {
+      if (keyPathPlayback && keyPathPlayback.timeoutId) {
+        clearTimeout(keyPathPlayback.timeoutId);
+      }
+      keyPathPlayback = null;
+
+      if (playbackMarker && pathLayer) {
+        pathLayer.removeLayer(playbackMarker);
+        playbackMarker = null;
+      }
+      if (playbackPolyline && pathLayer) {
+        pathLayer.removeLayer(playbackPolyline);
+        playbackPolyline = null;
+      }
+    }
+
+    function playKeyPath(keyName) {
+      if (!map) return;
+
+      // Toggle behaviour: if same key is playing, stop it.
+      if (keyPathPlayback && keyPathPlayback.keyName === String(keyName)) {
+        stopKeyPathPlayback();
+        return;
+      }
+
+      // Stop any previous playback
+      stopKeyPathPlayback();
+
+      // Build points for this key using the SAME coordinates as the map,
+      // and respecting the date filters. We ignore "latestOnly" so we can
+      // see the whole path within the date range.
+      let points = allData.filter(row => {
+        if (String(row.properties.name) !== String(keyName)) return false;
+
+        const dt = row.properties.datetime;
+        const iso = toISO(dt);
+        if (!iso) return false;
+        const dateOnly = iso.slice(0, 10);
+
+        if (filters.startDate && dateOnly < filters.startDate) return false;
+        if (filters.endDate && dateOnly > filters.endDate) return false;
+        return true;
+      });
+
+      if (!points.length) {
+        showToast('No movement data for this key in the selected date range.');
+        return;
+      }
+
+      // Sort oldest -> newest
+      points.sort((a, b) => new Date(toISO(a.properties.datetime)) - new Date(toISO(b.properties.datetime)));
+
+      // Deduplicate consecutive positions that are effectively the same
+      const deduped = [];
+      const SAME_POINT_THRESHOLD_METERS = 10; // treat as static if within 10m
+
+      for (const p of points) {
+        const lat = p.geometry.coordinates[1];
+        const lon = p.geometry.coordinates[0];
+        if (!deduped.length) {
+          deduped.push(p);
+        } else {
+          const last = deduped[deduped.length - 1];
+          const lastLat = last.geometry.coordinates[1];
+          const lastLon = last.geometry.coordinates[0];
+          const dist = distanceMeters(lat, lon, lastLat, lastLon);
+          if (dist > SAME_POINT_THRESHOLD_METERS) {
+            deduped.push(p);
+          }
+        }
+      }
+
+      if (deduped.length < 2) {
+        showToast('Not enough movement to play (only one unique position).');
+        return;
+      }
+
+      // Draw path line on map
+      const latlngs = deduped.map(p => [p.geometry.coordinates[1], p.geometry.coordinates[0]]);
+      playbackPolyline = L.polyline(latlngs, { color: '#0A84FF', weight: 3, opacity: 0.9 });
+      pathLayer.addLayer(playbackPolyline);
+
+      // Create moving marker
+      const playbackIcon = L.divIcon({
+        html: '<div class="key-marker freshness-fresh selected-marker">🎯</div>',
+        className: '',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -25]
+      });
+
+      playbackMarker = L.marker(latlngs[0], { icon: playbackIcon });
+      pathLayer.addLayer(playbackMarker);
+
+      let idx = 0;
+      const MOVE_INTERVAL = 900; // ms
+      const PAN_THRESHOLD_METERS = 30; // only pan map if movement bigger than this
+
+      const step = () => {
+        if (!keyPathPlayback) return; // playback cancelled
+
+        if (idx >= deduped.length) {
+          stopKeyPathPlayback();
+          return;
+        }
+
+        const point = deduped[idx];
+        const lat = point.geometry.coordinates[1];
+        const lon = point.geometry.coordinates[0];
+
+        // Move marker
+        const currentLatLng = playbackMarker.getLatLng();
+        const dist = distanceMeters(currentLatLng.lat, currentLatLng.lng, lat, lon);
+
+        playbackMarker.setLatLng([lat, lon]);
+
+        // Only move the map if distance is significant, so we avoid "bouncing"
+        if (dist > PAN_THRESHOLD_METERS) {
+          map.panTo([lat, lon], { animate: true, duration: 0.75 });
+        }
+
+        idx += 1;
+        if (idx < deduped.length) {
+          keyPathPlayback.timeoutId = setTimeout(step, MOVE_INTERVAL);
+        } else {
+          keyPathPlayback.timeoutId = setTimeout(() => stopKeyPathPlayback(), MOVE_INTERVAL);
+        }
+      };
+
+      keyPathPlayback = { keyName: String(keyName), timeoutId: null };
+
+      // Fit map to whole path once at the start
+      const pathBounds = L.latLngBounds(latlngs);
+      map.fitBounds(pathBounds, { padding: [40, 40], maxZoom: 16 });
+
+      step();
+    }
+
     async function fetchData() {
       loadingOverlay.style.opacity = '1';
       loadingOverlay.classList.remove('hidden');
@@ -948,6 +1122,9 @@
 
     function runFilters(fitMapToBounds = true) {
       try {
+        // If filters change, stop any playback so we don't animate against stale data
+        stopKeyPathPlayback();
+
         let data = [...allData];
 
         const dateInRange = (s, startISO, endISO) => {
@@ -1003,6 +1180,10 @@
       pathLayer.clearLayers();
       selectedMarker = null;
 
+      // Re-attach playback marker / polyline if playback is active
+      if (playbackPolyline) pathLayer.addLayer(playbackPolyline);
+      if (playbackMarker) pathLayer.addLayer(playbackMarker);
+
       if (!data.length) return;
 
       const keyIcon = (freshnessClass, selected = false) => L.divIcon({
@@ -1038,11 +1219,11 @@
         markersLayer.addLayer(m);
       });
 
-      // Draw path if a single keyset is selected and we have a trail
+      // Draw static path if a single keyset is selected and we have a trail
       if (filters.keyset !== 'all' && !filters.latestOnly && data.length > 1) {
         const pathData = [...data].sort((a, b) => new Date(toISO(a.properties.datetime)) - new Date(toISO(b.properties.datetime)));
         const latlngs = pathData.map(it => [it.geometry.coordinates[1], it.geometry.coordinates[0]]);
-        const polyline = L.polyline(latlngs, { color: '#0A84FF', weight: 3, opacity: 0.8 });
+        const polyline = L.polyline(latlngs, { color: '#0A84FF', weight: 3, opacity: 0.5 });
         pathLayer.addLayer(polyline);
       }
 
