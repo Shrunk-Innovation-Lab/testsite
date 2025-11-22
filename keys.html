@@ -6,6 +6,7 @@
   <meta name="apple-mobile-web-app-capable" content="yes" />
   <meta name="apple-mobile-web-app-status-bar-style" content="default" />
   <title>Keyzy Key Viewer</title>
+  <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
 
   <!-- Leaflet.js for Mapping -->
   <link
@@ -108,10 +109,77 @@
       50% {transform: scale(1.15)}
       100% {transform: scale(1)}
     }
+    #login-screen {
+      backdrop-filter: blur(10px);
+    }
+    .shake {
+      animation: shake 0.5s ease-in-out;
+    }
+    @keyframes shake {
+      0%, 100% { transform: translateX(0); }
+      25% { transform: translateX(-10px); }
+      75% { transform: translateX(10px); }
+    }
   </style>
 </head>
 <body class="text-black font-sans antialiased">
-  <div id="app" class="w-screen flex md:flex-row overflow-hidden bg-gray-100">
+  <!-- Login Screen -->
+  <div id="login-screen" class="fixed inset-0 bg-white/95 z-50 flex items-center justify-center p-4">
+    <div class="w-full max-w-sm">
+      <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+        <div class="text-center mb-8">
+          <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-16 w-16 mx-auto mb-4" />
+          <h1 class="text-3xl font-bold text-gray-800">Keyzy</h1>
+          <p class="text-gray-600 mt-2">Please sign in to continue</p>
+        </div>
+        
+        <form id="login-form" class="space-y-4">
+          <div>
+            <label for="username" class="block text-sm font-medium text-gray-700 mb-1">Username</label>
+            <input 
+              type="text" 
+              id="username" 
+              name="username" 
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter username"
+              autocomplete="username"
+              required
+            />
+          </div>
+          
+          <div>
+            <label for="password" class="block text-sm font-medium text-gray-700 mb-1">Password</label>
+            <input 
+              type="password" 
+              id="password" 
+              name="password" 
+              class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent"
+              placeholder="Enter password"
+              autocomplete="current-password"
+              required
+            />
+          </div>
+          
+          <div id="login-error" class="hidden text-sm text-red-600 bg-red-50 p-3 rounded-lg">
+            Invalid username or password
+          </div>
+          
+          <button 
+            type="submit" 
+            class="w-full bg-blue-500 text-white font-semibold py-3 rounded-lg hover:bg-blue-600 transition-colors"
+          >
+            Sign In
+          </button>
+        </form>
+        
+        <div class="mt-6 text-center text-xs text-gray-500">
+          <p>Secured Access Only</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <div id="app" class="w-screen flex md:flex-row overflow-hidden bg-gray-100 hidden">
     <!-- Loading Overlay -->
     <div
       id="loading-overlay"
@@ -175,6 +243,16 @@
               />
             </svg>
           </button>
+          <button
+            id="logout-btn-desktop"
+            title="Sign Out"
+            class="p-2 text-red-500 hover:bg-red-100 rounded-full ml-2"
+            aria-label="Sign out"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+            </svg>
+          </button>
         </div>
         <div id="filter-panel-desktop"></div>
       </div>
@@ -193,13 +271,24 @@
         <div class="flex items-center space-x-3 pl-2">
           <h1 class="text-lg font-bold text-gray-800">Keyzy</h1>
         </div>
-        <button
-          id="open-filter-btn"
-          class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md"
-          aria-label="Open filters"
-        >
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
-        </button>
+        <div class="flex items-center">
+          <button
+            id="open-filter-btn"
+            class="p-2 h-auto bg-transparent text-gray-600 hover:bg-gray-200 rounded-md"
+            aria-label="Open filters"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7" /></svg>
+          </button>
+          <button
+            id="logout-btn-mobile"
+            class="p-2 h-auto bg-transparent text-red-500 hover:bg-red-100 rounded-md ml-1"
+            aria-label="Sign out"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" viewBox="0 0 20 20" fill="currentColor">
+              <path fill-rule="evenodd" d="M3 3a1 1 0 00-1 1v12a1 1 0 102 0V4a1 1 0 00-1-1zm10.293 9.293a1 1 0 001.414 1.414l3-3a1 1 0 000-1.414l-3-3a1 1 0 10-1.414 1.414L14.586 9H7a1 1 0 100 2h7.586l-1.293 1.293z" clip-rule="evenodd" />
+            </svg>
+          </button>
+        </div>
       </header>
 
       <div class="flex-grow relative">
@@ -249,6 +338,81 @@
   </div>
 
   <script>
+    // --- AUTH CONFIG ---
+    // SECURITY WARNING: This is client-side auth and NOT secure!
+    // Anyone can view source and see credentials.
+    // For production, use server-side authentication.
+    const AUTH_CONFIG = {
+      users: [
+        { username: 'ISSGriffith', password: 'KeysISS2025' },
+        { username: 'Shrunk', password: 'Keyzy270479' }
+      ],
+      sessionKey: 'keyzy_auth_session',
+      sessionTimeout: 3600000 // 1 hour in milliseconds
+    };
+
+    // --- AUTH FUNCTIONS ---
+    function createSession() {
+      const session = {
+        authenticated: true,
+        timestamp: Date.now()
+      };
+      sessionStorage.setItem(AUTH_CONFIG.sessionKey, JSON.stringify(session));
+    }
+
+    function isAuthenticated() {
+      const sessionStr = sessionStorage.getItem(AUTH_CONFIG.sessionKey);
+      if (!sessionStr) return false;
+      
+      try {
+        const session = JSON.parse(sessionStr);
+        const now = Date.now();
+        const elapsed = now - session.timestamp;
+        
+        if (elapsed > AUTH_CONFIG.sessionTimeout) {
+          sessionStorage.removeItem(AUTH_CONFIG.sessionKey);
+          return false;
+        }
+        
+        return session.authenticated === true;
+      } catch (e) {
+        return false;
+      }
+    }
+
+    function logout() {
+      sessionStorage.removeItem(AUTH_CONFIG.sessionKey);
+      location.reload();
+    }
+
+    function handleLogin(e) {
+      e.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      const loginError = document.getElementById('login-error');
+      const loginForm = document.getElementById('login-form');
+      
+      // Check credentials against all valid users
+      const validUser = AUTH_CONFIG.users.find(user => 
+        user.username === username && user.password === password
+      );
+      
+      if (validUser) {
+        createSession();
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').classList.remove('hidden');
+        initializeApp();
+      } else {
+        loginError.classList.remove('hidden');
+        loginForm.classList.add('shake');
+        setTimeout(() => loginForm.classList.remove('shake'), 500);
+        
+        // Clear password field
+        document.getElementById('password').value = '';
+      }
+    }
+
     // Dynamic height for mobile browsers (reacts to address bar)
     const setAppHeight = () => {
       const doc = document.documentElement;
@@ -261,8 +425,6 @@
 
     // --- CONFIG ---
     const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
-
-    // second CSV source
     const EXTRA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSLBH5SwHiP1E9aeVe4Zc_zGAdwzRHIHJWrdyqzyhlIF--wEY3EAUSqukuWN1MRCTuWeY0-ZHfwCC7V/pub?output=csv';
 
     // MASTER list of all 87 keys we care about
@@ -320,7 +482,6 @@
         const [hh='00', mm='00', ss='00'] = (timePart || '').split(':');
         return `${y}-${m.padStart(2,'0')}-${d.padStart(2,'0')}T${hh.padStart(2,'0')}:${mm.padStart(2,'0')}:${ss.padStart(2,'0')}`;
       }
-      // assume already ISO-like
       return datePart + (timePart ? `T${timePart}` : '');
     }
 
@@ -346,7 +507,7 @@
       return {
         ...row,
         name: nameRaw,
-        id: idx, // temporary; we reassign later after merging
+        id: idx,
       };
     }
 
@@ -367,11 +528,6 @@
       };
     }
 
-    /**
-     * ===================================================================
-     * UI RENDERING & EVENT LISTENERS
-     * ===================================================================
-     */
     function createFilterContent(keysetOptions) {
       return `
         <div class="space-y-6">
@@ -507,6 +663,10 @@
       document.getElementById('close-filter-btn').addEventListener('click', () => toggleMobileDrawer(false));
       mobileDrawer.addEventListener('click', (e) => { if (e.target === mobileDrawer) toggleMobileDrawer(false); });
 
+      // Logout buttons
+      document.getElementById('logout-btn-desktop').addEventListener('click', logout);
+      document.getElementById('logout-btn-mobile').addEventListener('click', logout);
+
       // Mobile list handle tap/drag
       let touchStartY = 0;
       mobileListHandle.addEventListener('click', () => setListDrawerState(!mobileListDrawer.classList.contains('is-collapsed')));
@@ -566,11 +726,6 @@
       else { content.classList.add('translate-y-full'); setTimeout(() => drawer.classList.add('hidden'), 300); }
     }
 
-    /**
-     * ===================================================================
-     * DATA FETCHING & PROCESSING
-     * ===================================================================
-     */
     async function fetchData() {
       loadingOverlay.style.opacity = '1';
       loadingOverlay.classList.remove('hidden');
@@ -591,7 +746,7 @@
         // Merge
         const merged = [...mainRows, ...extraRows];
 
-        // Assign stable uid per row (source index)
+        // Assign stable uid per row
         merged.forEach((r, i) => (r.__uid = `row_${i}`));
 
         // Convert to features
@@ -631,7 +786,7 @@
         const dateInRange = (s, startISO, endISO) => {
           const iso = toISO(s);
           if (!iso) return false;
-          const d = iso.slice(0,10); // YYYY-MM-DD
+          const d = iso.slice(0,10);
           if (startISO && d < startISO) return false;
           if (endISO && d > endISO) return false;
           return true;
@@ -662,11 +817,6 @@
       }
     }
 
-    /**
-     * ===================================================================
-     * MAP INITIALIZATION & FUNCTIONS (USING LEAFLET.JS)
-     * ===================================================================
-     */
     function initializeMap() {
       try {
         map = L.map('map', { zoomControl: false }).setView(INITIAL_CENTER, INITIAL_ZOOM);
@@ -722,8 +872,23 @@
       }
     }
 
-    // --- KICKOFF ---
-    document.addEventListener('DOMContentLoaded', fetchData);
+    function initializeApp() {
+      fetchData();
+    }
+
+    // --- APP INITIALIZATION ---
+    document.addEventListener('DOMContentLoaded', () => {
+      // Check authentication
+      if (isAuthenticated()) {
+        document.getElementById('login-screen').style.display = 'none';
+        document.getElementById('app').classList.remove('hidden');
+        initializeApp();
+      } else {
+        // Show login screen
+        document.getElementById('login-form').addEventListener('submit', handleLogin);
+        document.getElementById('username').focus();
+      }
+    });
   </script>
 </body>
 </html>
