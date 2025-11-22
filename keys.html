@@ -265,17 +265,18 @@
     // second CSV source
     const EXTRA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSLBH5SwHiP1E9aeVe4Zc_zGAdwzRHIHJWrdyqzyhlIF--wEY3EAUSqukuWN1MRCTuWeY0-ZHfwCC7V/pub?output=csv';
 
-    // whitelist for keys from extra sheet
-    const INCLUDED_KEYS = new Set([
-      '163097',
-      '63104','63637','63143','63514','63103','63106','63142','63518','63439','63441','63486','63316','63491','63635','63654','63608','63632','63602','63191','63596','63378','63185','63614','63515','63628','63659'
-    ]);
-
-    
-    const AIRTAG_WHITELIST = new Set([
-      '70880','12924','63174','12889','63100','63679','63690','63645','70865','63685',
-      '63102','63578','63597','63288','63099','63287','12848','36855','12922',
-      '63096','63622','63077','63088','6147','163643'
+    // MASTER list of all 87 keys we care about
+    const MASTER_KEYS = new Set([
+      '6147','63261','63366','63370','63590','63594','63660','63704','63097',
+      '12848','63103','12889','66545','12922','63104','12924','36855','63077',
+      '63088','63096','66548','66550','63106','63142','63099','63100','63102',
+      '63146','63174','66559','63143','63185','63191','63287','63258','63316',
+      '63360','63288','70867','63578','63378','63380','63439','70349','70359',
+      '70361','70375','63441','70803','70819','70821','63597','70833','70853',
+      '70887','70888','72594','72596','63486','63491','63514','63622','63515',
+      '63518','63596','63602','63608','63614','63628','63632','63635','63637',
+      '63650','70891','70864','72599','63623','63645','63679','63685','72607',
+      '163643','63654','63659','63690','70865','70880'
     ]);
 
     const INITIAL_CENTER = [-28.0167, 153.4];
@@ -353,11 +354,6 @@
       const lat = parseFloat(row.locationlatitude);
       const lon = parseFloat(row.locationlongitude);
       return !isNaN(lat) && !isNaN(lon);
-    }
-
-    function keyIsInRange(row) {
-      const n = parseInt(row.name, 10);
-      return !isNaN(n) && n >= 60000 && n < 80000;
     }
 
     function createFeature(row) {
@@ -588,14 +584,9 @@
         let mainRows = mainRowsRaw.map(normalizeRow);
         let extraRows = extraRowsRaw.map(normalizeRow);
 
-        // From the EXTRA sheet include ONLY whitelisted keys + valid coordinates
-        extraRows = extraRows.filter(r => INCLUDED_KEYS.has(String(r.name)) && validGeo(r));
-
-        // From the MAIN sheet include normal range keys OR whitelisted Airtags + valid coordinates
-        mainRows = mainRows.filter(r =>
-          (keyIsInRange(r) || AIRTAG_WHITELIST.has(String(r.name))) &&
-          validGeo(r)
-        );
+        // Keep only our master keys with valid coordinates
+        mainRows = mainRows.filter(r => MASTER_KEYS.has(String(r.name)) && validGeo(r));
+        extraRows = extraRows.filter(r => MASTER_KEYS.has(String(r.name)) && validGeo(r));
 
         // Merge
         const merged = [...mainRows, ...extraRows];
