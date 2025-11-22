@@ -815,29 +815,72 @@
 
     function setupEventListeners() {
       const filterForms = [filterPanelDesktop, filterPanelMobile];
+
       filterForms.forEach(container => {
+        if (!container) return;
+
         const applyBtn = container.querySelector('button[name="apply"]');
         const resetBtn = container.querySelector('button[name="reset"]');
 
+        const startInput = container.querySelector('[name="startDate"]');
+        const endInput = container.querySelector('[name="endDate"]');
+        const latestCheckbox = container.querySelector('[name="latestOnly"]');
+        const keysetSelect = container.querySelector('[name="keyset"]');
+
+        // --- AUTO TOGGLE LATEST ONLY ---
+        function updateLatestToggle() {
+          const hasStart = startInput && startInput.value;
+          const hasEnd = endInput && endInput.value;
+
+          if (!latestCheckbox) return;
+
+          if (hasStart || hasEnd) {
+            latestCheckbox.checked = false;   // auto-disable when any date is set
+          } else {
+            latestCheckbox.checked = true;    // auto-enable when both dates cleared
+          }
+        }
+
+        if (startInput) {
+          startInput.addEventListener('change', updateLatestToggle);
+        }
+        if (endInput) {
+          endInput.addEventListener('change', updateLatestToggle);
+        }
+
+        // --- APPLY ---
         if (applyBtn) {
           applyBtn.addEventListener('click', () => {
             selectedKeyId = null;
-            filters.startDate = container.querySelector('[name="startDate"]').value || null;
-            filters.endDate = container.querySelector('[name="endDate"]').value || null;
-            filters.keyset = container.querySelector('[name="keyset"]').value;
-            filters.latestOnly = container.querySelector('[name="latestOnly"]').checked;
+
+            filters.startDate = startInput && startInput.value ? startInput.value : null;
+            filters.endDate = endInput && endInput.value ? endInput.value : null;
+            filters.keyset = keysetSelect ? keysetSelect.value : 'all';
+            filters.latestOnly = latestCheckbox ? latestCheckbox.checked : true;
+
             runFilters();
+
             if (container.id === 'filter-panel-mobile') toggleMobileDrawer(false);
           });
         }
+
+        // --- RESET ---
         if (resetBtn) {
           resetBtn.addEventListener('click', () => {
             selectedKeyId = null;
-            container.querySelector('[name="startDate"]').value = '';
-            container.querySelector('[name="endDate"]').value = '';
-            container.querySelector('[name="keyset"]').value = 'all';
-            container.querySelector('[name="latestOnly"]').checked = true;
-            filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
+
+            if (startInput) startInput.value = '';
+            if (endInput) endInput.value = '';
+            if (keysetSelect) keysetSelect.value = 'all';
+            if (latestCheckbox) latestCheckbox.checked = true;
+
+            filters = {
+              startDate: null,
+              endDate: null,
+              keyset: 'all',
+              latestOnly: true
+            };
+
             runFilters();
           });
         }
@@ -964,9 +1007,7 @@
       // Stop any previous playback
       stopKeyPathPlayback();
 
-      // Build points for this key using the SAME coordinates as the map,
-      // and respecting the date filters. We ignore "latestOnly" so we can
-      // see the whole path within the date range.
+      // Build points for this key using same coordinates and respecting date filters
       let points = allData.filter(row => {
         if (String(row.properties.name) !== String(keyName)) return false;
 
@@ -1046,13 +1087,11 @@
         const lat = point.geometry.coordinates[1];
         const lon = point.geometry.coordinates[0];
 
-        // Move marker
         const currentLatLng = playbackMarker.getLatLng();
         const dist = distanceMeters(currentLatLng.lat, currentLatLng.lng, lat, lon);
 
         playbackMarker.setLatLng([lat, lon]);
 
-        // Only move the map if distance is significant, so we avoid "bouncing"
         if (dist > PAN_THRESHOLD_METERS) {
           map.panTo([lat, lon], { animate: true, duration: 0.75 });
         }
@@ -1067,7 +1106,6 @@
 
       keyPathPlayback = { keyName: String(keyName), timeoutId: null };
 
-      // Fit map to whole path once at the start
       const pathBounds = L.latLngBounds(latlngs);
       map.fitBounds(pathBounds, { padding: [40, 40], maxZoom: 16 });
 
