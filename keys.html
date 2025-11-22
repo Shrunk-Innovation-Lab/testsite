@@ -87,6 +87,7 @@
       background: #aadaff;
     }
 
+    /* Marker / cluster emoji base class (kept for compatibility) */
     .emoji-marker {
       background: transparent;
       border: none;
@@ -460,17 +461,14 @@
     function isAuthenticated() {
       const sessionStr = sessionStorage.getItem(AUTH_CONFIG.sessionKey);
       if (!sessionStr) return false;
-      
       try {
         const session = JSON.parse(sessionStr);
         const now = Date.now();
         const elapsed = now - session.timestamp;
-        
         if (elapsed > AUTH_CONFIG.sessionTimeout) {
           sessionStorage.removeItem(AUTH_CONFIG.sessionKey);
           return false;
         }
-        
         return session.authenticated === true;
       } catch (e) {
         return false;
@@ -484,16 +482,13 @@
 
     function handleLogin(e) {
       e.preventDefault();
-      
       const username = document.getElementById('username').value;
       const password = document.getElementById('password').value;
       const loginError = document.getElementById('login-error');
       const loginForm = document.getElementById('login-form');
-      
       const validUser = AUTH_CONFIG.users.find(user => 
         user.username === username && user.password === password
       );
-      
       if (validUser) {
         createSession();
         document.getElementById('login-screen').style.display = 'none';
@@ -554,6 +549,9 @@
     let playbackMarker = null;
     let playbackPolyline = null;
 
+    // holds the last filtered set that is actually on the map
+    let lastFilteredData = [];
+
     // --- DOM Elements ---
     const loadingOverlay = document.getElementById('loading-overlay');
     const desktopSidebarWrapper = document.getElementById('desktop-sidebar-wrapper');
@@ -597,30 +595,17 @@
           className: 'freshness-old',
         };
       }
-
       const now = new Date();
       const diffMs = now - dt;
       const diffHours = diffMs / 36e5;
       const diffDays = diffMs / 86400000;
-
       if (diffHours < 24) {
-        return {
-          label: 'Today',
-          className: 'freshness-fresh',
-        };
+        return { label: 'Today', className: 'freshness-fresh' };
       }
-
       if (diffDays < 7) {
-        return {
-          label: 'Last 7 days',
-          className: 'freshness-recent',
-        };
+        return { label: 'Last 7 days', className: 'freshness-recent' };
       }
-
-      return {
-        label: '> 7 days ago',
-        className: 'freshness-old',
-      };
+      return { label: '> 7 days ago', className: 'freshness-old' };
     }
 
     function formatRelativeTime(datetimeStr) {
@@ -998,6 +983,12 @@
     function playKeyPath(keyName) {
       if (!map) return;
 
+      // Require full path (not latest only) so movement matches visible data
+      if (filters.latestOnly) {
+        showToast('Turn off "Latest Location Only" to see movement for this key.');
+        return;
+      }
+
       // Toggle behaviour: if same key is playing, stop it.
       if (keyPathPlayback && keyPathPlayback.keyName === String(keyName)) {
         stopKeyPathPlayback();
@@ -1007,29 +998,20 @@
       // Stop any previous playback
       stopKeyPathPlayback();
 
-      // Build points for this key using same coordinates and respecting date filters
-      let points = allData.filter(row => {
-        if (String(row.properties.name) !== String(keyName)) return false;
+      // Use the same dataset that is currently shown on the map
+      const source = (lastFilteredData && lastFilteredData.length) ? lastFilteredData : allData;
 
-        const dt = row.properties.datetime;
-        const iso = toISO(dt);
-        if (!iso) return false;
-        const dateOnly = iso.slice(0, 10);
-
-        if (filters.startDate && dateOnly < filters.startDate) return false;
-        if (filters.endDate && dateOnly > filters.endDate) return false;
-        return true;
-      });
+      let points = source.filter(row => String(row.properties.name) === String(keyName));
 
       if (!points.length) {
-        showToast('No movement data for this key in the selected date range.');
+        showToast('No movement data for this key with the current filters.');
         return;
       }
 
       // Sort oldest -> newest
       points.sort((a, b) => new Date(toISO(a.properties.datetime)) - new Date(toISO(b.properties.datetime)));
 
-      // Deduplicate consecutive positions that are effectively the same
+      // Deduplicate very small movements to avoid bouncing on a static spot
       const deduped = [];
       const SAME_POINT_THRESHOLD_METERS = 10; // treat as static if within 10m
 
@@ -1054,7 +1036,7 @@
         return;
       }
 
-      // Draw path line on map
+      // Draw path line on map (matches markers one-for-one)
       const latlngs = deduped.map(p => [p.geometry.coordinates[1], p.geometry.coordinates[0]]);
       playbackPolyline = L.polyline(latlngs, { color: '#0A84FF', weight: 3, opacity: 0.9 });
       pathLayer.addLayer(playbackPolyline);
@@ -1191,6 +1173,8 @@
 
         // newest first for list
         data.sort((a, b) => new Date(toISO(b.properties.datetime)) - new Date(toISO(a.properties.datetime)));
+
+        lastFilteredData = data; // <- keep exactly what is shown on the map
 
         renderKeyList(data);
         updateMapData(data, fitMapToBounds);
