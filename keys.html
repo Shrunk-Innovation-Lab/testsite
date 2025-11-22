@@ -86,6 +86,7 @@
     .leaflet-container {
       background: #aadaff;
     }
+
     .emoji-marker {
       background: transparent;
       border: none;
@@ -125,9 +126,16 @@
       50% {transform: scale(1.15)}
       100% {transform: scale(1)}
     }
+
+    /* Login screen background */
     #login-screen {
-      backdrop-filter: blur(10px);
+      backdrop-filter: blur(4px);
+      background-image: url('/mnt/data/37ff4c08-905e-4f1a-8ff8-555d769383a0.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
     }
+
     .shake {
       animation: shake 0.5s ease-in-out;
     }
@@ -136,15 +144,55 @@
       25% { transform: translateX(-10px); }
       75% { transform: translateX(10px); }
     }
+
+    /* Freshness chips */
+    .freshness-fresh {
+      background-color: #dcfce7;
+      color: #166534;
+    }
+    .freshness-recent {
+      background-color: #fef9c3;
+      color: #854d0e;
+    }
+    .freshness-old {
+      background-color: #fee2e2;
+      color: #991b1b;
+    }
+
+    /* Map marker bubble with coloured ring */
+    .key-marker {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      width: 32px;
+      height: 32px;
+      border-radius: 9999px;
+      background: #ffffff;
+      border: 2px solid #e5e7eb;
+      box-shadow: 0 2px 4px rgba(0, 0, 0, 0.3);
+      font-size: 20px;
+    }
+    .key-marker.freshness-fresh {
+      border-color: #22c55e;
+    }
+    .key-marker.freshness-recent {
+      border-color: #eab308;
+    }
+    .key-marker.freshness-old {
+      border-color: #ef4444;
+    }
   </style>
 </head>
 <body class="text-black font-sans antialiased">
   <!-- Login Screen -->
-  <div id="login-screen" class="fixed inset-0 bg-white/95 z-50 flex items-center justify-center p-4">
+  <div
+    id="login-screen"
+    class="fixed inset-0 z-50 flex items-center justify-center p-4 bg-cover bg-center"
+  >
     <div class="w-full max-w-sm">
-      <div class="bg-white rounded-2xl shadow-xl p-8 border border-gray-200">
+      <div class="bg-white/95 backdrop-blur-md rounded-2xl shadow-xl p-8 border border-gray-200">
         <div class="text-center mb-8">
-          <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-40 w-40 mx-auto mb-6" />
+          <img src="https://i.imgur.com/wYN0A1f.png" alt="Logo" class="h-60 w-60 mx-auto mb-6" />
           <h1 class="text-3xl font-bold text-gray-800">Keyzy Key Tracking</h1>
           <p class="text-gray-600 mt-2">Please sign in to continue</p>
         </div>
@@ -244,19 +292,19 @@
               <h1 class="text-2xl font-bold text-gray-800 pt-4">Keyzy Key Tracking</h1>
             </div>
             <button
-                id="collapse-sidebar-btn"
-                title="Collapse Sidebar"
-                class="p-2 text-gray-500 hover:bg-gray-200 rounded-full"
-                aria-label="Collapse sidebar"
-              >
-                <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
-                  <path d="M21.97 15V9C21.97 4 19.97 2 14.97 2H8.97C3.97 2 1.97 4 1.97 9V15C1.97 20 3.97 22 8.97 22H14.97C19.97 22 21.97 20 21.97 15Z"
-                    stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M7.97 2V22"
-                    stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-                  <path d="M14.97 9.44L12.41 12L14.97 14.56"
-                    stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
-               </svg>
+              id="collapse-sidebar-btn"
+              title="Collapse Sidebar"
+              class="p-2 text-gray-500 hover:bg-gray-200 rounded-full"
+              aria-label="Collapse sidebar"
+            >
+              <svg viewBox="0 0 24 24" fill="none" class="h-5 w-5">
+                <path d="M21.97 15V9C21.97 4 19.97 2 14.97 2H8.97C3.97 2 1.97 4 1.97 9V15C1.97 20 3.97 22 8.97 22H14.97C19.97 22 21.97 20 21.97 15Z"
+                  stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M7.97 2V22"
+                  stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+                <path d="M14.97 9.44L12.41 12L14.97 14.56"
+                  stroke="#292D32" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round" />
+              </svg>
             </button>
             <button
               id="logout-btn-desktop"
@@ -355,9 +403,6 @@
 
   <script>
     // --- AUTH CONFIG ---
-    // SECURITY WARNING: This is client-side auth and NOT secure!
-    // Anyone can view source and see credentials.
-    // For production, use server-side authentication.
     const AUTH_CONFIG = {
       users: [
         { username: 'ISSGriffith', password: 'KeysISS2025' },
@@ -409,7 +454,6 @@
       const loginError = document.getElementById('login-error');
       const loginForm = document.getElementById('login-form');
       
-      // Check credentials against all valid users
       const validUser = AUTH_CONFIG.users.find(user => 
         user.username === username && user.password === password
       );
@@ -423,8 +467,6 @@
         loginError.classList.remove('hidden');
         loginForm.classList.add('shake');
         setTimeout(() => loginForm.classList.remove('shake'), 500);
-        
-        // Clear password field
         document.getElementById('password').value = '';
       }
     }
@@ -443,7 +485,6 @@
     const GOOGLE_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vRX2zaEdacqU0mDqiCDbvdJf9q9NgXLAhVOWwVMTdkBZG-mMU6f_GL-qWkp6x3ykijmTSAHLH150voJ/pub?output=csv';
     const EXTRA_SHEET_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSLBH5SwHiP1E9aeVe4Zc_zGAdwzRHIHJWrdyqzyhlIF--wEY3EAUSqukuWN1MRCTuWeY0-ZHfwCC7V/pub?output=csv';
 
-    // MASTER list of all 87 keys we care about
     const MASTER_KEYS = new Set([
       '6147','63261','63366','63370','63590','63594','63660','63704','63097',
       '12848','63103','12889','66545','12922','63104','12924','36855','63077',
@@ -505,6 +546,63 @@
     function fmtDate(s) {
       const dt = new Date(toISO(s));
       return isNaN(dt) ? 'N/A' : dt.toLocaleString(undefined, { dateStyle: 'medium', timeStyle: 'short' });
+    }
+
+    function getFreshness(datetimeStr) {
+      const dt = new Date(toISO(datetimeStr));
+      if (isNaN(dt)) {
+        return {
+          label: 'Unknown',
+          className: 'freshness-old',
+        };
+      }
+
+      const now = new Date();
+      const diffMs = now - dt;
+      const diffHours = diffMs / 36e5;
+      const diffDays = diffMs / 86400000;
+
+      if (diffHours < 24) {
+        return {
+          label: 'Today',
+          className: 'freshness-fresh',
+        };
+      }
+
+      if (diffDays < 7) {
+        return {
+          label: 'Last 7 days',
+          className: 'freshness-recent',
+        };
+      }
+
+      return {
+        label: '> 7 days ago',
+        className: 'freshness-old',
+      };
+    }
+
+    function formatRelativeTime(datetimeStr) {
+      const dt = new Date(toISO(datetimeStr));
+      if (isNaN(dt)) return 'Unknown time';
+
+      const now = new Date();
+      const diffMs = now - dt;
+      const diffSec = Math.floor(diffMs / 1000);
+      const diffMin = Math.floor(diffSec / 60);
+      const diffHr = Math.floor(diffMin / 60);
+      const diffDay = Math.floor(diffHr / 24);
+
+      if (diffSec < 60) return 'Just now';
+      if (diffMin < 60) return `${diffMin} min${diffMin !== 1 ? 's' : ''} ago`;
+      if (diffHr < 24) return `${diffHr} hour${diffHr !== 1 ? 's' : ''} ago`;
+      if (diffDay < 7) return `${diffDay} day${diffDay !== 1 ? 's' : ''} ago`;
+
+      const weeks = Math.floor(diffDay / 7);
+      if (weeks < 4) return `${weeks} week${weeks !== 1 ? 's' : ''} ago`;
+
+      const months = Math.floor(diffDay / 30);
+      return `${months || 1} month${months !== 1 ? 's' : ''} ago`;
     }
 
     function parseCsv(url) {
@@ -578,12 +676,36 @@
 
     function createKeyListItem(item, isSelected) {
       const dateStr = fmtDate(item.properties.datetime);
+      const freshness = getFreshness(item.properties.datetime);
+      const relative = formatRelativeTime(item.properties.datetime);
+
       const locationType = item.properties.locationpositiontype
         ? item.properties.locationpositiontype.charAt(0).toUpperCase() + item.properties.locationpositiontype.slice(1).toLowerCase()
         : null;
-      const subtitleHTML = locationType ? `<span class="text-xs font-semibold text-blue-500 bg-blue-100 px-2 py-1 rounded-full">${esc(locationType)}</span>` : '';
+
+      const subtitleHTML = `
+        <div class="flex items-center space-x-2">
+          ${locationType
+            ? `<span class="text-xs font-semibold text-blue-500 bg-blue-100 px-2 py-1 rounded-full">${esc(locationType)}</span>`
+            : ''
+          }
+          <span class="text-[11px] font-medium px-2 py-0.5 rounded-full ${freshness.className}">
+            ${esc(relative)}
+          </span>
+        </div>
+      `;
+
       const shareButtonHTML = isSelected ? `
-        <div class="mt-3 pt-3 border-t border-gray-200">
+        <div class="mt-3 pt-3 border-t border-gray-200 grid grid-cols-1 gap-2">
+          <button
+            class="play-path-btn w-full flex items-center justify-center text-sm font-semibold text-gray-700 hover:bg-gray-100 p-2 rounded-lg transition-colors"
+            data-name="${esc(item.properties.name)}"
+          >
+            <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4 mr-2" viewBox="0 0 24 24" fill="none">
+              <path d="M4 19L9 5L14 15L20 7" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            Play Movement
+          </button>
           <button class="message-btn w-full flex items-center justify-center text-sm font-semibold text-blue-500 hover:bg-blue-50 p-2 rounded-lg transition-colors"
             data-lat="${item.geometry.coordinates[1]}"
             data-lon="${item.geometry.coordinates[0]}"
@@ -623,7 +745,7 @@
 
         document.querySelectorAll('.key-list-item').forEach(el => {
           el.addEventListener('click', (e) => {
-            if (e.target.closest('.message-btn')) return;
+            if (e.target.closest('.message-btn') || e.target.closest('.play-path-btn')) return;
             const uid = el.getAttribute('data-key-id');
             const key = allData.find(d => String(d.properties.__uid) === String(uid));
             if (key) {
@@ -636,6 +758,14 @@
 
         document.querySelectorAll('.message-btn').forEach(el => {
           el.addEventListener('click', handleMessageButtonClick);
+        });
+
+        document.querySelectorAll('.play-path-btn').forEach(el => {
+          el.addEventListener('click', (e) => {
+            e.stopPropagation();
+            const name = el.dataset.name;
+            playKeyPath(name);
+          });
         });
       } catch (err) {
         console.error('Error rendering key list:', err);
@@ -721,6 +851,34 @@
       }
     }
 
+    function playKeyPath(keyName) {
+      if (!map) return;
+
+      const points = allData
+        .filter(d => String(d.properties.name) === String(keyName))
+        .sort((a, b) => new Date(toISO(a.properties.datetime)) - new Date(toISO(b.properties.datetime)));
+
+      if (!points.length) return;
+
+      let idx = 0;
+
+      const step = () => {
+        if (idx >= points.length) return;
+        const it = points[idx];
+        const lat = it.geometry.coordinates[1];
+        const lon = it.geometry.coordinates[0];
+
+        map.flyTo([lat, lon], 16, { duration: 0.75 });
+
+        idx += 1;
+        if (idx < points.length) {
+          setTimeout(step, 900);
+        }
+      };
+
+      step();
+    }
+
     function showToast(message) {
       toastEl.textContent = message;
       toastEl.classList.remove('hidden');
@@ -760,27 +918,20 @@
           parseCsv(EXTRA_SHEET_URL)
         ]);
 
-        // Normalize
         let mainRows = mainRowsRaw.map(normalizeRow);
         let extraRows = extraRowsRaw.map(normalizeRow);
 
-        // Keep only our master keys with valid coordinates
         mainRows = mainRows.filter(r => MASTER_KEYS.has(String(r.name)) && validGeo(r));
         extraRows = extraRows.filter(r => MASTER_KEYS.has(String(r.name)) && validGeo(r));
 
-        // Merge
         const merged = [...mainRows, ...extraRows];
 
-        // Assign stable uid per row
         merged.forEach((r, i) => (r.__uid = `row_${i}`));
 
-        // Convert to features
         allData = merged
           .filter(r => r.datetime && r.name)
-          .sort((a, b) => new Date(toISO(b.datetime)) - new Date(toISO(a.datetime)))
           .map(r => createFeature(r));
 
-        // Build keyset list from all data
         keysets = [...new Set(allData.map(item => item.properties.name))].sort((a, b) => {
           const numA = parseInt(a), numB = parseInt(b);
           return (!isNaN(numA) && !isNaN(numB)) ? numA - numB : String(a).localeCompare(String(b));
@@ -832,7 +983,7 @@
           data = Array.from(latest.values()).map(v => v.it);
         }
 
-        // Keep newest-first for list
+        // newest first for list
         data.sort((a, b) => new Date(toISO(b.properties.datetime)) - new Date(toISO(a.properties.datetime)));
 
         renderKeyList(data);
@@ -863,23 +1014,36 @@
 
       if (!data.length) return;
 
-      const keyIcon = (selected = false) => L.divIcon({
-        html: selected ? '🎯' : '🔑',
-        className: 'emoji-marker' + (selected ? ' selected-marker' : ''),
-        iconSize: [30, 30], iconAnchor: [15, 30], popupAnchor: [0, -25]
+      const keyIcon = (freshnessClass, selected = false) => L.divIcon({
+        html: `<div class="key-marker ${freshnessClass} ${selected ? 'selected-marker' : ''}">🔑</div>`,
+        className: '',
+        iconSize: [30, 30],
+        iconAnchor: [15, 30],
+        popupAnchor: [0, -25]
       });
 
       data.forEach(item => {
         const lat = item.geometry.coordinates[1];
         const lon = item.geometry.coordinates[0];
         const dateStr = fmtDate(item.properties.datetime);
+        const freshness = getFreshness(item.properties.datetime);
+        const relative = formatRelativeTime(item.properties.datetime);
+
         const popupContent = `
           <div class="p-2">
             <h3 class="font-bold text-base mb-1">Key ${esc(item.properties.name)}</h3>
             <p class="text-sm text-gray-600">${esc(item.properties.addresslabel || 'Address not available')}</p>
             <p class="text-xs text-gray-500 mt-1">${esc(dateStr)}</p>
+            <p class="text-[11px] mt-1 ${freshness.className} px-2 py-0.5 inline-block rounded-full">
+              ${esc(relative)}
+            </p>
           </div>`;
-        const m = L.marker([lat, lon], { icon: keyIcon(item.properties.__uid === selectedKeyId) }).bindPopup(popupContent);
+
+        const m = L.marker(
+          [lat, lon],
+          { icon: keyIcon(freshness.className, item.properties.__uid === selectedKeyId) }
+        ).bindPopup(popupContent);
+
         markersLayer.addLayer(m);
       });
 
@@ -903,13 +1067,11 @@
 
     // --- APP INITIALIZATION ---
     document.addEventListener('DOMContentLoaded', () => {
-      // Check authentication
       if (isAuthenticated()) {
         document.getElementById('login-screen').style.display = 'none';
         document.getElementById('app').classList.remove('hidden');
         initializeApp();
       } else {
-        // Show login screen
         document.getElementById('login-form').addEventListener('submit', handleLogin);
         document.getElementById('username').focus();
       }
@@ -917,3 +1079,4 @@
   </script>
 </body>
 </html>
+
