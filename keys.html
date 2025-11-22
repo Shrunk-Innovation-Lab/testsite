@@ -568,7 +568,7 @@
     const mobileListHandle = document.getElementById('mobile-list-handle');
 
     // --- Utils ---
-    const esc = (s='') => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39;'}[m]));
+    const esc = (s='') => String(s).replace(/[&<>"']/g, m => ({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;','\'':'&#39'}[m]));
 
     function toISO(s) {
       if (!s) return null;
@@ -774,7 +774,7 @@
           createKeyListItem(
             item,
             item.properties.__uid === selectedKeyId,
-            movementEligibleKeys.has(String(item.properties.name))
+            !filters.latestOnly && movementEligibleKeys.has(String(item.properties.name))
           )
         ).join('')}</div>`;
         keyListDesktop.innerHTML = listHTML;
