@@ -333,7 +333,7 @@
         style="padding-top: calc(env(safe-area-inset-top) + 0.5rem); padding-bottom: 0.5rem;"
       >
         <div class="flex items-center space-x-3 pl-2">
-          <h1 class="text-lg font-bold text-gray-800">Keyzy</h1>
+          <h1 class="text-lg font-bold text-gray-800">Keyzy Key Tracking</h1>
         </div>
         <div class="flex items-center">
           <button
@@ -512,6 +512,10 @@
     let selectedKeyId = null;
     let selectedMarker = null;
     let filters = { startDate: null, endDate: null, keyset: 'all', latestOnly: true };
+
+    // playback state
+    let keyPathPlayback = null;   // { keyName, timeoutId }
+    let playbackMarker = null;    // moving marker during Play Movement
 
     // --- DOM Elements ---
     const loadingOverlay = document.getElementById('loading-overlay');
@@ -851,8 +855,29 @@
       }
     }
 
+    function stopKeyPathPlayback() {
+      if (keyPathPlayback && keyPathPlayback.timeoutId) {
+        clearTimeout(keyPathPlayback.timeoutId);
+      }
+      keyPathPlayback = null;
+
+      if (playbackMarker && pathLayer) {
+        pathLayer.removeLayer(playbackMarker);
+        playbackMarker = null;
+      }
+    }
+
     function playKeyPath(keyName) {
       if (!map) return;
+
+      // Toggle: if already playing this key, stop
+      if (keyPathPlayback && keyPathPlayback.keyName === String(keyName)) {
+        stopKeyPathPlayback();
+        return;
+      }
+
+      // Stop any previous playback
+      stopKeyPathPlayback();
 
       const points = allData
         .filter(d => String(d.properties.name) === String(keyName))
@@ -862,20 +887,47 @@
 
       let idx = 0;
 
+      // Create moving 🎯 marker if not present
+      if (!playbackMarker) {
+        const playbackIcon = L.divIcon({
+          html: '<div class="key-marker freshness-fresh selected-marker">🎯</div>',
+          className: '',
+          iconSize: [30, 30],
+          iconAnchor: [15, 30],
+          popupAnchor: [0, -25]
+        });
+
+        playbackMarker = L.marker(
+          [points[0].geometry.coordinates[1], points[0].geometry.coordinates[0]],
+          { icon: playbackIcon }
+        );
+        pathLayer.addLayer(playbackMarker);
+      }
+
       const step = () => {
-        if (idx >= points.length) return;
+        if (!keyPathPlayback) return; // cancelled
+
+        if (idx >= points.length) {
+          stopKeyPathPlayback();
+          return;
+        }
+
         const it = points[idx];
         const lat = it.geometry.coordinates[1];
         const lon = it.geometry.coordinates[0];
 
+        playbackMarker.setLatLng([lat, lon]);
         map.flyTo([lat, lon], 16, { duration: 0.75 });
 
         idx += 1;
         if (idx < points.length) {
-          setTimeout(step, 900);
+          keyPathPlayback.timeoutId = setTimeout(step, 900);
+        } else {
+          keyPathPlayback.timeoutId = setTimeout(() => stopKeyPathPlayback(), 900);
         }
       };
 
+      keyPathPlayback = { keyName: String(keyName), timeoutId: null };
       step();
     }
 
@@ -957,6 +1009,9 @@
 
     function runFilters(fitMapToBounds = true) {
       try {
+        // stop any ongoing playback when filters change
+        stopKeyPathPlayback();
+
         let data = [...allData];
 
         const dateInRange = (s, startISO, endISO) => {
@@ -1011,6 +1066,12 @@
       markersLayer.clearLayers();
       pathLayer.clearLayers();
       selectedMarker = null;
+
+      // keep playback marker layer attached
+      if (playbackMarker) {
+        const playbackIcon = playbackMarker.getIcon();
+        pathLayer.addLayer(playbackMarker);
+      }
 
       if (!data.length) return;
 
@@ -1079,4 +1140,3 @@
   </script>
 </body>
 </html>
-
