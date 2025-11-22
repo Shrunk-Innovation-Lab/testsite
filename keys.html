@@ -1091,6 +1091,16 @@
       const pathBounds = L.latLngBounds(latlngs);
       map.fitBounds(pathBounds, { padding: [40, 40], maxZoom: 16 });
 
+      // NEW: zoom in one extra level after fitBounds finishes
+      setTimeout(() => {
+        if (!map) return;
+        const currentZoom = map.getZoom();
+        const targetZoom = Math.min(map.getMaxZoom(), currentZoom + 1);
+        if (targetZoom > currentZoom) {
+          map.setZoom(targetZoom, { animate: true });
+        }
+      }, 400);
+
       step();
     }
 
@@ -1149,8 +1159,8 @@
 
         const dateInRange = (s, startISO, endISO) => {
           const iso = toISO(s);
-          if (!iso) return false;
-          const d = iso.slice(0,10);
+          const d = iso ? iso.slice(0,10) : null;
+          if (!d) return false;
           if (startISO && d < startISO) return false;
           if (endISO && d > endISO) return false;
           return true;
