@@ -42,21 +42,27 @@
       left: 0;
       top: 0;
       display: flex;
+      flex-direction: column;
       align-items: center;
-      gap: 1rem;
+      gap: 0.5rem;
     }
 
     .client-logo {
-      width: 60px;
-      height: 60px;
+      width: 80px;
+      height: 80px;
       object-fit: contain;
+      border-radius: 12px;
+      background: white;
+      padding: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
 
     .client-name {
-      font-size: 1.25rem;
+      font-size: 1rem;
       font-weight: 600;
       color: #1e293b;
       margin: 0;
+      text-align: center;
     }
 
     .header-content {
@@ -194,7 +200,7 @@
       font-weight: 600;
     }
 
-    .price-input {
+    .price-display {
       width: 100%;
       padding: 1rem 1rem 1rem 2.5rem;
       font-size: 2rem;
@@ -203,14 +209,9 @@
       border: 2px solid #e2e8f0;
       border-radius: 12px;
       background: #f8fafc;
-      transition: all 0.3s ease;
-    }
-
-    .price-input:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+      min-height: 4rem;
+      display: flex;
+      align-items: center;
     }
 
     .current-costs-section {
@@ -323,6 +324,29 @@
       border-color: #6366f1;
       background: white;
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-select {
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 180px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-select:hover {
+      border-color: #cbd5e1;
     }
 
     .add-site-btn {
@@ -477,7 +501,7 @@
         grid-template-columns: 1fr;
       }
 
-      .price-input {
+      .price-display {
         font-size: 1.5rem;
       }
 
@@ -522,18 +546,6 @@
     </div>
    </section>
    <section class="vendors-grid">
-    <article class="vendor-card" id="veolia-card">
-     <div class="vendor-header">
-      <div class="vendor-icon">
-       ♻️
-      </div>
-      <h2 class="vendor-name">Veolia</h2>
-     </div>
-     <div class="price-section"><label for="veolia-price" class="price-label">Annual Service Cost</label>
-      <div class="price-input-wrapper"><input type="number" id="veolia-price" class="price-input" value="0" min="0" step="100" aria-label="Veolia annual price">
-      </div>
-     </div>
-    </article>
     <article class="vendor-card" id="cleanaway-card">
      <div class="vendor-header">
       <div class="vendor-icon">
@@ -541,8 +553,32 @@
       </div>
       <h2 class="vendor-name">Cleanaway</h2>
      </div>
-     <div class="price-section"><label for="cleanaway-price" class="price-label">Annual Service Cost</label>
-      <div class="price-input-wrapper"><input type="number" id="cleanaway-price" class="price-input" value="0" min="0" step="100" aria-label="Cleanaway annual price">
+     <div class="price-section">
+      <div class="price-label">
+       Annual Service Cost
+      </div>
+      <div class="price-input-wrapper">
+       <div class="price-display" id="cleanaway-price" aria-label="Cleanaway annual price">
+        $0
+       </div>
+      </div>
+     </div>
+    </article>
+    <article class="vendor-card" id="veolia-card">
+     <div class="vendor-header">
+      <div class="vendor-icon">
+       ♻️
+      </div>
+      <h2 class="vendor-name">Veolia</h2>
+     </div>
+     <div class="price-section">
+      <div class="price-label">
+       Annual Service Cost
+      </div>
+      <div class="price-input-wrapper">
+       <div class="price-display" id="veolia-price" aria-label="Veolia annual price">
+        $0
+       </div>
       </div>
      </div>
     </article>
@@ -553,8 +589,14 @@
       </div>
       <h2 class="vendor-name">Remondis</h2>
      </div>
-     <div class="price-section"><label for="remondis-price" class="price-label">Annual Service Cost</label>
-      <div class="price-input-wrapper"><input type="number" id="remondis-price" class="price-input" value="0" min="0" step="100" aria-label="Remondis annual price">
+     <div class="price-section">
+      <div class="price-label">
+       Annual Service Cost
+      </div>
+      <div class="price-input-wrapper">
+       <div class="price-display" id="remondis-price" aria-label="Remondis annual price">
+        $0
+       </div>
       </div>
      </div>
     </article>
@@ -562,7 +604,7 @@
    <section class="sites-section">
     <div class="sites-header">
      <h2 class="sites-title">Site-by-Site Comparison</h2>
-     <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites"> <button class="add-site-btn" id="add-site-btn">+ Add Site</button>
+     <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites"> <select id="site-type-filter" class="filter-select" aria-label="Filter by site type"> <option value="">All Site Types</option> <option value="RV &amp; AC">RV &amp; AC</option> <option value="RV">RV</option> <option value="AC">AC</option> <option value="HPT">HPT</option> </select> <select id="waste-stream-filter" class="filter-select" aria-label="Filter by waste stream"> <option value="">All Waste Streams</option> <option value="General Waste">General Waste</option> <option value="Recycling">Recycling</option> <option value="Organics">Organics</option> <option value="Hazardous">Hazardous</option> </select> <select id="state-filter" class="filter-select" aria-label="Filter by state"> <option value="">All States</option> <option value="NSW">NSW</option> <option value="VIC">VIC</option> <option value="QLD">QLD</option> <option value="WA">WA</option> <option value="SA">SA</option> <option value="TAS">TAS</option> <option value="ACT">ACT</option> <option value="NT">NT</option> </select> <button class="add-site-btn" id="add-site-btn">+ Add Site</button>
      </div>
     </div>
     <div class="table-wrapper">
@@ -570,23 +612,24 @@
       <thead>
        <tr>
         <th>Site Name</th>
+        <th>State</th>
+        <th>Site Type</th>
+        <th>Waste Stream</th>
         <th>Current Cost</th>
-        <th>Veolia</th>
         <th>Cleanaway</th>
+        <th>Veolia</th>
         <th>Remondis</th>
-        <th>Actions</th>
        </tr>
       </thead>
       <tbody id="sites-tbody"><!-- Rows will be added here -->
       </tbody>
       <tfoot>
        <tr class="summary-row">
-        <td>Total</td>
+        <td colspan="4">Total</td>
         <td id="total-current">$0</td>
-        <td id="total-veolia">$0</td>
         <td id="total-cleanaway">$0</td>
+        <td id="total-veolia">$0</td>
         <td id="total-remondis">$0</td>
-        <td></td>
        </tr>
       </tfoot>
      </table>
@@ -610,14 +653,14 @@
     };
 
     let sites = [
-      { id: 1, name: 'Sydney Distribution Centre', current: 45000, veolia: 42000, cleanaway: 43500, remondis: 44200 },
-      { id: 2, name: 'Melbourne Warehouse', current: 38500, veolia: 36200, cleanaway: 37000, remondis: 38900 },
-      { id: 3, name: 'Brisbane Facility', current: 32000, veolia: 30500, cleanaway: 31200, remondis: 33100 },
-      { id: 4, name: 'Perth Operations', current: 28000, veolia: 26800, cleanaway: 27500, remondis: 28400 },
-      { id: 5, name: 'Adelaide Plant', current: 22500, veolia: 21000, cleanaway: 21800, remondis: 23200 }
+      { id: 1, name: "St Patrick's Green", state: 'NSW', siteType: 'RV & AC', wasteStream: 'General Waste', current: 65327.60, cleanaway: 32973.20, veolia: 32725.68, remondis: 29914.56 },
+      { id: 2, name: 'All Other Sites', state: 'Multiple', siteType: 'Various', wasteStream: 'Various', current: 1064294.60, cleanaway: 844629.45, veolia: 846234.66, remondis: 908007.19 }
     ];
-    let nextId = 6;
+    let nextId = 3;
     let searchTerm = '';
+    let siteTypeFilter = '';
+    let wasteStreamFilter = '';
+    let stateFilter = '';
 
     async function onConfigChange(config) {
       const baseFontStack = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -670,10 +713,10 @@
         label.style.color = secondaryActionColor;
       });
 
-      const priceInputs = document.querySelectorAll('.price-input');
-      priceInputs.forEach(input => {
-        input.style.fontSize = `${baseSize * 2}px`;
-        input.style.color = textColor;
+      const priceDisplays = document.querySelectorAll('.price-display');
+      priceDisplays.forEach(display => {
+        display.style.fontSize = `${baseSize * 2}px`;
+        display.style.color = textColor;
       });
 
       document.querySelector('.sites-title').style.fontSize = `${baseSize * 1.75}px`;
@@ -757,36 +800,36 @@
     }
 
     function formatCurrency(value) {
-      return '$' + Number(value).toLocaleString();
+      return '$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
     }
 
     function updateTotals() {
       const totalCurrent = sites.reduce((sum, site) => sum + (site.current || 0), 0);
-      const totalVeolia = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
       const totalCleanaway = sites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
       const totalRemondis = sites.reduce((sum, site) => sum + (site.remondis || 0), 0);
 
       document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
       document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
-      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
       document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
       document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
 
-      document.getElementById('veolia-price').value = totalVeolia;
-      document.getElementById('cleanaway-price').value = totalCleanaway;
-      document.getElementById('remondis-price').value = totalRemondis;
+      document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
+      document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
 
       updateBestPrice();
     }
 
     function updateBestPrice() {
-      const veoliaTotal = parseFloat(document.getElementById('veolia-price').value) || 0;
-      const cleanawayTotal = parseFloat(document.getElementById('cleanaway-price').value) || 0;
-      const remondisTotal = parseFloat(document.getElementById('remondis-price').value) || 0;
+      const cleanawayTotal = sites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const veoliaTotal = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const remondisTotal = sites.reduce((sum, site) => sum + (site.remondis || 0), 0);
 
       const cards = [
-        { price: veoliaTotal, card: document.getElementById('veolia-card') },
         { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
+        { price: veoliaTotal, card: document.getElementById('veolia-card') },
         { price: remondisTotal, card: document.getElementById('remondis-card') }
       ];
 
@@ -802,8 +845,8 @@
 
     function getBestVendorForSite(site) {
       const prices = [
-        { vendor: 'veolia', price: site.veolia || 0 },
         { vendor: 'cleanaway', price: site.cleanaway || 0 },
+        { vendor: 'veolia', price: site.veolia || 0 },
         { vendor: 'remondis', price: site.remondis || 0 }
       ];
 
@@ -818,9 +861,13 @@
       const tbody = document.getElementById('sites-tbody');
       const noResults = document.getElementById('no-results');
       
-      const filteredSites = sites.filter(site => 
-        site.name.toLowerCase().includes(searchTerm.toLowerCase())
-      );
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
+        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
+        const matchesState = !stateFilter || site.state === stateFilter;
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
+      });
 
       if (filteredSites.length === 0) {
         tbody.innerHTML = '';
@@ -839,20 +886,26 @@
             <td>
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="name">${site.name}</div>
             </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="state">${site.state}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="siteType">${site.siteType}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="wasteStream">${site.wasteStream}</div>
+            </td>
             <td class="price-cell ${bestVendor === null ? '' : ''}">
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="current">${formatCurrency(site.current)}</div>
-            </td>
-            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="veolia">${formatCurrency(site.veolia)}</div>
             </td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="cleanaway">${formatCurrency(site.cleanaway)}</div>
             </td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="veolia">${formatCurrency(site.veolia)}</div>
+            </td>
             <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="remondis">${formatCurrency(site.remondis)}</div>
-            </td>
-            <td>
-              <button class="delete-btn" data-site-id="${site.id}">Delete</button>
             </td>
           </tr>
         `;
@@ -873,10 +926,6 @@
         });
       });
 
-      const deleteButtons = document.querySelectorAll('.delete-btn');
-      deleteButtons.forEach(btn => {
-        btn.addEventListener('click', handleDelete);
-      });
     }
 
     function handleCellEdit(e) {
@@ -888,7 +937,7 @@
       const site = sites.find(s => s.id === siteId);
       if (!site) return;
 
-      if (field === 'name') {
+      if (field === 'name' || field === 'state' || field === 'siteType' || field === 'wasteStream') {
         site[field] = value;
       } else {
         value = value.replace(/[$,]/g, '');
@@ -901,20 +950,16 @@
       renderSites();
     }
 
-    function handleDelete(e) {
-      const siteId = parseInt(e.target.dataset.siteId);
-      sites = sites.filter(s => s.id !== siteId);
-      updateTotals();
-      renderSites();
-    }
-
     document.getElementById('add-site-btn').addEventListener('click', () => {
       sites.push({
         id: nextId++,
         name: 'New Site',
+        state: 'NSW',
+        siteType: 'RV & AC',
+        wasteStream: 'General Waste',
         current: 0,
-        veolia: 0,
         cleanaway: 0,
+        veolia: 0,
         remondis: 0
       });
       renderSites();
@@ -926,8 +971,23 @@
       renderSites();
     });
 
+    document.getElementById('site-type-filter').addEventListener('change', (e) => {
+      siteTypeFilter = e.target.value;
+      renderSites();
+    });
+
+    document.getElementById('waste-stream-filter').addEventListener('change', (e) => {
+      wasteStreamFilter = e.target.value;
+      renderSites();
+    });
+
+    document.getElementById('state-filter').addEventListener('change', (e) => {
+      stateFilter = e.target.value;
+      renderSites();
+    });
+
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3f3890c6a829b9',t:'MTc2NDA1MzUyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a444b84e1e1e682',t:'MTc2NDEwNjcyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
