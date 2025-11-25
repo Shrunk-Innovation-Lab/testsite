@@ -4,6 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Waste Management Tender Dashboard</title>
+  <link rel="icon" type="image/png" href="https://imgur.com/dZR7M8C.png">
   <script src="/_sdk/element_sdk.js"></script>
   <style>
     body {
@@ -455,6 +456,22 @@
     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
     <p>Compare vendor proposals and current costs across all sites</p>
    </header>
+   <section class="current-costs-section">
+    <div class="current-costs-header">
+     <div class="current-costs-icon">
+      💰
+     </div>
+     <h2 class="current-costs-title" id="current-costs-label">Current Annual Costs</h2>
+    </div>
+    <div class="current-total">
+     <div class="current-total-label">
+      Total Across All Sites
+     </div>
+     <div class="current-total-amount" id="current-total-amount">
+      $0
+     </div>
+    </div>
+   </section>
    <section class="vendors-grid">
     <article class="vendor-card" id="veolia-card">
      <div class="vendor-header">
@@ -492,22 +509,6 @@
       </div>
      </div>
     </article>
-   </section>
-   <section class="current-costs-section">
-    <div class="current-costs-header">
-     <div class="current-costs-icon">
-      💰
-     </div>
-     <h2 class="current-costs-title" id="current-costs-label">Current Annual Costs</h2>
-    </div>
-    <div class="current-total">
-     <div class="current-total-label">
-      Total Across All Sites
-     </div>
-     <div class="current-total-amount" id="current-total-amount">
-      $0
-     </div>
-    </div>
    </section>
    <section class="sites-section">
     <div class="sites-header">
@@ -873,5 +874,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3f15d443de29b9',t:'MTc2NDA1MjA5OS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3f2bb0c11fe682',t:'MTc2NDA1Mjk5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
