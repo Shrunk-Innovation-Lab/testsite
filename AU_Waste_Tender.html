@@ -29,12 +29,45 @@
     }
 
     .header {
-      text-align: center;
       margin-bottom: 3rem;
       position: relative;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 2rem;
     }
 
-    .header::before {
+    .client-branding {
+      position: absolute;
+      left: 0;
+      top: 0;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+    }
+
+    .client-logo {
+      width: 60px;
+      height: 60px;
+      object-fit: contain;
+    }
+
+    .client-name {
+      font-size: 1.25rem;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .header-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+    }
+
+    .header-content::before {
       content: '';
       position: absolute;
       top: -20px;
@@ -425,6 +458,17 @@
         padding: 2rem 1rem;
       }
 
+      .header {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .client-branding {
+        position: relative;
+        left: auto;
+        top: auto;
+      }
+
       .header h1 {
         font-size: 2rem;
       }
@@ -453,8 +497,13 @@
  <body>
   <div class="dashboard-wrapper">
    <header class="header">
-    <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
-    <p>Compare vendor proposals and current costs across all sites</p>
+    <div class="client-branding"><img src="https://i.imgur.com/t5J2nzS.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+     <h2 class="client-name">Australian Unity</h2>
+    </div>
+    <div class="header-content">
+     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
+     <p>Compare vendor proposals and current costs across all sites</p>
+    </div>
    </header>
    <section class="current-costs-section">
     <div class="current-costs-header">
@@ -593,6 +642,12 @@
       document.getElementById('current-costs-label').textContent = currentCostsLabel;
       document.getElementById('current-costs-label').style.fontSize = `${baseSize * 1.75}px`;
       document.getElementById('current-costs-label').style.color = textColor;
+
+      const clientName = document.querySelector('.client-name');
+      if (clientName) {
+        clientName.style.fontSize = `${baseSize * 1.25}px`;
+        clientName.style.color = textColor;
+      }
 
       const headerParagraph = document.querySelector('.header p');
       headerParagraph.style.fontSize = `${baseSize}px`;
@@ -874,5 +929,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3f2bb0c11fe682',t:'MTc2NDA1Mjk5NC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a3f3890c6a829b9',t:'MTc2NDA1MzUyMi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
