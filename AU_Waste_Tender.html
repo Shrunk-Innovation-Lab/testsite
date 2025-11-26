@@ -1151,30 +1151,39 @@
     }
 
     function updateTotals() {
-      const totalCurrent = sites.reduce((sum, site) => sum + (site.current || 0), 0);
-      const totalCleanaway = sites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
-      const totalVeolia = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
-      const totalRemondis = sites.reduce((sum, site) => sum + (site.remondis || 0), 0);
+      // Calculate totals from the filtered visible sites in the table
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
+      });
 
+      const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
+      const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = filteredSites.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const totalRemondis = filteredSites.reduce((sum, site) => sum + (site.remondis || 0), 0);
+
+      // Update the Current Annual Costs card
       document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
+      
+      // Update table footer totals
       document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
       document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
       document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
       document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
 
+      // Update vendor cards with totals from the table
       document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
       document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
       document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
 
-      updateBestPrice();
-      updateSavingsMeter();
+      updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
+      updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
     }
 
-    function updateBestPrice() {
-      const cleanawayTotal = sites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
-      const veoliaTotal = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
-      const remondisTotal = sites.reduce((sum, site) => sum + (site.remondis || 0), 0);
-
+    function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
       const cards = [
         { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
         { price: veoliaTotal, card: document.getElementById('veolia-card') },
@@ -1191,12 +1200,7 @@
       }
     }
 
-    function updateSavingsMeter() {
-      const totalCurrent = sites.reduce((sum, site) => sum + (site.current || 0), 0);
-      const totalCleanaway = sites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
-      const totalVeolia = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
-      const totalRemondis = sites.reduce((sum, site) => sum + (site.remondis || 0), 0);
-
+    function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
       const vendors = [
         { name: 'Cleanaway', price: totalCleanaway },
         { name: 'Veolia', price: totalVeolia },
@@ -1489,37 +1493,34 @@
         return;
       }
 
-      // Parse header row
-      const headers = lines[0].split(',').map(h => h.trim().toLowerCase());
-      
-      // Find column indices
-      const nameIdx = headers.findIndex(h => h.includes('site') || h.includes('name'));
-      const stateIdx = headers.findIndex(h => h.includes('state'));
-      const siteTypeIdx = headers.findIndex(h => h.includes('type'));
-      const wasteStreamIdx = headers.findIndex(h => h.includes('waste') || h.includes('stream'));
-      const currentIdx = headers.findIndex(h => h.includes('current'));
-      const cleanawayIdx = headers.findIndex(h => h.includes('cleanaway'));
-      const veoliaIdx = headers.findIndex(h => h.includes('veolia'));
-      const remondisIdx = headers.findIndex(h => h.includes('remondis'));
-
       let importedCount = 0;
       
-      // Parse data rows
+      // Parse data rows (skip header row)
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(',').map(v => v.trim());
+        // Split by comma but handle quoted values
+        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
         
-        if (values.length < 2) continue; // Skip empty rows
+        if (values.length < 13) continue; // Skip rows without enough columns
+        
+        // Fixed column positions based on data structure:
+        // Column 1: Site Name (index 1)
+        // Column 2: Site Type (index 2)
+        // Column 6: Waste Stream (index 6)
+        // Column 9: Cleanaway (index 9)
+        // Column 10: Veolia (index 10)
+        // Column 11: Remondis (index 11)
+        // Column 12: Current (index 12)
         
         const newSite = {
           id: nextId++,
-          name: nameIdx >= 0 ? values[nameIdx] : `Site ${nextId - 1}`,
-          state: stateIdx >= 0 ? values[stateIdx] : 'NSW',
-          siteType: siteTypeIdx >= 0 ? values[siteTypeIdx] : 'RV & AC',
-          wasteStream: wasteStreamIdx >= 0 ? values[wasteStreamIdx] : 'General Waste',
-          current: parseFloat((currentIdx >= 0 ? values[currentIdx] : '0').replace(/[$,]/g, '')) || 0,
-          cleanaway: parseFloat((cleanawayIdx >= 0 ? values[cleanawayIdx] : '0').replace(/[$,]/g, '')) || 0,
-          veolia: parseFloat((veoliaIdx >= 0 ? values[veoliaIdx] : '0').replace(/[$,]/g, '')) || 0,
-          remondis: parseFloat((remondisIdx >= 0 ? values[remondisIdx] : '0').replace(/[$,]/g, '')) || 0
+          name: values[1] || `Site ${nextId - 1}`,
+          state: 'NSW', // Default state - can be manually edited
+          siteType: values[2] || 'RV & AC',
+          wasteStream: values[6] || 'General Waste',
+          cleanaway: parseFloat((values[9] || '0').replace(/[$,]/g, '')) || 0,
+          veolia: parseFloat((values[10] || '0').replace(/[$,]/g, '')) || 0,
+          remondis: parseFloat((values[11] || '0').replace(/[$,]/g, '')) || 0,
+          current: parseFloat((values[12] || '0').replace(/[$,]/g, '')) || 0
         };
         
         sites.push(newSite);
@@ -1592,5 +1593,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a453610915f29a6',t:'MTc2NDExNjMzNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a45438f04cd29a6',t:'MTc2NDExNjg4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
