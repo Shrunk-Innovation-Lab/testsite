@@ -116,6 +116,45 @@
       letter-spacing: -0.5px;
     }
 
+    .nav-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tab:hover {
+      border-color: #6366f1;
+      color: #6366f1;
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
     .vendors-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -775,6 +814,12 @@
       font-size: 1rem;
     }
 
+    .service-description-cell {
+      max-width: 300px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
     @media (max-width: 768px) {
       .dashboard-wrapper {
         padding: 2rem 1rem;
@@ -834,186 +879,225 @@
     </div>
     <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
    </header>
-   <section class="current-costs-section">
-    <div class="client-branding"><img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
-    </div>
-    <div class="current-costs-header">
-     <div class="current-costs-icon">
-      💰
+   <nav class="nav-tabs"><button class="nav-tab active" data-page="summary">Summary View</button> <button class="nav-tab" data-page="services">Service Details</button>
+   </nav><!-- SUMMARY PAGE -->
+   <div class="page active" id="summary-page">
+    <section class="current-costs-section">
+     <div class="client-branding"><img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
      </div>
-     <h2 class="current-costs-title" id="current-costs-label">Current Annual Costs</h2>
-    </div>
-    <div class="current-total">
-     <div class="current-total-label">
-      Total Across All Sites
-     </div>
-     <div class="current-total-amount" id="current-total-amount">
-      $0
-     </div>
-    </div>
-    <div class="savings-section">
-     <div class="savings-header">
-      <div class="savings-title">
-       Savings on Current Costs
+     <div class="current-costs-header">
+      <div class="current-costs-icon">
+       💰
       </div>
-      <div class="savings-amount" id="savings-amount">
+      <h2 class="current-costs-title" id="current-costs-label">Current Annual Costs</h2>
+     </div>
+     <div class="current-total">
+      <div class="current-total-label">
+       Total Across All Sites
+      </div>
+      <div class="current-total-amount" id="current-total-amount">
        $0
       </div>
-      <div class="savings-vendor">
-       Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span>
-      </div>
      </div>
-     <div class="savings-meter">
-      <div class="meter-background">
-       <div class="meter-fill" id="meter-fill" style="width: 0%;"><span class="meter-percentage" id="meter-percentage">0%</span>
+     <div class="savings-section">
+      <div class="savings-header">
+       <div class="savings-title">
+        Savings on Current Costs
        </div>
-      </div>
-     </div>
-    </div>
-   </section>
-   <section class="vendors-grid">
-    <article class="vendor-card" id="cleanaway-card">
-     <div class="vendor-header"><img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
-     </div>
-     <div class="price-section">
-      <div class="price-label">
-       Annual Service Cost
-      </div>
-      <div class="price-input-wrapper">
-       <div class="price-display" id="cleanaway-price" aria-label="Cleanaway annual price">
+       <div class="savings-amount" id="savings-amount">
         $0
        </div>
+       <div class="savings-vendor">
+        Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span>
+       </div>
       </div>
-     </div>
-    </article>
-    <article class="vendor-card" id="veolia-card">
-     <div class="vendor-header"><img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
-     </div>
-     <div class="price-section">
-      <div class="price-label">
-       Annual Service Cost
-      </div>
-      <div class="price-input-wrapper">
-       <div class="price-display" id="veolia-price" aria-label="Veolia annual price">
-        $0
+      <div class="savings-meter">
+       <div class="meter-background">
+        <div class="meter-fill" id="meter-fill" style="width: 0%;"><span class="meter-percentage" id="meter-percentage">0%</span>
+        </div>
        </div>
       </div>
      </div>
-    </article>
-    <article class="vendor-card" id="remondis-card">
-     <div class="vendor-header"><img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
+    </section>
+    <section class="vendors-grid">
+     <article class="vendor-card" id="cleanaway-card">
+      <div class="vendor-header"><img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">
+        Annual Service Cost
+       </div>
+       <div class="price-input-wrapper">
+        <div class="price-display" id="cleanaway-price" aria-label="Cleanaway annual price">
+         $0
+        </div>
+       </div>
+      </div>
+     </article>
+     <article class="vendor-card" id="veolia-card">
+      <div class="vendor-header"><img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">
+        Annual Service Cost
+       </div>
+       <div class="price-input-wrapper">
+        <div class="price-display" id="veolia-price" aria-label="Veolia annual price">
+         $0
+        </div>
+       </div>
+      </div>
+     </article>
+     <article class="vendor-card" id="remondis-card">
+      <div class="vendor-header"><img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">
+        Annual Service Cost
+       </div>
+       <div class="price-input-wrapper">
+        <div class="price-display" id="remondis-price" aria-label="Remondis annual price">
+         $0
+        </div>
+       </div>
+      </div>
+     </article>
+    </section>
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Site-by-Site Comparison</h2>
+      <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites">
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by asset type"> <span id="site-type-label">All Asset Types</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="site-type-dropdown">
+         <div class="multi-select-option"><input type="checkbox" id="site-type-rv-ac" value="RV &amp; AC"> <label for="site-type-rv-ac">RV &amp; AC</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="site-type-rv" value="RV"> <label for="site-type-rv">RV</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="site-type-ac" value="AC"> <label for="site-type-ac">AC</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="site-type-hpt" value="HPT"> <label for="site-type-hpt">HPT</label>
+         </div>
+        </div>
+       </div>
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="waste-stream-button" aria-label="Filter by waste stream"> <span id="waste-stream-label">All Waste Streams</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="waste-stream-dropdown">
+         <div class="multi-select-option"><input type="checkbox" id="waste-general" value="General Waste"> <label for="waste-general">General Waste</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-recycling" value="Recycling"> <label for="waste-recycling">Recycling</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-organics" value="Organics"> <label for="waste-organics">Organics</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-hazardous" value="Hazardous"> <label for="waste-hazardous">Hazardous</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-various" value="Various"> <label for="waste-various">Various</label>
+         </div>
+        </div>
+       </div>
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="state-button" aria-label="Filter by state"> <span id="state-label">All States</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="state-dropdown">
+         <div class="multi-select-option"><input type="checkbox" id="state-nsw" value="NSW"> <label for="state-nsw">NSW</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-vic" value="VIC"> <label for="state-vic">VIC</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-qld" value="QLD"> <label for="state-qld">QLD</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-wa" value="WA"> <label for="state-wa">WA</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-sa" value="SA"> <label for="state-sa">SA</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-tas" value="TAS"> <label for="state-tas">TAS</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-act" value="ACT"> <label for="state-act">ACT</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-nt" value="NT"> <label for="state-nt">NT</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-multiple" value="Multiple"> <label for="state-multiple">Multiple</label>
+         </div>
+        </div>
+       </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="select-sites-btn" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"> <span id="select-count">0</span> Selected </button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
+       <div class="add-site-wrapper">
+        <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Site</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import Excel/CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Sites</span> </button> <button class="dropdown-item" id="delete-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>🗑️</span> <span>Delete All Sites</span> </button>
+        </div>
+       </div>
+       <div class="add-site-wrapper" style="position: relative;">
+        <div class="dropdown-menu" id="selection-dropdown" style="min-width: 220px;"><button class="dropdown-item" id="delete-selected-btn"> <span>🗑️</span> <span>Delete Selected</span> </button> <button class="dropdown-item" id="export-selected-btn"> <span>📊</span> <span>Export Selected to CSV</span> </button> <button class="dropdown-item" id="deselect-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>✖️</span> <span>Deselect All</span> </button>
+        </div>
+       </div><input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+      </div>
      </div>
-     <div class="price-section">
-      <div class="price-label">
-       Annual Service Cost
-      </div>
-      <div class="price-input-wrapper">
-       <div class="price-display" id="remondis-price" aria-label="Remondis annual price">
-        $0
-       </div>
+     <div class="table-wrapper">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 50px;"><input type="checkbox" id="select-all-sites" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;"></th>
+         <th>Site Name</th>
+         <th>State</th>
+         <th>Asset Type</th>
+         <th>Waste Stream</th>
+         <th>Current Cost</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+         <th id="actions-header" style="display: none;">Actions</th>
+        </tr>
+       </thead>
+       <tbody id="sites-tbody"><!-- Rows will be added here -->
+       </tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td></td>
+         <td colspan="4">Total</td>
+         <td id="total-current">$0</td>
+         <td id="total-cleanaway">$0</td>
+         <td id="total-veolia">$0</td>
+         <td id="total-remondis">$0</td>
+         <td id="actions-footer" style="display: none;"></td>
+        </tr>
+       </tfoot>
+      </table>
+     </div>
+     <div id="no-results" class="no-results" style="display: none;">
+      No sites match your search
+     </div>
+    </section>
+   </div><!-- SERVICES PAGE -->
+   <div class="page" id="services-page">
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Service Description Details</h2>
+      <div class="filter-section"><input type="text" id="service-search" class="search-input" placeholder="🔍 Search services or sites..." aria-label="Search services"> <select id="service-site-filter" class="filter-select"> <option value="">All Sites</option> </select> <button class="clear-filters-btn" id="clear-service-filters-btn">Clear Filters</button>
       </div>
      </div>
-    </article>
-   </section>
-   <section class="sites-section">
-    <div class="sites-header">
-     <h2 class="sites-title">Site-by-Site Comparison</h2>
-     <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites">
-      <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by asset type"> <span id="site-type-label">All Asset Types</span> <span>▼</span> </button>
-       <div class="multi-select-dropdown" id="site-type-dropdown">
-        <div class="multi-select-option"><input type="checkbox" id="site-type-rv-ac" value="RV &amp; AC"> <label for="site-type-rv-ac">RV &amp; AC</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="site-type-rv" value="RV"> <label for="site-type-rv">RV</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="site-type-ac" value="AC"> <label for="site-type-ac">AC</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="site-type-hpt" value="HPT"> <label for="site-type-hpt">HPT</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="site-type-various" value="Various"> <label for="site-type-various">Various</label>
-        </div>
-       </div>
-      </div>
-      <div class="multi-select-wrapper"><button class="multi-select-button" id="waste-stream-button" aria-label="Filter by waste stream"> <span id="waste-stream-label">All Waste Streams</span> <span>▼</span> </button>
-       <div class="multi-select-dropdown" id="waste-stream-dropdown">
-        <div class="multi-select-option"><input type="checkbox" id="waste-general" value="General Waste"> <label for="waste-general">General Waste</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="waste-recycling" value="Recycling"> <label for="waste-recycling">Recycling</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="waste-organics" value="Organics"> <label for="waste-organics">Organics</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="waste-hazardous" value="Hazardous"> <label for="waste-hazardous">Hazardous</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="waste-various" value="Various"> <label for="waste-various">Various</label>
-        </div>
-       </div>
-      </div>
-      <div class="multi-select-wrapper"><button class="multi-select-button" id="state-button" aria-label="Filter by state"> <span id="state-label">All States</span> <span>▼</span> </button>
-       <div class="multi-select-dropdown" id="state-dropdown">
-        <div class="multi-select-option"><input type="checkbox" id="state-nsw" value="NSW"> <label for="state-nsw">NSW</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-vic" value="VIC"> <label for="state-vic">VIC</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-qld" value="QLD"> <label for="state-qld">QLD</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-wa" value="WA"> <label for="state-wa">WA</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-sa" value="SA"> <label for="state-sa">SA</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-tas" value="TAS"> <label for="state-tas">TAS</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-act" value="ACT"> <label for="state-act">ACT</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-nt" value="NT"> <label for="state-nt">NT</label>
-        </div>
-        <div class="multi-select-option"><input type="checkbox" id="state-multiple" value="Multiple"> <label for="state-multiple">Multiple</label>
-        </div>
-       </div>
-      </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="select-sites-btn" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"> <span id="select-count">0</span> Selected </button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
-      <div class="add-site-wrapper">
-       <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Site</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import Excel/CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Sites</span> </button> <button class="dropdown-item" id="delete-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>🗑️</span> <span>Delete All Sites</span> </button>
-       </div>
-      </div>
-      <div class="add-site-wrapper" style="position: relative;">
-       <div class="dropdown-menu" id="selection-dropdown" style="min-width: 220px;"><button class="dropdown-item" id="delete-selected-btn"> <span>🗑️</span> <span>Delete Selected</span> </button> <button class="dropdown-item" id="export-selected-btn"> <span>📊</span> <span>Export Selected to CSV</span> </button> <button class="dropdown-item" id="deselect-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>✖️</span> <span>Deselect All</span> </button>
-       </div>
-      </div><input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display: none;">
+     <div class="table-wrapper">
+      <table>
+       <thead>
+        <tr>
+         <th>Site Name</th>
+         <th style="min-width: 250px;">Service Description</th>
+         <th>Current Cost</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+        </tr>
+       </thead>
+       <tbody id="services-tbody"><!-- Service rows will be added here -->
+       </tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td colspan="2">Total</td>
+         <td id="service-total-current">$0</td>
+         <td id="service-total-cleanaway">$0</td>
+         <td id="service-total-veolia">$0</td>
+         <td id="service-total-remondis">$0</td>
+        </tr>
+       </tfoot>
+      </table>
      </div>
-    </div>
-    <div class="table-wrapper">
-     <table>
-      <thead>
-       <tr>
-        <th style="width: 50px;"><input type="checkbox" id="select-all-sites" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;"></th>
-        <th>Site Name</th>
-        <th>State</th>
-        <th>Asset Type</th>
-        <th>Waste Stream</th>
-        <th>Current Cost</th>
-        <th>Cleanaway</th>
-        <th>Veolia</th>
-        <th>Remondis</th>
-        <th id="actions-header" style="display: none;">Actions</th>
-       </tr>
-      </thead>
-      <tbody id="sites-tbody"><!-- Rows will be added here -->
-      </tbody>
-      <tfoot>
-       <tr class="summary-row">
-        <td></td>
-        <td colspan="4">Total</td>
-        <td id="total-current">$0</td>
-        <td id="total-cleanaway">$0</td>
-        <td id="total-veolia">$0</td>
-        <td id="total-remondis">$0</td>
-        <td id="actions-footer" style="display: none;"></td>
-       </tr>
-      </tfoot>
-     </table>
-    </div>
-    <div id="no-results" class="no-results" style="display: none;">
-     No sites match your search
-    </div>
-   </section>
+     <div id="no-service-results" class="no-results" style="display: none;">
+      No services match your search
+     </div>
+    </section>
+   </div>
    <footer class="footer">
     <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
    </footer>
@@ -1032,6 +1116,7 @@
     };
 
     let sites = [];
+    let services = [];
     let nextId = 1;
     let searchTerm = '';
     let siteTypeFilters = new Set();
@@ -1039,6 +1124,8 @@
     let stateFilters = new Set();
     let deleteMode = false;
     let selectedSites = new Set();
+    let serviceSearchTerm = '';
+    let serviceSiteFilter = '';
 
     async function onConfigChange(config) {
       const baseFontStack = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -1091,8 +1178,10 @@
         display.style.color = textColor;
       });
 
-      document.querySelector('.sites-title').style.fontSize = `${baseSize * 1.75}px`;
-      document.querySelector('.sites-title').style.color = textColor;
+      document.querySelectorAll('.sites-title').forEach(title => {
+        title.style.fontSize = `${baseSize * 1.75}px`;
+        title.style.color = textColor;
+      });
 
       const thElements = document.querySelectorAll('th');
       thElements.forEach(th => {
@@ -1171,12 +1260,27 @@
       });
     }
 
+    // Page navigation
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const pages = document.querySelectorAll('.page');
+
+    navTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetPage = tab.dataset.page;
+        
+        navTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(`${targetPage}-page`).classList.add('active');
+      });
+    });
+
     function formatCurrency(value) {
       return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
     function updateTotals() {
-      // Calculate totals from FILTERED sites, or SELECTED sites if any are selected
       let sitesToCalculate = sites.filter(site => {
         const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
@@ -1185,7 +1289,6 @@
         return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
       });
 
-      // If sites are selected, only calculate totals for selected sites
       if (selectedSites.size > 0) {
         sitesToCalculate = sitesToCalculate.filter(site => selectedSites.has(site.id));
       }
@@ -1195,22 +1298,37 @@
       const totalVeolia = sitesToCalculate.reduce((sum, site) => sum + (site.veolia || 0), 0);
       const totalRemondis = sitesToCalculate.reduce((sum, site) => sum + (site.remondis || 0), 0);
 
-      // Update the Current Annual Costs card
       document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
-      
-      // Update table footer totals
       document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
       document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
       document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
       document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
 
-      // Update vendor cards
       document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
       document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
       document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
 
       updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
       updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
+    }
+
+    function updateServiceTotals() {
+      let servicesToCalculate = services.filter(service => {
+        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
+                             service.description.toLowerCase().includes(serviceSearchTerm.toLowerCase());
+        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
+        return matchesSearch && matchesSite;
+      });
+
+      const totalCurrent = servicesToCalculate.reduce((sum, service) => sum + (service.current || 0), 0);
+      const totalCleanaway = servicesToCalculate.reduce((sum, service) => sum + (service.cleanaway || 0), 0);
+      const totalVeolia = servicesToCalculate.reduce((sum, service) => sum + (service.veolia || 0), 0);
+      const totalRemondis = servicesToCalculate.reduce((sum, service) => sum + (service.remondis || 0), 0);
+
+      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
     }
 
     function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
@@ -1268,6 +1386,20 @@
         { vendor: 'cleanaway', price: site.cleanaway || 0 },
         { vendor: 'veolia', price: site.veolia || 0 },
         { vendor: 'remondis', price: site.remondis || 0 }
+      ];
+
+      const validPrices = prices.filter(p => p.price > 0);
+      if (validPrices.length === 0) return null;
+
+      const minPrice = Math.min(...validPrices.map(p => p.price));
+      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
+    }
+
+    function getBestVendorForService(service) {
+      const prices = [
+        { vendor: 'cleanaway', price: service.cleanaway || 0 },
+        { vendor: 'veolia', price: service.veolia || 0 },
+        { vendor: 'remondis', price: service.remondis || 0 }
       ];
 
       const validPrices = prices.filter(p => p.price > 0);
@@ -1344,6 +1476,50 @@
       updateSelectionUI();
     }
 
+    function renderServices() {
+      const tbody = document.getElementById('services-tbody');
+      const noResults = document.getElementById('no-service-results');
+      
+      const filteredServices = services.filter(service => {
+        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
+                             service.description.toLowerCase().includes(serviceSearchTerm.toLowerCase());
+        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
+        return matchesSearch && matchesSite;
+      });
+
+      if (filteredServices.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      tbody.innerHTML = filteredServices.map(service => {
+        const bestVendor = getBestVendorForService(service);
+        return `
+          <tr>
+            <td><strong>${service.siteName}</strong></td>
+            <td class="service-description-cell">${service.description}</td>
+            <td class="price-cell">${formatCurrency(service.current)}</td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      updateServiceTotals();
+    }
+
+    function updateSiteFilterDropdown() {
+      const select = document.getElementById('service-site-filter');
+      const uniqueSites = [...new Set(services.map(s => s.siteName))].sort();
+      
+      select.innerHTML = '<option value="">All Sites</option>' +
+        uniqueSites.map(site => `<option value="${site}">${site}</option>`).join('');
+    }
+
     function attachCellListeners() {
       const editableCells = document.querySelectorAll('.editable-cell');
       editableCells.forEach(cell => {
@@ -1402,7 +1578,6 @@
         selectBtn.style.display = 'none';
       }
 
-      // Update "Select All" checkbox state
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
@@ -1418,7 +1593,6 @@
       selectAllCheckbox.indeterminate = !allFilteredSelected && 
         filteredSites.some(site => selectedSites.has(site.id));
 
-      // Update totals whenever selection changes
       updateTotals();
     }
 
@@ -1444,6 +1618,25 @@
       renderSites();
     }
 
+    // Service search functionality
+    document.getElementById('service-search').addEventListener('input', (e) => {
+      serviceSearchTerm = e.target.value;
+      renderServices();
+    });
+
+    document.getElementById('service-site-filter').addEventListener('change', (e) => {
+      serviceSiteFilter = e.target.value;
+      renderServices();
+    });
+
+    document.getElementById('clear-service-filters-btn').addEventListener('click', () => {
+      serviceSearchTerm = '';
+      serviceSiteFilter = '';
+      document.getElementById('service-search').value = '';
+      document.getElementById('service-site-filter').value = '';
+      renderServices();
+    });
+
     // Actions dropdown functionality
     const actionsBtn = document.getElementById('actions-btn');
     const actionsDropdown = document.getElementById('actions-dropdown');
@@ -1453,7 +1646,6 @@
       actionsDropdown.classList.toggle('show');
     });
 
-    // Toggle delete mode
     document.getElementById('toggle-delete-btn').addEventListener('click', () => {
       deleteMode = !deleteMode;
       const actionsHeader = document.getElementById('actions-header');
@@ -1473,7 +1665,6 @@
       actionsDropdown.classList.remove('show');
     });
 
-    // Close dropdown when clicking outside
     document.addEventListener('click', (e) => {
       if (!e.target.closest('.add-site-wrapper') && !e.target.closest('#actions-btn') && !e.target.closest('#select-sites-btn')) {
         actionsDropdown.classList.remove('show');
@@ -1481,7 +1672,6 @@
       }
     });
 
-    // Select all checkbox
     document.getElementById('select-all-sites').addEventListener('change', (e) => {
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
@@ -1500,7 +1690,6 @@
       renderSites();
     });
 
-    // Selection button click
     document.getElementById('select-sites-btn').addEventListener('click', (e) => {
       e.stopPropagation();
       const dropdown = document.getElementById('selection-dropdown');
@@ -1508,7 +1697,6 @@
       actionsDropdown.classList.remove('show');
     });
 
-    // Add single site
     document.getElementById('add-single-site').addEventListener('click', () => {
       sites.push({
         id: nextId++,
@@ -1526,13 +1714,11 @@
       actionsDropdown.classList.remove('show');
     });
 
-    // Import Excel/CSV
     document.getElementById('import-excel-btn').addEventListener('click', () => {
       document.getElementById('excel-upload').click();
       actionsDropdown.classList.remove('show');
     });
 
-    // Delete all sites
     document.getElementById('delete-all-btn').addEventListener('click', () => {
       actionsDropdown.classList.remove('show');
       
@@ -1541,7 +1727,6 @@
         return;
       }
 
-      // Create confirmation overlay
       const overlay = document.createElement('div');
       overlay.style.cssText = `
         position: fixed;
@@ -1603,7 +1788,6 @@
       overlay.appendChild(modal);
       document.body.appendChild(overlay);
 
-      // Add hover effects
       const cancelBtn = modal.querySelector('#cancel-delete-all');
       const confirmBtn = modal.querySelector('#confirm-delete-all');
       
@@ -1621,25 +1805,25 @@
         confirmBtn.style.background = '#ef4444';
       });
 
-      // Cancel button
       cancelBtn.addEventListener('click', () => {
         overlay.style.animation = 'fadeOut 0.2s ease';
         setTimeout(() => overlay.remove(), 200);
       });
 
-      // Confirm delete all
       confirmBtn.addEventListener('click', () => {
         const count = sites.length;
         sites = [];
+        services = [];
         nextId = 1;
         renderSites();
+        renderServices();
+        updateSiteFilterDropdown();
         updateTotals();
         overlay.style.animation = 'fadeOut 0.2s ease';
         setTimeout(() => overlay.remove(), 200);
         showMessage(`Deleted all ${count} sites`, 'success');
       });
 
-      // Close on overlay click
       overlay.addEventListener('click', (e) => {
         if (e.target === overlay) {
           overlay.style.animation = 'fadeOut 0.2s ease';
@@ -1648,7 +1832,6 @@
       });
     });
 
-    // Multi-select filter functionality
     function setupMultiSelect(buttonId, dropdownId, labelId, filterSet) {
       const button = document.getElementById(buttonId);
       const dropdown = document.getElementById(dropdownId);
@@ -1660,7 +1843,6 @@
         dropdown.classList.toggle('show');
         button.classList.toggle('active');
         
-        // Close other dropdowns
         document.querySelectorAll('.multi-select-dropdown').forEach(d => {
           if (d !== dropdown) d.classList.remove('show');
         });
@@ -1698,20 +1880,17 @@
     setupMultiSelect('waste-stream-button', 'waste-stream-dropdown', 'waste-stream-label', wasteStreamFilters);
     setupMultiSelect('state-button', 'state-dropdown', 'state-label', stateFilters);
 
-    // Close dropdowns when clicking outside
     document.addEventListener('click', () => {
       document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
       document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
     });
 
-    // Search functionality
     document.getElementById('site-search').addEventListener('input', (e) => {
       searchTerm = e.target.value;
       renderSites();
       updateTotals();
     });
 
-    // Clear all filters
     document.getElementById('clear-filters-btn').addEventListener('click', () => {
       searchTerm = '';
       siteTypeFilters.clear();
@@ -1728,7 +1907,6 @@
       updateTotals();
     });
 
-    // Delete selected sites
     document.getElementById('delete-selected-btn').addEventListener('click', () => {
       if (selectedSites.size === 0) return;
 
@@ -1809,8 +1987,14 @@
       confirmBtn.addEventListener('click', () => {
         const count = selectedSites.size;
         sites = sites.filter(site => !selectedSites.has(site.id));
+        services = services.filter(service => {
+          const site = sites.find(s => s.name === service.siteName);
+          return site !== undefined;
+        });
         selectedSites.clear();
         renderSites();
+        renderServices();
+        updateSiteFilterDropdown();
         updateTotals();
         overlay.style.animation = 'fadeOut 0.2s ease';
         setTimeout(() => overlay.remove(), 200);
@@ -1827,7 +2011,6 @@
       document.getElementById('selection-dropdown').classList.remove('show');
     });
 
-    // Export selected to CSV
     document.getElementById('export-selected-btn').addEventListener('click', () => {
       if (selectedSites.size === 0) return;
 
@@ -1863,7 +2046,6 @@
       document.getElementById('selection-dropdown').classList.remove('show');
     });
 
-    // Deselect all
     document.getElementById('deselect-all-btn').addEventListener('click', () => {
       selectedSites.clear();
       renderSites();
@@ -1879,15 +2061,12 @@
         try {
           const data = event.target.result;
           
-          // Check if it's a CSV file
           if (file.name.endsWith('.csv')) {
             parseCSV(data);
           } else {
-            // For Excel files (.xlsx, .xls)
             showMessage('Excel files require a library. Please save your file as CSV format and try again.', 'info');
           }
           
-          // Reset file input
           e.target.value = '';
         } catch (error) {
           showMessage('Error reading file. Please check the format and try again.', 'error');
@@ -1908,31 +2087,32 @@
         return;
       }
 
-      // Parse header row
       const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
       
-      // Find column indices by matching header names
       const columnMap = {
         name: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
         state: headers.findIndex(h => h.includes('state') || h.includes('location')),
-        siteType: headers.findIndex(h => h.includes('site type') || h.includes('type')),
+        siteType: headers.findIndex(h => h.includes('site type') || h.includes('type') || h.includes('asset type')),
         wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
         cleanaway: headers.findIndex(h => h.includes('cleanaway')),
         veolia: headers.findIndex(h => h.includes('veolia')),
         remondis: headers.findIndex(h => h.includes('remondis')),
-        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline')),
+        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description') || h.includes('service'))
       };
 
       let importedCount = 0;
       
-      // Parse data rows (skip header row)
       for (let i = 1; i < lines.length; i++) {
-        // Split by comma but handle quoted values
         const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
         
-        // Skip rows that don't have at least a site name
         const nameValue = columnMap.name >= 0 ? values[columnMap.name] : values[1];
         if (!nameValue) continue;
+        
+        const cleanaway = parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        const veolia = parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        const remondis = parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        const current = parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0;
         
         const newSite = {
           id: nextId++,
@@ -1940,13 +2120,26 @@
           state: (columnMap.state >= 0 ? values[columnMap.state] : '') || 'NSW',
           siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || 'RV & AC',
           wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || 'General Waste',
-          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+          cleanaway,
+          veolia,
+          remondis,
+          current
         };
         
         sites.push(newSite);
+        
+        // If service description exists, create a service record
+        if (columnMap.serviceDescription >= 0 && values[columnMap.serviceDescription]) {
+          services.push({
+            siteName: nameValue,
+            description: values[columnMap.serviceDescription],
+            cleanaway,
+            veolia,
+            remondis,
+            current
+          });
+        }
+        
         importedCount++;
       }
 
@@ -1954,6 +2147,8 @@
         showMessage('No valid data found in CSV. Please check the file format.', 'error');
       } else {
         renderSites();
+        renderServices();
+        updateSiteFilterDropdown();
         updateTotals();
         showMessage(`Successfully imported ${importedCount} sites!`, 'success');
       }
@@ -1991,7 +2186,6 @@
       }, 3000);
     }
 
-    // Add animation styles
     const style = document.createElement('style');
     style.textContent = `
       @keyframes slideIn {
@@ -2044,7 +2238,8 @@
     document.head.appendChild(style);
 
     renderSites();
+    renderServices();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a46c22ba0be29a6',t:'MTc2NDEzMjU1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a46f59c9547750f',t:'MTc2NDEzNDY2NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
