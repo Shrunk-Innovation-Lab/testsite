@@ -893,7 +893,7 @@
     <div class="sites-header">
      <h2 class="sites-title">Site-by-Site Comparison</h2>
      <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites">
-      <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by site type"> <span id="site-type-label">All Site Types</span> <span>▼</span> </button>
+      <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by asset type"> <span id="site-type-label">All Asset Types</span> <span>▼</span> </button>
        <div class="multi-select-dropdown" id="site-type-dropdown">
         <div class="multi-select-option"><input type="checkbox" id="site-type-rv-ac" value="RV &amp; AC"> <label for="site-type-rv-ac">RV &amp; AC</label>
         </div>
@@ -942,9 +942,13 @@
         <div class="multi-select-option"><input type="checkbox" id="state-multiple" value="Multiple"> <label for="state-multiple">Multiple</label>
         </div>
        </div>
-      </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
+      </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="select-sites-btn" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"> <span id="select-count">0</span> Selected </button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
       <div class="add-site-wrapper">
        <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Site</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import Excel/CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Sites</span> </button> <button class="dropdown-item" id="delete-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>🗑️</span> <span>Delete All Sites</span> </button>
+       </div>
+      </div>
+      <div class="add-site-wrapper" style="position: relative;">
+       <div class="dropdown-menu" id="selection-dropdown" style="min-width: 220px;"><button class="dropdown-item" id="delete-selected-btn"> <span>🗑️</span> <span>Delete Selected</span> </button> <button class="dropdown-item" id="export-selected-btn"> <span>📊</span> <span>Export Selected to CSV</span> </button> <button class="dropdown-item" id="deselect-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>✖️</span> <span>Deselect All</span> </button>
        </div>
       </div><input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display: none;">
      </div>
@@ -953,9 +957,10 @@
      <table>
       <thead>
        <tr>
+        <th style="width: 50px;"><input type="checkbox" id="select-all-sites" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;"></th>
         <th>Site Name</th>
         <th>State</th>
-        <th>Site Type</th>
+        <th>Asset Type</th>
         <th>Waste Stream</th>
         <th>Current Cost</th>
         <th>Cleanaway</th>
@@ -968,6 +973,7 @@
       </tbody>
       <tfoot>
        <tr class="summary-row">
+        <td></td>
         <td colspan="4">Total</td>
         <td id="total-current">$0</td>
         <td id="total-cleanaway">$0</td>
@@ -1003,6 +1009,7 @@
     let wasteStreamFilters = new Set();
     let stateFilters = new Set();
     let deleteMode = false;
+    let selectedSites = new Set();
 
     async function onConfigChange(config) {
       const baseFontStack = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -1146,8 +1153,8 @@
     }
 
     function updateTotals() {
-      // Calculate totals from FILTERED sites for everything
-      const filteredSites = sites.filter(site => {
+      // Calculate totals from FILTERED sites, or SELECTED sites if any are selected
+      let sitesToCalculate = sites.filter(site => {
         const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
         const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
@@ -1155,10 +1162,15 @@
         return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
       });
 
-      const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
-      const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
-      const totalVeolia = filteredSites.reduce((sum, site) => sum + (site.veolia || 0), 0);
-      const totalRemondis = filteredSites.reduce((sum, site) => sum + (site.remondis || 0), 0);
+      // If sites are selected, only calculate totals for selected sites
+      if (selectedSites.size > 0) {
+        sitesToCalculate = sitesToCalculate.filter(site => selectedSites.has(site.id));
+      }
+
+      const totalCurrent = sitesToCalculate.reduce((sum, site) => sum + (site.current || 0), 0);
+      const totalCleanaway = sitesToCalculate.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = sitesToCalculate.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const totalRemondis = sitesToCalculate.reduce((sum, site) => sum + (site.remondis || 0), 0);
 
       // Update the Current Annual Costs card
       document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
@@ -1266,8 +1278,12 @@
 
       tbody.innerHTML = filteredSites.map((site, index) => {
         const bestVendor = bestVendors[index];
+        const isSelected = selectedSites.has(site.id);
         return `
           <tr>
+            <td style="text-align: center;">
+              <input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isSelected ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;">
+            </td>
             <td>
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="name">${site.name}</div>
             </td>
@@ -1301,6 +1317,8 @@
 
       attachCellListeners();
       attachDeleteListeners();
+      attachCheckboxListeners();
+      updateSelectionUI();
     }
 
     function attachCellListeners() {
@@ -1325,12 +1343,57 @@
           if (siteIndex > -1) {
             const siteName = sites[siteIndex].name;
             sites.splice(siteIndex, 1);
+            selectedSites.delete(siteId);
             renderSites();
             updateTotals();
             showMessage(`Deleted "${siteName}"`, 'success');
           }
         });
       });
+    }
+
+    function attachCheckboxListeners() {
+      const siteCheckboxes = document.querySelectorAll('.site-checkbox');
+      siteCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          const siteId = parseInt(e.target.dataset.siteId);
+          if (e.target.checked) {
+            selectedSites.add(siteId);
+          } else {
+            selectedSites.delete(siteId);
+          }
+          updateSelectionUI();
+        });
+      });
+    }
+
+    function updateSelectionUI() {
+      const selectBtn = document.getElementById('select-sites-btn');
+      const selectCount = document.getElementById('select-count');
+      const selectAllCheckbox = document.getElementById('select-all-sites');
+      
+      if (selectedSites.size > 0) {
+        selectBtn.style.display = 'block';
+        selectCount.textContent = selectedSites.size;
+      } else {
+        selectBtn.style.display = 'none';
+      }
+
+      // Update "Select All" checkbox state
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
+      });
+
+      const allFilteredSelected = filteredSites.length > 0 && 
+        filteredSites.every(site => selectedSites.has(site.id));
+      
+      selectAllCheckbox.checked = allFilteredSelected;
+      selectAllCheckbox.indeterminate = !allFilteredSelected && 
+        filteredSites.some(site => selectedSites.has(site.id));
     }
 
     function handleCellEdit(e) {
@@ -1377,7 +1440,7 @@
       } else {
         actionsHeader.style.display = 'none';
         actionsFooter.style.display = 'none';
-        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑️</span><span>Delete Sites</span>';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑����</span><span>Delete Sites</span>';
       }
       
       renderSites();
@@ -1385,7 +1448,37 @@
     });
 
     // Close dropdown when clicking outside
-    document.addEventListener('click', () => {
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.add-site-wrapper') && !e.target.closest('#actions-btn') && !e.target.closest('#select-sites-btn')) {
+        actionsDropdown.classList.remove('show');
+        document.getElementById('selection-dropdown').classList.remove('show');
+      }
+    });
+
+    // Select all checkbox
+    document.getElementById('select-all-sites').addEventListener('change', (e) => {
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
+      });
+
+      if (e.target.checked) {
+        filteredSites.forEach(site => selectedSites.add(site.id));
+      } else {
+        filteredSites.forEach(site => selectedSites.delete(site.id));
+      }
+      
+      renderSites();
+    });
+
+    // Selection button click
+    document.getElementById('select-sites-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dropdown = document.getElementById('selection-dropdown');
+      dropdown.classList.toggle('show');
       actionsDropdown.classList.remove('show');
     });
 
@@ -1565,7 +1658,7 @@
 
       function updateLabel() {
         if (filterSet.size === 0) {
-          label.innerHTML = labelId.includes('site-type') ? 'All Site Types' :
+          label.innerHTML = labelId.includes('site-type') ? 'All Asset Types' :
                            labelId.includes('waste') ? 'All Waste Streams' : 'All States';
         } else if (filterSet.size === 1) {
           label.innerHTML = Array.from(filterSet)[0];
@@ -1600,13 +1693,155 @@
       stateFilters.clear();
       
       document.getElementById('site-search').value = '';
-      document.querySelectorAll('input[type="checkbox"]').forEach(cb => cb.checked = false);
-      document.getElementById('site-type-label').textContent = 'All Site Types';
+      document.querySelectorAll('.multi-select-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.getElementById('site-type-label').textContent = 'All Asset Types';
       document.getElementById('waste-stream-label').textContent = 'All Waste Streams';
       document.getElementById('state-label').textContent = 'All States';
       
       renderSites();
       updateTotals();
+    });
+
+    // Delete selected sites
+    document.getElementById('delete-selected-btn').addEventListener('click', () => {
+      if (selectedSites.size === 0) return;
+
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.2s ease;
+      `;
+
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 400px;
+        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+      `;
+
+      modal.innerHTML = `
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete Selected Sites?</h3>
+        <p style="margin: 0 0 1.5rem 0; color: #64748b; font-size: 1rem;">
+          This will permanently delete ${selectedSites.size} selected site${selectedSites.size > 1 ? 's' : ''}. This action cannot be undone.
+        </p>
+        <div style="display: flex; gap: 1rem;">
+          <button id="cancel-delete-selected" style="
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          ">Cancel</button>
+          <button id="confirm-delete-selected" style="
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: #ef4444;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          ">Delete</button>
+        </div>
+      `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      const cancelBtn = modal.querySelector('#cancel-delete-selected');
+      const confirmBtn = modal.querySelector('#confirm-delete-selected');
+      
+      cancelBtn.addEventListener('mouseenter', () => cancelBtn.style.background = '#e2e8f0');
+      cancelBtn.addEventListener('mouseleave', () => cancelBtn.style.background = '#f1f5f9');
+      confirmBtn.addEventListener('mouseenter', () => confirmBtn.style.background = '#dc2626');
+      confirmBtn.addEventListener('mouseleave', () => confirmBtn.style.background = '#ef4444');
+
+      cancelBtn.addEventListener('click', () => {
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => overlay.remove(), 200);
+      });
+
+      confirmBtn.addEventListener('click', () => {
+        const count = selectedSites.size;
+        sites = sites.filter(site => !selectedSites.has(site.id));
+        selectedSites.clear();
+        renderSites();
+        updateTotals();
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => overlay.remove(), 200);
+        showMessage(`Deleted ${count} sites`, 'success');
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.style.animation = 'fadeOut 0.2s ease';
+          setTimeout(() => overlay.remove(), 200);
+        }
+      });
+
+      document.getElementById('selection-dropdown').classList.remove('show');
+    });
+
+    // Export selected to CSV
+    document.getElementById('export-selected-btn').addEventListener('click', () => {
+      if (selectedSites.size === 0) return;
+
+      const selectedSiteData = sites.filter(site => selectedSites.has(site.id));
+      
+      const headers = ['Site Name', 'State', 'Asset Type', 'Waste Stream', 'Current Cost', 'Cleanaway', 'Veolia', 'Remondis'];
+      const csvRows = [headers.join(',')];
+      
+      selectedSiteData.forEach(site => {
+        const row = [
+          `"${site.name}"`,
+          site.state,
+          `"${site.siteType}"`,
+          `"${site.wasteStream}"`,
+          site.current,
+          site.cleanaway,
+          site.veolia,
+          site.remondis
+        ];
+        csvRows.push(row.join(','));
+      });
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `selected-sites-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      showMessage(`Exported ${selectedSites.size} sites to CSV`, 'success');
+      document.getElementById('selection-dropdown').classList.remove('show');
+    });
+
+    // Deselect all
+    document.getElementById('deselect-all-btn').addEventListener('click', () => {
+      selectedSites.clear();
+      renderSites();
+      document.getElementById('selection-dropdown').classList.remove('show');
     });
 
     document.getElementById('excel-upload').addEventListener('change', async (e) => {
@@ -1785,5 +2020,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4586d8e40929a6',t:'MTc2NDExOTY0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a45a935d2d3750f',t:'MTc2NDEyMTA1MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
