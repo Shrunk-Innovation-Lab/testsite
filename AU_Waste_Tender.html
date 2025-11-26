@@ -165,6 +165,13 @@
       flex-shrink: 0;
     }
 
+    .vendor-logo {
+      width: 120px;
+      height: 80px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
     .vendor-name {
       font-size: 1.5rem;
       font-weight: 700;
@@ -190,7 +197,7 @@
     }
 
     .price-input-wrapper::before {
-      content: '$';
+      content: '';
       position: absolute;
       left: 1rem;
       top: 50%;
@@ -840,11 +847,7 @@
    </section>
    <section class="vendors-grid">
     <article class="vendor-card" id="cleanaway-card">
-     <div class="vendor-header">
-      <div class="vendor-icon">
-       🌱
-      </div>
-      <h2 class="vendor-name">Cleanaway</h2>
+     <div class="vendor-header"><img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
      </div>
      <div class="price-section">
       <div class="price-label">
@@ -858,11 +861,7 @@
      </div>
     </article>
     <article class="vendor-card" id="veolia-card">
-     <div class="vendor-header">
-      <div class="vendor-icon">
-       ♻️
-      </div>
-      <h2 class="vendor-name">Veolia</h2>
+     <div class="vendor-header"><img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
      </div>
      <div class="price-section">
       <div class="price-label">
@@ -876,11 +875,7 @@
      </div>
     </article>
     <article class="vendor-card" id="remondis-card">
-     <div class="vendor-header">
-      <div class="vendor-icon">
-       🌍
-      </div>
-      <h2 class="vendor-name">Remondis</h2>
+     <div class="vendor-header"><img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
      </div>
      <div class="price-section">
       <div class="price-label">
@@ -1790,5 +1785,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a457c60e2b729a6',t:'MTc2NDExOTIxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4586d8e40929a6',t:'MTc2NDExOTY0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
