@@ -281,6 +281,113 @@
       color: #10b981;
     }
 
+    .savings-section {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .savings-header {
+      flex: 0 0 auto;
+      text-align: left;
+    }
+
+    .savings-title {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .savings-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 0.25rem;
+    }
+
+    .savings-vendor {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .savings-vendor-name {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .savings-meter {
+      flex: 1;
+      position: relative;
+    }
+
+    .meter-background {
+      width: 100%;
+      height: 40px;
+      background: #f1f5f9;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 20px;
+      transition: width 0.8s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 1rem;
+      position: relative;
+    }
+
+    .meter-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .meter-percentage {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      z-index: 1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .savings-section {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+
+      .savings-header {
+        text-align: center;
+      }
+    }
+
     .sites-section {
       max-width: 1400px;
       margin: 0 auto;
@@ -544,6 +651,25 @@
       $0
      </div>
     </div>
+    <div class="savings-section">
+     <div class="savings-header">
+      <div class="savings-title">
+       Savings on Current Costs
+      </div>
+      <div class="savings-amount" id="savings-amount">
+       $0
+      </div>
+      <div class="savings-vendor">
+       Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span>
+      </div>
+     </div>
+     <div class="savings-meter">
+      <div class="meter-background">
+       <div class="meter-fill" id="meter-fill" style="width: 0%;"><span class="meter-percentage" id="meter-percentage">0%</span>
+       </div>
+      </div>
+     </div>
+    </div>
    </section>
    <section class="vendors-grid">
     <article class="vendor-card" id="cleanaway-card">
@@ -654,7 +780,7 @@
 
     let sites = [
       { id: 1, name: "St Patrick's Green", state: 'NSW', siteType: 'RV & AC', wasteStream: 'General Waste', current: 65327.60, cleanaway: 32973.20, veolia: 32725.68, remondis: 29914.56 },
-      { id: 2, name: 'All Other Sites', state: 'Multiple', siteType: 'Various', wasteStream: 'Various', current: 1064294.60, cleanaway: 844629.45, veolia: 846234.66, remondis: 908007.19 }
+      { id: 2, name: 'All Other Sites', state: 'Multiple', siteType: 'Various', wasteStream: 'Various', current: 1064294.40, cleanaway: 845447.80, veolia: 880120.32, remondis: 914447.44 }
     ];
     let nextId = 3;
     let searchTerm = '';
@@ -800,7 +926,7 @@
     }
 
     function formatCurrency(value) {
-      return '$' + Number(value).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+      return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
     function updateTotals() {
@@ -820,6 +946,7 @@
       document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
 
       updateBestPrice();
+      updateSavingsMeter();
     }
 
     function updateBestPrice() {
@@ -841,6 +968,44 @@
         const bestVendor = validPrices.find(p => p.price === bestPrice);
         bestVendor.card.classList.add('best-price');
       }
+    }
+
+    function updateSavingsMeter() {
+      const totalCurrent = sites.reduce((sum, site) => sum + (site.current || 0), 0);
+      const totalCleanaway = sites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = sites.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const totalRemondis = sites.reduce((sum, site) => sum + (site.remondis || 0), 0);
+
+      const vendors = [
+        { name: 'Cleanaway', price: totalCleanaway },
+        { name: 'Veolia', price: totalVeolia },
+        { name: 'Remondis', price: totalRemondis }
+      ];
+
+      const validVendors = vendors.filter(v => v.price > 0);
+      
+      if (validVendors.length === 0 || totalCurrent === 0) {
+        document.getElementById('savings-amount').textContent = '$0';
+        document.getElementById('best-vendor-name').textContent = '—';
+        document.getElementById('meter-fill').style.width = '0%';
+        document.getElementById('meter-percentage').textContent = '0%';
+        return;
+      }
+
+      const bestVendor = validVendors.reduce((min, vendor) => 
+        vendor.price < min.price ? vendor : min
+      );
+
+      const savings = totalCurrent - bestVendor.price;
+      const savingsPercentage = (savings / totalCurrent) * 100;
+
+      document.getElementById('savings-amount').textContent = formatCurrency(savings);
+      document.getElementById('best-vendor-name').textContent = bestVendor.name;
+      
+      setTimeout(() => {
+        document.getElementById('meter-fill').style.width = savingsPercentage.toFixed(1) + '%';
+        document.getElementById('meter-percentage').textContent = savingsPercentage.toFixed(1) + '%';
+      }, 100);
     }
 
     function getBestVendorForSite(site) {
@@ -989,5 +1154,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a444b84e1e1e682',t:'MTc2NDEwNjcyNy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4527a244d9750f',t:'MTc2NDExNTc0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
