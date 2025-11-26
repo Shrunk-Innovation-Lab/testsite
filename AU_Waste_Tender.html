@@ -1543,7 +1543,8 @@
         // Split by comma but handle quoted values
         const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
         
-        if (values.length < 13) continue; // Skip rows without enough columns
+        // Skip rows that don't have at least a site name
+        if (values.length < 2 || !values[1]) continue;
         
         // Fixed column positions based on data structure:
         // Column 1: Site Name (index 1)
@@ -1570,9 +1571,13 @@
         importedCount++;
       }
 
-      renderSites();
-      updateTotals();
-      showMessage(`Successfully imported ${importedCount} sites!`, 'success');
+      if (importedCount === 0) {
+        showMessage('No valid data found in CSV. Please check the file format.', 'error');
+      } else {
+        renderSites();
+        updateTotals();
+        showMessage(`Successfully imported ${importedCount} sites!`, 'success');
+      }
     }
 
     function showMessage(text, type) {
@@ -1636,5 +1641,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a45566f26d929a6',t:'MTc2NDExNzY2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a455b5e76f329a6',t:'MTc2NDExNzg2Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
