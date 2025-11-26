@@ -947,9 +947,9 @@
         <div class="multi-select-option"><input type="checkbox" id="state-multiple" value="Multiple"> <label for="state-multiple">Multiple</label>
         </div>
        </div>
-      </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button>
-      <div class="add-site-wrapper"><button class="add-site-btn" id="add-site-btn">+ Add Site</button>
-       <div class="dropdown-menu" id="add-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Site</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import Excel/CSV</span> </button>
+      </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
+      <div class="add-site-wrapper">
+       <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Site</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import Excel/CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Sites</span> </button>
        </div>
       </div><input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display: none;">
      </div>
@@ -966,6 +966,7 @@
         <th>Cleanaway</th>
         <th>Veolia</th>
         <th>Remondis</th>
+        <th id="actions-header" style="display: none;">Actions</th>
        </tr>
       </thead>
       <tbody id="sites-tbody"><!-- Rows will be added here -->
@@ -977,6 +978,7 @@
         <td id="total-cleanaway">$0</td>
         <td id="total-veolia">$0</td>
         <td id="total-remondis">$0</td>
+        <td id="actions-footer" style="display: none;"></td>
        </tr>
       </tfoot>
      </table>
@@ -1008,6 +1010,7 @@
     let siteTypeFilters = new Set();
     let wasteStreamFilters = new Set();
     let stateFilters = new Set();
+    let deleteMode = false;
 
     async function onConfigChange(config) {
       const baseFontStack = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -1297,11 +1300,15 @@
             <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="remondis">${formatCurrency(site.remondis)}</div>
             </td>
+            <td class="actions-cell" style="display: ${deleteMode ? 'table-cell' : 'none'};">
+              <button class="delete-btn" data-site-id="${site.id}">Delete</button>
+            </td>
           </tr>
         `;
       }).join('');
 
       attachCellListeners();
+      attachDeleteListeners();
     }
 
     function attachCellListeners() {
@@ -1315,7 +1322,23 @@
           }
         });
       });
+    }
 
+    function attachDeleteListeners() {
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      deleteButtons.forEach(btn => {
+        btn.addEventListener('click', (e) => {
+          const siteId = parseInt(e.target.dataset.siteId);
+          const siteIndex = sites.findIndex(s => s.id === siteId);
+          if (siteIndex > -1) {
+            const siteName = sites[siteIndex].name;
+            sites.splice(siteIndex, 1);
+            renderSites();
+            updateTotals();
+            showMessage(`Deleted "${siteName}"`, 'success');
+          }
+        });
+      });
     }
 
     function handleCellEdit(e) {
@@ -1340,18 +1363,38 @@
       renderSites();
     }
 
-    // Dropdown menu functionality
-    const addSiteBtn = document.getElementById('add-site-btn');
-    const addDropdown = document.getElementById('add-dropdown');
+    // Actions dropdown functionality
+    const actionsBtn = document.getElementById('actions-btn');
+    const actionsDropdown = document.getElementById('actions-dropdown');
     
-    addSiteBtn.addEventListener('click', (e) => {
+    actionsBtn.addEventListener('click', (e) => {
       e.stopPropagation();
-      addDropdown.classList.toggle('show');
+      actionsDropdown.classList.toggle('show');
+    });
+
+    // Toggle delete mode
+    document.getElementById('toggle-delete-btn').addEventListener('click', () => {
+      deleteMode = !deleteMode;
+      const actionsHeader = document.getElementById('actions-header');
+      const actionsFooter = document.getElementById('actions-footer');
+      
+      if (deleteMode) {
+        actionsHeader.style.display = 'table-cell';
+        actionsFooter.style.display = 'table-cell';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>✓</span><span>Done Deleting</span>';
+      } else {
+        actionsHeader.style.display = 'none';
+        actionsFooter.style.display = 'none';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑️</span><span>Delete Sites</span>';
+      }
+      
+      renderSites();
+      actionsDropdown.classList.remove('show');
     });
 
     // Close dropdown when clicking outside
     document.addEventListener('click', () => {
-      addDropdown.classList.remove('show');
+      actionsDropdown.classList.remove('show');
     });
 
     // Add single site
@@ -1593,5 +1636,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a45438f04cd29a6',t:'MTc2NDExNjg4Ny4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a45566f26d929a6',t:'MTc2NDExNzY2MC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
