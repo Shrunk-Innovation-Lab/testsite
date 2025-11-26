@@ -32,15 +32,39 @@
       margin-bottom: 3rem;
       position: relative;
       display: flex;
+      flex-direction: column;
       align-items: center;
       justify-content: center;
-      gap: 2rem;
+      gap: 0;
+      padding: 0;
+    }
+
+    .header-logo {
+      width: 20%;
+      max-width: 800px;
+      height: auto;
+      object-fit: contain;
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      text-align: center;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 500;
     }
 
     .client-branding {
       position: absolute;
-      left: 0;
-      top: 0;
+      right: 1.5rem;
+      top: 1.5rem;
       display: flex;
       flex-direction: column;
       align-items: center;
@@ -56,13 +80,9 @@
       padding: 0.5rem;
       box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
     }
-
-    .client-name {
-      font-size: 1rem;
-      font-weight: 600;
-      color: #1e293b;
-      margin: 0;
-      text-align: center;
+    
+    .current-costs-section {
+      position: relative;
     }
 
     .header-content {
@@ -71,12 +91,15 @@
       flex-direction: column;
       align-items: center;
       text-align: center;
+      padding-top: 1.5rem;
+      margin-top: 0;
+      position: relative;
     }
 
     .header-content::before {
       content: '';
       position: absolute;
-      top: -20px;
+      top: 0;
       left: 50%;
       transform: translateX(-50%);
       width: 80px;
@@ -88,15 +111,9 @@
     .header h1 {
       font-size: 2.5rem;
       color: #1e293b;
-      margin: 0 0 0.5rem 0;
+      margin: 0;
       font-weight: 700;
       letter-spacing: -0.5px;
-    }
-
-    .header p {
-      font-size: 1rem;
-      color: #64748b;
-      margin: 0;
     }
 
     .vendors-grid {
@@ -768,10 +785,20 @@
         gap: 1.5rem;
       }
 
+      .header-logo {
+        max-width: 100%;
+        padding: 0 1rem;
+      }
+
       .client-branding {
-        position: relative;
-        left: auto;
-        top: auto;
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+      }
+      
+      .client-logo {
+        width: 60px;
+        height: 60px;
       }
 
       .header h1 {
@@ -801,16 +828,15 @@
  </head>
  <body>
   <div class="dashboard-wrapper">
-   <header class="header">
-    <div class="client-branding"><img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
-     <h2 class="client-name">Australian Unity</h2>
-    </div>
+   <header class="header"><img src="https://i.imgur.com/Z4iSIu0.png" alt="Header Logo" class="header-logo" onerror="this.style.display='none'">
     <div class="header-content">
      <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
-     <p>Compare vendor proposals and current costs across all sites</p>
     </div>
+    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
    </header>
    <section class="current-costs-section">
+    <div class="client-branding"><img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+    </div>
     <div class="current-costs-header">
      <div class="current-costs-icon">
       💰
@@ -988,6 +1014,9 @@
      No sites match your search
     </div>
    </section>
+   <footer class="footer">
+    <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
+   </footer>
   </div>
   <script>
     const defaultConfig = {
@@ -1034,12 +1063,6 @@
       document.getElementById('current-costs-label').textContent = currentCostsLabel;
       document.getElementById('current-costs-label').style.fontSize = `${baseSize * 1.75}px`;
       document.getElementById('current-costs-label').style.color = textColor;
-
-      const clientName = document.querySelector('.client-name');
-      if (clientName) {
-        clientName.style.fontSize = `${baseSize * 1.25}px`;
-        clientName.style.color = textColor;
-      }
 
       const headerParagraph = document.querySelector('.header p');
       headerParagraph.style.fontSize = `${baseSize}px`;
@@ -1443,7 +1466,7 @@
       } else {
         actionsHeader.style.display = 'none';
         actionsFooter.style.display = 'none';
-        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑����</span><span>Delete Sites</span>';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑️</span><span>Delete Sites</span>';
       }
       
       renderSites();
@@ -2023,5 +2046,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a45dbcee6bc29a6',t:'MTc2NDEyMzEyMy4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a46c22ba0be29a6',t:'MTc2NDEzMjU1OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
