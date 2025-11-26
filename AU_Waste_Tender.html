@@ -878,7 +878,7 @@
     <article class="vendor-card" id="remondis-card">
      <div class="vendor-header">
       <div class="vendor-icon">
-       ��
+       🌍
       </div>
       <h2 class="vendor-name">Remondis</h2>
      </div>
@@ -1001,11 +1001,8 @@
       current_costs_label: 'Current Annual Costs'
     };
 
-    let sites = [
-      { id: 1, name: "St Patrick's Green", state: 'NSW', siteType: 'RV & AC', wasteStream: 'General Waste', current: 65327.60, cleanaway: 32973.20, veolia: 32725.68, remondis: 29914.56 },
-      { id: 2, name: 'All Other Sites', state: 'Multiple', siteType: 'Various', wasteStream: 'Various', current: 1064294.40, cleanaway: 845447.80, veolia: 880120.32, remondis: 914447.44 }
-    ];
-    let nextId = 3;
+    let sites = [];
+    let nextId = 1;
     let searchTerm = '';
     let siteTypeFilters = new Set();
     let wasteStreamFilters = new Set();
@@ -1567,6 +1564,7 @@
           }
           updateLabel();
           renderSites();
+          updateTotals();
         });
       });
 
@@ -1596,6 +1594,7 @@
     document.getElementById('site-search').addEventListener('input', (e) => {
       searchTerm = e.target.value;
       renderSites();
+      updateTotals();
     });
 
     // Clear all filters
@@ -1612,6 +1611,7 @@
       document.getElementById('state-label').textContent = 'All States';
       
       renderSites();
+      updateTotals();
     });
 
     document.getElementById('excel-upload').addEventListener('change', async (e) => {
@@ -1790,5 +1790,5 @@
     renderSites();
     updateTotals();
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a456f86437e29a6',t:'MTc2NDExODY4OC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a457c60e2b729a6',t:'MTc2NDExOTIxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
