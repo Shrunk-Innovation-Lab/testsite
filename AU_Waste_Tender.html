@@ -1326,25 +1326,33 @@
       }
     };
 
+    let isInitialized = false;
+
     async function initializeApp() {
-      if (window.dataSdk) {
+      if (window.dataSdk && !isInitialized) {
+        isInitialized = true;
+        
         const initResult = await window.dataSdk.init(dataHandler);
         if (!initResult.isOk) {
+          hideLoadingOverlay();
           showMessage('Failed to initialize data storage', 'error');
           return;
         }
         
+        // Wait a moment for onDataChanged to fire
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
         // Load data from GitHub if no data exists
         if (sites.length === 0) {
           await loadGitHubData();
+        } else {
+          hideLoadingOverlay();
         }
       }
     }
 
     async function loadGitHubData() {
       try {
-        showLoadingOverlay();
-        
         // GitHub raw content URL
         const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/AU/788c7b650e955af25c9fd0435dd15f92feb3af73/datatest.csv';
         
@@ -1354,7 +1362,7 @@
         }
         
         const csvText = await response.text();
-        await parseCSV(csvText, true); // Pass true to indicate this is initial load
+        await parseCSV(csvText, true);
         
         hideLoadingOverlay();
         showMessage('Data loaded from GitHub successfully!', 'success');
@@ -1365,7 +1373,15 @@
       }
     }
 
-    initializeApp();
+    // Show loading overlay initially
+    showLoadingOverlay();
+    
+    // Initialize when page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
 
     // Page navigation
     const navTabs = document.querySelectorAll('.nav-tab');
@@ -2512,5 +2528,5 @@
       });
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4e8e6374645a6d',t:'MTc2NDIxNDMyNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4e9407a042e6b9',t:'MTc2NDIxNDU1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
