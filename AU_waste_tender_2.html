@@ -1,0 +1,2532 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waste Management Tender Dashboard</title>
+  <link rel="icon" type="image/png" href="https://imgur.com/dZR7M8C.png">
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="/_sdk/data_sdk.js"></script>
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .dashboard-wrapper {
+      width: 100%;
+      min-height: 100%;
+      padding: 3rem 2rem;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 0;
+    }
+
+    .header-logo {
+      width: 20%;
+      max-width: 800px;
+      height: auto;
+      object-fit: contain;
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      text-align: center;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .client-branding {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .client-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: white;
+      padding: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .current-costs-section {
+      position: relative;
+    }
+
+    .header-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-top: 1.5rem;
+      margin-top: 0;
+      position: relative;
+    }
+
+    .header-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 2px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #1e293b;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tab:hover {
+      border-color: #6366f1;
+      color: #6366f1;
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .vendors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+    }
+
+    .vendor-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vendor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    }
+
+    .vendor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08), 0 20px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .vendor-card.best-price::after {
+      content: '✓ Best Price';
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .vendor-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .vendor-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .vendor-logo {
+      width: 120px;
+      height: 80px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .vendor-name {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .price-section {
+      margin: 2rem 0;
+    }
+
+    .price-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price-input-wrapper {
+      position: relative;
+    }
+
+    .price-input-wrapper::before {
+      content: '';
+      position: absolute;
+      left: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 1.25rem;
+      color: #64748b;
+      font-weight: 600;
+    }
+
+    .price-display {
+      width: 100%;
+      padding: 1rem 1rem 1rem 2.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      min-height: 4rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .current-costs-section {
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .current-costs-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .current-costs-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .current-costs-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .current-costs-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .current-total {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .current-total-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .current-total-amount {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .savings-section {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .savings-header {
+      flex: 0 0 auto;
+      text-align: left;
+    }
+
+    .savings-title {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .savings-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 0.25rem;
+    }
+
+    .savings-vendor {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .savings-vendor-name {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .savings-meter {
+      flex: 1;
+      position: relative;
+    }
+
+    .meter-background {
+      width: 100%;
+      height: 40px;
+      background: #f1f5f9;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 20px;
+      transition: width 0.8s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 1rem;
+      position: relative;
+    }
+
+    .meter-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% {
+        transform: translateX(-100%);
+      }
+      100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .meter-percentage {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      z-index: 1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    @media (max-width: 768px) {
+      .savings-section {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+
+      .savings-header {
+        text-align: center;
+      }
+    }
+
+    .sites-section {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .sites-header {
+      margin-bottom: 2rem;
+    }
+
+    .sites-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .filter-section {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-select {
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 180px;
+      position: relative;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-select:hover {
+      border-color: #cbd5e1;
+    }
+
+    .multi-select-wrapper {
+      position: relative;
+      min-width: 180px;
+    }
+
+    .multi-select-button {
+      width: 100%;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .multi-select-button:hover {
+      border-color: #cbd5e1;
+    }
+
+    .multi-select-button.active {
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .multi-select-dropdown {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      left: 0;
+      right: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      max-height: 300px;
+      overflow-y: auto;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .multi-select-dropdown.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .multi-select-option {
+      padding: 0.75rem 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      cursor: pointer;
+      transition: background 0.2s ease;
+    }
+
+    .multi-select-option:hover {
+      background: #f8fafc;
+    }
+
+    .multi-select-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #6366f1;
+    }
+
+    .multi-select-option label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 0.9375rem;
+    }
+
+    .selected-count {
+      background: #6366f1;
+      color: white;
+      padding: 0.2rem 0.6rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    .clear-filters-btn {
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: transparent;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .clear-filters-btn:hover {
+      border-color: #ef4444;
+      color: #ef4444;
+      background: #fef2f2;
+    }
+
+    .add-site-btn {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: white;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      position: relative;
+    }
+
+    .add-site-btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+    }
+
+    .add-site-btn:disabled {
+      opacity: 0.5;
+      cursor: not-allowed;
+      transform: none;
+    }
+
+    .dropdown-menu {
+      position: absolute;
+      top: calc(100% + 0.5rem);
+      right: 0;
+      background: white;
+      border-radius: 12px;
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.15);
+      z-index: 1000;
+      min-width: 200px;
+      opacity: 0;
+      visibility: hidden;
+      transform: translateY(-10px);
+      transition: all 0.3s ease;
+    }
+
+    .dropdown-menu.show {
+      opacity: 1;
+      visibility: visible;
+      transform: translateY(0);
+    }
+
+    .dropdown-item {
+      padding: 0.875rem 1.25rem;
+      font-size: 0.9375rem;
+      font-weight: 500;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      border: none;
+      background: transparent;
+      width: 100%;
+      text-align: left;
+    }
+
+    .dropdown-item:first-child {
+      border-radius: 12px 12px 0 0;
+    }
+
+    .dropdown-item:last-child {
+      border-radius: 0 0 12px 12px;
+    }
+
+    .dropdown-item:hover {
+      background: #f8fafc;
+      color: #6366f1;
+    }
+
+    .dropdown-item:active {
+      background: #e2e8f0;
+    }
+
+    .add-site-wrapper {
+      position: relative;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: #f8fafc;
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    th:first-child {
+      border-top-left-radius: 12px;
+    }
+
+    th:last-child {
+      border-top-right-radius: 12px;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9375rem;
+    }
+
+    tbody tr {
+      transition: background-color 0.2s ease;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .editable-cell {
+      padding: 0.5rem;
+      border: 1px solid transparent;
+      border-radius: 6px;
+      transition: all 0.2s ease;
+      cursor: text;
+      min-width: 80px;
+    }
+
+    .editable-cell:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: #f8fafc;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .price-cell {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .best-cell {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      font-weight: 700;
+      color: #6366f1;
+      border-radius: 6px;
+    }
+
+    .delete-btn {
+      padding: 0.5rem 1rem;
+      font-size: 0.875rem;
+      color: #ef4444;
+      background: transparent;
+      border: 1px solid #ef4444;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+
+    .delete-btn:hover {
+      background: #ef4444;
+      color: white;
+    }
+
+    .summary-row {
+      background: #f8fafc;
+      font-weight: 700;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .summary-row td {
+      padding: 1.25rem 1rem;
+      font-size: 1.125rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #64748b;
+      font-size: 1rem;
+    }
+
+    .service-description-cell {
+      max-width: 300px;
+      white-space: normal;
+      line-height: 1.5;
+    }
+
+    .scroll-to-top {
+      position: fixed;
+      bottom: 2rem;
+      right: 2rem;
+      width: 56px;
+      height: 56px;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border: none;
+      border-radius: 50%;
+      font-size: 1.5rem;
+      cursor: pointer;
+      box-shadow: 0 4px 12px rgba(99, 102, 241, 0.4);
+      transition: all 0.3s ease;
+      opacity: 0;
+      visibility: hidden;
+      z-index: 1000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+
+    .scroll-to-top.show {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .scroll-to-top:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 6px 20px rgba(99, 102, 241, 0.5);
+    }
+
+    .scroll-to-top:active {
+      transform: translateY(-2px);
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-wrapper {
+        padding: 2rem 1rem;
+      }
+
+      .header {
+        flex-direction: column;
+        gap: 1.5rem;
+      }
+
+      .header-logo {
+        max-width: 100%;
+        padding: 0 1rem;
+      }
+
+      .client-branding {
+        position: absolute;
+        right: 1rem;
+        top: 1rem;
+      }
+      
+      .client-logo {
+        width: 60px;
+        height: 60px;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .vendors-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .price-display {
+        font-size: 1.5rem;
+      }
+
+      .table-wrapper {
+        font-size: 0.875rem;
+      }
+
+      th, td {
+        padding: 0.75rem 0.5rem;
+      }
+    }
+  </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="https://cdn.tailwindcss.com" type="text/javascript"></script>
+ </head>
+ <body>
+  <div class="dashboard-wrapper">
+   <header class="header"><img src="https://i.imgur.com/Z4iSIu0.png" alt="Header Logo" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-content">
+     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
+    </div>
+    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
+   </header>
+   <nav class="nav-tabs"><button class="nav-tab active" data-page="summary">Summary View</button> <button class="nav-tab" data-page="services">Service Details</button>
+   </nav><!-- SUMMARY PAGE -->
+   <div class="page active" id="summary-page"><button class="scroll-to-top" id="scroll-to-top" aria-label="Scroll to top">↑</button>
+    <section class="current-costs-section">
+     <div class="client-branding"><img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+     </div>
+     <div class="current-costs-header">
+      <div class="current-costs-icon">
+       💰
+      </div>
+      <h2 class="current-costs-title" id="current-costs-label">Current Annual Costs</h2>
+     </div>
+     <div class="current-total">
+      <div class="current-total-label">
+       Total Across All Sites
+      </div>
+      <div class="current-total-amount" id="current-total-amount">
+       $0
+      </div>
+     </div>
+     <div class="savings-section">
+      <div class="savings-header">
+       <div class="savings-title">
+        Savings on Current Costs
+       </div>
+       <div class="savings-amount" id="savings-amount">
+        $0
+       </div>
+       <div class="savings-vendor">
+        Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span>
+       </div>
+      </div>
+      <div class="savings-meter">
+       <div class="meter-background">
+        <div class="meter-fill" id="meter-fill" style="width: 0%;"><span class="meter-percentage" id="meter-percentage">0%</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+    <section class="vendors-grid">
+     <article class="vendor-card" id="cleanaway-card">
+      <div class="vendor-header"><img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">
+        Annual Service Cost
+       </div>
+       <div class="price-input-wrapper">
+        <div class="price-display" id="cleanaway-price" aria-label="Cleanaway annual price">
+         $0
+        </div>
+       </div>
+      </div>
+     </article>
+     <article class="vendor-card" id="veolia-card">
+      <div class="vendor-header"><img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">
+        Annual Service Cost
+       </div>
+       <div class="price-input-wrapper">
+        <div class="price-display" id="veolia-price" aria-label="Veolia annual price">
+         $0
+        </div>
+       </div>
+      </div>
+     </article>
+     <article class="vendor-card" id="remondis-card">
+      <div class="vendor-header"><img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">
+        Annual Service Cost
+       </div>
+       <div class="price-input-wrapper">
+        <div class="price-display" id="remondis-price" aria-label="Remondis annual price">
+         $0
+        </div>
+       </div>
+      </div>
+     </article>
+    </section>
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Site-by-Site Comparison</h2>
+      <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites">
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by site type"> <span id="site-type-label">All Site Types</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="site-type-dropdown"></div>
+       </div>
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="waste-stream-button" aria-label="Filter by waste stream"> <span id="waste-stream-label">All Waste Streams</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="waste-stream-dropdown"></div>
+       </div>
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="service-type-button" aria-label="Filter by service type"> <span id="service-type-label">All Service Types</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="service-type-dropdown"></div>
+       </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="select-sites-btn" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"> <span id="select-count">0</span> Selected </button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
+       <div class="add-site-wrapper">
+        <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Row</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Rows</span> </button> <button class="dropdown-item" id="delete-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>🗑️</span> <span>Delete All Rows</span> </button>
+        </div>
+       </div>
+       <div class="add-site-wrapper" style="position: relative;">
+        <div class="dropdown-menu" id="selection-dropdown" style="min-width: 220px;"><button class="dropdown-item" id="delete-selected-btn"> <span>🗑️</span> <span>Delete Selected</span> </button> <button class="dropdown-item" id="export-selected-btn"> <span>📊</span> <span>Export Selected to CSV</span> </button> <button class="dropdown-item" id="deselect-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>✖️</span> <span>Deselect All</span> </button>
+        </div>
+       </div><input type="file" id="excel-upload" accept=".csv" style="display: none;">
+      </div>
+     </div>
+     <div class="table-wrapper">
+      <table>
+       <thead>
+        <tr>
+         <th style="width: 50px;"><input type="checkbox" id="select-all-sites" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;"></th>
+         <th>Rank</th>
+         <th>Site Name</th>
+         <th>Site Type</th>
+         <th>Service Description</th>
+         <th>Unique Service Line</th>
+         <th>Service Type</th>
+         <th>Waste Stream</th>
+         <th>Bin Size</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+         <th>Current</th>
+         <th id="actions-header" style="display: none;">Actions</th>
+        </tr>
+       </thead>
+       <tbody id="sites-tbody"><!-- Rows will be added here -->
+       </tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td></td>
+         <td colspan="8">Total</td>
+         <td id="total-cleanaway">$0</td>
+         <td id="total-veolia">$0</td>
+         <td id="total-remondis">$0</td>
+         <td id="total-current">$0</td>
+         <td id="actions-footer" style="display: none;"></td>
+        </tr>
+       </tfoot>
+      </table>
+     </div>
+     <div id="no-results" class="no-results" style="display: none;">
+      No sites match your search
+     </div>
+    </section>
+   </div><!-- SERVICES PAGE -->
+   <div class="page" id="services-page">
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Service Description Details</h2>
+      <div class="filter-section"><input type="text" id="service-search" class="search-input" placeholder="🔍 Search services or sites..." aria-label="Search services"> <select id="service-site-filter" class="filter-select"> <option value="">All Sites</option> </select> <button class="clear-filters-btn" id="clear-service-filters-btn">Clear Filters</button>
+      </div>
+     </div>
+     <div class="table-wrapper">
+      <table>
+       <thead>
+        <tr>
+         <th>Rank</th>
+         <th>Site Name</th>
+         <th style="min-width: 250px;">Service Description</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+         <th>Current</th>
+        </tr>
+       </thead>
+       <tbody id="services-tbody"><!-- Service rows will be added here -->
+       </tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td colspan="3">Total</td>
+         <td id="service-total-cleanaway">$0</td>
+         <td id="service-total-veolia">$0</td>
+         <td id="service-total-remondis">$0</td>
+         <td id="service-total-current">$0</td>
+        </tr>
+       </tfoot>
+      </table>
+     </div>
+     <div id="no-service-results" class="no-results" style="display: none;">
+      No services match your search
+     </div>
+    </section>
+   </div>
+   <footer class="footer">
+    <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
+   </footer>
+  </div>
+  <script>
+    const defaultConfig = {
+      background_color: '#f8f9fa',
+      surface_color: '#ffffff',
+      text_color: '#1e293b',
+      primary_action_color: '#6366f1',
+      secondary_action_color: '#64748b',
+      font_family: 'Inter',
+      font_size: 16,
+      dashboard_title: 'Waste Management Tender Comparison',
+      current_costs_label: 'Current Annual Costs'
+    };
+
+    let sites = [];
+    let nextId = 1;
+    let searchTerm = '';
+    let siteTypeFilters = new Set();
+    let wasteStreamFilters = new Set();
+    let serviceTypeFilters = new Set();
+    let deleteMode = false;
+    let selectedSites = new Set();
+    let serviceSearchTerm = '';
+    let serviceSiteFilter = '';
+
+    async function onConfigChange(config) {
+      const baseFontStack = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
+      const customFont = config.font_family || defaultConfig.font_family;
+      const baseSize = config.font_size || defaultConfig.font_size;
+      const backgroundColor = config.background_color || defaultConfig.background_color;
+      const surfaceColor = config.surface_color || defaultConfig.surface_color;
+      const textColor = config.text_color || defaultConfig.text_color;
+      const primaryActionColor = config.primary_action_color || defaultConfig.primary_action_color;
+      const secondaryActionColor = config.secondary_action_color || defaultConfig.secondary_action_color;
+
+      document.body.style.fontFamily = `${customFont}, ${baseFontStack}`;
+      document.body.style.background = `linear-gradient(135deg, ${backgroundColor} 0%, ${backgroundColor}dd 100%)`;
+
+      const dashboardTitle = config.dashboard_title || defaultConfig.dashboard_title;
+      const currentCostsLabel = config.current_costs_label || defaultConfig.current_costs_label;
+
+      document.getElementById('dashboard-title').textContent = dashboardTitle;
+      document.getElementById('dashboard-title').style.fontSize = `${baseSize * 2.5}px`;
+      document.getElementById('dashboard-title').style.color = textColor;
+
+      document.getElementById('current-costs-label').textContent = currentCostsLabel;
+      document.getElementById('current-costs-label').style.fontSize = `${baseSize * 1.75}px`;
+      document.getElementById('current-costs-label').style.color = textColor;
+
+      const headerParagraph = document.querySelector('.header p');
+      headerParagraph.style.fontSize = `${baseSize}px`;
+      headerParagraph.style.color = secondaryActionColor;
+
+      const vendorCards = document.querySelectorAll('.vendor-card, .current-costs-section, .sites-section');
+      vendorCards.forEach(card => {
+        card.style.background = surfaceColor;
+      });
+
+      const vendorNames = document.querySelectorAll('.vendor-name');
+      vendorNames.forEach(name => {
+        name.style.fontSize = `${baseSize * 1.5}px`;
+        name.style.color = textColor;
+      });
+
+      const priceLabels = document.querySelectorAll('.price-label');
+      priceLabels.forEach(label => {
+        label.style.fontSize = `${baseSize * 0.875}px`;
+        label.style.color = secondaryActionColor;
+      });
+
+      const priceDisplays = document.querySelectorAll('.price-display');
+      priceDisplays.forEach(display => {
+        display.style.fontSize = `${baseSize * 2}px`;
+        display.style.color = textColor;
+      });
+
+      document.querySelectorAll('.sites-title').forEach(title => {
+        title.style.fontSize = `${baseSize * 1.75}px`;
+        title.style.color = textColor;
+      });
+
+      const thElements = document.querySelectorAll('th');
+      thElements.forEach(th => {
+        th.style.fontSize = `${baseSize * 0.875}px`;
+        th.style.color = secondaryActionColor;
+      });
+
+      const tdElements = document.querySelectorAll('td');
+      tdElements.forEach(td => {
+        td.style.fontSize = `${baseSize * 0.9375}px`;
+      });
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.primary_action_color || defaultConfig.primary_action_color,
+              set: (value) => {
+                config.primary_action_color = value;
+                window.elementSdk.setConfig({ primary_action_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_action_color || defaultConfig.secondary_action_color,
+              set: (value) => {
+                config.secondary_action_color = value;
+                window.elementSdk.setConfig({ secondary_action_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: {
+            get: () => config.font_family || defaultConfig.font_family,
+            set: (value) => {
+              config.font_family = value;
+              window.elementSdk.setConfig({ font_family: value });
+            }
+          },
+          fontSizeable: {
+            get: () => config.font_size || defaultConfig.font_size,
+            set: (value) => {
+              config.font_size = value;
+              window.elementSdk.setConfig({ font_size: value });
+            }
+          }
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ['dashboard_title', config.dashboard_title || defaultConfig.dashboard_title],
+          ['current_costs_label', config.current_costs_label || defaultConfig.current_costs_label]
+        ])
+      });
+    }
+
+    // Data SDK initialization
+    const dataHandler = {
+      onDataChanged(data) {
+        sites = data.map(record => ({
+          id: record.id,
+          rank: record.rank || 0,
+          siteName: record.siteName,
+          siteType: record.siteType,
+          serviceDescription: record.serviceDescription || '',
+          uniqueServiceLine: record.uniqueServiceLine || '',
+          serviceType: record.serviceType || '',
+          wasteStream: record.wasteStream,
+          binSize: record.binSize || '',
+          cleanaway: record.cleanaway,
+          veolia: record.veolia,
+          remondis: record.remondis,
+          current: record.current,
+          __backendId: record.__backendId
+        }));
+
+        if (sites.length > 0) {
+          nextId = Math.max(...sites.map(s => s.id)) + 1;
+        }
+
+        updateDynamicFilters();
+        renderSites();
+        renderServices();
+        updateSiteFilterDropdown();
+        updateTotals();
+      }
+    };
+
+    let isInitialized = false;
+
+    async function initializeApp() {
+      if (window.dataSdk && !isInitialized) {
+        isInitialized = true;
+        
+        const initResult = await window.dataSdk.init(dataHandler);
+        if (!initResult.isOk) {
+          hideLoadingOverlay();
+          showMessage('Failed to initialize data storage', 'error');
+          return;
+        }
+        
+        // Wait a moment for onDataChanged to fire
+        await new Promise(resolve => setTimeout(resolve, 500));
+        
+        // Load data from GitHub if no data exists
+        if (sites.length === 0) {
+          await loadGitHubData();
+        } else {
+          hideLoadingOverlay();
+        }
+      }
+    }
+
+    async function loadGitHubData() {
+      try {
+        // GitHub raw content URL
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/AU/788c7b650e955af25c9fd0435dd15f92feb3af73/datatest.csv';
+        
+        const response = await fetch(githubUrl);
+        if (!response.ok) {
+          throw new Error('Failed to fetch data from GitHub');
+        }
+        
+        const csvText = await response.text();
+        await parseCSV(csvText, true);
+        
+        hideLoadingOverlay();
+        showMessage('Data loaded from GitHub successfully!', 'success');
+      } catch (error) {
+        hideLoadingOverlay();
+        showMessage('Failed to load data from GitHub. You can still import your own CSV.', 'error');
+        console.error('GitHub load error:', error);
+      }
+    }
+
+    // Show loading overlay initially
+    showLoadingOverlay();
+    
+    // Initialize when page loads
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initializeApp);
+    } else {
+      initializeApp();
+    }
+
+    // Page navigation
+    const navTabs = document.querySelectorAll('.nav-tab');
+    const pages = document.querySelectorAll('.page');
+
+    navTabs.forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetPage = tab.dataset.page;
+        
+        navTabs.forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        pages.forEach(p => p.classList.remove('active'));
+        document.getElementById(`${targetPage}-page`).classList.add('active');
+      });
+    });
+
+    function showLoadingOverlay() {
+      if (document.querySelector('.loading-overlay')) return;
+      
+      const overlay = document.createElement('div');
+      overlay.className = 'loading-overlay';
+      overlay.innerHTML = '<div class="loading-spinner"></div>';
+      document.body.appendChild(overlay);
+    }
+
+    function hideLoadingOverlay() {
+      const overlay = document.querySelector('.loading-overlay');
+      if (overlay) {
+        overlay.remove();
+      }
+    }
+
+    function formatCurrency(value) {
+      return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function updateDynamicFilters() {
+      const uniqueSiteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
+      const uniqueWasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
+      const uniqueServiceTypes = [...new Set(sites.map(s => s.serviceType).filter(Boolean))].sort();
+
+      const siteTypeDropdown = document.getElementById('site-type-dropdown');
+      siteTypeDropdown.innerHTML = uniqueSiteTypes.map(type => `
+        <div class="multi-select-option">
+          <input type="checkbox" id="site-type-${type.replace(/\s+/g, '-')}" value="${type}" ${siteTypeFilters.has(type) ? 'checked' : ''}>
+          <label for="site-type-${type.replace(/\s+/g, '-')}">${type}</label>
+        </div>
+      `).join('');
+
+      const wasteStreamDropdown = document.getElementById('waste-stream-dropdown');
+      wasteStreamDropdown.innerHTML = uniqueWasteStreams.map(stream => `
+        <div class="multi-select-option">
+          <input type="checkbox" id="waste-${stream.replace(/\s+/g, '-')}" value="${stream}" ${wasteStreamFilters.has(stream) ? 'checked' : ''}>
+          <label for="waste-${stream.replace(/\s+/g, '-')}">${stream}</label>
+        </div>
+      `).join('');
+
+      const serviceTypeDropdown = document.getElementById('service-type-dropdown');
+      serviceTypeDropdown.innerHTML = uniqueServiceTypes.map(type => `
+        <div class="multi-select-option">
+          <input type="checkbox" id="service-${type.replace(/\s+/g, '-')}" value="${type}" ${serviceTypeFilters.has(type) ? 'checked' : ''}>
+          <label for="service-${type.replace(/\s+/g, '-')}">${type}</label>
+        </div>
+      `).join('');
+
+      setupMultiSelectCheckboxes('site-type-dropdown', siteTypeFilters);
+      setupMultiSelectCheckboxes('waste-stream-dropdown', wasteStreamFilters);
+      setupMultiSelectCheckboxes('service-type-dropdown', serviceTypeFilters);
+    }
+
+    function setupMultiSelectCheckboxes(dropdownId, filterSet) {
+      const dropdown = document.getElementById(dropdownId);
+      const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
+      
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            filterSet.add(checkbox.value);
+          } else {
+            filterSet.delete(checkbox.value);
+          }
+          updateFilterLabel(dropdownId, filterSet);
+          renderSites();
+          updateTotals();
+        });
+      });
+    }
+
+    function updateFilterLabel(dropdownId, filterSet) {
+      let labelId, defaultText;
+      if (dropdownId === 'site-type-dropdown') {
+        labelId = 'site-type-label';
+        defaultText = 'All Site Types';
+      } else if (dropdownId === 'waste-stream-dropdown') {
+        labelId = 'waste-stream-label';
+        defaultText = 'All Waste Streams';
+      } else if (dropdownId === 'service-type-dropdown') {
+        labelId = 'service-type-label';
+        defaultText = 'All Service Types';
+      }
+
+      const label = document.getElementById(labelId);
+      if (filterSet.size === 0) {
+        label.innerHTML = defaultText;
+      } else if (filterSet.size === 1) {
+        label.innerHTML = Array.from(filterSet)[0];
+      } else {
+        label.innerHTML = `${filterSet.size} selected <span class="selected-count">${filterSet.size}</span>`;
+      }
+    }
+
+    function updateTotals() {
+      let sitesToCalculate = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+      });
+
+      if (selectedSites.size > 0) {
+        sitesToCalculate = sitesToCalculate.filter(site => selectedSites.has(site.id));
+      }
+
+      const totalCurrent = sitesToCalculate.reduce((sum, site) => sum + (site.current || 0), 0);
+      const totalCleanaway = sitesToCalculate.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = sitesToCalculate.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const totalRemondis = sitesToCalculate.reduce((sum, site) => sum + (site.remondis || 0), 0);
+
+      document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
+      document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
+
+      document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
+      document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
+
+      updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
+      updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
+    }
+
+    function updateServiceTotals() {
+      const services = getServicesFromSites();
+      
+      let servicesToCalculate = services.filter(service => {
+        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
+                             service.description.toLowerCase().includes(serviceSearchTerm.toLowerCase());
+        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
+        return matchesSearch && matchesSite;
+      });
+
+      const totalCurrent = servicesToCalculate.reduce((sum, service) => sum + (service.current || 0), 0);
+      const totalCleanaway = servicesToCalculate.reduce((sum, service) => sum + (service.cleanaway || 0), 0);
+      const totalVeolia = servicesToCalculate.reduce((sum, service) => sum + (service.veolia || 0), 0);
+      const totalRemondis = servicesToCalculate.reduce((sum, service) => sum + (service.remondis || 0), 0);
+
+      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
+    }
+
+    function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
+      const cards = [
+        { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
+        { price: veoliaTotal, card: document.getElementById('veolia-card') },
+        { price: remondisTotal, card: document.getElementById('remondis-card') }
+      ];
+
+      cards.forEach(item => item.card.classList.remove('best-price'));
+
+      const validPrices = cards.filter(p => p.price > 0);
+      if (validPrices.length > 0) {
+        const bestPrice = Math.min(...validPrices.map(p => p.price));
+        const bestVendor = validPrices.find(p => p.price === bestPrice);
+        bestVendor.card.classList.add('best-price');
+      }
+    }
+
+    function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
+      const vendors = [
+        { name: 'Cleanaway', price: totalCleanaway },
+        { name: 'Veolia', price: totalVeolia },
+        { name: 'Remondis', price: totalRemondis }
+      ];
+
+      const validVendors = vendors.filter(v => v.price > 0);
+      
+      if (validVendors.length === 0 || totalCurrent === 0) {
+        document.getElementById('savings-amount').textContent = '$0';
+        document.getElementById('best-vendor-name').textContent = '—';
+        document.getElementById('meter-fill').style.width = '0%';
+        document.getElementById('meter-percentage').textContent = '0%';
+        return;
+      }
+
+      const bestVendor = validVendors.reduce((min, vendor) => 
+        vendor.price < min.price ? vendor : min
+      );
+
+      const savings = totalCurrent - bestVendor.price;
+      const savingsPercentage = (savings / totalCurrent) * 100;
+
+      document.getElementById('savings-amount').textContent = formatCurrency(savings);
+      document.getElementById('best-vendor-name').textContent = bestVendor.name;
+      
+      setTimeout(() => {
+        document.getElementById('meter-fill').style.width = savingsPercentage.toFixed(1) + '%';
+        document.getElementById('meter-percentage').textContent = savingsPercentage.toFixed(1) + '%';
+      }, 100);
+    }
+
+    function getBestVendorForSite(site) {
+      const prices = [
+        { vendor: 'cleanaway', price: site.cleanaway || 0 },
+        { vendor: 'veolia', price: site.veolia || 0 },
+        { vendor: 'remondis', price: site.remondis || 0 }
+      ];
+
+      const validPrices = prices.filter(p => p.price > 0);
+      if (validPrices.length === 0) return null;
+
+      const minPrice = Math.min(...validPrices.map(p => p.price));
+      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
+    }
+
+    function getBestVendorForService(service) {
+      const prices = [
+        { vendor: 'cleanaway', price: service.cleanaway || 0 },
+        { vendor: 'veolia', price: service.veolia || 0 },
+        { vendor: 'remondis', price: service.remondis || 0 }
+      ];
+
+      const validPrices = prices.filter(p => p.price > 0);
+      if (validPrices.length === 0) return null;
+
+      const minPrice = Math.min(...validPrices.map(p => p.price));
+      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
+    }
+
+    function renderSites() {
+      const tbody = document.getElementById('sites-tbody');
+      const noResults = document.getElementById('no-results');
+      
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+      });
+
+      if (filteredSites.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      const bestVendors = filteredSites.map(site => getBestVendorForSite(site));
+
+      tbody.innerHTML = filteredSites.map((site, index) => {
+        const bestVendor = bestVendors[index];
+        const isSelected = selectedSites.has(site.id);
+        return `
+          <tr>
+            <td style="text-align: center;">
+              <input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isSelected ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;">
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="rank">${site.rank}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="siteName">${site.siteName}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="siteType">${site.siteType}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="serviceDescription">${site.serviceDescription}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="uniqueServiceLine">${site.uniqueServiceLine}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="serviceType">${site.serviceType}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="wasteStream">${site.wasteStream}</div>
+            </td>
+            <td>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="binSize">${site.binSize}</div>
+            </td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="cleanaway">${formatCurrency(site.cleanaway)}</div>
+            </td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="veolia">${formatCurrency(site.veolia)}</div>
+            </td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="remondis">${formatCurrency(site.remondis)}</div>
+            </td>
+            <td class="price-cell ${bestVendor === null ? '' : ''}">
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="current">${formatCurrency(site.current)}</div>
+            </td>
+            <td class="actions-cell" style="display: ${deleteMode ? 'table-cell' : 'none'};">
+              <button class="delete-btn" data-site-id="${site.id}">Delete</button>
+            </td>
+          </tr>
+        `;
+      }).join('');
+
+      attachCellListeners();
+      attachDeleteListeners();
+      attachCheckboxListeners();
+      updateSelectionUI();
+    }
+
+    function getServicesFromSites() {
+      return sites
+        .filter(site => site.serviceDescription && site.serviceDescription.trim())
+        .map(site => ({
+          rank: site.rank,
+          siteName: site.siteName,
+          description: site.serviceDescription,
+          cleanaway: site.cleanaway,
+          veolia: site.veolia,
+          remondis: site.remondis,
+          current: site.current
+        }));
+    }
+
+    function renderServices() {
+      const tbody = document.getElementById('services-tbody');
+      const noResults = document.getElementById('no-service-results');
+      
+      const services = getServicesFromSites();
+      
+      const filteredServices = services.filter(service => {
+        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
+                             service.description.toLowerCase().includes(serviceSearchTerm.toLowerCase());
+        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
+        return matchesSearch && matchesSite;
+      });
+
+      if (filteredServices.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      tbody.innerHTML = filteredServices.map(service => {
+        const bestVendor = getBestVendorForService(service);
+        return `
+          <tr>
+            <td>${service.rank}</td>
+            <td><strong>${service.siteName}</strong></td>
+            <td class="service-description-cell">${service.description}</td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
+            <td class="price-cell">${formatCurrency(service.current)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      updateServiceTotals();
+    }
+
+    function updateSiteFilterDropdown() {
+      const select = document.getElementById('service-site-filter');
+      const uniqueSites = [...new Set(sites.filter(s => s.serviceDescription).map(s => s.siteName))].sort();
+      
+      select.innerHTML = '<option value="">All Sites</option>' +
+        uniqueSites.map(site => `<option value="${site}">${site}</option>`).join('');
+    }
+
+    function attachCellListeners() {
+      const editableCells = document.querySelectorAll('.editable-cell');
+      editableCells.forEach(cell => {
+        cell.addEventListener('blur', handleCellEdit);
+        cell.addEventListener('keydown', (e) => {
+          if (e.key === 'Enter') {
+            e.preventDefault();
+            cell.blur();
+          }
+        });
+      });
+    }
+
+    function attachDeleteListeners() {
+      const deleteButtons = document.querySelectorAll('.delete-btn');
+      deleteButtons.forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+          const siteId = parseInt(e.target.dataset.siteId);
+          const site = sites.find(s => s.id === siteId);
+          if (site && site.__backendId) {
+            showLoadingOverlay();
+            const result = await window.dataSdk.delete(site);
+            hideLoadingOverlay();
+            
+            if (result.isOk) {
+              selectedSites.delete(siteId);
+              showMessage(`Deleted "${site.siteName}"`, 'success');
+            } else {
+              showMessage('Failed to delete row', 'error');
+            }
+          }
+        });
+      });
+    }
+
+    function attachCheckboxListeners() {
+      const siteCheckboxes = document.querySelectorAll('.site-checkbox');
+      siteCheckboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', (e) => {
+          const siteId = parseInt(e.target.dataset.siteId);
+          if (e.target.checked) {
+            selectedSites.add(siteId);
+          } else {
+            selectedSites.delete(siteId);
+          }
+          updateSelectionUI();
+        });
+      });
+    }
+
+    function updateSelectionUI() {
+      const selectBtn = document.getElementById('select-sites-btn');
+      const selectCount = document.getElementById('select-count');
+      const selectAllCheckbox = document.getElementById('select-all-sites');
+      
+      if (selectedSites.size > 0) {
+        selectBtn.style.display = 'block';
+        selectCount.textContent = selectedSites.size;
+      } else {
+        selectBtn.style.display = 'none';
+      }
+
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+      });
+
+      const allFilteredSelected = filteredSites.length > 0 && 
+        filteredSites.every(site => selectedSites.has(site.id));
+      
+      selectAllCheckbox.checked = allFilteredSelected;
+      selectAllCheckbox.indeterminate = !allFilteredSelected && 
+        filteredSites.some(site => selectedSites.has(site.id));
+
+      updateTotals();
+    }
+
+    async function handleCellEdit(e) {
+      const cell = e.target;
+      const siteId = parseInt(cell.dataset.siteId);
+      const field = cell.dataset.field;
+      let value = cell.textContent.trim();
+
+      const site = sites.find(s => s.id === siteId);
+      if (!site || !site.__backendId) return;
+
+      const priceFields = ['cleanaway', 'veolia', 'remondis', 'current'];
+      
+      if (priceFields.includes(field)) {
+        value = value.replace(/[$,]/g, '');
+        const numValue = parseFloat(value) || 0;
+        site[field] = numValue;
+        cell.textContent = formatCurrency(numValue);
+      } else if (field === 'rank') {
+        const numValue = parseInt(value) || 0;
+        site[field] = numValue;
+        cell.textContent = numValue;
+      } else {
+        site[field] = value;
+      }
+
+      showLoadingOverlay();
+      const result = await window.dataSdk.update(site);
+      hideLoadingOverlay();
+      
+      if (!result.isOk) {
+        showMessage('Failed to update row', 'error');
+        renderSites();
+      } else {
+        updateDynamicFilters();
+      }
+    }
+
+    // Service search functionality
+    document.getElementById('service-search').addEventListener('input', (e) => {
+      serviceSearchTerm = e.target.value;
+      renderServices();
+    });
+
+    document.getElementById('service-site-filter').addEventListener('change', (e) => {
+      serviceSiteFilter = e.target.value;
+      renderServices();
+    });
+
+    document.getElementById('clear-service-filters-btn').addEventListener('click', () => {
+      serviceSearchTerm = '';
+      serviceSiteFilter = '';
+      document.getElementById('service-search').value = '';
+      document.getElementById('service-site-filter').value = '';
+      renderServices();
+    });
+
+    // Actions dropdown functionality
+    const actionsBtn = document.getElementById('actions-btn');
+    const actionsDropdown = document.getElementById('actions-dropdown');
+    
+    actionsBtn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      actionsDropdown.classList.toggle('show');
+    });
+
+    document.getElementById('toggle-delete-btn').addEventListener('click', () => {
+      deleteMode = !deleteMode;
+      const actionsHeader = document.getElementById('actions-header');
+      const actionsFooter = document.getElementById('actions-footer');
+      
+      if (deleteMode) {
+        actionsHeader.style.display = 'table-cell';
+        actionsFooter.style.display = 'table-cell';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>✓</span><span>Done Deleting</span>';
+      } else {
+        actionsHeader.style.display = 'none';
+        actionsFooter.style.display = 'none';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑️</span><span>Delete Rows</span>';
+      }
+      
+      renderSites();
+      actionsDropdown.classList.remove('show');
+    });
+
+    document.addEventListener('click', (e) => {
+      if (!e.target.closest('.add-site-wrapper') && !e.target.closest('#actions-btn') && !e.target.closest('#select-sites-btn')) {
+        actionsDropdown.classList.remove('show');
+        document.getElementById('selection-dropdown').classList.remove('show');
+      }
+    });
+
+    document.getElementById('select-all-sites').addEventListener('change', (e) => {
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
+        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+      });
+
+      if (e.target.checked) {
+        filteredSites.forEach(site => selectedSites.add(site.id));
+      } else {
+        filteredSites.forEach(site => selectedSites.delete(site.id));
+      }
+      
+      renderSites();
+    });
+
+    document.getElementById('select-sites-btn').addEventListener('click', (e) => {
+      e.stopPropagation();
+      const dropdown = document.getElementById('selection-dropdown');
+      dropdown.classList.toggle('show');
+      actionsDropdown.classList.remove('show');
+    });
+
+    document.getElementById('add-single-site').addEventListener('click', async () => {
+      if (sites.length >= 999) {
+        showMessage('Maximum limit of 999 rows reached. Please delete some rows first.', 'error');
+        actionsDropdown.classList.remove('show');
+        return;
+      }
+
+      const newSite = {
+        id: nextId++,
+        rank: 0,
+        siteName: 'New Site',
+        siteType: '',
+        serviceDescription: '',
+        uniqueServiceLine: '',
+        serviceType: '',
+        wasteStream: '',
+        binSize: '',
+        cleanaway: 0,
+        veolia: 0,
+        remondis: 0,
+        current: 0
+      };
+
+      showLoadingOverlay();
+      const result = await window.dataSdk.create(newSite);
+      hideLoadingOverlay();
+      
+      if (result.isOk) {
+        showMessage('Row added successfully', 'success');
+      } else {
+        showMessage('Failed to add row', 'error');
+      }
+      
+      actionsDropdown.classList.remove('show');
+    });
+
+    document.getElementById('import-excel-btn').addEventListener('click', () => {
+      document.getElementById('excel-upload').click();
+      actionsDropdown.classList.remove('show');
+    });
+
+    document.getElementById('delete-all-btn').addEventListener('click', () => {
+      actionsDropdown.classList.remove('show');
+      
+      if (sites.length === 0) {
+        showMessage('No rows to delete', 'info');
+        return;
+      }
+
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.2s ease;
+      `;
+
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 400px;
+        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+      `;
+
+      modal.innerHTML = `
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete All Rows?</h3>
+        <p style="margin: 0 0 1.5rem 0; color: #64748b; font-size: 1rem;">
+          This will permanently delete all ${sites.length} row${sites.length > 1 ? 's' : ''} from your Canva Sheet. This action cannot be undone.
+        </p>
+        <div style="display: flex; gap: 1rem;">
+          <button id="cancel-delete-all" style="
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          ">Cancel</button>
+          <button id="confirm-delete-all" style="
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: #ef4444;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          ">Delete All</button>
+        </div>
+      `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      const cancelBtn = modal.querySelector('#cancel-delete-all');
+      const confirmBtn = modal.querySelector('#confirm-delete-all');
+      
+      cancelBtn.addEventListener('mouseenter', () => {
+        cancelBtn.style.background = '#e2e8f0';
+      });
+      cancelBtn.addEventListener('mouseleave', () => {
+        cancelBtn.style.background = '#f1f5f9';
+      });
+      
+      confirmBtn.addEventListener('mouseenter', () => {
+        confirmBtn.style.background = '#dc2626';
+      });
+      confirmBtn.addEventListener('mouseleave', () => {
+        confirmBtn.style.background = '#ef4444';
+      });
+
+      cancelBtn.addEventListener('click', () => {
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => overlay.remove(), 200);
+      });
+
+      confirmBtn.addEventListener('click', async () => {
+        const count = sites.length;
+        const sitesToDelete = [...sites];
+        
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => overlay.remove(), 200);
+        
+        showLoadingOverlay();
+        
+        for (const site of sitesToDelete) {
+          if (site.__backendId) {
+            await window.dataSdk.delete(site);
+          }
+        }
+        
+        hideLoadingOverlay();
+        showMessage(`Deleted all ${count} rows`, 'success');
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.style.animation = 'fadeOut 0.2s ease';
+          setTimeout(() => overlay.remove(), 200);
+        }
+      });
+    });
+
+    function setupMultiSelect(buttonId, dropdownId, labelId, filterSet) {
+      const button = document.getElementById(buttonId);
+      const dropdown = document.getElementById(dropdownId);
+      const label = document.getElementById(labelId);
+
+      button.addEventListener('click', (e) => {
+        e.stopPropagation();
+        dropdown.classList.toggle('show');
+        button.classList.toggle('active');
+        
+        document.querySelectorAll('.multi-select-dropdown').forEach(d => {
+          if (d !== dropdown) d.classList.remove('show');
+        });
+        document.querySelectorAll('.multi-select-button').forEach(b => {
+          if (b !== button) b.classList.remove('active');
+        });
+      });
+    }
+
+    setupMultiSelect('site-type-button', 'site-type-dropdown', 'site-type-label', siteTypeFilters);
+    setupMultiSelect('waste-stream-button', 'waste-stream-dropdown', 'waste-stream-label', wasteStreamFilters);
+    setupMultiSelect('service-type-button', 'service-type-dropdown', 'service-type-label', serviceTypeFilters);
+
+    document.addEventListener('click', () => {
+      document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
+      document.querySelectorAll('.multi-select-button').forEach(b => b.classList.remove('active'));
+    });
+
+    document.getElementById('site-search').addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('clear-filters-btn').addEventListener('click', () => {
+      searchTerm = '';
+      siteTypeFilters.clear();
+      wasteStreamFilters.clear();
+      serviceTypeFilters.clear();
+      
+      document.getElementById('site-search').value = '';
+      document.getElementById('site-type-label').textContent = 'All Site Types';
+      document.getElementById('waste-stream-label').textContent = 'All Waste Streams';
+      document.getElementById('service-type-label').textContent = 'All Service Types';
+      
+      updateDynamicFilters();
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('delete-selected-btn').addEventListener('click', () => {
+      if (selectedSites.size === 0) return;
+
+      const overlay = document.createElement('div');
+      overlay.style.cssText = `
+        position: fixed;
+        top: 0;
+        left: 0;
+        right: 0;
+        bottom: 0;
+        background: rgba(0, 0, 0, 0.5);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        z-index: 10000;
+        animation: fadeIn 0.2s ease;
+      `;
+
+      const modal = document.createElement('div');
+      modal.style.cssText = `
+        background: white;
+        border-radius: 16px;
+        padding: 2rem;
+        max-width: 400px;
+        box-shadow: 0 20px 25px rgba(0, 0, 0, 0.3);
+        animation: slideUp 0.3s ease;
+      `;
+
+      modal.innerHTML = `
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete Selected Rows?</h3>
+        <p style="margin: 0 0 1.5rem 0; color: #64748b; font-size: 1rem;">
+          This will permanently delete ${selectedSites.size} selected row${selectedSites.size > 1 ? 's' : ''} from your Canva Sheet. This action cannot be undone.
+        </p>
+        <div style="display: flex; gap: 1rem;">
+          <button id="cancel-delete-selected" style="
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: #64748b;
+            background: #f1f5f9;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          ">Cancel</button>
+          <button id="confirm-delete-selected" style="
+            flex: 1;
+            padding: 0.75rem 1.5rem;
+            font-size: 1rem;
+            font-weight: 600;
+            color: white;
+            background: #ef4444;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+          ">Delete</button>
+        </div>
+      `;
+
+      overlay.appendChild(modal);
+      document.body.appendChild(overlay);
+
+      const cancelBtn = modal.querySelector('#cancel-delete-selected');
+      const confirmBtn = modal.querySelector('#confirm-delete-selected');
+      
+      cancelBtn.addEventListener('mouseenter', () => cancelBtn.style.background = '#e2e8f0');
+      cancelBtn.addEventListener('mouseleave', () => cancelBtn.style.background = '#f1f5f9');
+      confirmBtn.addEventListener('mouseenter', () => confirmBtn.style.background = '#dc2626');
+      confirmBtn.addEventListener('mouseleave', () => confirmBtn.style.background = '#ef4444');
+
+      cancelBtn.addEventListener('click', () => {
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => overlay.remove(), 200);
+      });
+
+      confirmBtn.addEventListener('click', async () => {
+        const count = selectedSites.size;
+        const sitesToDelete = sites.filter(site => selectedSites.has(site.id));
+        
+        overlay.style.animation = 'fadeOut 0.2s ease';
+        setTimeout(() => overlay.remove(), 200);
+        
+        showLoadingOverlay();
+        
+        for (const site of sitesToDelete) {
+          if (site.__backendId) {
+            await window.dataSdk.delete(site);
+          }
+        }
+        
+        selectedSites.clear();
+        hideLoadingOverlay();
+        showMessage(`Deleted ${count} rows`, 'success');
+      });
+
+      overlay.addEventListener('click', (e) => {
+        if (e.target === overlay) {
+          overlay.style.animation = 'fadeOut 0.2s ease';
+          setTimeout(() => overlay.remove(), 200);
+        }
+      });
+
+      document.getElementById('selection-dropdown').classList.remove('show');
+    });
+
+    document.getElementById('export-selected-btn').addEventListener('click', () => {
+      if (selectedSites.size === 0) return;
+
+      const selectedSiteData = sites.filter(site => selectedSites.has(site.id));
+      
+      const headers = ['Rank', 'Site Name', 'Site Type', 'Service Description', 'Unique Service Line', 'Service Type', 'Waste Stream', 'Bin Size', 'Cleanaway', 'Veolia', 'Remondis', 'Current'];
+      const csvRows = [headers.join(',')];
+      
+      selectedSiteData.forEach(site => {
+        const row = [
+          site.rank,
+          `"${site.siteName}"`,
+          `"${site.siteType}"`,
+          `"${site.serviceDescription || ''}"`,
+          `"${site.uniqueServiceLine || ''}"`,
+          `"${site.serviceType || ''}"`,
+          `"${site.wasteStream}"`,
+          `"${site.binSize || ''}"`,
+          site.cleanaway,
+          site.veolia,
+          site.remondis,
+          site.current
+        ];
+        csvRows.push(row.join(','));
+      });
+
+      const csvContent = csvRows.join('\n');
+      const blob = new Blob([csvContent], { type: 'text/csv' });
+      const url = window.URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      a.download = `selected-sites-${new Date().toISOString().split('T')[0]}.csv`;
+      a.click();
+      window.URL.revokeObjectURL(url);
+
+      showMessage(`Exported ${selectedSites.size} rows to CSV`, 'success');
+      document.getElementById('selection-dropdown').classList.remove('show');
+    });
+
+    document.getElementById('deselect-all-btn').addEventListener('click', () => {
+      selectedSites.clear();
+      renderSites();
+      document.getElementById('selection-dropdown').classList.remove('show');
+    });
+
+    document.getElementById('excel-upload').addEventListener('change', async (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = async (event) => {
+        try {
+          const data = event.target.result;
+          await parseCSV(data);
+          e.target.value = '';
+        } catch (error) {
+          showMessage('Error reading file. Please check the format and try again.', 'error');
+        }
+      };
+
+      reader.readAsText(file);
+    });
+
+    async function parseCSV(csvText, isInitialLoad = false) {
+      const lines = csvText.split('\n').filter(line => line.trim());
+      if (lines.length < 2) {
+        if (!isInitialLoad) {
+          showMessage('CSV file is empty or invalid.', 'error');
+        }
+        return;
+      }
+
+      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+      
+      const columnMap = {
+        rank: headers.findIndex(h => h.includes('rank')),
+        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
+        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
+        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
+        uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
+        serviceType: headers.findIndex(h => h.includes('service type')),
+        wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
+        binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
+        cleanaway: headers.findIndex(h => h.includes('cleanaway')),
+        veolia: headers.findIndex(h => h.includes('veolia')),
+        remondis: headers.findIndex(h => h.includes('remondis')),
+        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+      };
+
+      let importedCount = 0;
+      const sitesToImport = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+        
+        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
+        if (!siteNameValue) continue;
+        
+        if (sites.length + sitesToImport.length >= 999) {
+          if (!isInitialLoad) {
+            showMessage('Maximum limit of 999 rows reached. Some rows were not imported.', 'error');
+          }
+          break;
+        }
+        
+        const newSite = {
+          id: nextId++,
+          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
+          siteName: siteNameValue || `Site ${nextId - 1}`,
+          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
+          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
+          uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
+          serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
+          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
+          binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
+          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+        };
+        
+        sitesToImport.push(newSite);
+        importedCount++;
+      }
+
+      if (importedCount === 0) {
+        if (!isInitialLoad) {
+          showMessage('No valid data found in CSV. Please check the file format.', 'error');
+        }
+      } else {
+        if (!isInitialLoad) {
+          showLoadingOverlay();
+        }
+        
+        for (const site of sitesToImport) {
+          const result = await window.dataSdk.create(site);
+          if (!result.isOk) {
+            if (!isInitialLoad) {
+              showMessage('Some rows failed to import', 'error');
+            }
+            break;
+          }
+        }
+        
+        if (!isInitialLoad) {
+          hideLoadingOverlay();
+          showMessage(`Successfully imported ${importedCount} rows!`, 'success');
+        }
+      }
+    }
+
+    function showMessage(text, type) {
+      const existingMessage = document.querySelector('.import-message');
+      if (existingMessage) {
+        existingMessage.remove();
+      }
+
+      const message = document.createElement('div');
+      message.className = 'import-message';
+      message.textContent = text;
+      message.style.cssText = `
+        position: fixed;
+        top: 2rem;
+        right: 2rem;
+        padding: 1rem 1.5rem;
+        border-radius: 12px;
+        font-weight: 600;
+        z-index: 1000;
+        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+        animation: slideIn 0.3s ease;
+        ${type === 'success' ? 'background: #10b981; color: white;' : 
+          type === 'error' ? 'background: #ef4444; color: white;' : 
+          'background: #6366f1; color: white;'}
+      `;
+
+      document.body.appendChild(message);
+
+      setTimeout(() => {
+        message.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => message.remove(), 300);
+      }, 3000);
+    }
+
+    const style = document.createElement('style');
+    style.textContent = `
+      @keyframes slideIn {
+        from {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+        to {
+          transform: translateX(0);
+          opacity: 1;
+        }
+      }
+      @keyframes slideOut {
+        from {
+          transform: translateX(0);
+          opacity: 1;
+        }
+        to {
+          transform: translateX(100%);
+          opacity: 0;
+        }
+      }
+      @keyframes fadeIn {
+        from {
+          opacity: 0;
+        }
+        to {
+          opacity: 1;
+        }
+      }
+      @keyframes fadeOut {
+        from {
+          opacity: 1;
+        }
+        to {
+          opacity: 0;
+        }
+      }
+      @keyframes slideUp {
+        from {
+          transform: translateY(20px);
+          opacity: 0;
+        }
+        to {
+          transform: translateY(0);
+          opacity: 1;
+        }
+      }
+    `;
+    document.head.appendChild(style);
+
+    // Scroll to top button functionality
+    const scrollToTopBtn = document.getElementById('scroll-to-top');
+    
+    window.addEventListener('scroll', () => {
+      if (window.scrollY > 400) {
+        scrollToTopBtn.classList.add('show');
+      } else {
+        scrollToTopBtn.classList.remove('show');
+      }
+    });
+
+    scrollToTopBtn.addEventListener('click', () => {
+      window.scrollTo({
+        top: 0,
+        behavior: 'smooth'
+      });
+    });
+  </script>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4e9407a042e6b9',t:'MTc2NDIxNDU1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+</html>
