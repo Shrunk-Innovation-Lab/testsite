@@ -1,0 +1,1169 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waste Management Tender Dashboard</title>
+  <link rel="icon" type="image/png" href="https://imgur.com/dZR7M8C.png">
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    .dashboard-wrapper {
+      width: 100%;
+      min-height: 100%;
+      padding: 3rem 2rem;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 0;
+    }
+
+    .header-logo {
+      width: 20%;
+      max-width: 800px;
+      height: auto;
+      object-fit: contain;
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      text-align: center;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .client-branding {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .client-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: white;
+      padding: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .current-costs-section {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .current-costs-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .header-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-top: 1.5rem;
+      margin-top: 0;
+      position: relative;
+    }
+
+    .header-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 2px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #1e293b;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tab:hover {
+      border-color: #6366f1;
+      color: #6366f1;
+    }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .page {
+      display: none;
+    }
+
+    .page.active {
+      display: block;
+    }
+
+    .vendors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+    }
+
+    .vendor-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vendor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    }
+
+    .vendor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08), 0 20px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .vendor-card.best-price::after {
+      content: '✓ Best Price';
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .vendor-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .vendor-logo {
+      width: 120px;
+      height: 80px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .price-section {
+      margin: 2rem 0;
+    }
+
+    .price-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price-display {
+      width: 100%;
+      padding: 1rem 1rem 1rem 2.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      min-height: 4rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .current-costs-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .current-costs-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .current-costs-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .current-total {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .current-total-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .current-total-amount {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .savings-section {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .savings-header {
+      flex: 0 0 auto;
+      text-align: left;
+    }
+
+    .savings-title {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .savings-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 0.25rem;
+    }
+
+    .savings-vendor {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .savings-vendor-name {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .savings-meter {
+      flex: 1;
+      position: relative;
+    }
+
+    .meter-background {
+      width: 100%;
+      height: 40px;
+      background: #f1f5f9;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 20px;
+      transition: width 0.8s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 1rem;
+      position: relative;
+    }
+
+    .meter-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .meter-percentage {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      z-index: 1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .sites-section {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .sites-header {
+      margin-bottom: 2rem;
+    }
+
+    .sites-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .filter-section {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .filter-select {
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      min-width: 180px;
+    }
+
+    .filter-select:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: #f8fafc;
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9375rem;
+    }
+
+    tbody tr:hover {
+      background-color: #f8fafc;
+    }
+
+    .price-cell {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .best-cell {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      font-weight: 700;
+      color: #6366f1;
+      border-radius: 6px;
+    }
+
+    .summary-row {
+      background: #f8fafc;
+      font-weight: 700;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .summary-row td {
+      padding: 1.25rem 1rem;
+      font-size: 1.125rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #64748b;
+      font-size: 1rem;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin {
+      to { transform: rotate(360deg); }
+    }
+
+    .error-message {
+      text-align: center;
+      padding: 2rem;
+      color: #ef4444;
+      font-size: 1.125rem;
+      background: #fef2f2;
+      border-radius: 12px;
+      margin: 2rem auto;
+      max-width: 600px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-wrapper {
+        padding: 2rem 1rem;
+      }
+
+      .header h1 {
+        font-size: 2rem;
+      }
+
+      .vendors-grid {
+        grid-template-columns: 1fr;
+      }
+
+      .price-display {
+        font-size: 1.5rem;
+      }
+
+      .savings-section {
+        flex-direction: column;
+        gap: 1.5rem;
+        align-items: stretch;
+      }
+
+      .savings-header {
+        text-align: center;
+      }
+
+      th, td {
+        padding: 0.75rem 0.5rem;
+      }
+
+      .client-branding {
+        right: 1rem;
+        top: 1rem;
+      }
+      
+      .client-logo {
+        width: 60px;
+        height: 60px;
+      }
+    }
+  </style>
+ </head>
+ <body>
+  <div class="dashboard-wrapper">
+   <header class="header">
+    <img src="https://i.imgur.com/Z4iSIu0.png" alt="Header Logo" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-content">
+     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
+    </div>
+    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
+   </header>
+   
+   <nav class="nav-tabs">
+    <button class="nav-tab active" data-page="summary">Summary View</button>
+    <button class="nav-tab" data-page="services">Service Details</button>
+   </nav>
+
+   <!-- SUMMARY PAGE -->
+   <div class="page active" id="summary-page">
+    <section class="current-costs-section">
+     <div class="client-branding">
+      <img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+     </div>
+     <div class="current-costs-header">
+      <div class="current-costs-icon">💰</div>
+      <h2 class="current-costs-title">Current Annual Costs</h2>
+     </div>
+     <div class="current-total">
+      <div class="current-total-label">Total Across All Sites</div>
+      <div class="current-total-amount" id="current-total-amount">$0</div>
+     </div>
+     <div class="savings-section">
+      <div class="savings-header">
+       <div class="savings-title">Savings on Current Costs</div>
+       <div class="savings-amount" id="savings-amount">$0</div>
+       <div class="savings-vendor">Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span></div>
+      </div>
+      <div class="savings-meter">
+       <div class="meter-background">
+        <div class="meter-fill" id="meter-fill" style="width: 0%;">
+         <span class="meter-percentage" id="meter-percentage">0%</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+
+    <section class="vendors-grid">
+     <article class="vendor-card" id="cleanaway-card">
+      <div class="vendor-header">
+       <img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">Annual Service Cost</div>
+       <div class="price-display" id="cleanaway-price">$0</div>
+      </div>
+     </article>
+     
+     <article class="vendor-card" id="veolia-card">
+      <div class="vendor-header">
+       <img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">Annual Service Cost</div>
+       <div class="price-display" id="veolia-price">$0</div>
+      </div>
+     </article>
+     
+     <article class="vendor-card" id="remondis-card">
+      <div class="vendor-header">
+       <img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">Annual Service Cost</div>
+       <div class="price-display" id="remondis-price">$0</div>
+      </div>
+     </article>
+    </section>
+
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Site-by-Site Comparison</h2>
+      <div class="filter-section">
+       <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
+       <select id="site-type-filter" class="filter-select">
+        <option value="">All Site Types</option>
+       </select>
+       <select id="waste-stream-filter" class="filter-select">
+        <option value="">All Waste Streams</option>
+       </select>
+      </div>
+     </div>
+     <div class="table-wrapper">
+      <table>
+       <thead>
+        <tr>
+         <th>Rank</th>
+         <th>Site Name</th>
+         <th>Site Type</th>
+         <th>Service Description</th>
+         <th>Waste Stream</th>
+         <th>Bin Size</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+         <th>Current</th>
+        </tr>
+       </thead>
+       <tbody id="sites-tbody">
+        <!-- Rows will be added here -->
+       </tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td colspan="6">Total</td>
+         <td id="total-cleanaway">$0</td>
+         <td id="total-veolia">$0</td>
+         <td id="total-remondis">$0</td>
+         <td id="total-current">$0</td>
+        </tr>
+       </tfoot>
+      </table>
+     </div>
+     <div id="no-results" class="no-results" style="display: none;">No sites match your search</div>
+    </section>
+   </div>
+
+   <!-- SERVICES PAGE -->
+   <div class="page" id="services-page">
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Service Description Details</h2>
+      <div class="filter-section">
+       <input type="text" id="service-search" class="search-input" placeholder="🔍 Search services or sites...">
+       <select id="service-site-filter" class="filter-select">
+        <option value="">All Sites</option>
+       </select>
+      </div>
+     </div>
+     <div class="table-wrapper">
+      <table>
+       <thead>
+        <tr>
+         <th>Rank</th>
+         <th>Site Name</th>
+         <th style="min-width: 250px;">Service Description</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+         <th>Current</th>
+        </tr>
+       </thead>
+       <tbody id="services-tbody">
+        <!-- Service rows will be added here -->
+       </tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td colspan="3">Total</td>
+         <td id="service-total-cleanaway">$0</td>
+         <td id="service-total-veolia">$0</td>
+         <td id="service-total-remondis">$0</td>
+         <td id="service-total-current">$0</td>
+        </tr>
+       </tfoot>
+      </table>
+     </div>
+     <div id="no-service-results" class="no-results" style="display: none;">No services match your search</div>
+    </section>
+   </div>
+
+   <footer class="footer">
+    <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
+   </footer>
+  </div>
+
+  <script>
+    // Global variables
+    let sites = [];
+    let searchTerm = '';
+    let siteTypeFilter = '';
+    let wasteStreamFilter = '';
+    let serviceSearchTerm = '';
+    let serviceSiteFilter = '';
+
+    // Initialize the application
+    async function initializeApp() {
+      showLoadingOverlay();
+      await loadGitHubData();
+    }
+
+    // Load data from GitHub
+    async function loadGitHubData() {
+      try {
+        // Use the raw GitHub content URL (replace with your actual raw URL)
+        // Format: https://raw.githubusercontent.com/[username]/[repo]/[branch]/[filename]
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/datatest.csv';
+        
+        const response = await fetch(githubUrl);
+        if (!response.ok) {
+          throw new Error('Failed to fetch data from GitHub');
+        }
+        
+        const csvText = await response.text();
+        parseCSV(csvText);
+        
+        hideLoadingOverlay();
+      } catch (error) {
+        console.error('Error loading data:', error);
+        hideLoadingOverlay();
+        showError('Failed to load data. Please check the CSV file URL.');
+      }
+    }
+
+    // Parse CSV data
+    function parseCSV(csvText) {
+      const lines = csvText.split('\n').filter(line => line.trim());
+      if (lines.length < 2) {
+        showError('CSV file is empty or invalid.');
+        return;
+      }
+
+      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+      
+      const columnMap = {
+        rank: headers.findIndex(h => h.includes('rank')),
+        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
+        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
+        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
+        uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
+        serviceType: headers.findIndex(h => h.includes('service type')),
+        wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
+        binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
+        cleanaway: headers.findIndex(h => h.includes('cleanaway')),
+        veolia: headers.findIndex(h => h.includes('veolia')),
+        remondis: headers.findIndex(h => h.includes('remondis')),
+        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+      };
+
+      sites = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+        
+        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
+        if (!siteNameValue) continue;
+        
+        const site = {
+          id: i,
+          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
+          siteName: siteNameValue || `Site ${i}`,
+          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
+          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
+          uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
+          serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
+          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
+          binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
+          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+        };
+        
+        sites.push(site);
+      }
+
+      updateFilters();
+      renderSites();
+      renderServices();
+      updateTotals();
+    }
+
+    // Update filter dropdowns
+    function updateFilters() {
+      const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
+      const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
+      const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
+
+      // Site type filter
+      const siteTypeSelect = document.getElementById('site-type-filter');
+      siteTypeSelect.innerHTML = '<option value="">All Site Types</option>' +
+        siteTypes.map(type => `<option value="${type}">${type}</option>`).join('');
+
+      // Waste stream filter
+      const wasteStreamSelect = document.getElementById('waste-stream-filter');
+      wasteStreamSelect.innerHTML = '<option value="">All Waste Streams</option>' +
+        wasteStreams.map(stream => `<option value="${stream}">${stream}</option>`).join('');
+
+      // Service site filter
+      const serviceSiteSelect = document.getElementById('service-site-filter');
+      serviceSiteSelect.innerHTML = '<option value="">All Sites</option>' +
+        siteNames.map(site => `<option value="${site}">${site}</option>`).join('');
+    }
+
+    // Format currency
+    function formatCurrency(value) {
+      return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    // Get best vendor for a site
+    function getBestVendorForSite(site) {
+      const prices = [
+        { vendor: 'cleanaway', price: site.cleanaway || 0 },
+        { vendor: 'veolia', price: site.veolia || 0 },
+        { vendor: 'remondis', price: site.remondis || 0 }
+      ];
+
+      const validPrices = prices.filter(p => p.price > 0);
+      if (validPrices.length === 0) return null;
+
+      const minPrice = Math.min(...validPrices.map(p => p.price));
+      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
+    }
+
+    // Render sites table
+    function renderSites() {
+      const tbody = document.getElementById('sites-tbody');
+      const noResults = document.getElementById('no-results');
+      
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
+        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
+        return matchesSearch && matchesSiteType && matchesWasteStream;
+      });
+
+      if (filteredSites.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      tbody.innerHTML = filteredSites.map(site => {
+        const bestVendor = getBestVendorForSite(site);
+        return `
+          <tr>
+            <td>${site.rank}</td>
+            <td>${site.siteName}</td>
+            <td>${site.siteType}</td>
+            <td>${site.serviceDescription}</td>
+            <td>${site.wasteStream}</td>
+            <td>${site.binSize}</td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(site.veolia)}</td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(site.remondis)}</td>
+            <td class="price-cell">${formatCurrency(site.current)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    // Render services table
+    function renderServices() {
+      const tbody = document.getElementById('services-tbody');
+      const noResults = document.getElementById('no-service-results');
+      
+      const services = sites.filter(site => site.serviceDescription && site.serviceDescription.trim());
+      
+      const filteredServices = services.filter(service => {
+        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
+                             service.serviceDescription.toLowerCase().includes(serviceSearchTerm.toLowerCase());
+        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
+        return matchesSearch && matchesSite;
+      });
+
+      if (filteredServices.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        updateServiceTotals([]);
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      tbody.innerHTML = filteredServices.map(service => {
+        const bestVendor = getBestVendorForSite(service);
+        return `
+          <tr>
+            <td>${service.rank}</td>
+            <td><strong>${service.siteName}</strong></td>
+            <td>${service.serviceDescription}</td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
+            <td class="price-cell">${formatCurrency(service.current)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      updateServiceTotals(filteredServices);
+    }
+
+    // Update totals
+    function updateTotals() {
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
+        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
+        return matchesSearch && matchesSiteType && matchesWasteStream;
+      });
+
+      const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
+      const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = filteredSites.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const totalRemondis = filteredSites.reduce((sum, site) => sum + (site.remondis || 0), 0);
+
+      document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
+      document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
+
+      document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
+      document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
+
+      updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
+      updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
+    }
+
+    // Update service totals
+    function updateServiceTotals(services) {
+      const totalCurrent = services.reduce((sum, service) => sum + (service.current || 0), 0);
+      const totalCleanaway = services.reduce((sum, service) => sum + (service.cleanaway || 0), 0);
+      const totalVeolia = services.reduce((sum, service) => sum + (service.veolia || 0), 0);
+      const totalRemondis = services.reduce((sum, service) => sum + (service.remondis || 0), 0);
+
+      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
+    }
+
+    // Update best price indicator
+    function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
+      const cards = [
+        { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
+        { price: veoliaTotal, card: document.getElementById('veolia-card') },
+        { price: remondisTotal, card: document.getElementById('remondis-card') }
+      ];
+
+      cards.forEach(item => item.card.classList.remove('best-price'));
+
+      const validPrices = cards.filter(p => p.price > 0);
+      if (validPrices.length > 0) {
+        const bestPrice = Math.min(...validPrices.map(p => p.price));
+        const bestVendor = validPrices.find(p => p.price === bestPrice);
+        bestVendor.card.classList.add('best-price');
+      }
+    }
+
+    // Update savings meter
+    function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
+      const vendors = [
+        { name: 'Cleanaway', price: totalCleanaway },
+        { name: 'Veolia', price: totalVeolia },
+        { name: 'Remondis', price: totalRemondis }
+      ];
+
+      const validVendors = vendors.filter(v => v.price > 0);
+      
+      if (validVendors.length === 0 || totalCurrent === 0) {
+        document.getElementById('savings-amount').textContent = '$0';
+        document.getElementById('best-vendor-name').textContent = '—';
+        document.getElementById('meter-fill').style.width = '0%';
+        document.getElementById('meter-percentage').textContent = '0%';
+        return;
+      }
+
+      const bestVendor = validVendors.reduce((min, vendor) => 
+        vendor.price < min.price ? vendor : min
+      );
+
+      const savings = totalCurrent - bestVendor.price;
+      const savingsPercentage = (savings / totalCurrent) * 100;
+
+      document.getElementById('savings-amount').textContent = formatCurrency(savings);
+      document.getElementById('best-vendor-name').textContent = bestVendor.name;
+      
+      setTimeout(() => {
+        document.getElementById('meter-fill').style.width = savingsPercentage.toFixed(1) + '%';
+        document.getElementById('meter-percentage').textContent = savingsPercentage.toFixed(1) + '%';
+      }, 100);
+    }
+
+    // Show loading overlay
+    function showLoadingOverlay() {
+      if (!document.querySelector('.loading-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = '<div class="loading-spinner"></div>';
+        document.body.appendChild(overlay);
+      }
+    }
+
+    // Hide loading overlay
+    function hideLoadingOverlay() {
+      const overlay = document.querySelector('.loading-overlay');
+      if (overlay) {
+        overlay.remove();
+      }
+    }
+
+    // Show error message
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      
+      const wrapper = document.querySelector('.dashboard-wrapper');
+      const firstChild = wrapper.firstChild;
+      wrapper.insertBefore(errorDiv, firstChild.nextSibling);
+    }
+
+    // Event listeners for page navigation
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        const targetPage = tab.dataset.page;
+        
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`${targetPage}-page`).classList.add('active');
+      });
+    });
+
+    // Event listeners for filters
+    document.getElementById('site-search').addEventListener('input', (e) => {
+      searchTerm = e.target.value;
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('site-type-filter').addEventListener('change', (e) => {
+      siteTypeFilter = e.target.value;
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('waste-stream-filter').addEventListener('change', (e) => {
+      wasteStreamFilter = e.target.value;
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('service-search').addEventListener('input', (e) => {
+      serviceSearchTerm = e.target.value;
+      renderServices();
+    });
+
+    document.getElementById('service-site-filter').addEventListener('change', (e) => {
+      serviceSiteFilter = e.target.value;
+      renderServices();
+    });
+
+    // Initialize the app when the page loads
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+ </body>
+</html>
