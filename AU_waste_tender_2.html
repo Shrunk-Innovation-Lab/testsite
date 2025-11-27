@@ -1353,23 +1353,33 @@
 
     async function loadGitHubData() {
       try {
-        // GitHub raw content URL
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/AU/788c7b650e955af25c9fd0435dd15f92feb3af73/datatest.csv?token=GHSAT0AAAAAAC54232MBVJPH3HPH4TXAJ4Y2JH3IJA';
+        // GitHub raw content URL - CORRECTED URL
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/datatest.csv';
+        
+        console.log('Fetching data from GitHub:', githubUrl);
         
         const response = await fetch(githubUrl);
+        
         if (!response.ok) {
-          throw new Error('Failed to fetch data from GitHub');
+          throw new Error(`HTTP error! status: ${response.status}`);
         }
         
         const csvText = await response.text();
+        console.log('CSV data received, length:', csvText.length);
+        console.log('First 200 characters:', csvText.substring(0, 200));
+        
+        if (!csvText || csvText.trim().length === 0) {
+          throw new Error('CSV file is empty');
+        }
+        
         await parseCSV(csvText, true);
         
         hideLoadingOverlay();
         showMessage('Data loaded from GitHub successfully!', 'success');
       } catch (error) {
-        hideLoadingOverlay();
-        showMessage('Failed to load data from GitHub. You can still import your own CSV.', 'error');
         console.error('GitHub load error:', error);
+        hideLoadingOverlay();
+        showMessage(`Failed to load data from GitHub: ${error.message}`, 'error');
       }
     }
 
@@ -2324,209 +2334,209 @@
     document.getElementById('excel-upload').addEventListener('change', async (e) => {
       const file = e.target.files[0];
       if (!file) return;
+     new FileReader();
+reader.onload = async (event) => {
+try {
+const data = event.target.result;
+await parseCSV(data);
+e.target.value = '';
+} catch (error) {
+showMessage('Error reading file. Please check the format and try again.', 'error');
+}
+};
+  reader.readAsText(file);
+});
 
-      const reader = new FileReader();
-      reader.onload = async (event) => {
-        try {
-          const data = event.target.result;
-          await parseCSV(data);
-          e.target.value = '';
-        } catch (error) {
-          showMessage('Error reading file. Please check the format and try again.', 'error');
-        }
-      };
-
-      reader.readAsText(file);
-    });
-
-    async function parseCSV(csvText, isInitialLoad = false) {
-      const lines = csvText.split('\n').filter(line => line.trim());
-      if (lines.length < 2) {
-        if (!isInitialLoad) {
-          showMessage('CSV file is empty or invalid.', 'error');
-        }
-        return;
-      }
-
-      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-      
-      const columnMap = {
-        rank: headers.findIndex(h => h.includes('rank')),
-        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
-        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
-        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
-        uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
-        serviceType: headers.findIndex(h => h.includes('service type')),
-        wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
-        binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
-        cleanaway: headers.findIndex(h => h.includes('cleanaway')),
-        veolia: headers.findIndex(h => h.includes('veolia')),
-        remondis: headers.findIndex(h => h.includes('remondis')),
-        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
-      };
-
-      let importedCount = 0;
-      const sitesToImport = [];
-      
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
-        
-        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
-        if (!siteNameValue) continue;
-        
-        if (sites.length + sitesToImport.length >= 999) {
-          if (!isInitialLoad) {
-            showMessage('Maximum limit of 999 rows reached. Some rows were not imported.', 'error');
-          }
-          break;
-        }
-        
-        const newSite = {
-          id: nextId++,
-          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
-          siteName: siteNameValue || `Site ${nextId - 1}`,
-          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
-          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
-          uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
-          serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
-          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
-          binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
-          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
-        };
-        
-        sitesToImport.push(newSite);
-        importedCount++;
-      }
-
-      if (importedCount === 0) {
-        if (!isInitialLoad) {
-          showMessage('No valid data found in CSV. Please check the file format.', 'error');
-        }
-      } else {
-        if (!isInitialLoad) {
-          showLoadingOverlay();
-        }
-        
-        for (const site of sitesToImport) {
-          const result = await window.dataSdk.create(site);
-          if (!result.isOk) {
-            if (!isInitialLoad) {
-              showMessage('Some rows failed to import', 'error');
-            }
-            break;
-          }
-        }
-        
-        if (!isInitialLoad) {
-          hideLoadingOverlay();
-          showMessage(`Successfully imported ${importedCount} rows!`, 'success');
-        }
-      }
+async function parseCSV(csvText, isInitialLoad = false) {
+  const lines = csvText.split('\n').filter(line => line.trim());
+  if (lines.length < 2) {
+    if (!isInitialLoad) {
+      showMessage('CSV file is empty or invalid.', 'error');
     }
+    return;
+  }
 
-    function showMessage(text, type) {
-      const existingMessage = document.querySelector('.import-message');
-      if (existingMessage) {
-        existingMessage.remove();
-      }
+  const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+  
+  const columnMap = {
+    rank: headers.findIndex(h => h.includes('rank')),
+    siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
+    siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
+    serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
+    uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
+    serviceType: headers.findIndex(h => h.includes('service type')),
+    wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
+    binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
+    cleanaway: headers.findIndex(h => h.includes('cleanaway')),
+    veolia: headers.findIndex(h => h.includes('veolia')),
+    remondis: headers.findIndex(h => h.includes('remondis')),
+    current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+  };
 
-      const message = document.createElement('div');
-      message.className = 'import-message';
-      message.textContent = text;
-      message.style.cssText = `
-        position: fixed;
-        top: 2rem;
-        right: 2rem;
-        padding: 1rem 1.5rem;
-        border-radius: 12px;
-        font-weight: 600;
-        z-index: 1000;
-        box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
-        animation: slideIn 0.3s ease;
-        ${type === 'success' ? 'background: #10b981; color: white;' : 
-          type === 'error' ? 'background: #ef4444; color: white;' : 
-          'background: #6366f1; color: white;'}
-      `;
-
-      document.body.appendChild(message);
-
-      setTimeout(() => {
-        message.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => message.remove(), 300);
-      }, 3000);
-    }
-
-    const style = document.createElement('style');
-    style.textContent = `
-      @keyframes slideIn {
-        from {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-        to {
-          transform: translateX(0);
-          opacity: 1;
-        }
-      }
-      @keyframes slideOut {
-        from {
-          transform: translateX(0);
-          opacity: 1;
-        }
-        to {
-          transform: translateX(100%);
-          opacity: 0;
-        }
-      }
-      @keyframes fadeIn {
-        from {
-          opacity: 0;
-        }
-        to {
-          opacity: 1;
-        }
-      }
-      @keyframes fadeOut {
-        from {
-          opacity: 1;
-        }
-        to {
-          opacity: 0;
-        }
-      }
-      @keyframes slideUp {
-        from {
-          transform: translateY(20px);
-          opacity: 0;
-        }
-        to {
-          transform: translateY(0);
-          opacity: 1;
-        }
-      }
-    `;
-    document.head.appendChild(style);
-
-    // Scroll to top button functionality
-    const scrollToTopBtn = document.getElementById('scroll-to-top');
+  let importedCount = 0;
+  const sitesToImport = [];
+  
+  for (let i = 1; i < lines.length; i++) {
+    const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
     
-    window.addEventListener('scroll', () => {
-      if (window.scrollY > 400) {
-        scrollToTopBtn.classList.add('show');
-      } else {
-        scrollToTopBtn.classList.remove('show');
+    const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
+    if (!siteNameValue) continue;
+    
+    if (sites.length + sitesToImport.length >= 999) {
+      if (!isInitialLoad) {
+        showMessage('Maximum limit of 999 rows reached. Some rows were not imported.', 'error');
       }
-    });
+      break;
+    }
+    
+    const newSite = {
+      id: nextId++,
+      rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
+      siteName: siteNameValue || `Site ${nextId - 1}`,
+      siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
+      serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
+      uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
+      serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
+      wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
+      binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
+      cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
+      veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
+      remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
+      current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+    };
+    
+    sitesToImport.push(newSite);
+    importedCount++;
+  }
 
-    scrollToTopBtn.addEventListener('click', () => {
-      window.scrollTo({
-        top: 0,
-        behavior: 'smooth'
-      });
-    });
+  if (importedCount === 0) {
+    if (!isInitialLoad) {
+      showMessage('No valid data found in CSV. Please check the file format.', 'error');
+    }
+  } else {
+    if (!isInitialLoad) {
+      showLoadingOverlay();
+    }
+    
+    for (const site of sitesToImport) {
+      const result = await window.dataSdk.create(site);
+      if (!result.isOk) {
+        if (!isInitialLoad) {
+          showMessage('Some rows failed to import', 'error');
+        }
+        break;
+      }
+    }
+    
+    if (!isInitialLoad) {
+      hideLoadingOverlay();
+      showMessage(`Successfully imported ${importedCount} rows!`, 'success');
+    }
+  }
+}
+
+function showMessage(text, type) {
+  const existingMessage = document.querySelector('.import-message');
+  if (existingMessage) {
+    existingMessage.remove();
+  }
+
+  const message = document.createElement('div');
+  message.className = 'import-message';
+  message.textContent = text;
+  message.style.cssText = `
+    position: fixed;
+    top: 2rem;
+    right: 2rem;
+    padding: 1rem 1.5rem;
+    border-radius: 12px;
+    font-weight: 600;
+    z-index: 1000;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+    animation: slideIn 0.3s ease;
+    ${type === 'success' ? 'background: #10b981; color: white;' : 
+      type === 'error' ? 'background: #ef4444; color: white;' : 
+      'background: #6366f1; color: white;'}
+  `;
+
+  document.body.appendChild(message);
+
+  setTimeout(() => {
+    message.style.animation = 'slideOut 0.3s ease';
+    setTimeout(() => message.remove(), 300);
+  }, 3000);
+}
+
+const style = document.createElement('style');
+style.textContent = `
+  @keyframes slideIn {
+    from {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+    to {
+      transform: translateX(0);
+      opacity: 1;
+    }
+  }
+  @keyframes slideOut {
+    from {
+      transform: translateX(0);
+      opacity: 1;
+    }
+    to {
+      transform: translateX(100%);
+      opacity: 0;
+    }
+  }
+  @keyframes fadeIn {
+    from {
+      opacity: 0;
+    }
+    to {
+      opacity: 1;
+    }
+  }
+  @keyframes fadeOut {
+    from {
+      opacity: 1;
+    }
+    to {
+      opacity: 0;
+    }
+  }
+  @keyframes slideUp {
+    from {
+      transform: translateY(20px);
+      opacity: 0;
+    }
+    to {
+      transform: translateY(0);
+      opacity: 1;
+    }
+  }
+`;
+document.head.appendChild(style);
+
+// Scroll to top button functionalit
+const scrollToTopBtn = document.getElementById('scroll-to-top');
+
+window.addEventListener('scroll', () => {
+  if (window.scrollY > 400) {
+    scrollToTopBtn.classList.add('show');
+  } else {
+    scrollToTopBtn.classList.remove('show');
+  }
+});
+
+scrollToTopBtn.addEventListener('click', () => {
+  window.scrollTo({
+    top: 0,
+    behavior: 'smooth'
+  });
+});
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4e9407a042e6b9',t:'MTc2NDIxNDU1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ </body>
 </html>
+
+      const reader =
