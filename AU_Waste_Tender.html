@@ -735,7 +735,6 @@
       text-transform: uppercase;
       letter-spacing: 0.5px;
       border-bottom: 2px solid #e2e8f0;
-      white-space: nowrap;
     }
 
     th:first-child {
@@ -766,7 +765,7 @@
       border-radius: 6px;
       transition: all 0.2s ease;
       cursor: text;
-      min-width: 80px;
+      min-width: 100px;
     }
 
     .editable-cell:focus {
@@ -1036,23 +1035,62 @@
      <div class="sites-header">
       <h2 class="sites-title">Site-by-Site Comparison</h2>
       <div class="filter-section"><input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites..." aria-label="Search sites">
-       <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by site type"> <span id="site-type-label">All Site Types</span> <span>▼</span> </button>
-        <div class="multi-select-dropdown" id="site-type-dropdown"></div>
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="site-type-button" aria-label="Filter by asset type"> <span id="site-type-label">All Asset Types</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="site-type-dropdown">
+         <div class="multi-select-option"><input type="checkbox" id="site-type-rv-ac" value="RV &amp; AC"> <label for="site-type-rv-ac">RV &amp; AC</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="site-type-rv" value="RV"> <label for="site-type-rv">RV</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="site-type-ac" value="AC"> <label for="site-type-ac">AC</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="site-type-hpt" value="HPT"> <label for="site-type-hpt">HPT</label>
+         </div>
+        </div>
        </div>
        <div class="multi-select-wrapper"><button class="multi-select-button" id="waste-stream-button" aria-label="Filter by waste stream"> <span id="waste-stream-label">All Waste Streams</span> <span>▼</span> </button>
-        <div class="multi-select-dropdown" id="waste-stream-dropdown"></div>
+        <div class="multi-select-dropdown" id="waste-stream-dropdown">
+         <div class="multi-select-option"><input type="checkbox" id="waste-general" value="General Waste"> <label for="waste-general">General Waste</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-recycling" value="Recycling"> <label for="waste-recycling">Recycling</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-organics" value="Organics"> <label for="waste-organics">Organics</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-hazardous" value="Hazardous"> <label for="waste-hazardous">Hazardous</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="waste-various" value="Various"> <label for="waste-various">Various</label>
+         </div>
+        </div>
        </div>
-       <div class="multi-select-wrapper"><button class="multi-select-button" id="service-type-button" aria-label="Filter by service type"> <span id="service-type-label">All Service Types</span> <span>▼</span> </button>
-        <div class="multi-select-dropdown" id="service-type-dropdown"></div>
+       <div class="multi-select-wrapper"><button class="multi-select-button" id="state-button" aria-label="Filter by state"> <span id="state-label">All States</span> <span>▼</span> </button>
+        <div class="multi-select-dropdown" id="state-dropdown">
+         <div class="multi-select-option"><input type="checkbox" id="state-nsw" value="NSW"> <label for="state-nsw">NSW</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-vic" value="VIC"> <label for="state-vic">VIC</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-qld" value="QLD"> <label for="state-qld">QLD</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-wa" value="WA"> <label for="state-wa">WA</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-sa" value="SA"> <label for="state-sa">SA</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-tas" value="TAS"> <label for="state-tas">TAS</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-act" value="ACT"> <label for="state-act">ACT</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-nt" value="NT"> <label for="state-nt">NT</label>
+         </div>
+         <div class="multi-select-option"><input type="checkbox" id="state-multiple" value="Multiple"> <label for="state-multiple">Multiple</label>
+         </div>
+        </div>
        </div><button class="clear-filters-btn" id="clear-filters-btn">Clear Filters</button> <button class="add-site-btn" id="select-sites-btn" style="display: none; background: linear-gradient(135deg, #10b981 0%, #059669 100%);"> <span id="select-count">0</span> Selected </button> <button class="add-site-btn" id="actions-btn">Actions ▼</button>
        <div class="add-site-wrapper">
-        <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Row</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Rows</span> </button> <button class="dropdown-item" id="delete-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>🗑️</span> <span>Delete All Rows</span> </button>
+        <div class="dropdown-menu" id="actions-dropdown"><button class="dropdown-item" id="add-single-site"> <span>➕</span> <span>Add Single Site</span> </button> <button class="dropdown-item" id="import-excel-btn"> <span>📁</span> <span>Import Excel/CSV</span> </button> <button class="dropdown-item" id="toggle-delete-btn"> <span>🗑️</span> <span>Delete Sites</span> </button> <button class="dropdown-item" id="delete-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>🗑️</span> <span>Delete All Sites</span> </button>
         </div>
        </div>
        <div class="add-site-wrapper" style="position: relative;">
         <div class="dropdown-menu" id="selection-dropdown" style="min-width: 220px;"><button class="dropdown-item" id="delete-selected-btn"> <span>🗑️</span> <span>Delete Selected</span> </button> <button class="dropdown-item" id="export-selected-btn"> <span>📊</span> <span>Export Selected to CSV</span> </button> <button class="dropdown-item" id="deselect-all-btn" style="border-top: 1px solid #e2e8f0;"> <span>✖️</span> <span>Deselect All</span> </button>
         </div>
-       </div><input type="file" id="excel-upload" accept=".csv" style="display: none;">
+       </div><input type="file" id="excel-upload" accept=".xlsx,.xls,.csv" style="display: none;">
       </div>
      </div>
      <div class="table-wrapper">
@@ -1060,18 +1098,14 @@
        <thead>
         <tr>
          <th style="width: 50px;"><input type="checkbox" id="select-all-sites" style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;"></th>
-         <th>Rank</th>
          <th>Site Name</th>
-         <th>Site Type</th>
-         <th>Service Description</th>
-         <th>Unique Service Line</th>
-         <th>Service Type</th>
+         <th>State</th>
+         <th>Asset Type</th>
          <th>Waste Stream</th>
-         <th>Bin Size</th>
+         <th>Current Cost</th>
          <th>Cleanaway</th>
          <th>Veolia</th>
          <th>Remondis</th>
-         <th>Current</th>
          <th id="actions-header" style="display: none;">Actions</th>
         </tr>
        </thead>
@@ -1080,11 +1114,11 @@
        <tfoot>
         <tr class="summary-row">
          <td></td>
-         <td colspan="8">Total</td>
+         <td colspan="4">Total</td>
+         <td id="total-current">$0</td>
          <td id="total-cleanaway">$0</td>
          <td id="total-veolia">$0</td>
          <td id="total-remondis">$0</td>
-         <td id="total-current">$0</td>
          <td id="actions-footer" style="display: none;"></td>
         </tr>
        </tfoot>
@@ -1106,24 +1140,23 @@
       <table>
        <thead>
         <tr>
-         <th>Rank</th>
          <th>Site Name</th>
          <th style="min-width: 250px;">Service Description</th>
+         <th>Current Cost</th>
          <th>Cleanaway</th>
          <th>Veolia</th>
          <th>Remondis</th>
-         <th>Current</th>
         </tr>
        </thead>
        <tbody id="services-tbody"><!-- Service rows will be added here -->
        </tbody>
        <tfoot>
         <tr class="summary-row">
-         <td colspan="3">Total</td>
+         <td colspan="2">Total</td>
+         <td id="service-total-current">$0</td>
          <td id="service-total-cleanaway">$0</td>
          <td id="service-total-veolia">$0</td>
          <td id="service-total-remondis">$0</td>
-         <td id="service-total-current">$0</td>
         </tr>
        </tfoot>
       </table>
@@ -1155,11 +1188,12 @@
     let searchTerm = '';
     let siteTypeFilters = new Set();
     let wasteStreamFilters = new Set();
-    let serviceTypeFilters = new Set();
+    let stateFilters = new Set();
     let deleteMode = false;
     let selectedSites = new Set();
     let serviceSearchTerm = '';
     let serviceSiteFilter = '';
+    let isLoading = false;
 
     async function onConfigChange(config) {
       const baseFontStack = '-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif';
@@ -1299,18 +1333,15 @@
       onDataChanged(data) {
         sites = data.map(record => ({
           id: record.id,
-          rank: record.rank || 0,
-          siteName: record.siteName,
+          name: record.name,
+          state: record.state,
           siteType: record.siteType,
-          serviceDescription: record.serviceDescription || '',
-          uniqueServiceLine: record.uniqueServiceLine || '',
-          serviceType: record.serviceType || '',
           wasteStream: record.wasteStream,
-          binSize: record.binSize || '',
+          current: record.current,
           cleanaway: record.cleanaway,
           veolia: record.veolia,
           remondis: record.remondis,
-          current: record.current,
+          serviceDescription: record.serviceDescription || '',
           __backendId: record.__backendId
         }));
 
@@ -1318,7 +1349,6 @@
           nextId = Math.max(...sites.map(s => s.id)) + 1;
         }
 
-        updateDynamicFilters();
         renderSites();
         renderServices();
         updateSiteFilterDropdown();
@@ -1326,62 +1356,16 @@
       }
     };
 
-    let isInitialized = false;
-
     async function initializeApp() {
-      if (window.dataSdk && !isInitialized) {
-        isInitialized = true;
-        
+      if (window.dataSdk) {
         const initResult = await window.dataSdk.init(dataHandler);
         if (!initResult.isOk) {
-          hideLoadingOverlay();
           showMessage('Failed to initialize data storage', 'error');
-          return;
-        }
-        
-        // Wait a moment for onDataChanged to fire
-        await new Promise(resolve => setTimeout(resolve, 500));
-        
-        // Load data from GitHub if no data exists
-        if (sites.length === 0) {
-          await loadGitHubData();
-        } else {
-          hideLoadingOverlay();
         }
       }
     }
 
-    async function loadGitHubData() {
-      try {
-        // GitHub raw content URL
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/AU/788c7b650e955af25c9fd0435dd15f92feb3af73/datatest.csv';
-        
-        const response = await fetch(githubUrl);
-        if (!response.ok) {
-          throw new Error('Failed to fetch data from GitHub');
-        }
-        
-        const csvText = await response.text();
-        await parseCSV(csvText, true);
-        
-        hideLoadingOverlay();
-        showMessage('Data loaded from GitHub successfully!', 'success');
-      } catch (error) {
-        hideLoadingOverlay();
-        showMessage('Failed to load data from GitHub. You can still import your own CSV.', 'error');
-        console.error('GitHub load error:', error);
-      }
-    }
-
-    // Show loading overlay initially
-    showLoadingOverlay();
-    
-    // Initialize when page loads
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initializeApp);
-    } else {
-      initializeApp();
-    }
+    initializeApp();
 
     // Page navigation
     const navTabs = document.querySelectorAll('.nav-tab');
@@ -1419,88 +1403,13 @@
       return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
-    function updateDynamicFilters() {
-      const uniqueSiteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
-      const uniqueWasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
-      const uniqueServiceTypes = [...new Set(sites.map(s => s.serviceType).filter(Boolean))].sort();
-
-      const siteTypeDropdown = document.getElementById('site-type-dropdown');
-      siteTypeDropdown.innerHTML = uniqueSiteTypes.map(type => `
-        <div class="multi-select-option">
-          <input type="checkbox" id="site-type-${type.replace(/\s+/g, '-')}" value="${type}" ${siteTypeFilters.has(type) ? 'checked' : ''}>
-          <label for="site-type-${type.replace(/\s+/g, '-')}">${type}</label>
-        </div>
-      `).join('');
-
-      const wasteStreamDropdown = document.getElementById('waste-stream-dropdown');
-      wasteStreamDropdown.innerHTML = uniqueWasteStreams.map(stream => `
-        <div class="multi-select-option">
-          <input type="checkbox" id="waste-${stream.replace(/\s+/g, '-')}" value="${stream}" ${wasteStreamFilters.has(stream) ? 'checked' : ''}>
-          <label for="waste-${stream.replace(/\s+/g, '-')}">${stream}</label>
-        </div>
-      `).join('');
-
-      const serviceTypeDropdown = document.getElementById('service-type-dropdown');
-      serviceTypeDropdown.innerHTML = uniqueServiceTypes.map(type => `
-        <div class="multi-select-option">
-          <input type="checkbox" id="service-${type.replace(/\s+/g, '-')}" value="${type}" ${serviceTypeFilters.has(type) ? 'checked' : ''}>
-          <label for="service-${type.replace(/\s+/g, '-')}">${type}</label>
-        </div>
-      `).join('');
-
-      setupMultiSelectCheckboxes('site-type-dropdown', siteTypeFilters);
-      setupMultiSelectCheckboxes('waste-stream-dropdown', wasteStreamFilters);
-      setupMultiSelectCheckboxes('service-type-dropdown', serviceTypeFilters);
-    }
-
-    function setupMultiSelectCheckboxes(dropdownId, filterSet) {
-      const dropdown = document.getElementById(dropdownId);
-      const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
-      
-      checkboxes.forEach(checkbox => {
-        checkbox.addEventListener('change', () => {
-          if (checkbox.checked) {
-            filterSet.add(checkbox.value);
-          } else {
-            filterSet.delete(checkbox.value);
-          }
-          updateFilterLabel(dropdownId, filterSet);
-          renderSites();
-          updateTotals();
-        });
-      });
-    }
-
-    function updateFilterLabel(dropdownId, filterSet) {
-      let labelId, defaultText;
-      if (dropdownId === 'site-type-dropdown') {
-        labelId = 'site-type-label';
-        defaultText = 'All Site Types';
-      } else if (dropdownId === 'waste-stream-dropdown') {
-        labelId = 'waste-stream-label';
-        defaultText = 'All Waste Streams';
-      } else if (dropdownId === 'service-type-dropdown') {
-        labelId = 'service-type-label';
-        defaultText = 'All Service Types';
-      }
-
-      const label = document.getElementById(labelId);
-      if (filterSet.size === 0) {
-        label.innerHTML = defaultText;
-      } else if (filterSet.size === 1) {
-        label.innerHTML = Array.from(filterSet)[0];
-      } else {
-        label.innerHTML = `${filterSet.size} selected <span class="selected-count">${filterSet.size}</span>`;
-      }
-    }
-
     function updateTotals() {
       let sitesToCalculate = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
         const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
-        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
-        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
       });
 
       if (selectedSites.size > 0) {
@@ -1630,11 +1539,11 @@
       const noResults = document.getElementById('no-results');
       
       const filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
         const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
-        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
-        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
       });
 
       if (filteredSites.length === 0) {
@@ -1656,28 +1565,19 @@
               <input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isSelected ? 'checked' : ''} style="width: 18px; height: 18px; cursor: pointer; accent-color: #6366f1;">
             </td>
             <td>
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="rank">${site.rank}</div>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="name">${site.name}</div>
             </td>
             <td>
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="siteName">${site.siteName}</div>
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="state">${site.state}</div>
             </td>
             <td>
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="siteType">${site.siteType}</div>
             </td>
             <td>
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="serviceDescription">${site.serviceDescription}</div>
-            </td>
-            <td>
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="uniqueServiceLine">${site.uniqueServiceLine}</div>
-            </td>
-            <td>
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="serviceType">${site.serviceType}</div>
-            </td>
-            <td>
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="wasteStream">${site.wasteStream}</div>
             </td>
-            <td>
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="binSize">${site.binSize}</div>
+            <td class="price-cell ${bestVendor === null ? '' : ''}">
+              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="current">${formatCurrency(site.current)}</div>
             </td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="cleanaway">${formatCurrency(site.cleanaway)}</div>
@@ -1687,9 +1587,6 @@
             </td>
             <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">
               <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="remondis">${formatCurrency(site.remondis)}</div>
-            </td>
-            <td class="price-cell ${bestVendor === null ? '' : ''}">
-              <div class="editable-cell" contenteditable="true" data-site-id="${site.id}" data-field="current">${formatCurrency(site.current)}</div>
             </td>
             <td class="actions-cell" style="display: ${deleteMode ? 'table-cell' : 'none'};">
               <button class="delete-btn" data-site-id="${site.id}">Delete</button>
@@ -1708,8 +1605,7 @@
       return sites
         .filter(site => site.serviceDescription && site.serviceDescription.trim())
         .map(site => ({
-          rank: site.rank,
-          siteName: site.siteName,
+          siteName: site.name,
           description: site.serviceDescription,
           cleanaway: site.cleanaway,
           veolia: site.veolia,
@@ -1743,13 +1639,12 @@
         const bestVendor = getBestVendorForService(service);
         return `
           <tr>
-            <td>${service.rank}</td>
             <td><strong>${service.siteName}</strong></td>
             <td class="service-description-cell">${service.description}</td>
+            <td class="price-cell">${formatCurrency(service.current)}</td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
             <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
             <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
-            <td class="price-cell">${formatCurrency(service.current)}</td>
           </tr>
         `;
       }).join('');
@@ -1759,7 +1654,7 @@
 
     function updateSiteFilterDropdown() {
       const select = document.getElementById('service-site-filter');
-      const uniqueSites = [...new Set(sites.filter(s => s.serviceDescription).map(s => s.siteName))].sort();
+      const uniqueSites = [...new Set(sites.filter(s => s.serviceDescription).map(s => s.name))].sort();
       
       select.innerHTML = '<option value="">All Sites</option>' +
         uniqueSites.map(site => `<option value="${site}">${site}</option>`).join('');
@@ -1791,9 +1686,9 @@
             
             if (result.isOk) {
               selectedSites.delete(siteId);
-              showMessage(`Deleted "${site.siteName}"`, 'success');
+              showMessage(`Deleted "${site.name}"`, 'success');
             } else {
-              showMessage('Failed to delete row', 'error');
+              showMessage('Failed to delete site', 'error');
             }
           }
         });
@@ -1828,11 +1723,11 @@
       }
 
       const filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
         const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
-        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
-        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
       });
 
       const allFilteredSelected = filteredSites.length > 0 && 
@@ -1854,19 +1749,13 @@
       const site = sites.find(s => s.id === siteId);
       if (!site || !site.__backendId) return;
 
-      const priceFields = ['cleanaway', 'veolia', 'remondis', 'current'];
-      
-      if (priceFields.includes(field)) {
+      if (field === 'name' || field === 'state' || field === 'siteType' || field === 'wasteStream') {
+        site[field] = value;
+      } else {
         value = value.replace(/[$,]/g, '');
         const numValue = parseFloat(value) || 0;
         site[field] = numValue;
         cell.textContent = formatCurrency(numValue);
-      } else if (field === 'rank') {
-        const numValue = parseInt(value) || 0;
-        site[field] = numValue;
-        cell.textContent = numValue;
-      } else {
-        site[field] = value;
       }
 
       showLoadingOverlay();
@@ -1874,10 +1763,8 @@
       hideLoadingOverlay();
       
       if (!result.isOk) {
-        showMessage('Failed to update row', 'error');
+        showMessage('Failed to update site', 'error');
         renderSites();
-      } else {
-        updateDynamicFilters();
       }
     }
 
@@ -1921,7 +1808,7 @@
       } else {
         actionsHeader.style.display = 'none';
         actionsFooter.style.display = 'none';
-        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑️</span><span>Delete Rows</span>';
+        document.getElementById('toggle-delete-btn').innerHTML = '<span>🗑️</span><span>Delete Sites</span>';
       }
       
       renderSites();
@@ -1937,11 +1824,11 @@
 
     document.getElementById('select-all-sites').addEventListener('change', (e) => {
       const filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesSearch = site.name.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesSiteType = siteTypeFilters.size === 0 || siteTypeFilters.has(site.siteType);
         const matchesWasteStream = wasteStreamFilters.size === 0 || wasteStreamFilters.has(site.wasteStream);
-        const matchesServiceType = serviceTypeFilters.size === 0 || serviceTypeFilters.has(site.serviceType);
-        return matchesSearch && matchesSiteType && matchesWasteStream && matchesServiceType;
+        const matchesState = stateFilters.size === 0 || stateFilters.has(site.state);
+        return matchesSearch && matchesSiteType && matchesWasteStream && matchesState;
       });
 
       if (e.target.checked) {
@@ -1962,25 +1849,22 @@
 
     document.getElementById('add-single-site').addEventListener('click', async () => {
       if (sites.length >= 999) {
-        showMessage('Maximum limit of 999 rows reached. Please delete some rows first.', 'error');
+        showMessage('Maximum limit of 999 sites reached. Please delete some sites first.', 'error');
         actionsDropdown.classList.remove('show');
         return;
       }
 
       const newSite = {
         id: nextId++,
-        rank: 0,
-        siteName: 'New Site',
-        siteType: '',
-        serviceDescription: '',
-        uniqueServiceLine: '',
-        serviceType: '',
-        wasteStream: '',
-        binSize: '',
+        name: 'New Site',
+        state: 'NSW',
+        siteType: 'RV & AC',
+        wasteStream: 'General Waste',
+        current: 0,
         cleanaway: 0,
         veolia: 0,
         remondis: 0,
-        current: 0
+        serviceDescription: ''
       };
 
       showLoadingOverlay();
@@ -1988,9 +1872,9 @@
       hideLoadingOverlay();
       
       if (result.isOk) {
-        showMessage('Row added successfully', 'success');
+        showMessage('Site added successfully', 'success');
       } else {
-        showMessage('Failed to add row', 'error');
+        showMessage('Failed to add site', 'error');
       }
       
       actionsDropdown.classList.remove('show');
@@ -2005,7 +1889,7 @@
       actionsDropdown.classList.remove('show');
       
       if (sites.length === 0) {
-        showMessage('No rows to delete', 'info');
+        showMessage('No sites to delete', 'info');
         return;
       }
 
@@ -2035,9 +1919,9 @@
       `;
 
       modal.innerHTML = `
-        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete All Rows?</h3>
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete All Sites?</h3>
         <p style="margin: 0 0 1.5rem 0; color: #64748b; font-size: 1rem;">
-          This will permanently delete all ${sites.length} row${sites.length > 1 ? 's' : ''} from your Canva Sheet. This action cannot be undone.
+          This will permanently delete all ${sites.length} site${sites.length > 1 ? 's' : ''} from your Canva Sheet. This action cannot be undone.
         </p>
         <div style="display: flex; gap: 1rem;">
           <button id="cancel-delete-all" style="
@@ -2108,7 +1992,7 @@
         }
         
         hideLoadingOverlay();
-        showMessage(`Deleted all ${count} rows`, 'success');
+        showMessage(`Deleted all ${count} sites`, 'success');
       });
 
       overlay.addEventListener('click', (e) => {
@@ -2123,6 +2007,7 @@
       const button = document.getElementById(buttonId);
       const dropdown = document.getElementById(dropdownId);
       const label = document.getElementById(labelId);
+      const checkboxes = dropdown.querySelectorAll('input[type="checkbox"]');
 
       button.addEventListener('click', (e) => {
         e.stopPropagation();
@@ -2136,11 +2021,35 @@
           if (b !== button) b.classList.remove('active');
         });
       });
+
+      checkboxes.forEach(checkbox => {
+        checkbox.addEventListener('change', () => {
+          if (checkbox.checked) {
+            filterSet.add(checkbox.value);
+          } else {
+            filterSet.delete(checkbox.value);
+          }
+          updateLabel();
+          renderSites();
+          updateTotals();
+        });
+      });
+
+      function updateLabel() {
+        if (filterSet.size === 0) {
+          label.innerHTML = labelId.includes('site-type') ? 'All Asset Types' :
+                           labelId.includes('waste') ? 'All Waste Streams' : 'All States';
+        } else if (filterSet.size === 1) {
+          label.innerHTML = Array.from(filterSet)[0];
+        } else {
+          label.innerHTML = `${filterSet.size} selected <span class="selected-count">${filterSet.size}</span>`;
+        }
+      }
     }
 
     setupMultiSelect('site-type-button', 'site-type-dropdown', 'site-type-label', siteTypeFilters);
     setupMultiSelect('waste-stream-button', 'waste-stream-dropdown', 'waste-stream-label', wasteStreamFilters);
-    setupMultiSelect('service-type-button', 'service-type-dropdown', 'service-type-label', serviceTypeFilters);
+    setupMultiSelect('state-button', 'state-dropdown', 'state-label', stateFilters);
 
     document.addEventListener('click', () => {
       document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('show'));
@@ -2157,14 +2066,14 @@
       searchTerm = '';
       siteTypeFilters.clear();
       wasteStreamFilters.clear();
-      serviceTypeFilters.clear();
+      stateFilters.clear();
       
       document.getElementById('site-search').value = '';
-      document.getElementById('site-type-label').textContent = 'All Site Types';
+      document.querySelectorAll('.multi-select-dropdown input[type="checkbox"]').forEach(cb => cb.checked = false);
+      document.getElementById('site-type-label').textContent = 'All Asset Types';
       document.getElementById('waste-stream-label').textContent = 'All Waste Streams';
-      document.getElementById('service-type-label').textContent = 'All Service Types';
+      document.getElementById('state-label').textContent = 'All States';
       
-      updateDynamicFilters();
       renderSites();
       updateTotals();
     });
@@ -2198,9 +2107,9 @@
       `;
 
       modal.innerHTML = `
-        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete Selected Rows?</h3>
+        <h3 style="margin: 0 0 1rem 0; font-size: 1.5rem; color: #1e293b;">Delete Selected Sites?</h3>
         <p style="margin: 0 0 1.5rem 0; color: #64748b; font-size: 1rem;">
-          This will permanently delete ${selectedSites.size} selected row${selectedSites.size > 1 ? 's' : ''} from your Canva Sheet. This action cannot be undone.
+          This will permanently delete ${selectedSites.size} selected site${selectedSites.size > 1 ? 's' : ''} from your Canva Sheet. This action cannot be undone.
         </p>
         <div style="display: flex; gap: 1rem;">
           <button id="cancel-delete-selected" style="
@@ -2263,7 +2172,7 @@
         
         selectedSites.clear();
         hideLoadingOverlay();
-        showMessage(`Deleted ${count} rows`, 'success');
+        showMessage(`Deleted ${count} sites`, 'success');
       });
 
       overlay.addEventListener('click', (e) => {
@@ -2281,23 +2190,20 @@
 
       const selectedSiteData = sites.filter(site => selectedSites.has(site.id));
       
-      const headers = ['Rank', 'Site Name', 'Site Type', 'Service Description', 'Unique Service Line', 'Service Type', 'Waste Stream', 'Bin Size', 'Cleanaway', 'Veolia', 'Remondis', 'Current'];
+      const headers = ['Site Name', 'State', 'Asset Type', 'Waste Stream', 'Current Cost', 'Cleanaway', 'Veolia', 'Remondis', 'Service Description'];
       const csvRows = [headers.join(',')];
       
       selectedSiteData.forEach(site => {
         const row = [
-          site.rank,
-          `"${site.siteName}"`,
+          `"${site.name}"`,
+          site.state,
           `"${site.siteType}"`,
-          `"${site.serviceDescription || ''}"`,
-          `"${site.uniqueServiceLine || ''}"`,
-          `"${site.serviceType || ''}"`,
           `"${site.wasteStream}"`,
-          `"${site.binSize || ''}"`,
+          site.current,
           site.cleanaway,
           site.veolia,
           site.remondis,
-          site.current
+          `"${site.serviceDescription || ''}"`
         ];
         csvRows.push(row.join(','));
       });
@@ -2311,7 +2217,7 @@
       a.click();
       window.URL.revokeObjectURL(url);
 
-      showMessage(`Exported ${selectedSites.size} rows to CSV`, 'success');
+      showMessage(`Exported ${selectedSites.size} sites to CSV`, 'success');
       document.getElementById('selection-dropdown').classList.remove('show');
     });
 
@@ -2329,40 +2235,45 @@
       reader.onload = async (event) => {
         try {
           const data = event.target.result;
-          await parseCSV(data);
+          
+          if (file.name.endsWith('.csv')) {
+            await parseCSV(data);
+          } else {
+            showMessage('Excel files require a library. Please save your file as CSV format and try again.', 'info');
+          }
+          
           e.target.value = '';
         } catch (error) {
           showMessage('Error reading file. Please check the format and try again.', 'error');
         }
       };
 
-      reader.readAsText(file);
+      if (file.name.endsWith('.csv')) {
+        reader.readAsText(file);
+      } else {
+        reader.readAsArrayBuffer(file);
+      }
     });
 
-    async function parseCSV(csvText, isInitialLoad = false) {
+    async function parseCSV(csvText) {
       const lines = csvText.split('\n').filter(line => line.trim());
       if (lines.length < 2) {
-        if (!isInitialLoad) {
-          showMessage('CSV file is empty or invalid.', 'error');
-        }
+        showMessage('CSV file is empty or invalid.', 'error');
         return;
       }
 
       const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
       
       const columnMap = {
-        rank: headers.findIndex(h => h.includes('rank')),
-        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
-        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
-        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
-        uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
-        serviceType: headers.findIndex(h => h.includes('service type')),
+        name: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
+        state: headers.findIndex(h => h.includes('state') || h.includes('location')),
+        siteType: headers.findIndex(h => h.includes('site type') || h.includes('type') || h.includes('asset type')),
         wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
-        binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
         cleanaway: headers.findIndex(h => h.includes('cleanaway')),
         veolia: headers.findIndex(h => h.includes('veolia')),
         remondis: headers.findIndex(h => h.includes('remondis')),
-        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline')),
+        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description') || h.includes('service'))
       };
 
       let importedCount = 0;
@@ -2371,30 +2282,30 @@
       for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
         
-        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
-        if (!siteNameValue) continue;
+        const nameValue = columnMap.name >= 0 ? values[columnMap.name] : values[1];
+        if (!nameValue) continue;
         
         if (sites.length + sitesToImport.length >= 999) {
-          if (!isInitialLoad) {
-            showMessage('Maximum limit of 999 rows reached. Some rows were not imported.', 'error');
-          }
+          showMessage('Maximum limit of 999 sites reached. Some rows were not imported.', 'error');
           break;
         }
         
+        const cleanaway = parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        const veolia = parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        const remondis = parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        const current = parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0;
+        
         const newSite = {
           id: nextId++,
-          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
-          siteName: siteNameValue || `Site ${nextId - 1}`,
-          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
-          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
-          uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
-          serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
-          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
-          binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
-          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+          name: nameValue || `Site ${nextId - 1}`,
+          state: (columnMap.state >= 0 ? values[columnMap.state] : '') || 'NSW',
+          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || 'RV & AC',
+          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || 'General Waste',
+          cleanaway,
+          veolia,
+          remondis,
+          current,
+          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || ''
         };
         
         sitesToImport.push(newSite);
@@ -2402,28 +2313,20 @@
       }
 
       if (importedCount === 0) {
-        if (!isInitialLoad) {
-          showMessage('No valid data found in CSV. Please check the file format.', 'error');
-        }
+        showMessage('No valid data found in CSV. Please check the file format.', 'error');
       } else {
-        if (!isInitialLoad) {
-          showLoadingOverlay();
-        }
+        showLoadingOverlay();
         
         for (const site of sitesToImport) {
           const result = await window.dataSdk.create(site);
           if (!result.isOk) {
-            if (!isInitialLoad) {
-              showMessage('Some rows failed to import', 'error');
-            }
+            showMessage('Some sites failed to import', 'error');
             break;
           }
         }
         
-        if (!isInitialLoad) {
-          hideLoadingOverlay();
-          showMessage(`Successfully imported ${importedCount} rows!`, 'success');
-        }
+        hideLoadingOverlay();
+        showMessage(`Successfully imported ${importedCount} sites!`, 'success');
       }
     }
 
@@ -2528,5 +2431,5 @@
       });
     });
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4e9407a042e6b9',t:'MTc2NDIxNDU1NS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a4e7ef8563e5a6d',t:'MTc2NDIxMzY5Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
