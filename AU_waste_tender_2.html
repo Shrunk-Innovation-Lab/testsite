@@ -690,8 +690,11 @@
       <h2 class="sites-title">Site-by-Site Comparison</h2>
       <div class="filter-section">
        <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
+       <select id="state-filter" class="filter-select">
+        <option value="">All States</option>
+       </select>
        <select id="site-type-filter" class="filter-select">
-        <option value="">All Site Types</option>
+        <option value="">All Asset Types</option>
        </select>
        <select id="waste-stream-filter" class="filter-select">
         <option value="">All Waste Streams</option>
@@ -770,6 +773,7 @@
     // Global variables
     let sites = [];
     let searchTerm = '';
+    let stateFilter = '';
     let siteTypeFilter = '';
     let wasteStreamFilter = '';
     let serviceSearchTerm = '';
@@ -817,6 +821,7 @@
       const columnMap = {
         rank: headers.findIndex(h => h.includes('rank')),
         siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
+        state: headers.findIndex(h => h.includes('state')),
         siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
         serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
         uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
@@ -841,6 +846,7 @@
           id: i,
           rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
           siteName: siteNameValue || `Site ${i}`,
+          state: (columnMap.state >= 0 ? values[columnMap.state] : '') || '',
           siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
           serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
           uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
@@ -864,13 +870,19 @@
 
     // Update filter dropdowns
     function updateFilters() {
+      const states = [...new Set(sites.map(s => s.state).filter(Boolean))].sort();
       const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
       const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
       const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
 
+      // State filter
+      const stateSelect = document.getElementById('state-filter');
+      stateSelect.innerHTML = '<option value="">All States</option>' +
+        states.map(state => `<option value="${state}">${state}</option>`).join('');
+
       // Site type filter
       const siteTypeSelect = document.getElementById('site-type-filter');
-      siteTypeSelect.innerHTML = '<option value="">All Site Types</option>' +
+      siteTypeSelect.innerHTML = '<option value="">All Asset Types</option>' +
         siteTypes.map(type => `<option value="${type}">${type}</option>`).join('');
 
       // Waste stream filter
@@ -911,9 +923,10 @@
       
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesState = !stateFilter || site.state === stateFilter;
         const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
         const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
-        return matchesSearch && matchesSiteType && matchesWasteStream;
+        return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
       });
 
       if (filteredSites.length === 0) {
@@ -929,13 +942,13 @@
         return `
           <tr>
             <td>${site.siteName}</td>
+            <td>${site.state}</td>
             <td>${site.siteType}</td>
-            <td>${site.serviceDescription}</td>
             <td>${site.wasteStream}</td>
+            <td class="price-cell">${formatCurrency(site.current)}</td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
             <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(site.veolia)}</td>
             <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(site.remondis)}</td>
-            <td class="price-cell">${formatCurrency(site.current)}</td>
           </tr>
         `;
       }).join('');
@@ -985,9 +998,10 @@
     function updateTotals() {
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesState = !stateFilter || site.state === stateFilter;
         const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
         const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
-        return matchesSearch && matchesSiteType && matchesWasteStream;
+        return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
       });
 
       const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
@@ -1119,6 +1133,12 @@
     // Event listeners for filters
     document.getElementById('site-search').addEventListener('input', (e) => {
       searchTerm = e.target.value;
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('state-filter').addEventListener('change', (e) => {
+      stateFilter = e.target.value;
       renderSites();
       updateTotals();
     });
