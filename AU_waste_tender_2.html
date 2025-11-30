@@ -699,6 +699,7 @@
        <select id="waste-stream-filter" class="filter-select">
         <option value="">All Waste Streams</option>
        </select>
+       <button id="clear-filters" class="filter-select" style="background: #ef4444; color: white; border: none;">Clear Filters</button>
       </div>
      </div>
      <div class="table-wrapper">
@@ -709,11 +710,11 @@
        </tbody>
        <tfoot>
         <tr class="summary-row">
-         <td colspan="4">Total</td>
+         <td colspan="5">Total</td>
+         <td id="total-current">$0</td>
          <td id="total-cleanaway">$0</td>
          <td id="total-veolia">$0</td>
          <td id="total-remondis">$0</td>
-         <td id="total-current">$0</td>
         </tr>
        </tfoot>
       </table>
@@ -941,6 +942,7 @@
         const bestVendor = getBestVendorForSite(site);
         return `
           <tr>
+            <td style="text-align: center;"><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" style="cursor: pointer;"></td>
             <td>${site.siteName}</td>
             <td>${site.state}</td>
             <td>${site.siteType}</td>
@@ -1153,6 +1155,39 @@
       wasteStreamFilter = e.target.value;
       renderSites();
       updateTotals();
+    });
+
+    // Clear filters button
+    document.getElementById('clear-filters').addEventListener('click', () => {
+      searchTerm = '';
+      stateFilter = '';
+      siteTypeFilter = '';
+      wasteStreamFilter = '';
+      
+      document.getElementById('site-search').value = '';
+      document.getElementById('state-filter').value = '';
+      document.getElementById('site-type-filter').value = '';
+      document.getElementById('waste-stream-filter').value = '';
+      
+      renderSites();
+      updateTotals();
+    });
+
+    // Select all checkbox
+    document.getElementById('select-all').addEventListener('change', (e) => {
+      const checkboxes = document.querySelectorAll('.site-checkbox');
+      checkboxes.forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+      });
+    });
+
+    // Individual checkbox listeners (delegated)
+    document.getElementById('sites-tbody').addEventListener('change', (e) => {
+      if (e.target.classList.contains('site-checkbox')) {
+        const allCheckboxes = document.querySelectorAll('.site-checkbox');
+        const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
+        document.getElementById('select-all').checked = allCheckboxes.length === checkedBoxes.length;
+      }
     });
 
     document.getElementById('service-search').addEventListener('input', (e) => {
