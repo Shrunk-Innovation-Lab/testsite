@@ -700,6 +700,8 @@
         <option value="">All Waste Streams</option>
        </select>
        <button id="clear-filters" class="filter-select" style="background: #ef4444; color: white; border: none;">Clear Filters</button>
+       <button id="import-csv" class="filter-select" style="background: #10b981; color: white; border: none;">Import CSV</button>
+       <input type="file" id="csv-upload" accept=".csv" style="display: none;">
       </div>
      </div>
      <div class="table-wrapper">
@@ -740,11 +742,12 @@
        <thead>
         <tr>
          <th>Site Name</th>
+         <th>State</th>
          <th style="min-width: 250px;">Service Description</th>
+         <th>Current Cost</th>
          <th>Cleanaway</th>
          <th>Veolia</th>
          <th>Remondis</th>
-         <th>Current</th>
         </tr>
        </thead>
        <tbody id="services-tbody">
@@ -752,11 +755,11 @@
        </tbody>
        <tfoot>
         <tr class="summary-row">
-         <td colspan="2">Total</td>
+         <td colspan="3">Total</td>
+         <td id="service-total-current">$0</td>
          <td id="service-total-cleanaway">$0</td>
          <td id="service-total-veolia">$0</td>
          <td id="service-total-remondis">$0</td>
-         <td id="service-total-current">$0</td>
         </tr>
        </tfoot>
       </table>
@@ -789,23 +792,26 @@
     // Load data from GitHub
     async function loadGitHubData() {
       try {
-        // Use the raw GitHub content URL (replace with your actual raw URL)
-        // Format: https://raw.githubusercontent.com/[username]/[repo]/[branch]/[filename]
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/datatest.csv';
+        // Use the raw GitHub content URL
+        // Based on your provided URL: https://github.com/Shrunk-Innovation-Lab/testsite/blob/3d231da540cb62b7db7178564656f7810eb275bb/datatest.csv
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/3d231da540cb62b7db7178564656f7810eb275bb/datatest.csv';
+        
+        console.log('Attempting to load data from:', githubUrl);
         
         const response = await fetch(githubUrl);
         if (!response.ok) {
-          throw new Error('Failed to fetch data from GitHub');
+          throw new Error(`Failed to fetch data from GitHub: ${response.status}`);
         }
         
         const csvText = await response.text();
+        console.log('Data loaded successfully, parsing CSV...');
         parseCSV(csvText);
         
         hideLoadingOverlay();
       } catch (error) {
         console.error('Error loading data:', error);
         hideLoadingOverlay();
-        showError('Failed to load data. Please check the CSV file URL.');
+        showError('Could not load data from GitHub. Please use the Import CSV button to upload your data file.');
       }
     }
 
@@ -984,11 +990,12 @@
         return `
           <tr>
             <td><strong>${service.siteName}</strong></td>
+            <td>${service.state}</td>
             <td>${service.serviceDescription}</td>
+            <td class="price-cell">${formatCurrency(service.current)}</td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
             <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
             <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
-            <td class="price-cell">${formatCurrency(service.current)}</td>
           </tr>
         `;
       }).join('');
@@ -1188,6 +1195,31 @@
         const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
         document.getElementById('select-all').checked = allCheckboxes.length === checkedBoxes.length;
       }
+    });
+
+    // Import CSV button
+    document.getElementById('import-csv').addEventListener('click', () => {
+      document.getElementById('csv-upload').click();
+    });
+
+    // CSV file upload handler
+    document.getElementById('csv-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try {
+          const data = event.target.result;
+          parseCSV(data);
+          e.target.value = ''; // Reset file input
+        } catch (error) {
+          showError('Error reading CSV file. Please check the format and try again.');
+          console.error('CSV parse error:', error);
+        }
+      };
+
+      reader.readAsText(file);
     });
 
     document.getElementById('service-search').addEventListener('input', (e) => {
