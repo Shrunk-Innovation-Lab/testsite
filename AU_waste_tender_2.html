@@ -805,7 +805,7 @@
 
     async function loadGitHubData() {
       try {
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/3d231da540cb62b7db7178564656f7810eb275bb/datatest.csv';
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/3f0dea5850389bb3d7b8264003b277efb6e5e49d/datatest_updated.csv';
         const response = await fetch(githubUrl);
         if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
         const csvText = await response.text();
