@@ -1181,46 +1181,61 @@
     });
 
     // Select all checkbox
-    document.getElementById('select-all').addEventListener('change', (e) => {
-      const checkboxes = document.querySelectorAll('.site-checkbox');
-      checkboxes.forEach(checkbox => {
-        checkbox.checked = e.target.checked;
+    const selectAllCheckbox = document.getElementById('select-all');
+    if (selectAllCheckbox) {
+      selectAllCheckbox.addEventListener('change', (e) => {
+        const checkboxes = document.querySelectorAll('.site-checkbox');
+        checkboxes.forEach(checkbox => {
+          checkbox.checked = e.target.checked;
+        });
       });
-    });
+    }
 
     // Individual checkbox listeners (delegated)
-    document.getElementById('sites-tbody').addEventListener('change', (e) => {
-      if (e.target.classList.contains('site-checkbox')) {
-        const allCheckboxes = document.querySelectorAll('.site-checkbox');
-        const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
-        document.getElementById('select-all').checked = allCheckboxes.length === checkedBoxes.length;
-      }
-    });
+    const sitesTbody = document.getElementById('sites-tbody');
+    if (sitesTbody) {
+      sitesTbody.addEventListener('change', (e) => {
+        if (e.target.classList.contains('site-checkbox')) {
+          const allCheckboxes = document.querySelectorAll('.site-checkbox');
+          const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
+          const selectAll = document.getElementById('select-all');
+          if (selectAll) {
+            selectAll.checked = allCheckboxes.length === checkedBoxes.length;
+          }
+        }
+      });
+    }
 
     // Import CSV button
-    document.getElementById('import-csv').addEventListener('click', () => {
-      document.getElementById('csv-upload').click();
-    });
+    const importBtn = document.getElementById('import-csv');
+    if (importBtn) {
+      importBtn.addEventListener('click', () => {
+        document.getElementById('csv-upload').click();
+      });
+    }
 
     // CSV file upload handler
-    document.getElementById('csv-upload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
+    const csvUpload = document.getElementById('csv-upload');
+    if (csvUpload) {
+      csvUpload.addEventListener('change', (e) => {
+        const file = e.target.files[0];
+        if (!file) return;
 
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try {
-          const data = event.target.result;
-          parseCSV(data);
-          e.target.value = ''; // Reset file input
-        } catch (error) {
-          showError('Error reading CSV file. Please check the format and try again.');
-          console.error('CSV parse error:', error);
-        }
-      };
+        const reader = new FileReader();
+        reader.onload = (event) => {
+          try {
+            const data = event.target.result;
+            parseCSV(data);
+            e.target.value = ''; // Reset file input
+          } catch (error) {
+            showError('Error reading CSV file. Please check the format and try again.');
+            console.error('CSV parse error:', error);
+          }
+        };
 
-      reader.readAsText(file);
-    });
+        reader.readAsText(file);
+      });
+    }
 
     document.getElementById('service-search').addEventListener('input', (e) => {
       serviceSearchTerm = e.target.value;
