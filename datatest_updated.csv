@@ -1,4 +1,4 @@
-State,Site Name,Site Type,Service Description,Unique Service Line,Service Type,Waste Stream,Bin Size,Cleanaway,Veolia,Remondis,Current,Incumbant
+State,Site Name,Site Type,Service Description,Unique Service Line,Service Type,Waste Stream,Bin Size,Cleanaway,Veolia,Remondis,Current,Incumbent
 NSW,St Patrick's Green,RV & AC,20 x 1100L General Waste - 1 x Weekly,St Patrick's Green - 20 x 1100L General Waste - 1 x Weekly,Rear Lift,General Waste,1100,"$32,973.20 ","$33,925.68 ","$29,914.56 ","$65,327.60 ",Cleanaway
 NSW,St Patrick's Green,RV & AC,10 x 240L General Waste - 1 x Weekly,St Patrick's Green - 10 x 240L General Waste - 1 x Weekly,Rear Lift,General Waste,240,"$3,276.00 ","$4,043.28 ","$3,878.16 ","$5,600.40 ",Cleanaway
 NSW,St Patrick's Green,RV & AC,4 x 240L Clinical Waste - Fortnightly,St Patrick's Green - 4 x 240L Clinical Waste - Fortnightly,Medical,Clinical Waste,240,"$8,971.56 ","$9,395.64 ","$10,208.04 ","$16,375.32 ",Cleanaway
@@ -180,4 +180,5 @@ QLD,Ipswsich Medical (HPT Asset),HPT,1 x 22L Sanitary Waste - 1 x Weekly,Ipswsic
 QLD,Ipswsich Medical (HPT Asset),HPT,3 x 22L Sanitary Waste - Every 4 Weeks,Ipswsich Medical (HPT Asset) - 3 x 22L Sanitary Waste - Every 4 Weeks,Sanitary,Sanitary Waste,22,$292.50 ,$357.63 ,$330.72 ,"$2,294.76 ",Ipswich Council
 QLD,Medilink (HPT Asset),HPT,1 x 3m3 General Waste - 6 x Weekly,Medilink (HPT Asset) - 1 x 3m3 General Waste - 6 x Weekly,Front Lift,General Waste,3,"$25,771.20 ","$21,816.48 ","$22,563.84 ","$33,415.20 ",Cleanaway
 QLD,Medilink (HPT Asset),HPT,1 x 4.5m3 Paper & Cardboard - 2 x Weekly,Medilink (HPT Asset) - 1 x 4.5m3 Paper & Cardboard - 2 x Weekly,Front Lift,Paper & Cardboard,4.5,"$2,402.40 ","$3,028.88 ","$3,047.20 ","$3,198.00 ",Cleanaway
+
 ,,,,,,,,"$878,421 ","$912,846 ","$944,362 ","$1,129,622 ",
