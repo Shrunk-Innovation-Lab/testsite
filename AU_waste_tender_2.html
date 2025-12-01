@@ -932,9 +932,10 @@
       const tbody = document.getElementById('sites-tbody');
       const noResults = document.getElementById('no-results');
       
-      // Debug: Check if headers exist
-      const headers = document.querySelectorAll('#summary-page th');
-      console.log('Table headers found:', headers.length);
+      // Debug: Check if table and headers exist
+      const table = document.getElementById('sites-table');
+      const headers = table ? table.querySelectorAll('th') : [];
+      console.log('Table found:', !!table, 'Headers found:', headers.length);
       
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -957,7 +958,7 @@
         const isChecked = selectedSites.has(site.id);
         return `
           <tr>
-            <td style="text-align: center;"><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isChecked ? 'checked' : ''} style="cursor: pointer;"></td>
+            <td><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isChecked ? 'checked' : ''}></td>
             <td>${site.siteName}</td>
             <td>${site.state}</td>
             <td>${site.siteType}</td>
