@@ -776,6 +776,7 @@
   <script>
     // Global variables
     let sites = [];
+    let selectedSites = new Set();
     let searchTerm = '';
     let stateFilter = '';
     let siteTypeFilter = '';
@@ -946,9 +947,10 @@
       
       tbody.innerHTML = filteredSites.map(site => {
         const bestVendor = getBestVendorForSite(site);
+        const isChecked = selectedSites.has(site.id);
         return `
           <tr>
-            <td style="text-align: center;"><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" style="cursor: pointer;"></td>
+            <td style="text-align: center;"><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isChecked ? 'checked' : ''} style="cursor: pointer;"></td>
             <td>${site.siteName}</td>
             <td>${site.state}</td>
             <td>${site.siteType}</td>
@@ -1005,13 +1007,18 @@
 
     // Update totals
     function updateTotals() {
-      const filteredSites = sites.filter(site => {
+      let filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
         const matchesState = !stateFilter || site.state === stateFilter;
         const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
         const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
         return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
       });
+
+      // If sites are selected, only calculate totals for selected sites
+      if (selectedSites.size > 0) {
+        filteredSites = filteredSites.filter(site => selectedSites.has(site.id));
+      }
 
       const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
       const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
@@ -1170,6 +1177,7 @@
       stateFilter = '';
       siteTypeFilter = '';
       wasteStreamFilter = '';
+      selectedSites.clear();
       
       document.getElementById('site-search').value = '';
       document.getElementById('state-filter').value = '';
@@ -1187,7 +1195,14 @@
         const checkboxes = document.querySelectorAll('.site-checkbox');
         checkboxes.forEach(checkbox => {
           checkbox.checked = e.target.checked;
+          const siteId = parseInt(checkbox.dataset.siteId);
+          if (e.target.checked) {
+            selectedSites.add(siteId);
+          } else {
+            selectedSites.delete(siteId);
+          }
         });
+        updateTotals();
       });
     }
 
@@ -1196,12 +1211,21 @@
     if (sitesTbody) {
       sitesTbody.addEventListener('change', (e) => {
         if (e.target.classList.contains('site-checkbox')) {
+          const siteId = parseInt(e.target.dataset.siteId);
+          if (e.target.checked) {
+            selectedSites.add(siteId);
+          } else {
+            selectedSites.delete(siteId);
+          }
+          
           const allCheckboxes = document.querySelectorAll('.site-checkbox');
           const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
           const selectAll = document.getElementById('select-all');
           if (selectAll) {
-            selectAll.checked = allCheckboxes.length === checkedBoxes.length;
+            selectAll.checked = allCheckboxes.length === checkedBoxes.length && allCheckboxes.length > 0;
           }
+          
+          updateTotals();
         }
       });
     }
