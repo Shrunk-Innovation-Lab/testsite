@@ -1105,7 +1105,9 @@
       const lines = csvText.split('\n').filter(line => line.trim());
       if (lines.length < 2) { showError('CSV file is empty or invalid.'); return; }
 
-      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
+      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').replace(/\r/g, '').toLowerCase());
+      
+      console.log('CSV Headers:', headers);
       
       const columnMap = {
         rank: headers.findIndex(h => h.includes('rank')),
@@ -1120,13 +1122,24 @@
         remondis: headers.findIndex(h => h.includes('remondis')),
         current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
       };
+      
+      console.log('Column Map:', columnMap);
 
       sites = [];
       
       for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/\r/g, ''));
         const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
         if (!siteNameValue) continue;
+        
+        // Get incumbent - try column map first, then fall back to last column
+        let incumbentValue = '';
+        if (columnMap.incumbent >= 0) {
+          incumbentValue = values[columnMap.incumbent] || '';
+        } else {
+          // Fallback: incumbent is typically the last column
+          incumbentValue = values[values.length - 1] || '';
+        }
         
         sites.push({
           id: i,
@@ -1136,7 +1149,7 @@
           siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
           serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
           wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
-          incumbent: (columnMap.incumbent >= 0 ? values[columnMap.incumbent] : '') || '',
+          incumbent: incumbentValue,
           cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
           veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
           remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
