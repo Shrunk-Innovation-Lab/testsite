@@ -840,6 +840,7 @@
          <th>State</th>
          <th>Asset Type</th>
          <th>Waste Stream</th>
+         <th>Incumbent</th>
          <th>Current Cost</th>
          <th>Cleanaway</th>
          <th>Veolia</th>
@@ -849,7 +850,7 @@
        <tbody id="sites-tbody"></tbody>
        <tfoot>
         <tr class="summary-row">
-         <td colspan="5">Total</td>
+         <td colspan="6">Total</td>
          <td id="total-current">$0</td>
          <td id="total-cleanaway">$0</td>
          <td id="total-veolia">$0</td>
@@ -1113,6 +1114,7 @@
         siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
         serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
         wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
+        incumbent: headers.findIndex(h => h.includes('incumbent')),
         cleanaway: headers.findIndex(h => h.includes('cleanaway')),
         veolia: headers.findIndex(h => h.includes('veolia')),
         remondis: headers.findIndex(h => h.includes('remondis')),
@@ -1134,6 +1136,7 @@
           siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
           serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
           wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
+          incumbent: (columnMap.incumbent >= 0 ? values[columnMap.incumbent] : '') || '',
           cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
           veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
           remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
@@ -1205,6 +1208,7 @@
             <td>${site.state}</td>
             <td>${site.siteType}</td>
             <td>${site.wasteStream}</td>
+            <td>${site.incumbent}</td>
             <td class="price-cell">${formatCurrency(site.current)}</td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
             <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(site.veolia)}</td>
