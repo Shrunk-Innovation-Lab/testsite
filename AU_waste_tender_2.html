@@ -17,9 +17,7 @@
       overflow-x: hidden;
     }
 
-    * {
-      box-sizing: border-box;
-    }
+    * { box-sizing: border-box; }
 
     .dashboard-wrapper {
       width: 100%;
@@ -152,10 +150,7 @@
       transition: all 0.3s ease;
     }
 
-    .nav-tab:hover {
-      border-color: #6366f1;
-      color: #6366f1;
-    }
+    .nav-tab:hover { border-color: #6366f1; color: #6366f1; }
 
     .nav-tab.active {
       background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
@@ -163,13 +158,8 @@
       border-color: transparent;
     }
 
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
+    .page { display: none; }
+    .page.active { display: block; }
 
     .vendors-grid {
       display: grid;
@@ -232,9 +222,7 @@
       flex-shrink: 0;
     }
 
-    .price-section {
-      margin: 2rem 0;
-    }
+    .price-section { margin: 2rem 0; }
 
     .price-label {
       font-size: 0.875rem;
@@ -405,9 +393,7 @@
       box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
     }
 
-    .sites-header {
-      margin-bottom: 2rem;
-    }
+    .sites-header { margin-bottom: 2rem; }
 
     .sites-title {
       font-size: 1.75rem;
@@ -421,6 +407,7 @@
       gap: 1rem;
       flex-wrap: wrap;
       margin-bottom: 2rem;
+      align-items: flex-start;
     }
 
     .search-input {
@@ -432,6 +419,7 @@
       border-radius: 12px;
       background: #f8fafc;
       transition: all 0.3s ease;
+      height: 52px;
     }
 
     .search-input:focus {
@@ -441,8 +429,15 @@
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
-    .filter-select {
-      padding: 0.875rem 1.25rem;
+    /* Multi-select dropdown styles */
+    .multi-select {
+      position: relative;
+      min-width: 180px;
+    }
+
+    .multi-select-btn {
+      width: 100%;
+      padding: 0.875rem 2.5rem 0.875rem 1.25rem;
       font-size: 1rem;
       border: 2px solid #e2e8f0;
       border-radius: 12px;
@@ -450,14 +445,151 @@
       color: #1e293b;
       cursor: pointer;
       transition: all 0.3s ease;
-      min-width: 180px;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 52px;
+      position: relative;
     }
 
-    .filter-select:focus {
+    .multi-select-btn::after {
+      content: '▼';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: #64748b;
+      transition: transform 0.2s ease;
+    }
+
+    .multi-select-btn.open::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .multi-select-btn:hover, .multi-select-btn:focus {
       outline: none;
       border-color: #6366f1;
       background: white;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    .multi-select-btn.has-selection {
+      border-color: #6366f1;
+      background: white;
+    }
+
+    .multi-select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      margin-top: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .multi-select-dropdown.open {
+      display: block;
+    }
+
+    .multi-select-option {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: background 0.15s ease;
+    }
+
+    .multi-select-option:hover {
+      background: #f1f5f9;
+    }
+
+    .multi-select-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #6366f1;
+    }
+
+    .multi-select-option label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    .multi-select-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .multi-select-actions button {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-select-all {
+      background: #e0e7ff;
+      color: #6366f1;
+    }
+
+    .btn-select-all:hover {
+      background: #c7d2fe;
+    }
+
+    .btn-clear {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .btn-clear:hover {
+      background: #fecaca;
+    }
+
+    .filter-btn {
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      height: 52px;
+      font-weight: 500;
+    }
+
+    .btn-clear-all {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-clear-all:hover {
+      background: #dc2626;
+    }
+
+    .btn-import {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-import:hover {
+      background: #059669;
     }
 
     .table-wrapper {
@@ -497,9 +629,7 @@
       font-size: 0.9375rem;
     }
 
-    tbody tr:hover {
-      background-color: #f8fafc;
-    }
+    tbody tr:hover { background-color: #f8fafc; }
 
     .price-cell {
       font-weight: 600;
@@ -553,9 +683,7 @@
       animation: spin 0.8s linear infinite;
     }
 
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     .error-message {
       text-align: center;
@@ -569,45 +697,16 @@
     }
 
     @media (max-width: 768px) {
-      .dashboard-wrapper {
-        padding: 2rem 1rem;
-      }
-
-      .header h1 {
-        font-size: 2rem;
-      }
-
-      .vendors-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .price-display {
-        font-size: 1.5rem;
-      }
-
-      .savings-section {
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: stretch;
-      }
-
-      .savings-header {
-        text-align: center;
-      }
-
-      th, td {
-        padding: 0.75rem 0.5rem;
-      }
-
-      .client-branding {
-        right: 1rem;
-        top: 1rem;
-      }
-      
-      .client-logo {
-        width: 60px;
-        height: 60px;
-      }
+      .dashboard-wrapper { padding: 2rem 1rem; }
+      .header h1 { font-size: 2rem; }
+      .vendors-grid { grid-template-columns: 1fr; }
+      .price-display { font-size: 1.5rem; }
+      .savings-section { flex-direction: column; gap: 1.5rem; align-items: stretch; }
+      .savings-header { text-align: center; }
+      th, td { padding: 0.75rem 0.5rem; }
+      .client-branding { right: 1rem; top: 1rem; }
+      .client-logo { width: 60px; height: 60px; }
+      .multi-select { min-width: 150px; }
     }
   </style>
  </head>
@@ -693,17 +792,42 @@
       <h2 class="sites-title">Site-by-Site Comparison</h2>
       <div class="filter-section">
        <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
-       <select id="state-filter" class="filter-select">
-        <option value="">All States</option>
-       </select>
-       <select id="site-type-filter" class="filter-select">
-        <option value="">All Asset Types</option>
-       </select>
-       <select id="waste-stream-filter" class="filter-select">
-        <option value="">All Waste Streams</option>
-       </select>
-       <button id="clear-filters" class="filter-select" style="background: #ef4444; color: white; border: none;">Clear Filters</button>
-       <button id="import-csv" class="filter-select" style="background: #10b981; color: white; border: none;">Import CSV</button>
+       
+       <div class="multi-select" id="state-multi-select">
+        <button class="multi-select-btn" type="button">All States</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
+       
+       <div class="multi-select" id="site-type-multi-select">
+        <button class="multi-select-btn" type="button">All Asset Types</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
+       
+       <div class="multi-select" id="waste-stream-multi-select">
+        <button class="multi-select-btn" type="button">All Waste Streams</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
+       
+       <button id="clear-filters" class="filter-btn btn-clear-all">Clear Filters</button>
+       <button id="import-csv" class="filter-btn btn-import">Import CSV</button>
        <input type="file" id="csv-upload" accept=".csv" style="display: none;">
       </div>
      </div>
@@ -722,9 +846,7 @@
          <th>Remondis</th>
         </tr>
        </thead>
-       <tbody id="sites-tbody">
-        <!-- Rows will be added here -->
-       </tbody>
+       <tbody id="sites-tbody"></tbody>
        <tfoot>
         <tr class="summary-row">
          <td colspan="5">Total</td>
@@ -747,9 +869,17 @@
       <h2 class="sites-title">Service Description Details</h2>
       <div class="filter-section">
        <input type="text" id="service-search" class="search-input" placeholder="🔍 Search services or sites...">
-       <select id="service-site-filter" class="filter-select">
-        <option value="">All Sites</option>
-       </select>
+       
+       <div class="multi-select" id="service-site-multi-select">
+        <button class="multi-select-btn" type="button">All Sites</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
       </div>
      </div>
      <div class="table-wrapper">
@@ -765,9 +895,7 @@
          <th>Remondis</th>
         </tr>
        </thead>
-       <tbody id="services-tbody">
-        <!-- Service rows will be added here -->
-       </tbody>
+       <tbody id="services-tbody"></tbody>
        <tfoot>
         <tr class="summary-row">
          <td colspan="3">Total</td>
@@ -792,14 +920,168 @@
     let sites = [];
     let selectedSites = new Set();
     let searchTerm = '';
-    let stateFilter = '';
-    let siteTypeFilter = '';
-    let wasteStreamFilter = '';
+    let stateFilters = [];
+    let siteTypeFilters = [];
+    let wasteStreamFilters = [];
     let serviceSearchTerm = '';
-    let serviceSiteFilter = '';
+    let serviceSiteFilters = [];
+
+    // Multi-select component
+    class MultiSelect {
+      constructor(container, defaultLabel, onChange) {
+        this.container = container;
+        this.defaultLabel = defaultLabel;
+        this.onChange = onChange;
+        this.selected = [];
+        this.options = [];
+        
+        this.btn = container.querySelector('.multi-select-btn');
+        this.dropdown = container.querySelector('.multi-select-dropdown');
+        this.optionsContainer = container.querySelector('.multi-select-options');
+        this.selectAllBtn = container.querySelector('.btn-select-all');
+        this.clearBtn = container.querySelector('.btn-clear');
+        
+        this.init();
+      }
+      
+      init() {
+        this.btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggle();
+        });
+        
+        this.selectAllBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectAll();
+        });
+        
+        this.clearBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.clear();
+        });
+        
+        document.addEventListener('click', (e) => {
+          if (!this.container.contains(e.target)) {
+            this.close();
+          }
+        });
+      }
+      
+      setOptions(options) {
+        this.options = options;
+        this.render();
+      }
+      
+      render() {
+        this.optionsContainer.innerHTML = this.options.map(opt => `
+          <div class="multi-select-option">
+            <input type="checkbox" id="${this.container.id}-${opt}" value="${opt}" ${this.selected.includes(opt) ? 'checked' : ''}>
+            <label for="${this.container.id}-${opt}">${opt}</label>
+          </div>
+        `).join('');
+        
+        this.optionsContainer.querySelectorAll('input').forEach(input => {
+          input.addEventListener('change', (e) => {
+            e.stopPropagation();
+            if (e.target.checked) {
+              if (!this.selected.includes(e.target.value)) {
+                this.selected.push(e.target.value);
+              }
+            } else {
+              this.selected = this.selected.filter(s => s !== e.target.value);
+            }
+            this.updateLabel();
+            this.onChange(this.selected);
+          });
+        });
+      }
+      
+      toggle() {
+        const isOpen = this.dropdown.classList.contains('open');
+        document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.multi-select-btn').forEach(b => b.classList.remove('open'));
+        
+        if (!isOpen) {
+          this.dropdown.classList.add('open');
+          this.btn.classList.add('open');
+        }
+      }
+      
+      close() {
+        this.dropdown.classList.remove('open');
+        this.btn.classList.remove('open');
+      }
+      
+      selectAll() {
+        this.selected = [...this.options];
+        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = true);
+        this.updateLabel();
+        this.onChange(this.selected);
+      }
+      
+      clear() {
+        this.selected = [];
+        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = false);
+        this.updateLabel();
+        this.onChange(this.selected);
+      }
+      
+      updateLabel() {
+        if (this.selected.length === 0) {
+          this.btn.textContent = this.defaultLabel;
+          this.btn.classList.remove('has-selection');
+        } else if (this.selected.length === 1) {
+          this.btn.textContent = this.selected[0];
+          this.btn.classList.add('has-selection');
+        } else if (this.selected.length === this.options.length) {
+          this.btn.textContent = `All (${this.selected.length})`;
+          this.btn.classList.add('has-selection');
+        } else {
+          this.btn.textContent = `${this.selected.length} selected`;
+          this.btn.classList.add('has-selection');
+        }
+      }
+      
+      reset() {
+        this.selected = [];
+        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = false);
+        this.btn.textContent = this.defaultLabel;
+        this.btn.classList.remove('has-selection');
+      }
+    }
+
+    // Initialize multi-selects
+    let stateMultiSelect, siteTypeMultiSelect, wasteStreamMultiSelect, serviceSiteMultiSelect;
+
+    function initMultiSelects() {
+      stateMultiSelect = new MultiSelect(
+        document.getElementById('state-multi-select'),
+        'All States',
+        (selected) => { stateFilters = selected; renderSites(); updateTotals(); }
+      );
+      
+      siteTypeMultiSelect = new MultiSelect(
+        document.getElementById('site-type-multi-select'),
+        'All Asset Types',
+        (selected) => { siteTypeFilters = selected; renderSites(); updateTotals(); }
+      );
+      
+      wasteStreamMultiSelect = new MultiSelect(
+        document.getElementById('waste-stream-multi-select'),
+        'All Waste Streams',
+        (selected) => { wasteStreamFilters = selected; renderSites(); updateTotals(); }
+      );
+      
+      serviceSiteMultiSelect = new MultiSelect(
+        document.getElementById('service-site-multi-select'),
+        'All Sites',
+        (selected) => { serviceSiteFilters = selected; renderServices(); }
+      );
+    }
 
     async function initializeApp() {
       showLoadingOverlay();
+      initMultiSelects();
       await loadGitHubData();
     }
 
@@ -871,10 +1153,10 @@
       const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
       const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
 
-      document.getElementById('state-filter').innerHTML = '<option value="">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
-      document.getElementById('site-type-filter').innerHTML = '<option value="">All Asset Types</option>' + siteTypes.map(t => `<option value="${t}">${t}</option>`).join('');
-      document.getElementById('waste-stream-filter').innerHTML = '<option value="">All Waste Streams</option>' + wasteStreams.map(w => `<option value="${w}">${w}</option>`).join('');
-      document.getElementById('service-site-filter').innerHTML = '<option value="">All Sites</option>' + siteNames.map(n => `<option value="${n}">${n}</option>`).join('');
+      stateMultiSelect.setOptions(states);
+      siteTypeMultiSelect.setOptions(siteTypes);
+      wasteStreamMultiSelect.setOptions(wasteStreams);
+      serviceSiteMultiSelect.setOptions(siteNames);
     }
 
     function formatCurrency(value) {
@@ -899,9 +1181,9 @@
       
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesState = !stateFilter || site.state === stateFilter;
-        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
-        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
+        const matchesState = stateFilters.length === 0 || stateFilters.includes(site.state);
+        const matchesSiteType = siteTypeFilters.length === 0 || siteTypeFilters.includes(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.length === 0 || wasteStreamFilters.includes(site.wasteStream);
         return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
       });
 
@@ -941,7 +1223,7 @@
       const filteredServices = services.filter(service => {
         const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
                              service.serviceDescription.toLowerCase().includes(serviceSearchTerm.toLowerCase());
-        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
+        const matchesSite = serviceSiteFilters.length === 0 || serviceSiteFilters.includes(service.siteName);
         return matchesSearch && matchesSite;
       });
 
@@ -975,9 +1257,9 @@
     function updateTotals() {
       let filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesState = !stateFilter || site.state === stateFilter;
-        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
-        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
+        const matchesState = stateFilters.length === 0 || stateFilters.includes(site.state);
+        const matchesSiteType = siteTypeFilters.length === 0 || siteTypeFilters.includes(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.length === 0 || wasteStreamFilters.includes(site.wasteStream);
         return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
       });
 
@@ -1096,18 +1378,21 @@
     });
 
     document.getElementById('site-search').addEventListener('input', (e) => { searchTerm = e.target.value; renderSites(); updateTotals(); });
-    document.getElementById('state-filter').addEventListener('change', (e) => { stateFilter = e.target.value; renderSites(); updateTotals(); });
-    document.getElementById('site-type-filter').addEventListener('change', (e) => { siteTypeFilter = e.target.value; renderSites(); updateTotals(); });
-    document.getElementById('waste-stream-filter').addEventListener('change', (e) => { wasteStreamFilter = e.target.value; renderSites(); updateTotals(); });
 
     document.getElementById('clear-filters').addEventListener('click', () => {
-      searchTerm = ''; stateFilter = ''; siteTypeFilter = ''; wasteStreamFilter = '';
+      searchTerm = '';
+      stateFilters = [];
+      siteTypeFilters = [];
+      wasteStreamFilters = [];
       selectedSites.clear();
+      
       document.getElementById('site-search').value = '';
-      document.getElementById('state-filter').value = '';
-      document.getElementById('site-type-filter').value = '';
-      document.getElementById('waste-stream-filter').value = '';
-      renderSites(); updateTotals();
+      stateMultiSelect.reset();
+      siteTypeMultiSelect.reset();
+      wasteStreamMultiSelect.reset();
+      
+      renderSites();
+      updateTotals();
     });
 
     document.getElementById('select-all').addEventListener('change', (e) => {
@@ -1147,7 +1432,6 @@
     });
 
     document.getElementById('service-search').addEventListener('input', (e) => { serviceSearchTerm = e.target.value; renderServices(); });
-    document.getElementById('service-site-filter').addEventListener('change', (e) => { serviceSiteFilter = e.target.value; renderServices(); });
 
     document.addEventListener('DOMContentLoaded', initializeApp);
   </script>
