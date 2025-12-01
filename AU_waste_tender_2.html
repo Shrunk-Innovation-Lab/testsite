@@ -474,6 +474,8 @@
 
     thead {
       background: #f8fafc;
+      display: table-header-group !important;
+      visibility: visible !important;
     }
 
     th {
@@ -486,6 +488,7 @@
       letter-spacing: 0.5px;
       border-bottom: 2px solid #e2e8f0;
       white-space: nowrap;
+      background: #f8fafc;
     }
 
     td {
@@ -928,6 +931,10 @@
     function renderSites() {
       const tbody = document.getElementById('sites-tbody');
       const noResults = document.getElementById('no-results');
+      
+      // Debug: Check if headers exist
+      const headers = document.querySelectorAll('#summary-page th');
+      console.log('Table headers found:', headers.length);
       
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
