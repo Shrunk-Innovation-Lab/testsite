@@ -708,8 +708,20 @@
       </div>
      </div>
      <div class="table-wrapper">
-      <table>
-
+      <table id="sites-table">
+       <thead>
+        <tr>
+         <th><input type="checkbox" id="select-all"></th>
+         <th>Site Name</th>
+         <th>State</th>
+         <th>Asset Type</th>
+         <th>Waste Stream</th>
+         <th>Current Cost</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+        </tr>
+       </thead>
        <tbody id="sites-tbody">
         <!-- Rows will be added here -->
        </tbody>
@@ -777,7 +789,6 @@
   </div>
 
   <script>
-    // Global variables
     let sites = [];
     let selectedSites = new Set();
     let searchTerm = '';
@@ -787,45 +798,29 @@
     let serviceSearchTerm = '';
     let serviceSiteFilter = '';
 
-    // Initialize the application
     async function initializeApp() {
       showLoadingOverlay();
       await loadGitHubData();
     }
 
-    // Load data from GitHub
     async function loadGitHubData() {
       try {
-        // Use the raw GitHub content URL
-        // Based on your provided URL: https://github.com/Shrunk-Innovation-Lab/testsite/blob/3d231da540cb62b7db7178564656f7810eb275bb/datatest.csv
         const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/3d231da540cb62b7db7178564656f7810eb275bb/datatest.csv';
-        
-        console.log('Attempting to load data from:', githubUrl);
-        
         const response = await fetch(githubUrl);
-        if (!response.ok) {
-          throw new Error(`Failed to fetch data from GitHub: ${response.status}`);
-        }
-        
+        if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
         const csvText = await response.text();
-        console.log('Data loaded successfully, parsing CSV...');
         parseCSV(csvText);
-        
         hideLoadingOverlay();
       } catch (error) {
         console.error('Error loading data:', error);
         hideLoadingOverlay();
-        showError('Could not load data from GitHub. Please use the Import CSV button to upload your data file.');
+        showError('Could not load data from GitHub. Please use the Import CSV button.');
       }
     }
 
-    // Parse CSV data
     function parseCSV(csvText) {
       const lines = csvText.split('\n').filter(line => line.trim());
-      if (lines.length < 2) {
-        showError('CSV file is empty or invalid.');
-        return;
-      }
+      if (lines.length < 2) { showError('CSV file is empty or invalid.'); return; }
 
       const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
       
@@ -835,10 +830,7 @@
         state: headers.findIndex(h => h.includes('state')),
         siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
         serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
-        uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
-        serviceType: headers.findIndex(h => h.includes('service type')),
         wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
-        binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
         cleanaway: headers.findIndex(h => h.includes('cleanaway')),
         veolia: headers.findIndex(h => h.includes('veolia')),
         remondis: headers.findIndex(h => h.includes('remondis')),
@@ -849,28 +841,22 @@
       
       for (let i = 1; i < lines.length; i++) {
         const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
-        
         const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
         if (!siteNameValue) continue;
         
-        const site = {
+        sites.push({
           id: i,
           rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
           siteName: siteNameValue || `Site ${i}`,
           state: (columnMap.state >= 0 ? values[columnMap.state] : '') || '',
           siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
           serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
-          uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
-          serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
           wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
-          binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
           cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
           veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
           remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
           current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
-        };
-        
-        sites.push(site);
+        });
       }
 
       updateFilters();
@@ -879,63 +865,37 @@
       updateTotals();
     }
 
-    // Update filter dropdowns
     function updateFilters() {
       const states = [...new Set(sites.map(s => s.state).filter(Boolean))].sort();
       const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
       const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
       const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
 
-      // State filter
-      const stateSelect = document.getElementById('state-filter');
-      stateSelect.innerHTML = '<option value="">All States</option>' +
-        states.map(state => `<option value="${state}">${state}</option>`).join('');
-
-      // Site type filter
-      const siteTypeSelect = document.getElementById('site-type-filter');
-      siteTypeSelect.innerHTML = '<option value="">All Asset Types</option>' +
-        siteTypes.map(type => `<option value="${type}">${type}</option>`).join('');
-
-      // Waste stream filter
-      const wasteStreamSelect = document.getElementById('waste-stream-filter');
-      wasteStreamSelect.innerHTML = '<option value="">All Waste Streams</option>' +
-        wasteStreams.map(stream => `<option value="${stream}">${stream}</option>`).join('');
-
-      // Service site filter
-      const serviceSiteSelect = document.getElementById('service-site-filter');
-      serviceSiteSelect.innerHTML = '<option value="">All Sites</option>' +
-        siteNames.map(site => `<option value="${site}">${site}</option>`).join('');
+      document.getElementById('state-filter').innerHTML = '<option value="">All States</option>' + states.map(s => `<option value="${s}">${s}</option>`).join('');
+      document.getElementById('site-type-filter').innerHTML = '<option value="">All Asset Types</option>' + siteTypes.map(t => `<option value="${t}">${t}</option>`).join('');
+      document.getElementById('waste-stream-filter').innerHTML = '<option value="">All Waste Streams</option>' + wasteStreams.map(w => `<option value="${w}">${w}</option>`).join('');
+      document.getElementById('service-site-filter').innerHTML = '<option value="">All Sites</option>' + siteNames.map(n => `<option value="${n}">${n}</option>`).join('');
     }
 
-    // Format currency
     function formatCurrency(value) {
       return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
     }
 
-    // Get best vendor for a site
     function getBestVendorForSite(site) {
       const prices = [
         { vendor: 'cleanaway', price: site.cleanaway || 0 },
         { vendor: 'veolia', price: site.veolia || 0 },
         { vendor: 'remondis', price: site.remondis || 0 }
       ];
-
       const validPrices = prices.filter(p => p.price > 0);
       if (validPrices.length === 0) return null;
-
       const minPrice = Math.min(...validPrices.map(p => p.price));
       return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
     }
 
-    // Render sites table
     function renderSites() {
       const tbody = document.getElementById('sites-tbody');
       const noResults = document.getElementById('no-results');
-      
-      // Debug: Check if table and headers exist
-      const table = document.getElementById('sites-table');
-      const headers = table ? table.querySelectorAll('th') : [];
-      console.log('Table found:', !!table, 'Headers found:', headers.length);
       
       const filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -972,7 +932,6 @@
       }).join('');
     }
 
-    // Render services table
     function renderServices() {
       const tbody = document.getElementById('services-tbody');
       const noResults = document.getElementById('no-service-results');
@@ -1013,7 +972,6 @@
       updateServiceTotals(filteredServices);
     }
 
-    // Update totals
     function updateTotals() {
       let filteredSites = sites.filter(site => {
         const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
@@ -1023,7 +981,6 @@
         return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
       });
 
-      // If sites are selected, only calculate totals for selected sites
       if (selectedSites.size > 0) {
         filteredSites = filteredSites.filter(site => selectedSites.has(site.id));
       }
@@ -1047,12 +1004,11 @@
       updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
     }
 
-    // Update service totals
     function updateServiceTotals(services) {
-      const totalCurrent = services.reduce((sum, service) => sum + (service.current || 0), 0);
-      const totalCleanaway = services.reduce((sum, service) => sum + (service.cleanaway || 0), 0);
-      const totalVeolia = services.reduce((sum, service) => sum + (service.veolia || 0), 0);
-      const totalRemondis = services.reduce((sum, service) => sum + (service.remondis || 0), 0);
+      const totalCurrent = services.reduce((sum, s) => sum + (s.current || 0), 0);
+      const totalCleanaway = services.reduce((sum, s) => sum + (s.cleanaway || 0), 0);
+      const totalVeolia = services.reduce((sum, s) => sum + (s.veolia || 0), 0);
+      const totalRemondis = services.reduce((sum, s) => sum + (s.remondis || 0), 0);
 
       document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
       document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
@@ -1060,7 +1016,6 @@
       document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
     }
 
-    // Update best price indicator
     function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
       const cards = [
         { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
@@ -1078,7 +1033,6 @@
       }
     }
 
-    // Update savings meter
     function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
       const vendors = [
         { name: 'Cleanaway', price: totalCleanaway },
@@ -1096,10 +1050,7 @@
         return;
       }
 
-      const bestVendor = validVendors.reduce((min, vendor) => 
-        vendor.price < min.price ? vendor : min
-      );
-
+      const bestVendor = validVendors.reduce((min, vendor) => vendor.price < min.price ? vendor : min);
       const savings = totalCurrent - bestVendor.price;
       const savingsPercentage = (savings / totalCurrent) * 100;
 
@@ -1112,7 +1063,6 @@
       }, 100);
     }
 
-    // Show loading overlay
     function showLoadingOverlay() {
       if (!document.querySelector('.loading-overlay')) {
         const overlay = document.createElement('div');
@@ -1122,164 +1072,83 @@
       }
     }
 
-    // Hide loading overlay
     function hideLoadingOverlay() {
       const overlay = document.querySelector('.loading-overlay');
-      if (overlay) {
-        overlay.remove();
-      }
+      if (overlay) overlay.remove();
     }
 
-    // Show error message
     function showError(message) {
       const errorDiv = document.createElement('div');
       errorDiv.className = 'error-message';
       errorDiv.textContent = message;
-      
       const wrapper = document.querySelector('.dashboard-wrapper');
-      const firstChild = wrapper.firstChild;
-      wrapper.insertBefore(errorDiv, firstChild.nextSibling);
+      wrapper.insertBefore(errorDiv, wrapper.firstChild.nextSibling);
     }
 
-    // Event listeners for page navigation
+    // Event listeners
     document.querySelectorAll('.nav-tab').forEach(tab => {
       tab.addEventListener('click', () => {
-        const targetPage = tab.dataset.page;
-        
         document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
         tab.classList.add('active');
-        
         document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`${targetPage}-page`).classList.add('active');
+        document.getElementById(`${tab.dataset.page}-page`).classList.add('active');
       });
     });
 
-    // Event listeners for filters
-    document.getElementById('site-search').addEventListener('input', (e) => {
-      searchTerm = e.target.value;
-      renderSites();
-      updateTotals();
-    });
+    document.getElementById('site-search').addEventListener('input', (e) => { searchTerm = e.target.value; renderSites(); updateTotals(); });
+    document.getElementById('state-filter').addEventListener('change', (e) => { stateFilter = e.target.value; renderSites(); updateTotals(); });
+    document.getElementById('site-type-filter').addEventListener('change', (e) => { siteTypeFilter = e.target.value; renderSites(); updateTotals(); });
+    document.getElementById('waste-stream-filter').addEventListener('change', (e) => { wasteStreamFilter = e.target.value; renderSites(); updateTotals(); });
 
-    document.getElementById('state-filter').addEventListener('change', (e) => {
-      stateFilter = e.target.value;
-      renderSites();
-      updateTotals();
-    });
-
-    document.getElementById('site-type-filter').addEventListener('change', (e) => {
-      siteTypeFilter = e.target.value;
-      renderSites();
-      updateTotals();
-    });
-
-    document.getElementById('waste-stream-filter').addEventListener('change', (e) => {
-      wasteStreamFilter = e.target.value;
-      renderSites();
-      updateTotals();
-    });
-
-    // Clear filters button
     document.getElementById('clear-filters').addEventListener('click', () => {
-      searchTerm = '';
-      stateFilter = '';
-      siteTypeFilter = '';
-      wasteStreamFilter = '';
+      searchTerm = ''; stateFilter = ''; siteTypeFilter = ''; wasteStreamFilter = '';
       selectedSites.clear();
-      
       document.getElementById('site-search').value = '';
       document.getElementById('state-filter').value = '';
       document.getElementById('site-type-filter').value = '';
       document.getElementById('waste-stream-filter').value = '';
-      
-      renderSites();
+      renderSites(); updateTotals();
+    });
+
+    document.getElementById('select-all').addEventListener('change', (e) => {
+      document.querySelectorAll('.site-checkbox').forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        const siteId = parseInt(checkbox.dataset.siteId);
+        if (e.target.checked) selectedSites.add(siteId);
+        else selectedSites.delete(siteId);
+      });
       updateTotals();
     });
 
-    // Select all checkbox
-    const selectAllCheckbox = document.getElementById('select-all');
-    if (selectAllCheckbox) {
-      selectAllCheckbox.addEventListener('change', (e) => {
-        const checkboxes = document.querySelectorAll('.site-checkbox');
-        checkboxes.forEach(checkbox => {
-          checkbox.checked = e.target.checked;
-          const siteId = parseInt(checkbox.dataset.siteId);
-          if (e.target.checked) {
-            selectedSites.add(siteId);
-          } else {
-            selectedSites.delete(siteId);
-          }
-        });
+    document.getElementById('sites-tbody').addEventListener('change', (e) => {
+      if (e.target.classList.contains('site-checkbox')) {
+        const siteId = parseInt(e.target.dataset.siteId);
+        if (e.target.checked) selectedSites.add(siteId);
+        else selectedSites.delete(siteId);
+        
+        const allCheckboxes = document.querySelectorAll('.site-checkbox');
+        const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
+        document.getElementById('select-all').checked = allCheckboxes.length === checkedBoxes.length && allCheckboxes.length > 0;
         updateTotals();
-      });
-    }
-
-    // Individual checkbox listeners (delegated)
-    const sitesTbody = document.getElementById('sites-tbody');
-    if (sitesTbody) {
-      sitesTbody.addEventListener('change', (e) => {
-        if (e.target.classList.contains('site-checkbox')) {
-          const siteId = parseInt(e.target.dataset.siteId);
-          if (e.target.checked) {
-            selectedSites.add(siteId);
-          } else {
-            selectedSites.delete(siteId);
-          }
-          
-          const allCheckboxes = document.querySelectorAll('.site-checkbox');
-          const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
-          const selectAll = document.getElementById('select-all');
-          if (selectAll) {
-            selectAll.checked = allCheckboxes.length === checkedBoxes.length && allCheckboxes.length > 0;
-          }
-          
-          updateTotals();
-        }
-      });
-    }
-
-    // Import CSV button
-    const importBtn = document.getElementById('import-csv');
-    if (importBtn) {
-      importBtn.addEventListener('click', () => {
-        document.getElementById('csv-upload').click();
-      });
-    }
-
-    // CSV file upload handler
-    const csvUpload = document.getElementById('csv-upload');
-    if (csvUpload) {
-      csvUpload.addEventListener('change', (e) => {
-        const file = e.target.files[0];
-        if (!file) return;
-
-        const reader = new FileReader();
-        reader.onload = (event) => {
-          try {
-            const data = event.target.result;
-            parseCSV(data);
-            e.target.value = ''; // Reset file input
-          } catch (error) {
-            showError('Error reading CSV file. Please check the format and try again.');
-            console.error('CSV parse error:', error);
-          }
-        };
-
-        reader.readAsText(file);
-      });
-    }
-
-    document.getElementById('service-search').addEventListener('input', (e) => {
-      serviceSearchTerm = e.target.value;
-      renderServices();
+      }
     });
 
-    document.getElementById('service-site-filter').addEventListener('change', (e) => {
-      serviceSiteFilter = e.target.value;
-      renderServices();
+    document.getElementById('import-csv').addEventListener('click', () => { document.getElementById('csv-upload').click(); });
+
+    document.getElementById('csv-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try { parseCSV(event.target.result); e.target.value = ''; }
+        catch (error) { showError('Error reading CSV file.'); console.error(error); }
+      };
+      reader.readAsText(file);
     });
 
-    // Initialize the app when the page loads
+    document.getElementById('service-search').addEventListener('input', (e) => { serviceSearchTerm = e.target.value; renderServices(); });
+    document.getElementById('service-site-filter').addEventListener('change', (e) => { serviceSiteFilter = e.target.value; renderServices(); });
+
     document.addEventListener('DOMContentLoaded', initializeApp);
   </script>
  </body>
