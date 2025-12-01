@@ -1,0 +1,1406 @@
+<!doctype html>
+<html lang="en">
+ <head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Waste Management Tender Dashboard</title>
+  <link rel="icon" type="image/png" href="https://imgur.com/dZR7M8C.png">
+  <style>
+    body {
+      box-sizing: border-box;
+      margin: 0;
+      padding: 0;
+      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
+      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+      width: 100%;
+      height: 100%;
+      overflow-x: hidden;
+    }
+
+    * { box-sizing: border-box; }
+
+    .dashboard-wrapper {
+      width: 100%;
+      min-height: 100%;
+      padding: 3rem 2rem;
+    }
+
+    .header {
+      margin-bottom: 3rem;
+      position: relative;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: 0;
+      padding: 0;
+    }
+
+    .header-logo {
+      width: 20%;
+      max-width: 800px;
+      height: auto;
+      object-fit: contain;
+      margin-bottom: 2rem;
+    }
+
+    .footer {
+      margin-top: 4rem;
+      padding: 2rem 0;
+      text-align: center;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .footer p {
+      margin: 0;
+      color: #64748b;
+      font-size: 0.875rem;
+      font-weight: 500;
+    }
+
+    .client-branding {
+      position: absolute;
+      right: 1.5rem;
+      top: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .client-logo {
+      width: 80px;
+      height: 80px;
+      object-fit: contain;
+      border-radius: 12px;
+      background: white;
+      padding: 0.5rem;
+      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
+    }
+    
+    .current-costs-section {
+      position: relative;
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+      overflow: hidden;
+    }
+
+    .current-costs-section::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    }
+
+    .header-content {
+      flex: 1;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      text-align: center;
+      padding-top: 1.5rem;
+      margin-top: 0;
+      position: relative;
+    }
+
+    .header-content::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 50%;
+      transform: translateX(-50%);
+      width: 80px;
+      height: 4px;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+      border-radius: 2px;
+    }
+
+    .header h1 {
+      font-size: 2.5rem;
+      color: #1e293b;
+      margin: 0;
+      font-weight: 700;
+      letter-spacing: -0.5px;
+    }
+
+    .nav-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+      justify-content: center;
+      flex-wrap: wrap;
+    }
+
+    .nav-tab {
+      padding: 0.875rem 1.75rem;
+      font-size: 1rem;
+      font-weight: 600;
+      color: #64748b;
+      background: white;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .nav-tab:hover { border-color: #6366f1; color: #6366f1; }
+
+    .nav-tab.active {
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      border-color: transparent;
+    }
+
+    .page { display: none; }
+    .page.active { display: block; }
+
+    .vendors-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+      gap: 2rem;
+      max-width: 1400px;
+      margin: 0 auto 3rem;
+    }
+
+    .vendor-card {
+      background: white;
+      border-radius: 16px;
+      padding: 2rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+      transition: transform 0.3s ease, box-shadow 0.3s ease;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .vendor-card::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      height: 6px;
+      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
+    }
+
+    .vendor-card:hover {
+      transform: translateY(-5px);
+      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08), 0 20px 25px rgba(0, 0, 0, 0.08);
+    }
+
+    .vendor-card.best-price::after {
+      content: '✓ Best Price';
+      position: absolute;
+      top: 1.5rem;
+      right: 1.5rem;
+      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
+      color: white;
+      padding: 0.4rem 0.8rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      letter-spacing: 0.5px;
+    }
+
+    .vendor-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .vendor-logo {
+      width: 120px;
+      height: 80px;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+
+    .price-section { margin: 2rem 0; }
+
+    .price-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .price-display {
+      width: 100%;
+      padding: 1rem 1rem 1rem 2.5rem;
+      font-size: 2rem;
+      font-weight: 700;
+      color: #1e293b;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      min-height: 4rem;
+      display: flex;
+      align-items: center;
+    }
+
+    .current-costs-header {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .current-costs-icon {
+      width: 50px;
+      height: 50px;
+      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .current-costs-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0;
+    }
+
+    .current-total {
+      text-align: center;
+      margin-top: 1rem;
+    }
+
+    .current-total-label {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .current-total-amount {
+      font-size: 3rem;
+      font-weight: 700;
+      color: #10b981;
+    }
+
+    .savings-section {
+      margin-top: 2.5rem;
+      padding-top: 2rem;
+      border-top: 2px solid #f1f5f9;
+      display: flex;
+      align-items: center;
+      gap: 3rem;
+    }
+
+    .savings-header {
+      flex: 0 0 auto;
+      text-align: left;
+    }
+
+    .savings-title {
+      font-size: 0.875rem;
+      color: #64748b;
+      margin-bottom: 0.5rem;
+      font-weight: 500;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .savings-amount {
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: #10b981;
+      margin-bottom: 0.25rem;
+    }
+
+    .savings-vendor {
+      font-size: 0.9rem;
+      color: #64748b;
+      font-weight: 500;
+    }
+
+    .savings-vendor-name {
+      color: #6366f1;
+      font-weight: 700;
+    }
+
+    .savings-meter {
+      flex: 1;
+      position: relative;
+    }
+
+    .meter-background {
+      width: 100%;
+      height: 40px;
+      background: #f1f5f9;
+      border-radius: 20px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .meter-fill {
+      height: 100%;
+      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+      border-radius: 20px;
+      transition: width 0.8s ease;
+      display: flex;
+      align-items: center;
+      justify-content: flex-end;
+      padding-right: 1rem;
+      position: relative;
+    }
+
+    .meter-fill::after {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
+      animation: shimmer 2s infinite;
+    }
+
+    @keyframes shimmer {
+      0% { transform: translateX(-100%); }
+      100% { transform: translateX(100%); }
+    }
+
+    .meter-percentage {
+      color: white;
+      font-weight: 700;
+      font-size: 1rem;
+      z-index: 1;
+      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    }
+
+    .sites-section {
+      max-width: 1400px;
+      margin: 0 auto;
+      background: white;
+      border-radius: 16px;
+      padding: 2.5rem;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
+    }
+
+    .sites-header { margin-bottom: 2rem; }
+
+    .sites-title {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: #1e293b;
+      margin: 0 0 1.5rem 0;
+    }
+
+    .filter-section {
+      display: flex;
+      gap: 1rem;
+      flex-wrap: wrap;
+      margin-bottom: 2rem;
+      align-items: flex-start;
+    }
+
+    .search-input {
+      flex: 1;
+      min-width: 250px;
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      transition: all 0.3s ease;
+      height: 52px;
+    }
+
+    .search-input:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    }
+
+    /* Multi-select dropdown styles */
+    .multi-select {
+      position: relative;
+      min-width: 180px;
+    }
+
+    .multi-select-btn {
+      width: 100%;
+      padding: 0.875rem 2.5rem 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: 2px solid #e2e8f0;
+      border-radius: 12px;
+      background: #f8fafc;
+      color: #1e293b;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      text-align: left;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      height: 52px;
+      position: relative;
+    }
+
+    .multi-select-btn::after {
+      content: '▼';
+      position: absolute;
+      right: 1rem;
+      top: 50%;
+      transform: translateY(-50%);
+      font-size: 0.7rem;
+      color: #64748b;
+      transition: transform 0.2s ease;
+    }
+
+    .multi-select-btn.open::after {
+      transform: translateY(-50%) rotate(180deg);
+    }
+
+    .multi-select-btn:hover, .multi-select-btn:focus {
+      outline: none;
+      border-color: #6366f1;
+      background: white;
+    }
+
+    .multi-select-btn.has-selection {
+      border-color: #6366f1;
+      background: white;
+    }
+
+    .multi-select-dropdown {
+      position: absolute;
+      top: 100%;
+      left: 0;
+      right: 0;
+      background: white;
+      border: 2px solid #6366f1;
+      border-radius: 12px;
+      margin-top: 4px;
+      max-height: 250px;
+      overflow-y: auto;
+      z-index: 1000;
+      display: none;
+      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
+    }
+
+    .multi-select-dropdown.open {
+      display: block;
+    }
+
+    .multi-select-option {
+      padding: 0.75rem 1rem;
+      cursor: pointer;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+      transition: background 0.15s ease;
+    }
+
+    .multi-select-option:hover {
+      background: #f1f5f9;
+    }
+
+    .multi-select-option input[type="checkbox"] {
+      width: 18px;
+      height: 18px;
+      cursor: pointer;
+      accent-color: #6366f1;
+    }
+
+    .multi-select-option label {
+      cursor: pointer;
+      flex: 1;
+      font-size: 0.95rem;
+    }
+
+    .multi-select-actions {
+      display: flex;
+      gap: 0.5rem;
+      padding: 0.75rem 1rem;
+      border-top: 1px solid #e2e8f0;
+      background: #f8fafc;
+      border-radius: 0 0 10px 10px;
+    }
+
+    .multi-select-actions button {
+      flex: 1;
+      padding: 0.5rem;
+      font-size: 0.85rem;
+      border: none;
+      border-radius: 6px;
+      cursor: pointer;
+      font-weight: 500;
+      transition: all 0.2s ease;
+    }
+
+    .btn-select-all {
+      background: #e0e7ff;
+      color: #6366f1;
+    }
+
+    .btn-select-all:hover {
+      background: #c7d2fe;
+    }
+
+    .btn-clear {
+      background: #fee2e2;
+      color: #ef4444;
+    }
+
+    .btn-clear:hover {
+      background: #fecaca;
+    }
+
+    .filter-btn {
+      padding: 0.875rem 1.25rem;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      height: 52px;
+      font-weight: 500;
+    }
+
+    .btn-clear-all {
+      background: #ef4444;
+      color: white;
+    }
+
+    .btn-clear-all:hover {
+      background: #dc2626;
+    }
+
+    .btn-import {
+      background: #10b981;
+      color: white;
+    }
+
+    .btn-import:hover {
+      background: #059669;
+    }
+
+    .table-wrapper {
+      overflow-x: auto;
+      border-radius: 12px;
+      border: 1px solid #e2e8f0;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      background: white;
+    }
+
+    thead {
+      background: #f8fafc;
+      display: table-header-group !important;
+      visibility: visible !important;
+    }
+
+    th {
+      padding: 1rem;
+      text-align: left;
+      font-size: 0.875rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+      border-bottom: 2px solid #e2e8f0;
+      white-space: nowrap;
+      background: #f8fafc;
+    }
+
+    td {
+      padding: 1rem;
+      border-bottom: 1px solid #f1f5f9;
+      font-size: 0.9375rem;
+    }
+
+    tbody tr:hover { background-color: #f8fafc; }
+
+    .price-cell {
+      font-weight: 600;
+      color: #1e293b;
+    }
+
+    .best-cell {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
+      font-weight: 700;
+      color: #6366f1;
+      border-radius: 6px;
+    }
+
+    .summary-row {
+      background: #f8fafc;
+      font-weight: 700;
+      border-top: 2px solid #e2e8f0;
+    }
+
+    .summary-row td {
+      padding: 1.25rem 1rem;
+      font-size: 1.125rem;
+    }
+
+    .no-results {
+      text-align: center;
+      padding: 3rem;
+      color: #64748b;
+      font-size: 1rem;
+    }
+
+    .loading-overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.9);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 9999;
+    }
+
+    .loading-spinner {
+      width: 60px;
+      height: 60px;
+      border: 4px solid #e2e8f0;
+      border-top-color: #6366f1;
+      border-radius: 50%;
+      animation: spin 0.8s linear infinite;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    .error-message {
+      text-align: center;
+      padding: 2rem;
+      color: #ef4444;
+      font-size: 1.125rem;
+      background: #fef2f2;
+      border-radius: 12px;
+      margin: 2rem auto;
+      max-width: 600px;
+    }
+
+    @media (max-width: 768px) {
+      .dashboard-wrapper { padding: 2rem 1rem; }
+      .header h1 { font-size: 2rem; }
+      .vendors-grid { grid-template-columns: 1fr; }
+      .price-display { font-size: 1.5rem; }
+      .savings-section { flex-direction: column; gap: 1.5rem; align-items: stretch; }
+      .savings-header { text-align: center; }
+      th, td { padding: 0.75rem 0.5rem; }
+      .client-branding { right: 1rem; top: 1rem; }
+      .client-logo { width: 60px; height: 60px; }
+      .multi-select { min-width: 150px; }
+    }
+  </style>
+ </head>
+ <body>
+  <div class="dashboard-wrapper">
+   <header class="header">
+    <img src="https://i.imgur.com/Z4iSIu0.png" alt="Header Logo" class="header-logo" onerror="this.style.display='none'">
+    <div class="header-content">
+     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
+    </div>
+    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
+   </header>
+   
+   <nav class="nav-tabs">
+    <button class="nav-tab active" data-page="summary">Summary View</button>
+   </nav>
+
+   <!-- SUMMARY PAGE -->
+   <div class="page active" id="summary-page">
+    <section class="current-costs-section">
+     <div class="client-branding">
+      <img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+     </div>
+     <div class="current-costs-header">
+      <div class="current-costs-icon">💰</div>
+      <h2 class="current-costs-title">Current Annual Costs</h2>
+     </div>
+     <div class="current-total">
+      <div class="current-total-label">Total Across All Sites</div>
+      <div class="current-total-amount" id="current-total-amount">$0</div>
+     </div>
+     <div class="savings-section">
+      <div class="savings-header">
+       <div class="savings-title">Savings on Current Costs</div>
+       <div class="savings-amount" id="savings-amount">$0</div>
+       <div class="savings-vendor">Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span></div>
+      </div>
+      <div class="savings-meter">
+       <div class="meter-background">
+        <div class="meter-fill" id="meter-fill" style="width: 0%;">
+         <span class="meter-percentage" id="meter-percentage">0%</span>
+        </div>
+       </div>
+      </div>
+     </div>
+    </section>
+
+    <section class="vendors-grid">
+     <article class="vendor-card" id="cleanaway-card">
+      <div class="vendor-header">
+       <img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">Annual Service Cost</div>
+       <div class="price-display" id="cleanaway-price">$0</div>
+      </div>
+     </article>
+     
+     <article class="vendor-card" id="veolia-card">
+      <div class="vendor-header">
+       <img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">Annual Service Cost</div>
+       <div class="price-display" id="veolia-price">$0</div>
+      </div>
+     </article>
+     
+     <article class="vendor-card" id="remondis-card">
+      <div class="vendor-header">
+       <img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
+      </div>
+      <div class="price-section">
+       <div class="price-label">Annual Service Cost</div>
+       <div class="price-display" id="remondis-price">$0</div>
+      </div>
+     </article>
+    </section>
+
+    <section class="sites-section">
+     <div class="sites-header">
+      <h2 class="sites-title">Site-by-Site Comparison</h2>
+      <div class="filter-section">
+       <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
+       
+       <div class="multi-select" id="state-multi-select">
+        <button class="multi-select-btn" type="button">All States</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
+       
+       <div class="multi-select" id="site-type-multi-select">
+        <button class="multi-select-btn" type="button">All Asset Types</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
+       
+       <div class="multi-select" id="waste-stream-multi-select">
+        <button class="multi-select-btn" type="button">All Waste Streams</button>
+        <div class="multi-select-dropdown">
+         <div class="multi-select-options"></div>
+         <div class="multi-select-actions">
+          <button type="button" class="btn-select-all">Select All</button>
+          <button type="button" class="btn-clear">Clear</button>
+         </div>
+        </div>
+       </div>
+       
+       <button id="clear-filters" class="filter-btn btn-clear-all">Clear Filters</button>
+       <button id="import-csv" class="filter-btn btn-import">Import CSV</button>
+       <input type="file" id="csv-upload" accept=".csv" style="display: none;">
+      </div>
+     </div>
+     <div class="table-wrapper">
+      <table id="sites-table">
+       <thead>
+        <tr>
+         <th><input type="checkbox" id="select-all"></th>
+         <th>Site Name</th>
+         <th>State</th>
+         <th>Asset Type</th>
+         <th>Waste Stream</th>
+         <th>Incumbent</th>
+         <th>Current Cost</th>
+         <th>Cleanaway</th>
+         <th>Veolia</th>
+         <th>Remondis</th>
+        </tr>
+       </thead>
+       <tbody id="sites-tbody"></tbody>
+       <tfoot>
+        <tr class="summary-row">
+         <td colspan="6">Total</td>
+         <td id="total-current">$0</td>
+         <td id="total-cleanaway">$0</td>
+         <td id="total-veolia">$0</td>
+         <td id="total-remondis">$0</td>
+        </tr>
+       </tfoot>
+      </table>
+     </div>
+     <div id="no-results" class="no-results" style="display: none;">No sites match your search</div>
+    </section>
+   </div>
+
+   <footer class="footer">
+    <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
+   </footer>
+  </div>
+
+  <script>
+    let sites = [];
+    let selectedSites = new Set();
+    let searchTerm = '';
+    let stateFilters = [];
+    let siteTypeFilters = [];
+    let wasteStreamFilters = [];
+    let serviceSearchTerm = '';
+    let serviceSiteFilters = [];
+
+    // Multi-select component
+    class MultiSelect {
+      constructor(container, defaultLabel, onChange) {
+        this.container = container;
+        this.defaultLabel = defaultLabel;
+        this.onChange = onChange;
+        this.selected = [];
+        this.options = [];
+        
+        this.btn = container.querySelector('.multi-select-btn');
+        this.dropdown = container.querySelector('.multi-select-dropdown');
+        this.optionsContainer = container.querySelector('.multi-select-options');
+        this.selectAllBtn = container.querySelector('.btn-select-all');
+        this.clearBtn = container.querySelector('.btn-clear');
+        
+        this.init();
+      }
+      
+      init() {
+        this.btn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.toggle();
+        });
+        
+        this.selectAllBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.selectAll();
+        });
+        
+        this.clearBtn.addEventListener('click', (e) => {
+          e.stopPropagation();
+          this.clear();
+        });
+        
+        document.addEventListener('click', (e) => {
+          if (!this.container.contains(e.target)) {
+            this.close();
+          }
+        });
+      }
+      
+      setOptions(options) {
+        this.options = options;
+        this.render();
+      }
+      
+      render() {
+        this.optionsContainer.innerHTML = this.options.map(opt => `
+          <div class="multi-select-option">
+            <input type="checkbox" id="${this.container.id}-${opt}" value="${opt}" ${this.selected.includes(opt) ? 'checked' : ''}>
+            <label for="${this.container.id}-${opt}">${opt}</label>
+          </div>
+        `).join('');
+        
+        this.optionsContainer.querySelectorAll('input').forEach(input => {
+          input.addEventListener('change', (e) => {
+            e.stopPropagation();
+            if (e.target.checked) {
+              if (!this.selected.includes(e.target.value)) {
+                this.selected.push(e.target.value);
+              }
+            } else {
+              this.selected = this.selected.filter(s => s !== e.target.value);
+            }
+            this.updateLabel();
+            this.onChange(this.selected);
+          });
+        });
+      }
+      
+      toggle() {
+        const isOpen = this.dropdown.classList.contains('open');
+        document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('open'));
+        document.querySelectorAll('.multi-select-btn').forEach(b => b.classList.remove('open'));
+        
+        if (!isOpen) {
+          this.dropdown.classList.add('open');
+          this.btn.classList.add('open');
+        }
+      }
+      
+      close() {
+        this.dropdown.classList.remove('open');
+        this.btn.classList.remove('open');
+      }
+      
+      selectAll() {
+        this.selected = [...this.options];
+        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = true);
+        this.updateLabel();
+        this.onChange(this.selected);
+      }
+      
+      clear() {
+        this.selected = [];
+        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = false);
+        this.updateLabel();
+        this.onChange(this.selected);
+      }
+      
+      updateLabel() {
+        if (this.selected.length === 0) {
+          this.btn.textContent = this.defaultLabel;
+          this.btn.classList.remove('has-selection');
+        } else if (this.selected.length === 1) {
+          this.btn.textContent = this.selected[0];
+          this.btn.classList.add('has-selection');
+        } else if (this.selected.length === this.options.length) {
+          this.btn.textContent = `All (${this.selected.length})`;
+          this.btn.classList.add('has-selection');
+        } else {
+          this.btn.textContent = `${this.selected.length} selected`;
+          this.btn.classList.add('has-selection');
+        }
+      }
+      
+      reset() {
+        this.selected = [];
+        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = false);
+        this.btn.textContent = this.defaultLabel;
+        this.btn.classList.remove('has-selection');
+      }
+    }
+
+    // Initialize multi-selects
+    let stateMultiSelect, siteTypeMultiSelect, wasteStreamMultiSelect, serviceSiteMultiSelect;
+
+    function initMultiSelects() {
+      stateMultiSelect = new MultiSelect(
+        document.getElementById('state-multi-select'),
+        'All States',
+        (selected) => { stateFilters = selected; renderSites(); updateTotals(); }
+      );
+      
+      siteTypeMultiSelect = new MultiSelect(
+        document.getElementById('site-type-multi-select'),
+        'All Asset Types',
+        (selected) => { siteTypeFilters = selected; renderSites(); updateTotals(); }
+      );
+      
+      wasteStreamMultiSelect = new MultiSelect(
+        document.getElementById('waste-stream-multi-select'),
+        'All Waste Streams',
+        (selected) => { wasteStreamFilters = selected; renderSites(); updateTotals(); }
+      );
+      
+      serviceSiteMultiSelect = new MultiSelect(
+        document.getElementById('service-site-multi-select'),
+        'All Sites',
+        (selected) => { serviceSiteFilters = selected; renderServices(); }
+      );
+    }
+
+    async function initializeApp() {
+      showLoadingOverlay();
+      initMultiSelects();
+      await loadGitHubData();
+    }
+
+    async function loadGitHubData() {
+      try {
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/3f0dea5850389bb3d7b8264003b277efb6e5e49d/datatest_updated.csv';
+        const response = await fetch(githubUrl);
+        if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
+        const csvText = await response.text();
+        parseCSV(csvText);
+        hideLoadingOverlay();
+      } catch (error) {
+        console.error('Error loading data:', error);
+        hideLoadingOverlay();
+        showError('Could not load data from GitHub. Please use the Import CSV button.');
+      }
+    }
+
+    function parseCSV(csvText) {
+      const lines = csvText.split('\n').filter(line => line.trim());
+      if (lines.length < 2) { showError('CSV file is empty or invalid.'); return; }
+
+      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').replace(/\r/g, '').toLowerCase());
+      
+      console.log('CSV Headers:', headers);
+      
+      const columnMap = {
+        rank: headers.findIndex(h => h.includes('rank')),
+        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
+        state: headers.findIndex(h => h.includes('state')),
+        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
+        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
+        wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
+        incumbent: headers.findIndex(h => h.includes('incumbent')),
+        cleanaway: headers.findIndex(h => h.includes('cleanaway')),
+        veolia: headers.findIndex(h => h.includes('veolia')),
+        remondis: headers.findIndex(h => h.includes('remondis')),
+        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+      };
+      
+      console.log('Column Map:', columnMap);
+
+      sites = [];
+      
+      for (let i = 1; i < lines.length; i++) {
+        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/\r/g, ''));
+        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
+        if (!siteNameValue) continue;
+        
+        // Get incumbent - try column map first, then fall back to last column
+        let incumbentValue = '';
+        if (columnMap.incumbent >= 0) {
+          incumbentValue = values[columnMap.incumbent] || '';
+        } else {
+          // Fallback: incumbent is typically the last column
+          incumbentValue = values[values.length - 1] || '';
+        }
+        
+        sites.push({
+          id: i,
+          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
+          siteName: siteNameValue || `Site ${i}`,
+          state: (columnMap.state >= 0 ? values[columnMap.state] : '') || '',
+          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
+          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
+          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
+          incumbent: incumbentValue,
+          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
+          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+        });
+      }
+
+      updateFilters();
+      renderSites();
+      renderServices();
+      updateTotals();
+    }
+
+    function updateFilters() {
+      const states = [...new Set(sites.map(s => s.state).filter(Boolean))].sort();
+      const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
+      const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
+      const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
+
+      stateMultiSelect.setOptions(states);
+      siteTypeMultiSelect.setOptions(siteTypes);
+      wasteStreamMultiSelect.setOptions(wasteStreams);
+      serviceSiteMultiSelect.setOptions(siteNames);
+    }
+
+    function formatCurrency(value) {
+      return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    }
+
+    function getBestVendorForSite(site) {
+      const prices = [
+        { vendor: 'cleanaway', price: site.cleanaway || 0 },
+        { vendor: 'veolia', price: site.veolia || 0 },
+        { vendor: 'remondis', price: site.remondis || 0 }
+      ];
+      const validPrices = prices.filter(p => p.price > 0);
+      if (validPrices.length === 0) return null;
+      const minPrice = Math.min(...validPrices.map(p => p.price));
+      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
+    }
+
+    function renderSites() {
+      const tbody = document.getElementById('sites-tbody');
+      const noResults = document.getElementById('no-results');
+      
+      const filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesState = stateFilters.length === 0 || stateFilters.includes(site.state);
+        const matchesSiteType = siteTypeFilters.length === 0 || siteTypeFilters.includes(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.length === 0 || wasteStreamFilters.includes(site.wasteStream);
+        return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
+      });
+
+      if (filteredSites.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      tbody.innerHTML = filteredSites.map(site => {
+        const bestVendor = getBestVendorForSite(site);
+        const isChecked = selectedSites.has(site.id);
+        return `
+          <tr>
+            <td><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isChecked ? 'checked' : ''}></td>
+            <td>${site.siteName}</td>
+            <td>${site.state}</td>
+            <td>${site.siteType}</td>
+            <td>${site.wasteStream}</td>
+            <td>${site.incumbent}</td>
+            <td class="price-cell">${formatCurrency(site.current)}</td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(site.veolia)}</td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(site.remondis)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function renderServices() {
+      const tbody = document.getElementById('services-tbody');
+      const noResults = document.getElementById('no-service-results');
+      
+      const services = sites.filter(site => site.serviceDescription && site.serviceDescription.trim());
+      
+      const filteredServices = services.filter(service => {
+        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
+                             service.serviceDescription.toLowerCase().includes(serviceSearchTerm.toLowerCase());
+        const matchesSite = serviceSiteFilters.length === 0 || serviceSiteFilters.includes(service.siteName);
+        return matchesSearch && matchesSite;
+      });
+
+      if (filteredServices.length === 0) {
+        tbody.innerHTML = '';
+        noResults.style.display = 'block';
+        updateServiceTotals([]);
+        return;
+      }
+
+      noResults.style.display = 'none';
+      
+      tbody.innerHTML = filteredServices.map(service => {
+        const bestVendor = getBestVendorForSite(service);
+        return `
+          <tr>
+            <td><strong>${service.siteName}</strong></td>
+            <td>${service.state}</td>
+            <td>${service.serviceDescription}</td>
+            <td class="price-cell">${formatCurrency(service.current)}</td>
+            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
+            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
+            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
+          </tr>
+        `;
+      }).join('');
+
+      updateServiceTotals(filteredServices);
+    }
+
+    function updateTotals() {
+      let filteredSites = sites.filter(site => {
+        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
+        const matchesState = stateFilters.length === 0 || stateFilters.includes(site.state);
+        const matchesSiteType = siteTypeFilters.length === 0 || siteTypeFilters.includes(site.siteType);
+        const matchesWasteStream = wasteStreamFilters.length === 0 || wasteStreamFilters.includes(site.wasteStream);
+        return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
+      });
+
+      if (selectedSites.size > 0) {
+        filteredSites = filteredSites.filter(site => selectedSites.has(site.id));
+      }
+
+      const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
+      const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
+      const totalVeolia = filteredSites.reduce((sum, site) => sum + (site.veolia || 0), 0);
+      const totalRemondis = filteredSites.reduce((sum, site) => sum + (site.remondis || 0), 0);
+
+      document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
+      document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
+
+      document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
+      document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
+
+      updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
+      updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
+    }
+
+    function updateServiceTotals(services) {
+      const totalCurrent = services.reduce((sum, s) => sum + (s.current || 0), 0);
+      const totalCleanaway = services.reduce((sum, s) => sum + (s.cleanaway || 0), 0);
+      const totalVeolia = services.reduce((sum, s) => sum + (s.veolia || 0), 0);
+      const totalRemondis = services.reduce((sum, s) => sum + (s.remondis || 0), 0);
+
+      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
+      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
+      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
+      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
+    }
+
+    function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
+      const cards = [
+        { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
+        { price: veoliaTotal, card: document.getElementById('veolia-card') },
+        { price: remondisTotal, card: document.getElementById('remondis-card') }
+      ];
+
+      cards.forEach(item => item.card.classList.remove('best-price'));
+
+      const validPrices = cards.filter(p => p.price > 0);
+      if (validPrices.length > 0) {
+        const bestPrice = Math.min(...validPrices.map(p => p.price));
+        const bestVendor = validPrices.find(p => p.price === bestPrice);
+        bestVendor.card.classList.add('best-price');
+      }
+    }
+
+    function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
+      const vendors = [
+        { name: 'Cleanaway', price: totalCleanaway },
+        { name: 'Veolia', price: totalVeolia },
+        { name: 'Remondis', price: totalRemondis }
+      ];
+
+      const validVendors = vendors.filter(v => v.price > 0);
+      
+      if (validVendors.length === 0 || totalCurrent === 0) {
+        document.getElementById('savings-amount').textContent = '$0';
+        document.getElementById('best-vendor-name').textContent = '—';
+        document.getElementById('meter-fill').style.width = '0%';
+        document.getElementById('meter-percentage').textContent = '0%';
+        return;
+      }
+
+      const bestVendor = validVendors.reduce((min, vendor) => vendor.price < min.price ? vendor : min);
+      const savings = totalCurrent - bestVendor.price;
+      const savingsPercentage = (savings / totalCurrent) * 100;
+
+      document.getElementById('savings-amount').textContent = formatCurrency(savings);
+      document.getElementById('best-vendor-name').textContent = bestVendor.name;
+      
+      setTimeout(() => {
+        document.getElementById('meter-fill').style.width = savingsPercentage.toFixed(1) + '%';
+        document.getElementById('meter-percentage').textContent = savingsPercentage.toFixed(1) + '%';
+      }, 100);
+    }
+
+    function showLoadingOverlay() {
+      if (!document.querySelector('.loading-overlay')) {
+        const overlay = document.createElement('div');
+        overlay.className = 'loading-overlay';
+        overlay.innerHTML = '<div class="loading-spinner"></div>';
+        document.body.appendChild(overlay);
+      }
+    }
+
+    function hideLoadingOverlay() {
+      const overlay = document.querySelector('.loading-overlay');
+      if (overlay) overlay.remove();
+    }
+
+    function showError(message) {
+      const errorDiv = document.createElement('div');
+      errorDiv.className = 'error-message';
+      errorDiv.textContent = message;
+      const wrapper = document.querySelector('.dashboard-wrapper');
+      wrapper.insertBefore(errorDiv, wrapper.firstChild.nextSibling);
+    }
+
+    // Event listeners
+    document.querySelectorAll('.nav-tab').forEach(tab => {
+      tab.addEventListener('click', () => {
+        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
+        tab.classList.add('active');
+        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+        document.getElementById(`${tab.dataset.page}-page`).classList.add('active');
+      });
+    });
+
+    document.getElementById('site-search').addEventListener('input', (e) => { searchTerm = e.target.value; renderSites(); updateTotals(); });
+
+    document.getElementById('clear-filters').addEventListener('click', () => {
+      searchTerm = '';
+      stateFilters = [];
+      siteTypeFilters = [];
+      wasteStreamFilters = [];
+      selectedSites.clear();
+      
+      document.getElementById('site-search').value = '';
+      stateMultiSelect.reset();
+      siteTypeMultiSelect.reset();
+      wasteStreamMultiSelect.reset();
+      
+      renderSites();
+      updateTotals();
+    });
+
+    document.getElementById('select-all').addEventListener('change', (e) => {
+      document.querySelectorAll('.site-checkbox').forEach(checkbox => {
+        checkbox.checked = e.target.checked;
+        const siteId = parseInt(checkbox.dataset.siteId);
+        if (e.target.checked) selectedSites.add(siteId);
+        else selectedSites.delete(siteId);
+      });
+      updateTotals();
+    });
+
+    document.getElementById('sites-tbody').addEventListener('change', (e) => {
+      if (e.target.classList.contains('site-checkbox')) {
+        const siteId = parseInt(e.target.dataset.siteId);
+        if (e.target.checked) selectedSites.add(siteId);
+        else selectedSites.delete(siteId);
+        
+        const allCheckboxes = document.querySelectorAll('.site-checkbox');
+        const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
+        document.getElementById('select-all').checked = allCheckboxes.length === checkedBoxes.length && allCheckboxes.length > 0;
+        updateTotals();
+      }
+    });
+
+    document.getElementById('import-csv').addEventListener('click', () => { document.getElementById('csv-upload').click(); });
+
+    document.getElementById('csv-upload').addEventListener('change', (e) => {
+      const file = e.target.files[0];
+      if (!file) return;
+      const reader = new FileReader();
+      reader.onload = (event) => {
+        try { parseCSV(event.target.result); e.target.value = ''; }
+        catch (error) { showError('Error reading CSV file.'); console.error(error); }
+      };
+      reader.readAsText(file);
+    });
+
+    document.getElementById('service-search').addEventListener('input', (e) => { serviceSearchTerm = e.target.value; renderServices(); });
+
+    document.addEventListener('DOMContentLoaded', initializeApp);
+  </script>
+ </body>
+</html>
