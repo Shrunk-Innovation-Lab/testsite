@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Shrunk Tenders Portal (Placeholder)</title>
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+
+  <header>
+    <h1>Shrunk Tenders Portal</h1>
+    <nav>
+      <button onclick="showPage('home')">Home</button>
+      <button onclick="showPage('login')">Login</button>
+      <button onclick="showPage('dashboard')">Dashboard</button>
+      <button onclick="showPage('upload')">Upload Test</button>
+    </nav>
+  </header>
+
+  <main>
+
+    <section id="home" class="page visible">
+      <h2>Welcome</h2>
+      <p>This is a placeholder site for <strong>Shrunk Tenders</strong>.  
+      Replace this with the real tender portal later.</p>
+    </section>
+
+    <section id="login" class="page">
+      <h2>Login Test</h2>
+      <p>No real authentication yet — button just simulates login.</p>
+      <button onclick="fakeLogin()">Simulate Login</button>
+      <p id="loginStatus"></p>
+    </section>
+
+    <section id="dashboard" class="page">
+      <h2>Dashboard</h2>
+      <p>This is a placeholder dashboard.  
+      In the final app vendors will see tenders and admins will manage submissions.</p>
+
+      <div class="card">
+        <h3>Test Tender #1</h3>
+        <p>Placeholder tender information goes here.</p>
+      </div>
+
+      <div class="card">
+        <h3>Test Tender #2</h3>
+        <p>Another placeholder tender card.</p>
+      </div>
+    </section>
+
+    <section id="upload" class="page">
+      <h2>Test File Upload</h2>
+      <input type="file" id="fileInput"><br><br>
+      <button onclick="selectFile()">Simulate Upload</button>
+      <p id="uploadStatus"></p>
+    </section>
+
+  </main>
+
+  <footer>
+    <p>© 2025 Shrunk Tenders — Placeholder Deployment</p>
+  </footer>
+
+  <script src="app.js"></script>
+</body>
+</html>
+
