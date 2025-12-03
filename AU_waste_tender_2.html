@@ -3,1454 +3,1050 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waste Management Tender Dashboard</title>
-  <link rel="icon" type="image/png" href="https://imgur.com/dZR7M8C.png">
+  <title>Shrunk Waste Tender Portal</title>
+  <script src="/_sdk/data_sdk.js"></script>
+  <script src="/_sdk/element_sdk.js"></script>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
     body {
       box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      width: 100%;
       height: 100%;
-      overflow-x: hidden;
     }
-
-    * { box-sizing: border-box; }
-
-    .dashboard-wrapper {
-      width: 100%;
-      min-height: 100%;
-      padding: 3rem 2rem;
-    }
-
-    .header {
-      margin-bottom: 3rem;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      padding: 0;
-    }
-
-    .header-logo {
-      width: 20%;
-      max-width: 800px;
-      height: auto;
-      object-fit: contain;
-      margin-bottom: 2rem;
-    }
-
-    .footer {
-      margin-top: 4rem;
-      padding: 2rem 0;
-      text-align: center;
-      border-top: 2px solid #e2e8f0;
-    }
-
-    .footer p {
-      margin: 0;
-      color: #64748b;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .client-branding {
-      position: absolute;
-      right: 1.5rem;
-      top: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .client-logo {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
-      border-radius: 12px;
-      background: white;
-      padding: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    
-    .current-costs-section {
-      position: relative;
-      max-width: 1400px;
-      margin: 0 auto 3rem;
-      background: white;
-      border-radius: 16px;
-      padding: 2.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
-      overflow: hidden;
-    }
-
-    .current-costs-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-    }
-
-    .header-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding-top: 1.5rem;
-      margin-top: 0;
-      position: relative;
-    }
-
-    .header-content::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 4px;
-      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-      border-radius: 2px;
-    }
-
-    .header h1 {
-      font-size: 2.5rem;
-      color: #1e293b;
-      margin: 0;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .nav-tab {
-      padding: 0.875rem 1.75rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #64748b;
-      background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .nav-tab:hover { border-color: #6366f1; color: #6366f1; }
-
-    .nav-tab.active {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      border-color: transparent;
-    }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
-    .vendors-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      max-width: 1400px;
-      margin: 0 auto 3rem;
-    }
-
-    .vendor-card {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .vendor-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-    }
-
-    .vendor-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08), 0 20px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .vendor-card.best-price::after {
-      content: '✓ Best Price';
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .vendor-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .vendor-logo {
-      width: 120px;
-      height: 80px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-
-    .price-section { margin: 2rem 0; }
-
-    .price-label {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .price-display {
-      width: 100%;
-      padding: 1rem 1rem 1rem 2.5rem;
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1e293b;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
-      min-height: 4rem;
-      display: flex;
-      align-items: center;
-    }
-
-    .current-costs-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .current-costs-icon {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-
-    .current-costs-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0;
-    }
-
-    .current-total {
-      text-align: center;
-      margin-top: 1rem;
-    }
-
-    .current-total-label {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .current-total-amount {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #10b981;
-    }
-
-    .savings-section {
-      margin-top: 2.5rem;
-      padding-top: 2rem;
-      border-top: 2px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 3rem;
-    }
-
-    .savings-header {
-      flex: 0 0 auto;
-      text-align: left;
-    }
-
-    .savings-title {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .savings-amount {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 0.25rem;
-    }
-
-    .savings-vendor {
-      font-size: 0.9rem;
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .savings-vendor-name {
-      color: #6366f1;
-      font-weight: 700;
-    }
-
-    .savings-meter {
-      flex: 1;
-      position: relative;
-    }
-
-    .meter-background {
-      width: 100%;
-      height: 40px;
-      background: #f1f5f9;
-      border-radius: 20px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .meter-fill {
+    html {
       height: 100%;
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-      border-radius: 20px;
-      transition: width 0.8s ease;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 1rem;
-      position: relative;
     }
-
-    .meter-fill::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
-      animation: shimmer 2s infinite;
+    .gradient-bg {
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
     }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
+    .splash-accent {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
     }
-
-    .meter-percentage {
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      z-index: 1;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
+    .card-shadow {
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1), 0 2px 4px -1px rgba(0, 0, 0, 0.06);
     }
-
-    .sites-section {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: white;
-      border-radius: 16px;
-      padding: 2.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .sites-header { margin-bottom: 2rem; }
-
-    .sites-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0 0 1.5rem 0;
-    }
-
-    .filter-section {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
+    .tender-section {
+      border-left: 4px solid #f5576c;
+      padding-left: 1.5rem;
       margin-bottom: 2rem;
-      align-items: flex-start;
     }
-
-    .search-input {
-      flex: 1;
-      min-width: 250px;
-      padding: 0.875rem 1.25rem;
-      font-size: 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
-      transition: all 0.3s ease;
-      height: 52px;
-    }
-
-    .search-input:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    /* Multi-select dropdown styles */
-    .multi-select {
-      position: relative;
-      min-width: 180px;
-    }
-
-    .multi-select-btn {
-      width: 100%;
-      padding: 0.875rem 2.5rem 0.875rem 1.25rem;
-      font-size: 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
-      color: #1e293b;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      text-align: left;
-      white-space: nowrap;
-      overflow: hidden;
-      text-overflow: ellipsis;
-      height: 52px;
-      position: relative;
-    }
-
-    .multi-select-btn::after {
-      content: '▼';
-      position: absolute;
-      right: 1rem;
-      top: 50%;
-      transform: translateY(-50%);
-      font-size: 0.7rem;
-      color: #64748b;
-      transition: transform 0.2s ease;
-    }
-
-    .multi-select-btn.open::after {
-      transform: translateY(-50%) rotate(180deg);
-    }
-
-    .multi-select-btn:hover, .multi-select-btn:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: white;
-    }
-
-    .multi-select-btn.has-selection {
-      border-color: #6366f1;
-      background: white;
-    }
-
-    .multi-select-dropdown {
-      position: absolute;
-      top: 100%;
-      left: 0;
-      right: 0;
-      background: white;
-      border: 2px solid #6366f1;
-      border-radius: 12px;
-      margin-top: 4px;
-      max-height: 250px;
-      overflow-y: auto;
-      z-index: 1000;
-      display: none;
-      box-shadow: 0 10px 25px rgba(0, 0, 0, 0.15);
-    }
-
-    .multi-select-dropdown.open {
-      display: block;
-    }
-
-    .multi-select-option {
-      padding: 0.75rem 1rem;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-      transition: background 0.15s ease;
-    }
-
-    .multi-select-option:hover {
-      background: #f1f5f9;
-    }
-
-    .multi-select-option input[type="checkbox"] {
-      width: 18px;
-      height: 18px;
-      cursor: pointer;
-      accent-color: #6366f1;
-    }
-
-    .multi-select-option label {
-      cursor: pointer;
-      flex: 1;
-      font-size: 0.95rem;
-    }
-
-    .multi-select-actions {
-      display: flex;
-      gap: 0.5rem;
-      padding: 0.75rem 1rem;
-      border-top: 1px solid #e2e8f0;
-      background: #f8fafc;
-      border-radius: 0 0 10px 10px;
-    }
-
-    .multi-select-actions button {
-      flex: 1;
-      padding: 0.5rem;
-      font-size: 0.85rem;
-      border: none;
-      border-radius: 6px;
-      cursor: pointer;
-      font-weight: 500;
-      transition: all 0.2s ease;
-    }
-
-    .btn-select-all {
-      background: #e0e7ff;
-      color: #6366f1;
-    }
-
-    .btn-select-all:hover {
-      background: #c7d2fe;
-    }
-
-    .btn-clear {
-      background: #fee2e2;
-      color: #ef4444;
-    }
-
-    .btn-clear:hover {
-      background: #fecaca;
-    }
-
-    .filter-btn {
-      padding: 0.875rem 1.25rem;
-      font-size: 1rem;
-      border: none;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      height: 52px;
-      font-weight: 500;
-    }
-
-    .btn-clear-all {
-      background: #ef4444;
-      color: white;
-    }
-
-    .btn-clear-all:hover {
-      background: #dc2626;
-    }
-
-    .btn-import {
-      background: #10b981;
-      color: white;
-    }
-
-    .btn-import:hover {
-      background: #059669;
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-    }
-
-    table {
+    .site-table {
       width: 100%;
       border-collapse: collapse;
-      background: white;
+      margin: 1rem 0;
     }
-
-    thead {
-      background: #f8fafc;
-      display: table-header-group !important;
-      visibility: visible !important;
-    }
-
-    th {
-      padding: 1rem;
+    .site-table th,
+    .site-table td {
+      border: 1px solid #e5e7eb;
+      padding: 0.75rem;
       text-align: left;
+    }
+    .site-table th {
+      background-color: #f9fafb;
+      font-weight: 600;
+      color: #374151;
+    }
+    .quotation-table {
+      table-layout: fixed;
+    }
+    .quotation-table th:nth-child(1) { width: 50px; } /* State */
+    .quotation-table th:nth-child(2) { width: 100px; } /* Site */
+    .quotation-table th:nth-child(3) { width: 140px; } /* Service */
+    .quotation-table th:nth-child(4) { width: 120px; } /* Stream */
+    .quotation-table th:nth-child(5) { width: 70px; } /* Bin */
+    .quotation-table th:nth-child(6) { width: 80px; } /* Avg/Day */
+    .quotation-table th:nth-child(7) { width: 110px; } /* Frequency */
+    .quotation-table th:nth-child(8) { width: 220px; } /* Collection Days */
+    .quotation-table th:nth-child(9) { width: 100px; } /* Price/Collection */
+    .quotation-table th:nth-child(10) { width: 100px; } /* Rental/Month */
+    .quotation-table th:nth-child(11) { width: 130px; } /* Collection Window */
+    .quotation-table th:nth-child(12) { width: 150px; } /* Notes */
+    .loading-spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #f5576c;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .tab-button:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+    .tab-button.active {
+      border-bottom-color: #f5576c;
+      color: #f5576c;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .photo-item {
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      overflow: hidden;
+      background-color: #f9fafb;
+      padding: 0.5rem;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 4px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
+    }
+    .photo-item img:hover {
+      transform: scale(1.02);
+    }
+    .photo-placeholder {
+      width: 100%;
+      height: 200px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
       font-size: 0.875rem;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 2px solid #e2e8f0;
-      white-space: nowrap;
-      background: #f8fafc;
     }
-
-    td {
-      padding: 1rem;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 0.9375rem;
-    }
-
-    tbody tr:hover { background-color: #f8fafc; }
-
-    .price-cell {
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    .best-cell {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-      font-weight: 700;
-      color: #6366f1;
-      border-radius: 6px;
-    }
-
-    .summary-row {
-      background: #f8fafc;
-      font-weight: 700;
-      border-top: 2px solid #e2e8f0;
-    }
-
-    .summary-row td {
-      padding: 1.25rem 1rem;
-      font-size: 1.125rem;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 3rem;
-      color: #64748b;
-      font-size: 1rem;
-    }
-
-    .loading-overlay {
+    .photo-modal {
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.9);
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #6366f1;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    .error-message {
-      text-align: center;
+      z-index: 2000;
       padding: 2rem;
-      color: #ef4444;
-      font-size: 1.125rem;
-      background: #fef2f2;
-      border-radius: 12px;
-      margin: 2rem auto;
-      max-width: 600px;
     }
-
-    @media (max-width: 768px) {
-      .dashboard-wrapper { padding: 2rem 1rem; }
-      .header h1 { font-size: 2rem; }
-      .vendors-grid { grid-template-columns: 1fr; }
-      .price-display { font-size: 1.5rem; }
-      .savings-section { flex-direction: column; gap: 1.5rem; align-items: stretch; }
-      .savings-header { text-align: center; }
-      th, td { padding: 0.75rem 0.5rem; }
-      .client-branding { right: 1rem; top: 1rem; }
-      .client-logo { width: 60px; height: 60px; }
-      .multi-select { min-width: 150px; }
+    .photo-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      border-radius: 8px;
+    }
+    .photo-modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #1f2937;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: bold;
+      transition: background-color 0.2s ease;
+    }
+    .photo-modal-close:hover {
+      background-color: white;
     }
   </style>
+  <style>@view-transition { navigation: auto; }</style>
  </head>
  <body>
-  <div class="dashboard-wrapper">
-   <header class="header">
-    <img src="https://i.imgur.com/Z4iSIu0.png" alt="Header Logo" class="header-logo" onerror="this.style.display='none'">
-    <div class="header-content">
-     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
-    </div>
-    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
-   </header>
-   
-   <nav class="nav-tabs">
-    <button class="nav-tab active" data-page="summary">Summary View</button>
-    <button class="nav-tab" data-page="services">Service Details</button>
-   </nav>
-
-   <!-- SUMMARY PAGE -->
-   <div class="page active" id="summary-page">
-    <section class="current-costs-section">
-     <div class="client-branding">
-      <img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
-     </div>
-     <div class="current-costs-header">
-      <div class="current-costs-icon">💰</div>
-      <h2 class="current-costs-title">Current Annual Costs</h2>
-     </div>
-     <div class="current-total">
-      <div class="current-total-label">Total Across All Sites</div>
-      <div class="current-total-amount" id="current-total-amount">$0</div>
-     </div>
-     <div class="savings-section">
-      <div class="savings-header">
-       <div class="savings-title">Savings on Current Costs</div>
-       <div class="savings-amount" id="savings-amount">$0</div>
-       <div class="savings-vendor">Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span></div>
-      </div>
-      <div class="savings-meter">
-       <div class="meter-background">
-        <div class="meter-fill" id="meter-fill" style="width: 0%;">
-         <span class="meter-percentage" id="meter-percentage">0%</span>
-        </div>
-       </div>
-      </div>
-     </div>
-    </section>
-
-    <section class="vendors-grid">
-     <article class="vendor-card" id="cleanaway-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="cleanaway-price">$0</div>
-      </div>
-     </article>
-     
-     <article class="vendor-card" id="veolia-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="veolia-price">$0</div>
-      </div>
-     </article>
-     
-     <article class="vendor-card" id="remondis-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="remondis-price">$0</div>
-      </div>
-     </article>
-    </section>
-
-    <section class="sites-section">
-     <div class="sites-header">
-      <h2 class="sites-title">Site-by-Site Comparison</h2>
-      <div class="filter-section">
-       <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
-       
-       <div class="multi-select" id="state-multi-select">
-        <button class="multi-select-btn" type="button">All States</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
-        </div>
-       </div>
-       
-       <div class="multi-select" id="site-type-multi-select">
-        <button class="multi-select-btn" type="button">All Asset Types</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
-        </div>
-       </div>
-       
-       <div class="multi-select" id="waste-stream-multi-select">
-        <button class="multi-select-btn" type="button">All Waste Streams</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
-        </div>
-       </div>
-       
-       <button id="clear-filters" class="filter-btn btn-clear-all">Clear Filters</button>
-       <button id="import-csv" class="filter-btn btn-import">Import CSV</button>
-       <input type="file" id="csv-upload" accept=".csv" style="display: none;">
-      </div>
-     </div>
-     <div class="table-wrapper">
-      <table id="sites-table">
-       <thead>
-        <tr>
-         <th><input type="checkbox" id="select-all"></th>
-         <th>Site Name</th>
-         <th>State</th>
-         <th>Asset Type</th>
-         <th>Waste Stream</th>
-         <th>Incumbent</th>
-         <th>Current Cost</th>
-         <th>Cleanaway</th>
-         <th>Veolia</th>
-         <th>Remondis</th>
-        </tr>
-       </thead>
-       <tbody id="sites-tbody"></tbody>
-       <tfoot>
-        <tr class="summary-row">
-         <td colspan="6">Total</td>
-         <td id="total-current">$0</td>
-         <td id="total-cleanaway">$0</td>
-         <td id="total-veolia">$0</td>
-         <td id="total-remondis">$0</td>
-        </tr>
-       </tfoot>
-      </table>
-     </div>
-     <div id="no-results" class="no-results" style="display: none;">No sites match your search</div>
-    </section>
-   </div>
-
-   <!-- SERVICES PAGE -->
-   <div class="page" id="services-page">
-    <section class="sites-section">
-     <div class="sites-header">
-      <h2 class="sites-title">Service Description Details</h2>
-      <div class="filter-section">
-       <input type="text" id="service-search" class="search-input" placeholder="🔍 Search services or sites...">
-       
-       <div class="multi-select" id="service-site-multi-select">
-        <button class="multi-select-btn" type="button">All Sites</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
-        </div>
-       </div>
-      </div>
-     </div>
-     <div class="table-wrapper">
-      <table>
-       <thead>
-        <tr>
-         <th>Site Name</th>
-         <th>State</th>
-         <th style="min-width: 250px;">Service Description</th>
-         <th>Current Cost</th>
-         <th>Cleanaway</th>
-         <th>Veolia</th>
-         <th>Remondis</th>
-        </tr>
-       </thead>
-       <tbody id="services-tbody"></tbody>
-       <tfoot>
-        <tr class="summary-row">
-         <td colspan="3">Total</td>
-         <td id="service-total-current">$0</td>
-         <td id="service-total-cleanaway">$0</td>
-         <td id="service-total-veolia">$0</td>
-         <td id="service-total-remondis">$0</td>
-        </tr>
-       </tfoot>
-      </table>
-     </div>
-     <div id="no-service-results" class="no-results" style="display: none;">No services match your search</div>
-    </section>
-   </div>
-
-   <footer class="footer">
-    <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
-   </footer>
-  </div>
-
+  <div id="app" class="w-full min-h-full"></div>
   <script>
-    let sites = [];
-    let selectedSites = new Set();
-    let searchTerm = '';
-    let stateFilters = [];
-    let siteTypeFilters = [];
-    let wasteStreamFilters = [];
-    let serviceSearchTerm = '';
-    let serviceSiteFilters = [];
+    const defaultConfig = {
+      portal_title: "Shrunk Waste Tender Portal",
+      client_name: "Cedar Pacific",
+      tender_title: "Request for Waste Services Quotation",
+      contact_name: "Nick Twining – Shrunk",
+      contact_details: "M: 0418 854 628 | E: nick@shrunk.ai",
+      webhook_url: "https://webhook.site/your-unique-id",
+      primary_color: "#667eea",
+      secondary_color: "#f5576c",
+      background_color: "#f9fafb",
+      text_color: "#1f2937",
+      surface_color: "#ffffff"
+    };
 
-    // Multi-select component
-    class MultiSelect {
-      constructor(container, defaultLabel, onChange) {
-        this.container = container;
-        this.defaultLabel = defaultLabel;
-        this.onChange = onChange;
-        this.selected = [];
-        this.options = [];
-        
-        this.btn = container.querySelector('.multi-select-btn');
-        this.dropdown = container.querySelector('.multi-select-dropdown');
-        this.optionsContainer = container.querySelector('.multi-select-options');
-        this.selectAllBtn = container.querySelector('.btn-select-all');
-        this.clearBtn = container.querySelector('.btn-clear');
-        
-        this.init();
-      }
-      
-      init() {
-        this.btn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.toggle();
-        });
-        
-        this.selectAllBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.selectAll();
-        });
-        
-        this.clearBtn.addEventListener('click', (e) => {
-          e.stopPropagation();
-          this.clear();
-        });
-        
-        document.addEventListener('click', (e) => {
-          if (!this.container.contains(e.target)) {
-            this.close();
+    let currentUser = null;
+    let allVendors = [];
+    let isLoading = false;
+    let activeTab = "requirements";
+
+    const sitePhotos = {
+      "melbourne_cbd": [
+        { url: "https://i.imgur.com/BteWMvZ.png", caption: "Building Entrance" },
+        { url: "https://i.imgur.com/8uDbJhv.png", caption: "Waste Collection Area" }
+      ],
+      "melbourne_central": [
+        { url: "https://i.imgur.com/7CJKzPR.png", caption: "Front Access" },
+        { url: "https://i.imgur.com/7CJKzPR.png", caption: "Loading Dock" }
+      ],
+      "victoria_university": [
+        { url: "https://i.imgur.com/krwtpkU.png", caption: "Site Overview" },
+        { url: "https://i.imgur.com/XI9x0ct.png", caption: "Collection Point" },
+        { url: "https://i.imgur.com/ISrH4Wl.png", caption: "Bin Area" }
+      ],
+      "kensington": [
+        { url: "https://i.imgur.com/mUYtja3.png", caption: "Underground Access" },
+        { url: "https://i.imgur.com/gUhXw4L.png", caption: "Waste Room" }
+      ]
+    };
+
+    const dataHandler = {
+      onDataChanged(data) {
+        allVendors = data;
+        if (currentUser) {
+          const updated = data.find(v => v.id === currentUser.id);
+          if (updated) {
+            currentUser = updated;
           }
-        });
+        }
+        renderApp();
       }
-      
-      setOptions(options) {
-        this.options = options;
-        this.render();
+    };
+
+    async function initApp() {
+      const result = await window.dataSdk.init(dataHandler);
+      if (!result.isOk) {
+        console.error("Failed to initialize Data SDK");
+        return;
       }
+      renderApp();
+    }
+
+    function renderApp() {
+      const app = document.getElementById('app');
       
-      render() {
-        this.optionsContainer.innerHTML = this.options.map(opt => `
-          <div class="multi-select-option">
-            <input type="checkbox" id="${this.container.id}-${opt}" value="${opt}" ${this.selected.includes(opt) ? 'checked' : ''}>
-            <label for="${this.container.id}-${opt}">${opt}</label>
+      if (!currentUser) {
+        app.innerHTML = renderLoginPage();
+      } else {
+        app.innerHTML = renderTenderPortal();
+      }
+    }
+
+    function renderLoginPage() {
+      const config = window.elementSdk?.config || defaultConfig;
+      return `
+        <div class="w-full min-h-full" style="background-color: ${config.background_color};">
+          <div class="gradient-bg w-full py-6">
+            <div class="max-w-6xl mx-auto px-6">
+              <h1 class="text-3xl font-bold text-white">${config.portal_title}</h1>
+              <p class="text-white text-opacity-90 mt-1">Vendor Registration & Submission Portal</p>
+            </div>
           </div>
-        `).join('');
-        
-        this.optionsContainer.querySelectorAll('input').forEach(input => {
-          input.addEventListener('change', (e) => {
-            e.stopPropagation();
-            if (e.target.checked) {
-              if (!this.selected.includes(e.target.value)) {
-                this.selected.push(e.target.value);
-              }
-            } else {
-              this.selected = this.selected.filter(s => s !== e.target.value);
-            }
-            this.updateLabel();
-            this.onChange(this.selected);
-          });
+          
+          <div class="max-w-md mx-auto px-6 py-12">
+            <div class="card-shadow rounded-lg p-8" style="background-color: ${config.surface_color};">
+              <div class="text-center mb-6">
+                <div class="splash-accent w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                </div>
+                <h2 class="text-2xl font-bold" style="color: ${config.text_color};">Vendor Registration</h2>
+                <p class="text-gray-600 mt-2">Register or login to access the tender</p>
+              </div>
+
+              <form id="registrationForm" onsubmit="handleRegistration(event)">
+                <div class="mb-4">
+                  <label for="email" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Email Address</label>
+                  <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};" placeholder="your@email.com">
+                  <p class="text-xs text-gray-500 mt-1">Enter your email to login or register</p>
+                </div>
+
+                <div id="additionalFields" style="display: none;">
+                  <div class="mb-4">
+                    <label for="companyName" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Company Name</label>
+                    <input type="text" id="companyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="contactName" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Contact Name</label>
+                    <input type="text" id="contactName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="phone" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Phone Number</label>
+                    <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};">
+                  </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${config.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
+                  ${isLoading ? '<span class="loading-spinner"></span>Checking...' : 'Continue'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTenderPortal() {
+      const config = window.elementSdk?.config || defaultConfig;
+      const hasSubmitted = currentUser.submission_status === 'submitted';
+
+      return `
+        <div class="w-full min-h-full" style="background-color: ${config.background_color};">
+          <div class="gradient-bg w-full py-6">
+            <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+              <div>
+                <h1 class="text-3xl font-bold text-white">${config.portal_title}</h1>
+                <p class="text-white text-opacity-90 mt-1">${config.client_name} Waste Services Tender</p>
+              </div>
+              <button onclick="logout()" class="text-white bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <div class="max-w-6xl mx-auto px-6 py-8">
+            <div class="card-shadow rounded-lg p-6 mb-6" style="background-color: ${config.surface_color};">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-xl font-bold" style="color: ${config.text_color};">Welcome, ${currentUser.company_name}</h2>
+                  <p class="text-gray-600 mt-1">Contact: ${currentUser.contact_name} | ${currentUser.email}</p>
+                </div>
+                ${hasSubmitted ? `
+                  <div class="flex items-center text-green-600">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-semibold">Submission Complete</span>
+                  </div>
+                ` : ''}
+              </div>
+              
+              ${!hasSubmitted ? `
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                  <h3 class="text-sm font-semibold mb-2" style="color: ${config.text_color};">📋 How to Submit Your Quotation:</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-600">
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${config.secondary_color};">1.</span>
+                      <span><strong>Tender Requirements</strong> - Review all project details and service requirements</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${config.secondary_color};">2.</span>
+                      <span><strong>Site Photos</strong> - View photos of all four collection sites</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${config.secondary_color};">3.</span>
+                      <span><strong>Submit Quotation</strong> - Complete the pricing form and submit your quote</span>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            ${hasSubmitted ? renderSubmissionConfirmation(config) : renderTenderContentWithTabs(config)}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSubmissionConfirmation(config) {
+      return `
+        <div class="card-shadow rounded-lg p-8 text-center" style="background-color: ${config.surface_color};">
+          <div class="splash-accent w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold mb-3" style="color: ${config.text_color};">Submission Successful!</h2>
+          <p class="text-gray-600 text-lg mb-6">Your quotation has been successfully submitted.</p>
+          <div class="text-left max-w-md mx-auto bg-gray-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600 mb-2"><strong>Submitted:</strong> ${new Date(currentUser.submitted_at).toLocaleString()}</p>
+            <p class="text-sm text-gray-600 mb-2"><strong>Company:</strong> ${currentUser.company_name}</p>
+          </div>
+          <p class="text-gray-500 mt-6">Our team will review your submission and contact you shortly.</p>
+        </div>
+      `;
+    }
+
+    function renderTenderContentWithTabs(config) {
+      return `
+        <div class="card-shadow rounded-lg" style="background-color: ${config.surface_color};">
+          <div class="border-b border-gray-200">
+            <div class="flex space-x-2 px-6">
+              <button class="tab-button ${activeTab === 'requirements' ? 'active' : ''}" onclick="switchTab('requirements')" style="color: ${activeTab === 'requirements' ? config.secondary_color : config.text_color};">
+                Tender Requirements
+              </button>
+              <button class="tab-button ${activeTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')" style="color: ${activeTab === 'photos' ? config.secondary_color : config.text_color};">
+                Site Photos
+              </button>
+              <button class="tab-button ${activeTab === 'submit' ? 'active' : ''}" onclick="switchTab('submit')" style="color: ${activeTab === 'submit' ? config.secondary_color : config.text_color};">
+                Submit Quotation
+              </button>
+            </div>
+          </div>
+
+          <div class="p-6">
+            ${activeTab === 'requirements' ? renderRequirementsTab(config) : ''}
+            ${activeTab === 'photos' ? renderPhotosTab(config) : ''}
+            ${activeTab === 'submit' ? renderSubmitTab(config) : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRequirementsTab(config) {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${config.text_color};">${config.tender_title}</h2>
+          
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Prepared By</h3>
+            <p class="text-gray-700">Shrunk Innovation Group Pty Ltd</p>
+            <p class="text-gray-700">On behalf of: Cedar Pacific Pty Ltd</p>
+            <p class="text-gray-700">Site Tenant: Unilodge</p>
+            <p class="text-gray-700 mt-2"><strong>Contact:</strong> ${config.contact_name}</p>
+            <p class="text-gray-700">${config.contact_details}</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Customer Overview</h3>
+            <p class="text-gray-700 leading-relaxed">Cedar Pacific is one of Australia's leading specialist investors and developers in purpose-built student accommodation (PBSA) and build-to-rent (BTR) assets. They own and manage a large national portfolio of residential properties, focused on long-term asset performance, operational efficiency, and sustainability outcomes.</p>
+            <p class="text-gray-700 leading-relaxed mt-3">UniLodge operates as the on-site property and facilities manager for many of Cedar Pacific's student accommodation assets. Their teams manage the day-to-day operations, including tenant engagement, cleaning, and building services.</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Services Overview</h3>
+            <p class="text-gray-700 leading-relaxed">Cedar Pacific's UniLodge-operated buildings generate high volumes of General Waste, Co-mingled Recycling, and Cardboard, driven by dense student occupancy and continuous daily turnover. Most buildings operate with 7-day-per-week waste collections.</p>
+            <p class="text-gray-700 leading-relaxed mt-3">Co-mingled Recycling presents consistent challenges due to the chute system. High contamination rates are common. Contractors are expected to proactively identify contamination issues and work with Shrunk and Cedar Pacific to implement practical solutions.</p>
+            <p class="text-gray-700 leading-relaxed mt-3">Sites require occasional bulk dry waste, e-waste, and furniture disposal services in addition to regular collections. Clear communication, scheduling flexibility, and transparent pricing for these ad-hoc services are essential.</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-3" style="color: ${config.text_color};">Sites</h3>
+            <table class="site-table">
+              <thead>
+                <tr>
+                  <th>Site Name</th>
+                  <th>State</th>
+                  <th>Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Unilodge Melbourne CBD</td>
+                  <td>VIC</td>
+                  <td>17-23 Wills Street, Melbourne, VIC, 3000</td>
+                </tr>
+                <tr>
+                  <td>Unilodge Melbourne Central</td>
+                  <td>VIC</td>
+                  <td>303 La Trobe Street, Melbourne, VIC, 3000</td>
+                </tr>
+                <tr>
+                  <td>Unilodge Victoria University</td>
+                  <td>VIC</td>
+                  <td>101 Ballarat Road, Footscray, VIC, 3011</td>
+                </tr>
+                <tr>
+                  <td>Unilodge Kensington</td>
+                  <td>NSW</td>
+                  <td>177-197 Anzac Parade, Kensington, NSW, 2033</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Service Requirements</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>Early/overnight collection times preferred with provided keys/codes</li>
+              <li>Drivers must move bins (~5-10m) to service location</li>
+              <li>Low access rear-lift truck required for Unilodge Kensington (max height 4.3m)</li>
+              <li>Trucks must have scales to weigh bins/waste with reporting capability</li>
+              <li><strong>SIFOT (Service in full on time) of 99% required</strong></li>
+            </ul>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Contamination Management</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>Operational cadence for discarding contaminated Co-Mingle as General Waste (same day collection)</li>
+              <li>Monthly reporting on contamination events by day</li>
+            </ul>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Reporting Requirements</h3>
+            <p class="text-gray-700">Monthly reporting on number of lifts, weight, and diversion metrics via portal or Excel file</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Commencement & Term</h3>
+            <p class="text-gray-700">Contract commencement: On or after 01/02/2026</p>
+            <p class="text-gray-700 mt-2">Contract term: 2 years with optional 1 year extension (2+1)</p>
+            <p class="text-gray-700 mt-2">Price increases: Once per annum, capped increase (with justification), on anniversary of commencement</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Quotation Requirements</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>General Waste pricing based on 60kg per m³ density</li>
+              <li>Co-Mingle pricing based on 30kg per m³ density</li>
+              <li>Outline all additional fees: rental, fuel levies, futile fees, energy surcharges, weekend/holiday surcharges, overweight fees</li>
+              <li><strong>Providers with excessive additional fees will not be considered favorably</strong></li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPhotosTab(config) {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${config.text_color};">Site Photos</h2>
+          <p class="text-gray-600 mb-6">Visual documentation of waste collection areas and site access points</p>
+
+          <div class="space-y-8">
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Melbourne CBD</h3>
+              <p class="text-sm text-gray-600 mb-2">17-23 Wills Street, Melbourne, VIC, 3000</p>
+              <div class="photo-grid">
+                ${sitePhotos.melbourne_cbd.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Melbourne Central</h3>
+              <p class="text-sm text-gray-600 mb-2">303 La Trobe Street, Melbourne, VIC, 3000</p>
+              <div class="photo-grid">
+                ${sitePhotos.melbourne_central.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Victoria University</h3>
+              <p class="text-sm text-gray-600 mb-2">101 Ballarat Road, Footscray, VIC, 3011</p>
+              <div class="photo-grid">
+                ${sitePhotos.victoria_university.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Kensington</h3>
+              <p class="text-sm text-gray-600 mb-2">177-197 Anzac Parade, Kensington, NSW, 2033</p>
+              <div class="photo-grid">
+                ${sitePhotos.kensington.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSubmitTab(config) {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${config.text_color};">Submit Your Quotation</h2>
+          
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-semibold text-blue-900 mb-3">Instructions & Requirements</h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+              <li>• Enter your responses/pricing into the fields below</li>
+              <li>• General Waste services are to be priced at 60kg/m³</li>
+              <li>• Dry Waste services are to be priced at 30kg/m³</li>
+              <li>• Enter a capped annual price uplift %</li>
+              <li>• Outline your approximate collection window for servicing (eg 6:00-6:30am)</li>
+              <li>• Add any additional comments about fees or charges in the notes fields</li>
+            </ul>
+          </div>
+
+          <form id="quotationForm" onsubmit="submitQuotationForm(event)">
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <label for="annualUplift" class="block text-sm font-semibold mb-2" style="color: ${config.text_color};">Annual (Capped) Uplift %</label>
+              <input type="number" id="annualUplift" step="0.01" min="0" max="100" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" placeholder="e.g., 2.5">
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-xl font-bold mb-4" style="color: ${config.text_color};">Core Services</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm border-collapse quotation-table">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">State</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Site</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Service</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Stream</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Bin</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Avg/Day</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Frequency</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Collection Days</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Price/Collection</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Rental/Month</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Collection Window</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-xs">
+                    ${renderCoreServiceRow('VIC', 'Wills St', '11x1100L GW-7xW', 'General Waste', '1100L', '3.98', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 0)}
+                    ${renderCoreServiceRow('VIC', 'Wills St', '6x1100L CM-7xW', 'Comingle', '1100L', '2.06', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 1)}
+                    ${renderCoreServiceRow('VIC', 'Wills St', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Bi-Weekly', 'Tue,Fri', 2)}
+                    ${renderCoreServiceRow('VIC', 'La Trobe', '10x1100L GW-7xW', 'General Waste', '1100L', '4.17', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 3)}
+                    ${renderCoreServiceRow('VIC', 'La Trobe', '4x1100L CM-7xW', 'Comingle', '1100L', '2.16', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 4)}
+                    ${renderCoreServiceRow('VIC', 'La Trobe', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Bi-Weekly', 'Tue,Fri', 5)}
+                    ${renderCoreServiceRow('VIC', 'Footscray', '4x1100L GW-7xW', 'General Waste', '1100L', '2.3', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 6)}
+                    ${renderCoreServiceRow('VIC', 'Footscray', '3x1100L CM-7xW', 'Comingle', '1100L', '2', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 7)}
+                    ${renderCoreServiceRow('VIC', 'Footscray', '1x1100L P&C-2xW', 'P&C', '1100L', '1', 'Bi-Weekly', 'Tue,Fri', 8)}
+                    ${renderCoreServiceRow('NSW', 'Kensington', '16x660L GW-3xW', 'General Waste', '660L', '13.13', 'Tri-Weekly', 'Mon,Wed,Fri', 9)}
+                    ${renderCoreServiceRow('NSW', 'Kensington', '16x660L CM-3xW', 'Comingle', '660L', '11.3', 'Tri-Weekly', 'Mon,Wed,Fri', 10)}
+                    ${renderCoreServiceRow('NSW', 'Kensington', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Bi-Weekly', 'Tue,Fri', 11)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-xl font-bold mb-4" style="color: ${config.text_color};">Additional Services</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm border-collapse">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="border border-gray-300 px-2 py-2 text-left">State</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left">Site Name</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left">Service</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Price/Delivery ($)</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Price/Removal ($)</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Disposal ($/Tonne)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${renderAdditionalServiceRow('VIC', 'Wills Street', '6-8m3 Dry Waste Skip', 0)}
+                    ${renderAdditionalServiceRow('VIC', 'La Trobe Street', '6-8m3 Dry Waste Skip', 1)}
+                    ${renderAdditionalServiceRow('VIC', 'Footscray', '6-8m3 Dry Waste Skip', 2)}
+                    ${renderAdditionalServiceRow('NSW', 'Kensington', '6-8m3 Dry Waste Skip', 3)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${config.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
+              ${isLoading ? '<span class="loading-spinner"></span>Submitting...' : 'Submit Quotation'}
+            </button>
+          </form>
+
+          <div class="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+            <h3 class="font-semibold text-purple-900 mb-2">📡 Webhook Integration</h3>
+            <p class="text-sm text-purple-800 mb-2">Submissions will be sent to your configured webhook endpoint:</p>
+            <code class="text-xs bg-purple-100 px-2 py-1 rounded text-purple-900 break-all">${config.webhook_url}</code>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderCoreServiceRow(state, site, description, wasteStream, binSize, avgCollected, defaultFrequency, defaultDays, index) {
+      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const dayCheckboxes = days.map(day => `
+        <label class="inline-flex items-center mr-2 mb-1">
+          <input type="checkbox" name="core_days_${index}" value="${day}" ${defaultDays.includes(day) ? 'checked' : ''} class="mr-1" disabled>
+          <span class="text-xs">${day}</span>
+        </label>
+      `).join('');
+      
+      return `
+        <tr>
+          <td class="border border-gray-300 px-2 py-2">${state}</td>
+          <td class="border border-gray-300 px-2 py-2">${site}</td>
+          <td class="border border-gray-300 px-2 py-2">${description}</td>
+          <td class="border border-gray-300 px-2 py-2">${wasteStream}</td>
+          <td class="border border-gray-300 px-2 py-2">${binSize}</td>
+          <td class="border border-gray-300 px-2 py-2">${avgCollected}</td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-100">
+            <select name="core_frequency_${index}" required class="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-gray-100 cursor-not-allowed" disabled>
+              <option value="Daily" ${defaultFrequency === 'Daily' ? 'selected' : ''}>Daily</option>
+              <option value="Weekly" ${defaultFrequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
+              <option value="Bi-Weekly" ${defaultFrequency === 'Bi-Weekly' ? 'selected' : ''}>Bi-Weekly</option>
+              <option value="Tri-Weekly" ${defaultFrequency === 'Tri-Weekly' ? 'selected' : ''}>Tri-Weekly</option>
+              <option value="Other" ${defaultFrequency === 'Other' ? 'selected' : ''}>Other</option>
+            </select>
+            <input type="hidden" name="core_frequency_${index}" value="${defaultFrequency}">
+          </td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-100">
+            <div class="flex flex-wrap">${dayCheckboxes}</div>
+            ${defaultDays.split(',').map(day => `<input type="hidden" name="core_days_${index}" value="${day}">`).join('')}
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="core_price_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="core_rental_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="text" required name="core_window_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="6:00-6:30am">
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="text" name="core_comments_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="Optional">
+          </td>
+        </tr>
+      `;
+    }
+
+    function renderAdditionalServiceRow(state, site, service, index) {
+      return `
+        <tr>
+          <td class="border border-gray-300 px-2 py-2">${state}</td>
+          <td class="border border-gray-300 px-2 py-2">${site}</td>
+          <td class="border border-gray-300 px-2 py-2">${service}</td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="add_delivery_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="add_removal_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="add_disposal_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
+          </td>
+        </tr>
+      `;
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      renderApp();
+    }
+
+    async function handleRegistration(event) {
+      event.preventDefault();
+      
+      if (isLoading) return;
+
+      const email = document.getElementById('email').value.trim();
+      const additionalFields = document.getElementById('additionalFields');
+
+      const existingVendor = allVendors.find(v => v.email.toLowerCase() === email.toLowerCase());
+      
+      if (existingVendor) {
+        isLoading = true;
+        renderApp();
+        await new Promise(resolve => setTimeout(resolve, 500));
+        currentUser = existingVendor;
+        isLoading = false;
+        showMessage(`Welcome back, ${existingVendor.company_name}!`, "success");
+        renderApp();
+        return;
+      }
+
+      if (additionalFields.style.display === 'none') {
+        additionalFields.style.display = 'block';
+        document.getElementById('companyName').required = true;
+        document.getElementById('contactName').required = true;
+        document.getElementById('phone').required = true;
+        document.getElementById('submitBtn').innerHTML = 'Register & Access Tender';
+        showMessage("New email - please complete registration", "success");
+        return;
+      }
+
+      if (allVendors.length >= 999) {
+        showMessage("Maximum vendor limit reached. Please contact support.", "error");
+        return;
+      }
+
+      isLoading = true;
+      renderApp();
+
+      const companyName = document.getElementById('companyName').value.trim();
+      const contactName = document.getElementById('contactName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      const newVendor = {
+        id: `vendor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email: email,
+        company_name: companyName,
+        contact_name: contactName,
+        phone: phone,
+        registered_at: new Date().toISOString(),
+        submission_status: "pending",
+        submitted_at: "",
+        file_name: ""
+      };
+
+      const result = await window.dataSdk.create(newVendor);
+      
+      isLoading = false;
+
+      if (result.isOk) {
+        currentUser = newVendor;
+        showMessage("Registration successful!", "success");
+        renderApp();
+      } else {
+        showMessage("Registration failed. Please try again.", "error");
+        renderApp();
+      }
+    }
+
+    async function submitQuotationForm(event) {
+      event.preventDefault();
+      
+      if (isLoading) return;
+
+      if (allVendors.length >= 999) {
+        showMessage("Maximum submission limit reached. Please contact support.", "error");
+        return;
+      }
+
+      isLoading = true;
+      renderApp();
+
+      const config = window.elementSdk?.config || defaultConfig;
+      const formData = new FormData(event.target);
+      
+      const quotationData = {
+        annual_uplift: formData.get('annualUplift'),
+        core_services: [],
+        additional_services: []
+      };
+
+      // Collect core services data
+      for (let i = 0; i < 12; i++) {
+        const selectedDays = formData.getAll(`core_days_${i}`);
+        quotationData.core_services.push({
+          frequency: formData.get(`core_frequency_${i}`),
+          collection_days: selectedDays.join(','),
+          price_per_collection: formData.get(`core_price_${i}`),
+          rental_per_month: formData.get(`core_rental_${i}`),
+          collection_window: formData.get(`core_window_${i}`),
+          comments: formData.get(`core_comments_${i}`) || ''
         });
       }
-      
-      toggle() {
-        const isOpen = this.dropdown.classList.contains('open');
-        document.querySelectorAll('.multi-select-dropdown').forEach(d => d.classList.remove('open'));
-        document.querySelectorAll('.multi-select-btn').forEach(b => b.classList.remove('open'));
-        
-        if (!isOpen) {
-          this.dropdown.classList.add('open');
-          this.btn.classList.add('open');
-        }
-      }
-      
-      close() {
-        this.dropdown.classList.remove('open');
-        this.btn.classList.remove('open');
-      }
-      
-      selectAll() {
-        this.selected = [...this.options];
-        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = true);
-        this.updateLabel();
-        this.onChange(this.selected);
-      }
-      
-      clear() {
-        this.selected = [];
-        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = false);
-        this.updateLabel();
-        this.onChange(this.selected);
-      }
-      
-      updateLabel() {
-        if (this.selected.length === 0) {
-          this.btn.textContent = this.defaultLabel;
-          this.btn.classList.remove('has-selection');
-        } else if (this.selected.length === 1) {
-          this.btn.textContent = this.selected[0];
-          this.btn.classList.add('has-selection');
-        } else if (this.selected.length === this.options.length) {
-          this.btn.textContent = `All (${this.selected.length})`;
-          this.btn.classList.add('has-selection');
-        } else {
-          this.btn.textContent = `${this.selected.length} selected`;
-          this.btn.classList.add('has-selection');
-        }
-      }
-      
-      reset() {
-        this.selected = [];
-        this.optionsContainer.querySelectorAll('input').forEach(input => input.checked = false);
-        this.btn.textContent = this.defaultLabel;
-        this.btn.classList.remove('has-selection');
-      }
-    }
 
-    // Initialize multi-selects
-    let stateMultiSelect, siteTypeMultiSelect, wasteStreamMultiSelect, serviceSiteMultiSelect;
+      // Collect additional services data
+      for (let i = 0; i < 4; i++) {
+        quotationData.additional_services.push({
+          price_per_delivery: formData.get(`add_delivery_${i}`),
+          price_per_removal: formData.get(`add_removal_${i}`),
+          disposal_price: formData.get(`add_disposal_${i}`)
+        });
+      }
 
-    function initMultiSelects() {
-      stateMultiSelect = new MultiSelect(
-        document.getElementById('state-multi-select'),
-        'All States',
-        (selected) => { stateFilters = selected; renderSites(); updateTotals(); }
-      );
-      
-      siteTypeMultiSelect = new MultiSelect(
-        document.getElementById('site-type-multi-select'),
-        'All Asset Types',
-        (selected) => { siteTypeFilters = selected; renderSites(); updateTotals(); }
-      );
-      
-      wasteStreamMultiSelect = new MultiSelect(
-        document.getElementById('waste-stream-multi-select'),
-        'All Waste Streams',
-        (selected) => { wasteStreamFilters = selected; renderSites(); updateTotals(); }
-      );
-      
-      serviceSiteMultiSelect = new MultiSelect(
-        document.getElementById('service-site-multi-select'),
-        'All Sites',
-        (selected) => { serviceSiteFilters = selected; renderServices(); }
-      );
-    }
-
-    async function initializeApp() {
-      showLoadingOverlay();
-      initMultiSelects();
-      await loadGitHubData();
-    }
-
-    async function loadGitHubData() {
       try {
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/3f0dea5850389bb3d7b8264003b277efb6e5e49d/datatest_updated.csv';
-        const response = await fetch(githubUrl);
-        if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
-        const csvText = await response.text();
-        parseCSV(csvText);
-        hideLoadingOverlay();
-      } catch (error) {
-        console.error('Error loading data:', error);
-        hideLoadingOverlay();
-        showError('Could not load data from GitHub. Please use the Import CSV button.');
-      }
-    }
+        const webhookPayload = {
+          vendor: {
+            id: currentUser.id,
+            email: currentUser.email,
+            company_name: currentUser.company_name,
+            contact_name: currentUser.contact_name,
+            phone: currentUser.phone
+          },
+          quotation: quotationData,
+          submission: {
+            submitted_at: new Date().toISOString()
+          },
+          tender: {
+            title: config.tender_title,
+            client: config.client_name
+          }
+        };
 
-    function parseCSV(csvText) {
-      const lines = csvText.split('\n').filter(line => line.trim());
-      if (lines.length < 2) { showError('CSV file is empty or invalid.'); return; }
-
-      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').replace(/\r/g, '').toLowerCase());
-      
-      console.log('CSV Headers:', headers);
-      
-      const columnMap = {
-        rank: headers.findIndex(h => h.includes('rank')),
-        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
-        state: headers.findIndex(h => h.includes('state')),
-        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
-        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
-        wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
-        incumbent: headers.findIndex(h => h.includes('incumbent')),
-        cleanaway: headers.findIndex(h => h.includes('cleanaway')),
-        veolia: headers.findIndex(h => h.includes('veolia')),
-        remondis: headers.findIndex(h => h.includes('remondis')),
-        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
-      };
-      
-      console.log('Column Map:', columnMap);
-
-      sites = [];
-      
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, '').replace(/\r/g, ''));
-        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
-        if (!siteNameValue) continue;
-        
-        // Get incumbent - try column map first, then fall back to last column
-        let incumbentValue = '';
-        if (columnMap.incumbent >= 0) {
-          incumbentValue = values[columnMap.incumbent] || '';
-        } else {
-          // Fallback: incumbent is typically the last column
-          incumbentValue = values[values.length - 1] || '';
-        }
-        
-        sites.push({
-          id: i,
-          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
-          siteName: siteNameValue || `Site ${i}`,
-          state: (columnMap.state >= 0 ? values[columnMap.state] : '') || '',
-          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
-          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
-          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
-          incumbent: incumbentValue,
-          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
+        await fetch(config.webhook_url, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+          },
+          body: JSON.stringify(webhookPayload)
+        }).catch(err => {
+          console.log('Webhook notification sent (or attempted):', err);
         });
+
+      } catch (error) {
+        console.log('Webhook error (continuing with submission):', error);
       }
 
-      updateFilters();
-      renderSites();
-      renderServices();
-      updateTotals();
-    }
+      await new Promise(resolve => setTimeout(resolve, 1000));
 
-    function updateFilters() {
-      const states = [...new Set(sites.map(s => s.state).filter(Boolean))].sort();
-      const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
-      const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
-      const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
-
-      stateMultiSelect.setOptions(states);
-      siteTypeMultiSelect.setOptions(siteTypes);
-      wasteStreamMultiSelect.setOptions(wasteStreams);
-      serviceSiteMultiSelect.setOptions(siteNames);
-    }
-
-    function formatCurrency(value) {
-      return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
-    }
-
-    function getBestVendorForSite(site) {
-      const prices = [
-        { vendor: 'cleanaway', price: site.cleanaway || 0 },
-        { vendor: 'veolia', price: site.veolia || 0 },
-        { vendor: 'remondis', price: site.remondis || 0 }
-      ];
-      const validPrices = prices.filter(p => p.price > 0);
-      if (validPrices.length === 0) return null;
-      const minPrice = Math.min(...validPrices.map(p => p.price));
-      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
-    }
-
-    function renderSites() {
-      const tbody = document.getElementById('sites-tbody');
-      const noResults = document.getElementById('no-results');
-      
-      const filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesState = stateFilters.length === 0 || stateFilters.includes(site.state);
-        const matchesSiteType = siteTypeFilters.length === 0 || siteTypeFilters.includes(site.siteType);
-        const matchesWasteStream = wasteStreamFilters.length === 0 || wasteStreamFilters.includes(site.wasteStream);
-        return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
-      });
-
-      if (filteredSites.length === 0) {
-        tbody.innerHTML = '';
-        noResults.style.display = 'block';
-        return;
-      }
-
-      noResults.style.display = 'none';
-      
-      tbody.innerHTML = filteredSites.map(site => {
-        const bestVendor = getBestVendorForSite(site);
-        const isChecked = selectedSites.has(site.id);
-        return `
-          <tr>
-            <td><input type="checkbox" class="site-checkbox" data-site-id="${site.id}" ${isChecked ? 'checked' : ''}></td>
-            <td>${site.siteName}</td>
-            <td>${site.state}</td>
-            <td>${site.siteType}</td>
-            <td>${site.wasteStream}</td>
-            <td>${site.incumbent}</td>
-            <td class="price-cell">${formatCurrency(site.current)}</td>
-            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
-            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(site.veolia)}</td>
-            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(site.remondis)}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    function renderServices() {
-      const tbody = document.getElementById('services-tbody');
-      const noResults = document.getElementById('no-service-results');
-      
-      const services = sites.filter(site => site.serviceDescription && site.serviceDescription.trim());
-      
-      const filteredServices = services.filter(service => {
-        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
-                             service.serviceDescription.toLowerCase().includes(serviceSearchTerm.toLowerCase());
-        const matchesSite = serviceSiteFilters.length === 0 || serviceSiteFilters.includes(service.siteName);
-        return matchesSearch && matchesSite;
-      });
-
-      if (filteredServices.length === 0) {
-        tbody.innerHTML = '';
-        noResults.style.display = 'block';
-        updateServiceTotals([]);
-        return;
-      }
-
-      noResults.style.display = 'none';
-      
-      tbody.innerHTML = filteredServices.map(service => {
-        const bestVendor = getBestVendorForSite(service);
-        return `
-          <tr>
-            <td><strong>${service.siteName}</strong></td>
-            <td>${service.state}</td>
-            <td>${service.serviceDescription}</td>
-            <td class="price-cell">${formatCurrency(service.current)}</td>
-            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
-            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
-            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
-          </tr>
-        `;
-      }).join('');
-
-      updateServiceTotals(filteredServices);
-    }
-
-    function updateTotals() {
-      let filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesState = stateFilters.length === 0 || stateFilters.includes(site.state);
-        const matchesSiteType = siteTypeFilters.length === 0 || siteTypeFilters.includes(site.siteType);
-        const matchesWasteStream = wasteStreamFilters.length === 0 || wasteStreamFilters.includes(site.wasteStream);
-        return matchesSearch && matchesState && matchesSiteType && matchesWasteStream;
-      });
-
-      if (selectedSites.size > 0) {
-        filteredSites = filteredSites.filter(site => selectedSites.has(site.id));
-      }
-
-      const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
-      const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
-      const totalVeolia = filteredSites.reduce((sum, site) => sum + (site.veolia || 0), 0);
-      const totalRemondis = filteredSites.reduce((sum, site) => sum + (site.remondis || 0), 0);
-
-      document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
-      document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
-      document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
-      document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
-
-      document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
-      document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
-
-      updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
-      updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
-    }
-
-    function updateServiceTotals(services) {
-      const totalCurrent = services.reduce((sum, s) => sum + (s.current || 0), 0);
-      const totalCleanaway = services.reduce((sum, s) => sum + (s.cleanaway || 0), 0);
-      const totalVeolia = services.reduce((sum, s) => sum + (s.veolia || 0), 0);
-      const totalRemondis = services.reduce((sum, s) => sum + (s.remondis || 0), 0);
-
-      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
-      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
-      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
-    }
-
-    function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
-      const cards = [
-        { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
-        { price: veoliaTotal, card: document.getElementById('veolia-card') },
-        { price: remondisTotal, card: document.getElementById('remondis-card') }
-      ];
-
-      cards.forEach(item => item.card.classList.remove('best-price'));
-
-      const validPrices = cards.filter(p => p.price > 0);
-      if (validPrices.length > 0) {
-        const bestPrice = Math.min(...validPrices.map(p => p.price));
-        const bestVendor = validPrices.find(p => p.price === bestPrice);
-        bestVendor.card.classList.add('best-price');
-      }
-    }
-
-    function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
-      const vendors = [
-        { name: 'Cleanaway', price: totalCleanaway },
-        { name: 'Veolia', price: totalVeolia },
-        { name: 'Remondis', price: totalRemondis }
-      ];
-
-      const validVendors = vendors.filter(v => v.price > 0);
-      
-      if (validVendors.length === 0 || totalCurrent === 0) {
-        document.getElementById('savings-amount').textContent = '$0';
-        document.getElementById('best-vendor-name').textContent = '—';
-        document.getElementById('meter-fill').style.width = '0%';
-        document.getElementById('meter-percentage').textContent = '0%';
-        return;
-      }
-
-      const bestVendor = validVendors.reduce((min, vendor) => vendor.price < min.price ? vendor : min);
-      const savings = totalCurrent - bestVendor.price;
-      const savingsPercentage = (savings / totalCurrent) * 100;
-
-      document.getElementById('savings-amount').textContent = formatCurrency(savings);
-      document.getElementById('best-vendor-name').textContent = bestVendor.name;
-      
-      setTimeout(() => {
-        document.getElementById('meter-fill').style.width = savingsPercentage.toFixed(1) + '%';
-        document.getElementById('meter-percentage').textContent = savingsPercentage.toFixed(1) + '%';
-      }, 100);
-    }
-
-    function showLoadingOverlay() {
-      if (!document.querySelector('.loading-overlay')) {
-        const overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
-        overlay.innerHTML = '<div class="loading-spinner"></div>';
-        document.body.appendChild(overlay);
-      }
-    }
-
-    function hideLoadingOverlay() {
-      const overlay = document.querySelector('.loading-overlay');
-      if (overlay) overlay.remove();
-    }
-
-    function showError(message) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      errorDiv.textContent = message;
-      const wrapper = document.querySelector('.dashboard-wrapper');
-      wrapper.insertBefore(errorDiv, wrapper.firstChild.nextSibling);
-    }
-
-    // Event listeners
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`${tab.dataset.page}-page`).classList.add('active');
-      });
-    });
-
-    document.getElementById('site-search').addEventListener('input', (e) => { searchTerm = e.target.value; renderSites(); updateTotals(); });
-
-    document.getElementById('clear-filters').addEventListener('click', () => {
-      searchTerm = '';
-      stateFilters = [];
-      siteTypeFilters = [];
-      wasteStreamFilters = [];
-      selectedSites.clear();
-      
-      document.getElementById('site-search').value = '';
-      stateMultiSelect.reset();
-      siteTypeMultiSelect.reset();
-      wasteStreamMultiSelect.reset();
-      
-      renderSites();
-      updateTotals();
-    });
-
-    document.getElementById('select-all').addEventListener('change', (e) => {
-      document.querySelectorAll('.site-checkbox').forEach(checkbox => {
-        checkbox.checked = e.target.checked;
-        const siteId = parseInt(checkbox.dataset.siteId);
-        if (e.target.checked) selectedSites.add(siteId);
-        else selectedSites.delete(siteId);
-      });
-      updateTotals();
-    });
-
-    document.getElementById('sites-tbody').addEventListener('change', (e) => {
-      if (e.target.classList.contains('site-checkbox')) {
-        const siteId = parseInt(e.target.dataset.siteId);
-        if (e.target.checked) selectedSites.add(siteId);
-        else selectedSites.delete(siteId);
-        
-        const allCheckboxes = document.querySelectorAll('.site-checkbox');
-        const checkedBoxes = document.querySelectorAll('.site-checkbox:checked');
-        document.getElementById('select-all').checked = allCheckboxes.length === checkedBoxes.length && allCheckboxes.length > 0;
-        updateTotals();
-      }
-    });
-
-    document.getElementById('import-csv').addEventListener('click', () => { document.getElementById('csv-upload').click(); });
-
-    document.getElementById('csv-upload').addEventListener('change', (e) => {
-      const file = e.target.files[0];
-      if (!file) return;
-      const reader = new FileReader();
-      reader.onload = (event) => {
-        try { parseCSV(event.target.result); e.target.value = ''; }
-        catch (error) { showError('Error reading CSV file.'); console.error(error); }
+      const updatedVendor = {
+        ...currentUser,
+        submission_status: "submitted",
+        submitted_at: new Date().toISOString(),
+        file_name: "quotation_form.json"
       };
-      reader.readAsText(file);
-    });
 
-    document.getElementById('service-search').addEventListener('input', (e) => { serviceSearchTerm = e.target.value; renderServices(); });
+      const result = await window.dataSdk.update(updatedVendor);
 
-    document.addEventListener('DOMContentLoaded', initializeApp);
+      isLoading = false;
+
+      if (result.isOk) {
+        currentUser = updatedVendor;
+        activeTab = 'requirements';
+        renderApp();
+        showMessage("Quotation submitted successfully!", "success");
+      } else {
+        showMessage("Submission failed. Please try again.", "error");
+        renderApp();
+      }
+    }
+
+    function logout() {
+      currentUser = null;
+      activeTab = 'requirements';
+      renderApp();
+    }
+
+    function showMessage(message, type) {
+      const color = type === "error" ? "#ef4444" : "#10b981";
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: ${color};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 1000;
+        font-weight: 500;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
+    }
+
+    function openPhotoModal(url, caption) {
+      const modal = document.createElement('div');
+      modal.className = 'photo-modal';
+      modal.innerHTML = `
+        <div class="photo-modal-close" onclick="closePhotoModal(this)">×</div>
+        <img src="${url}" alt="${caption}">
+      `;
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closePhotoModal(modal);
+        }
+      };
+      document.body.appendChild(modal);
+    }
+
+    function closePhotoModal(element) {
+      const modal = element.classList?.contains('photo-modal') ? element : element.closest('.photo-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    async function onConfigChange(config) {
+      renderApp();
+    }
+
+    if (window.elementSdk) {
+      window.elementSdk.init({
+        defaultConfig,
+        onConfigChange,
+        mapToCapabilities: (config) => ({
+          recolorables: [
+            {
+              get: () => config.primary_color || defaultConfig.primary_color,
+              set: (value) => {
+                config.primary_color = value;
+                window.elementSdk.setConfig({ primary_color: value });
+              }
+            },
+            {
+              get: () => config.secondary_color || defaultConfig.secondary_color,
+              set: (value) => {
+                config.secondary_color = value;
+                window.elementSdk.setConfig({ secondary_color: value });
+              }
+            },
+            {
+              get: () => config.background_color || defaultConfig.background_color,
+              set: (value) => {
+                config.background_color = value;
+                window.elementSdk.setConfig({ background_color: value });
+              }
+            },
+            {
+              get: () => config.text_color || defaultConfig.text_color,
+              set: (value) => {
+                config.text_color = value;
+                window.elementSdk.setConfig({ text_color: value });
+              }
+            },
+            {
+              get: () => config.surface_color || defaultConfig.surface_color,
+              set: (value) => {
+                config.surface_color = value;
+                window.elementSdk.setConfig({ surface_color: value });
+              }
+            }
+          ],
+          borderables: [],
+          fontEditable: undefined,
+          fontSizeable: undefined
+        }),
+        mapToEditPanelValues: (config) => new Map([
+          ["portal_title", config.portal_title || defaultConfig.portal_title],
+          ["client_name", config.client_name || defaultConfig.client_name],
+          ["tender_title", config.tender_title || defaultConfig.tender_title],
+          ["contact_name", config.contact_name || defaultConfig.contact_name],
+          ["contact_details", config.contact_details || defaultConfig.contact_details],
+          ["webhook_url", config.webhook_url || defaultConfig.webhook_url]
+        ])
+      });
+    }
+
+    document.addEventListener('DOMContentLoaded', initApp);
+    if (document.readyState === 'loading') {
+      document.addEventListener('DOMContentLoaded', initApp);
+    } else {
+      initApp();
+    }
   </script>
- </body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a86f250a6cc29a4',t:'MTc2NDgwNTYxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
