@@ -63,7 +63,7 @@
     .quotation-table th:nth-child(9) { width: 100px; } /* Price/Collection */
     .quotation-table th:nth-child(10) { width: 100px; } /* Rental/Month */
     .quotation-table th:nth-child(11) { width: 130px; } /* Collection Window */
-    .quotation-table th:nth-child(12) { width: 150px; } /* Notes */
+    .quotation-table th:nth-child(12) { width: 90px; } /* Notes */
     .loading-spinner {
       border: 3px solid #f3f4f6;
       border-top: 3px solid #f5576c;
@@ -170,6 +170,39 @@
     .photo-modal-close:hover {
       background-color: white;
     }
+    .notes-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 2rem;
+    }
+    .notes-modal-content {
+      background-color: white;
+      border-radius: 8px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+    }
+    .notes-icon-button {
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      background-color: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 4px;
+      font-size: 0.75rem;
+      transition: background-color 0.2s ease;
+    }
+    .notes-icon-button:hover {
+      background-color: #e5e7eb;
+    }
   </style>
   <style>@view-transition { navigation: auto; }</style>
  </head>
@@ -194,6 +227,7 @@
     let allVendors = [];
     let isLoading = false;
     let activeTab = "requirements";
+    let notesData = {};
 
     const sitePhotos = {
       "melbourne_cbd": [
@@ -732,7 +766,10 @@
             <input type="text" required name="core_window_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="6:00-6:30am">
           </td>
           <td class="border border-gray-300 px-1 py-1 bg-gray-50">
-            <input type="text" name="core_comments_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="Optional">
+            <input type="hidden" name="core_comments_${index}" id="core_comments_${index}" value="">
+            <button type="button" class="notes-icon-button" onclick="openNotesModal('core_comments_${index}')">
+              ${notesData[`core_comments_${index}`] ? '📝 Edit' : '📝 Add'}
+            </button>
           </td>
         </tr>
       `;
@@ -980,6 +1017,47 @@
       }
     }
 
+    function openNotesModal(fieldId) {
+      const currentValue = notesData[fieldId] || '';
+      const modal = document.createElement('div');
+      modal.className = 'notes-modal';
+      modal.innerHTML = `
+        <div class="notes-modal-content">
+          <h3 class="text-lg font-semibold mb-4">Add Notes / Comments</h3>
+          <textarea id="notesTextarea" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" rows="6" placeholder="Enter any additional notes, fees, or comments...">${currentValue}</textarea>
+          <div class="flex justify-end space-x-3 mt-4">
+            <button type="button" onclick="closeNotesModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button type="button" onclick="saveNotes('${fieldId}')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Save</button>
+          </div>
+        </div>
+      `;
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closeNotesModal();
+        }
+      };
+      document.body.appendChild(modal);
+    }
+
+    function saveNotes(fieldId) {
+      const textarea = document.getElementById('notesTextarea');
+      const value = textarea.value.trim();
+      notesData[fieldId] = value;
+      const hiddenInput = document.getElementById(fieldId);
+      if (hiddenInput) {
+        hiddenInput.value = value;
+      }
+      closeNotesModal();
+      renderApp();
+    }
+
+    function closeNotesModal() {
+      const modal = document.querySelector('.notes-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
     async function onConfigChange(config) {
       renderApp();
     }
@@ -1048,5 +1126,5 @@
       initApp();
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a86f250a6cc29a4',t:'MTc2NDgwNTYxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a86f72f743c29a4',t:'MTc2NDgwNTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
