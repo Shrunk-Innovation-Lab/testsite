@@ -130,37 +130,6 @@
       letter-spacing: -0.5px;
     }
 
-    .nav-tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .nav-tab {
-      padding: 0.875rem 1.75rem;
-      font-size: 1rem;
-      font-weight: 600;
-      color: #64748b;
-      background: white;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-
-    .nav-tab:hover { border-color: #6366f1; color: #6366f1; }
-
-    .nav-tab.active {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      border-color: transparent;
-    }
-
-    .page { display: none; }
-    .page.active { display: block; }
-
     .vendors-grid {
       display: grid;
       grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
@@ -429,7 +398,6 @@
       box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
     }
 
-    /* Multi-select dropdown styles */
     .multi-select {
       position: relative;
       min-width: 180px;
@@ -606,8 +574,6 @@
 
     thead {
       background: #f8fafc;
-      display: table-header-group !important;
-      visibility: visible !important;
     }
 
     th {
@@ -719,148 +685,142 @@
     </div>
     <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
    </header>
-   
-   <nav class="nav-tabs">
-    <button class="nav-tab active" data-page="summary">Summary View</button>
-   </nav>
 
-   <!-- SUMMARY PAGE -->
-   <div class="page active" id="summary-page">
-    <section class="current-costs-section">
-     <div class="client-branding">
-      <img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+   <section class="current-costs-section">
+    <div class="client-branding">
+     <img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
+    </div>
+    <div class="current-costs-header">
+     <div class="current-costs-icon">💰</div>
+     <h2 class="current-costs-title">Current Annual Costs</h2>
+    </div>
+    <div class="current-total">
+     <div class="current-total-label">Total Across All Sites</div>
+     <div class="current-total-amount" id="current-total-amount">$0</div>
+    </div>
+    <div class="savings-section">
+     <div class="savings-header">
+      <div class="savings-title">Savings on Current Costs</div>
+      <div class="savings-amount" id="savings-amount">$0</div>
+      <div class="savings-vendor">Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span></div>
      </div>
-     <div class="current-costs-header">
-      <div class="current-costs-icon">💰</div>
-      <h2 class="current-costs-title">Current Annual Costs</h2>
-     </div>
-     <div class="current-total">
-      <div class="current-total-label">Total Across All Sites</div>
-      <div class="current-total-amount" id="current-total-amount">$0</div>
-     </div>
-     <div class="savings-section">
-      <div class="savings-header">
-       <div class="savings-title">Savings on Current Costs</div>
-       <div class="savings-amount" id="savings-amount">$0</div>
-       <div class="savings-vendor">Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span></div>
-      </div>
-      <div class="savings-meter">
-       <div class="meter-background">
-        <div class="meter-fill" id="meter-fill" style="width: 0%;">
-         <span class="meter-percentage" id="meter-percentage">0%</span>
-        </div>
+     <div class="savings-meter">
+      <div class="meter-background">
+       <div class="meter-fill" id="meter-fill" style="width: 0%;">
+        <span class="meter-percentage" id="meter-percentage">0%</span>
        </div>
       </div>
      </div>
-    </section>
+    </div>
+   </section>
 
-    <section class="vendors-grid">
-     <article class="vendor-card" id="cleanaway-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="cleanaway-price">$0</div>
-      </div>
-     </article>
-     
-     <article class="vendor-card" id="veolia-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="veolia-price">$0</div>
-      </div>
-     </article>
-     
-     <article class="vendor-card" id="remondis-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="remondis-price">$0</div>
-      </div>
-     </article>
-    </section>
+   <section class="vendors-grid">
+    <article class="vendor-card" id="cleanaway-card">
+     <div class="vendor-header">
+      <img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
+     </div>
+     <div class="price-section">
+      <div class="price-label">Annual Service Cost</div>
+      <div class="price-display" id="cleanaway-price">$0</div>
+     </div>
+    </article>
+    
+    <article class="vendor-card" id="veolia-card">
+     <div class="vendor-header">
+      <img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
+     </div>
+     <div class="price-section">
+      <div class="price-label">Annual Service Cost</div>
+      <div class="price-display" id="veolia-price">$0</div>
+     </div>
+    </article>
+    
+    <article class="vendor-card" id="remondis-card">
+     <div class="vendor-header">
+      <img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
+     </div>
+     <div class="price-section">
+      <div class="price-label">Annual Service Cost</div>
+      <div class="price-display" id="remondis-price">$0</div>
+     </div>
+    </article>
+   </section>
 
-    <section class="sites-section">
-     <div class="sites-header">
-      <h2 class="sites-title">Site-by-Site Comparison</h2>
-      <div class="filter-section">
-       <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
-       
-       <div class="multi-select" id="state-multi-select">
-        <button class="multi-select-btn" type="button">All States</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
+   <section class="sites-section">
+    <div class="sites-header">
+     <h2 class="sites-title">Site-by-Site Comparison</h2>
+     <div class="filter-section">
+      <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
+      
+      <div class="multi-select" id="state-multi-select">
+       <button class="multi-select-btn" type="button">All States</button>
+       <div class="multi-select-dropdown">
+        <div class="multi-select-options"></div>
+        <div class="multi-select-actions">
+         <button type="button" class="btn-select-all">Select All</button>
+         <button type="button" class="btn-clear">Clear</button>
         </div>
        </div>
-       
-       <div class="multi-select" id="site-type-multi-select">
-        <button class="multi-select-btn" type="button">All Asset Types</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
-        </div>
-       </div>
-       
-       <div class="multi-select" id="waste-stream-multi-select">
-        <button class="multi-select-btn" type="button">All Waste Streams</button>
-        <div class="multi-select-dropdown">
-         <div class="multi-select-options"></div>
-         <div class="multi-select-actions">
-          <button type="button" class="btn-select-all">Select All</button>
-          <button type="button" class="btn-clear">Clear</button>
-         </div>
-        </div>
-       </div>
-       
-       <button id="clear-filters" class="filter-btn btn-clear-all">Clear Filters</button>
-       <button id="import-csv" class="filter-btn btn-import">Import CSV</button>
-       <input type="file" id="csv-upload" accept=".csv" style="display: none;">
       </div>
+      
+      <div class="multi-select" id="site-type-multi-select">
+       <button class="multi-select-btn" type="button">All Asset Types</button>
+       <div class="multi-select-dropdown">
+        <div class="multi-select-options"></div>
+        <div class="multi-select-actions">
+         <button type="button" class="btn-select-all">Select All</button>
+         <button type="button" class="btn-clear">Clear</button>
+        </div>
+       </div>
+      </div>
+      
+      <div class="multi-select" id="waste-stream-multi-select">
+       <button class="multi-select-btn" type="button">All Waste Streams</button>
+       <div class="multi-select-dropdown">
+        <div class="multi-select-options"></div>
+        <div class="multi-select-actions">
+         <button type="button" class="btn-select-all">Select All</button>
+         <button type="button" class="btn-clear">Clear</button>
+        </div>
+       </div>
+      </div>
+      
+      <button id="clear-filters" class="filter-btn btn-clear-all">Clear Filters</button>
+      <button id="import-csv" class="filter-btn btn-import">Import CSV</button>
+      <input type="file" id="csv-upload" accept=".csv" style="display: none;">
      </div>
-     <div class="table-wrapper">
-      <table id="sites-table">
-       <thead>
-        <tr>
-         <th><input type="checkbox" id="select-all"></th>
-         <th>Site Name</th>
-         <th>State</th>
-         <th>Asset Type</th>
-         <th>Waste Stream</th>
-         <th>Incumbent</th>
-         <th>Current Cost</th>
-         <th>Cleanaway</th>
-         <th>Veolia</th>
-         <th>Remondis</th>
-        </tr>
-       </thead>
-       <tbody id="sites-tbody"></tbody>
-       <tfoot>
-        <tr class="summary-row">
-         <td colspan="6">Total</td>
-         <td id="total-current">$0</td>
-         <td id="total-cleanaway">$0</td>
-         <td id="total-veolia">$0</td>
-         <td id="total-remondis">$0</td>
-        </tr>
-       </tfoot>
-      </table>
-     </div>
-     <div id="no-results" class="no-results" style="display: none;">No sites match your search</div>
-    </section>
-   </div>
+    </div>
+    <div class="table-wrapper">
+     <table id="sites-table">
+      <thead>
+       <tr>
+        <th><input type="checkbox" id="select-all"></th>
+        <th>Site Name</th>
+        <th>State</th>
+        <th>Asset Type</th>
+        <th>Waste Stream</th>
+        <th>Service Description</th>
+        <th>Incumbent</th>
+        <th>Current Cost</th>
+        <th>Cleanaway</th>
+        <th>Veolia</th>
+        <th>Remondis</th>
+       </tr>
+      </thead>
+      <tbody id="sites-tbody"></tbody>
+      <tfoot>
+       <tr class="summary-row">
+        <td colspan="7">Total</td>
+        <td id="total-current">$0</td>
+        <td id="total-cleanaway">$0</td>
+        <td id="total-veolia">$0</td>
+        <td id="total-remondis">$0</td>
+       </tr>
+      </tfoot>
+     </table>
+    </div>
+    <div id="no-results" class="no-results" style="display: none;">No sites match your search</div>
+   </section>
 
    <footer class="footer">
     <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
@@ -874,10 +834,7 @@
     let stateFilters = [];
     let siteTypeFilters = [];
     let wasteStreamFilters = [];
-    let serviceSearchTerm = '';
-    let serviceSiteFilters = [];
 
-    // Multi-select component
     class MultiSelect {
       constructor(container, defaultLabel, onChange) {
         this.container = container;
@@ -1001,8 +958,7 @@
       }
     }
 
-    // Initialize multi-selects
-    let stateMultiSelect, siteTypeMultiSelect, wasteStreamMultiSelect, serviceSiteMultiSelect;
+    let stateMultiSelect, siteTypeMultiSelect, wasteStreamMultiSelect;
 
     function initMultiSelects() {
       stateMultiSelect = new MultiSelect(
@@ -1021,12 +977,6 @@
         document.getElementById('waste-stream-multi-select'),
         'All Waste Streams',
         (selected) => { wasteStreamFilters = selected; renderSites(); updateTotals(); }
-      );
-      
-      serviceSiteMultiSelect = new MultiSelect(
-        document.getElementById('service-site-multi-select'),
-        'All Sites',
-        (selected) => { serviceSiteFilters = selected; renderServices(); }
       );
     }
 
@@ -1082,12 +1032,10 @@
         const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
         if (!siteNameValue) continue;
         
-        // Get incumbent - try column map first, then fall back to last column
         let incumbentValue = '';
         if (columnMap.incumbent >= 0) {
           incumbentValue = values[columnMap.incumbent] || '';
         } else {
-          // Fallback: incumbent is typically the last column
           incumbentValue = values[values.length - 1] || '';
         }
         
@@ -1107,9 +1055,10 @@
         });
       }
 
+      console.log('Parsed sites:', sites.length);
+      
       updateFilters();
       renderSites();
-      renderServices();
       updateTotals();
     }
 
@@ -1117,12 +1066,10 @@
       const states = [...new Set(sites.map(s => s.state).filter(Boolean))].sort();
       const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
       const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
-      const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
 
       stateMultiSelect.setOptions(states);
       siteTypeMultiSelect.setOptions(siteTypes);
       wasteStreamMultiSelect.setOptions(wasteStreams);
-      serviceSiteMultiSelect.setOptions(siteNames);
     }
 
     function formatCurrency(value) {
@@ -1171,6 +1118,7 @@
             <td>${site.state}</td>
             <td>${site.siteType}</td>
             <td>${site.wasteStream}</td>
+            <td>${site.serviceDescription}</td>
             <td>${site.incumbent}</td>
             <td class="price-cell">${formatCurrency(site.current)}</td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
@@ -1179,46 +1127,6 @@
           </tr>
         `;
       }).join('');
-    }
-
-    function renderServices() {
-      const tbody = document.getElementById('services-tbody');
-      const noResults = document.getElementById('no-service-results');
-      
-      const services = sites.filter(site => site.serviceDescription && site.serviceDescription.trim());
-      
-      const filteredServices = services.filter(service => {
-        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
-                             service.serviceDescription.toLowerCase().includes(serviceSearchTerm.toLowerCase());
-        const matchesSite = serviceSiteFilters.length === 0 || serviceSiteFilters.includes(service.siteName);
-        return matchesSearch && matchesSite;
-      });
-
-      if (filteredServices.length === 0) {
-        tbody.innerHTML = '';
-        noResults.style.display = 'block';
-        updateServiceTotals([]);
-        return;
-      }
-
-      noResults.style.display = 'none';
-      
-      tbody.innerHTML = filteredServices.map(service => {
-        const bestVendor = getBestVendorForSite(service);
-        return `
-          <tr>
-            <td><strong>${service.siteName}</strong></td>
-            <td>${service.state}</td>
-            <td>${service.serviceDescription}</td>
-            <td class="price-cell">${formatCurrency(service.current)}</td>
-            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
-            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
-            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
-          </tr>
-        `;
-      }).join('');
-
-      updateServiceTotals(filteredServices);
     }
 
     function updateTotals() {
@@ -1251,18 +1159,6 @@
 
       updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
       updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
-    }
-
-    function updateServiceTotals(services) {
-      const totalCurrent = services.reduce((sum, s) => sum + (s.current || 0), 0);
-      const totalCleanaway = services.reduce((sum, s) => sum + (s.cleanaway || 0), 0);
-      const totalVeolia = services.reduce((sum, s) => sum + (s.veolia || 0), 0);
-      const totalRemondis = services.reduce((sum, s) => sum + (s.remondis || 0), 0);
-
-      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
-      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
-      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
     }
 
     function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
@@ -1335,16 +1231,11 @@
     }
 
     // Event listeners
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`${tab.dataset.page}-page`).classList.add('active');
-      });
+    document.getElementById('site-search').addEventListener('input', (e) => { 
+      searchTerm = e.target.value; 
+      renderSites(); 
+      updateTotals(); 
     });
-
-    document.getElementById('site-search').addEventListener('input', (e) => { searchTerm = e.target.value; renderSites(); updateTotals(); });
 
     document.getElementById('clear-filters').addEventListener('click', () => {
       searchTerm = '';
@@ -1385,20 +1276,26 @@
       }
     });
 
-    document.getElementById('import-csv').addEventListener('click', () => { document.getElementById('csv-upload').click(); });
+    document.getElementById('import-csv').addEventListener('click', () => { 
+      document.getElementById('csv-upload').click(); 
+    });
 
     document.getElementById('csv-upload').addEventListener('change', (e) => {
       const file = e.target.files[0];
       if (!file) return;
       const reader = new FileReader();
       reader.onload = (event) => {
-        try { parseCSV(event.target.result); e.target.value = ''; }
-        catch (error) { showError('Error reading CSV file.'); console.error(error); }
+        try { 
+          parseCSV(event.target.result); 
+          e.target.value = ''; 
+        }
+        catch (error) { 
+          showError('Error reading CSV file.'); 
+          console.error(error); 
+        }
       };
       reader.readAsText(file);
     });
-
-    document.getElementById('service-search').addEventListener('input', (e) => { serviceSearchTerm = e.target.value; renderServices(); });
 
     document.addEventListener('DOMContentLoaded', initializeApp);
   </script>
