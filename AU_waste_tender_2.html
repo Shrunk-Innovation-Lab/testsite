@@ -665,19 +665,41 @@
             </div>
 
             <div class="mb-6">
-              <h3 class="text-xl font-bold mb-4" style="color: ${CONFIG.text_color};">Core Services</h3>
+              <h3 class="text-xl font-bold mb-3" style="color: ${CONFIG.text_color};">Core Services</h3>
+              
+              <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <h4 class="font-semibold text-gray-700 mb-2 text-sm">👁️ Column Visibility (click to toggle):</h4>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="toggleColumn('service')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-service">Hide</span> Service Details
+                  </button>
+                  <button type="button" onclick="toggleColumn('stream')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-stream">Hide</span> Stream
+                  </button>
+                  <button type="button" onclick="toggleColumn('bin')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-bin">Hide</span> Bin Size
+                  </button>
+                  <button type="button" onclick="toggleColumn('avg')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-avg">Hide</span> Avg/Day
+                  </button>
+                  <button type="button" onclick="toggleColumn('days')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-days">Hide</span> Collection Days
+                  </button>
+                </div>
+              </div>
+              
               <div class="overflow-x-auto">
                 <table class="w-full text-sm border-collapse quotation-table">
                   <thead>
                     <tr class="bg-gray-100">
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">State</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Site</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Service</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Stream</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Bin</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs">Avg/Day</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-state">State</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-site">Site</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-service">Service</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-stream">Stream</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-bin">Bin</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-avg">Avg/Day</th>
                       <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Frequency</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Collection Days</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200 col-days">Collection Days</th>
                       <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Price/Collection</th>
                       <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Rental/Month</th>
                       <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Collection Window</th>
@@ -751,17 +773,17 @@
       
       return `
         <tr>
-          <td class="border border-gray-300 px-2 py-2">${state}</td>
-          <td class="border border-gray-300 px-2 py-2">${site}</td>
-          <td class="border border-gray-300 px-2 py-2">${description}</td>
-          <td class="border border-gray-300 px-2 py-2">${wasteStream}</td>
-          <td class="border border-gray-300 px-2 py-2">${binSize}</td>
-          <td class="border border-gray-300 px-2 py-2">${avgCollected}</td>
+          <td class="border border-gray-300 px-2 py-2 col-state">${state}</td>
+          <td class="border border-gray-300 px-2 py-2 col-site">${site}</td>
+          <td class="border border-gray-300 px-2 py-2 col-service">${description}</td>
+          <td class="border border-gray-300 px-2 py-2 col-stream">${wasteStream}</td>
+          <td class="border border-gray-300 px-2 py-2 col-bin">${binSize}</td>
+          <td class="border border-gray-300 px-2 py-2 col-avg">${avgCollected}</td>
           <td class="border border-gray-300 px-1 py-1 bg-gray-100">
             <input type="hidden" name="core_frequency_${index}" value="${defaultFrequency}">
             <span class="text-xs">${defaultFrequency}</span>
           </td>
-          <td class="border border-gray-300 px-2 py-2 bg-gray-100">
+          <td class="border border-gray-300 px-2 py-2 bg-gray-100 col-days">
             <div class="flex flex-wrap">${dayCheckboxes}</div>
             ${defaultDays.split(',').map(day => `<input type="hidden" name="core_days_${index}" value="${day}">`).join('')}
           </td>
@@ -979,11 +1001,28 @@
       }
     }
 
+    function toggleColumn(columnName) {
+      const columns = document.querySelectorAll(`.col-${columnName}`);
+      const toggleBtn = document.getElementById(`toggle-${columnName}`);
+      
+      if (columns.length === 0) return;
+      
+      const isHidden = columns[0].style.display === 'none';
+      
+      columns.forEach(col => {
+        col.style.display = isHidden ? '' : 'none';
+      });
+      
+      if (toggleBtn) {
+        toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
+      }
+    }
+
     // Initialize app on page load
     document.addEventListener('DOMContentLoaded', initApp);
     if (document.readyState !== 'loading') {
       initApp();
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8708dad04329a4',t:'MTc2NDgwNjU0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8714a8c04029a4',t:'MTc2NDgwNzAyNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
