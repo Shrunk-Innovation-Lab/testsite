@@ -4,8 +4,6 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Shrunk Waste Tender Portal</title>
-  <script src="/_sdk/data_sdk.js"></script>
-  <script src="/_sdk/element_sdk.js"></script>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
@@ -52,18 +50,18 @@
     .quotation-table {
       table-layout: fixed;
     }
-    .quotation-table th:nth-child(1) { width: 50px; } /* State */
-    .quotation-table th:nth-child(2) { width: 100px; } /* Site */
-    .quotation-table th:nth-child(3) { width: 140px; } /* Service */
-    .quotation-table th:nth-child(4) { width: 120px; } /* Stream */
-    .quotation-table th:nth-child(5) { width: 70px; } /* Bin */
-    .quotation-table th:nth-child(6) { width: 80px; } /* Avg/Day */
-    .quotation-table th:nth-child(7) { width: 110px; } /* Frequency */
-    .quotation-table th:nth-child(8) { width: 220px; } /* Collection Days */
-    .quotation-table th:nth-child(9) { width: 100px; } /* Price/Collection */
-    .quotation-table th:nth-child(10) { width: 100px; } /* Rental/Month */
-    .quotation-table th:nth-child(11) { width: 130px; } /* Collection Window */
-    .quotation-table th:nth-child(12) { width: 90px; } /* Notes */
+    .quotation-table th:nth-child(1) { width: 50px; }
+    .quotation-table th:nth-child(2) { width: 100px; }
+    .quotation-table th:nth-child(3) { width: 140px; }
+    .quotation-table th:nth-child(4) { width: 120px; }
+    .quotation-table th:nth-child(5) { width: 70px; }
+    .quotation-table th:nth-child(6) { width: 80px; }
+    .quotation-table th:nth-child(7) { width: 110px; }
+    .quotation-table th:nth-child(8) { width: 220px; }
+    .quotation-table th:nth-child(9) { width: 100px; }
+    .quotation-table th:nth-child(10) { width: 100px; }
+    .quotation-table th:nth-child(11) { width: 130px; }
+    .quotation-table th:nth-child(12) { width: 90px; }
     .loading-spinner {
       border: 3px solid #f3f4f6;
       border-top: 3px solid #f5576c;
@@ -205,17 +203,25 @@
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
  </head>
  <body>
   <div id="app" class="w-full min-h-full"></div>
   <script>
-    const defaultConfig = {
+    // Configuration - CHANGE THESE VALUES FOR YOUR SETUP
+    const CONFIG = {
       portal_title: "Shrunk Waste Tender Portal",
       client_name: "Cedar Pacific",
       tender_title: "Request for Waste Services Quotation",
       contact_name: "Nick Twining – Shrunk",
       contact_details: "M: 0418 854 628 | E: nick@shrunk.ai",
-      webhook_url: "https://webhook.site/your-unique-id",
+      // IMPORTANT: Replace with your form submission endpoint
+      // Options:
+      // 1. Formspree: https://formspree.io (free tier available)
+      // 2. Web3Forms: https://web3forms.com (free, no signup)
+      // 3. EmailJS: https://www.emailjs.com (sends to email)
+      form_endpoint: "https://formspree.io/f/YOUR_FORM_ID", // <-- CHANGE THIS
       primary_color: "#667eea",
       secondary_color: "#f5576c",
       background_color: "#f9fafb",
@@ -224,7 +230,6 @@
     };
 
     let currentUser = null;
-    let allVendors = [];
     let isLoading = false;
     let activeTab = "requirements";
     let notesData = {};
@@ -249,25 +254,31 @@
       ]
     };
 
-    const dataHandler = {
-      onDataChanged(data) {
-        allVendors = data;
-        if (currentUser) {
-          const updated = data.find(v => v.id === currentUser.id);
-          if (updated) {
-            currentUser = updated;
-          }
-        }
-        renderApp();
-      }
-    };
+    // LocalStorage functions
+    function loadVendorsFromStorage() {
+      const data = localStorage.getItem('waste_tender_vendors');
+      return data ? JSON.parse(data) : [];
+    }
 
-    async function initApp() {
-      const result = await window.dataSdk.init(dataHandler);
-      if (!result.isOk) {
-        console.error("Failed to initialize Data SDK");
-        return;
+    function saveVendorsToStorage(vendors) {
+      localStorage.setItem('waste_tender_vendors', JSON.stringify(vendors));
+    }
+
+    function loadCurrentUserFromStorage() {
+      const data = localStorage.getItem('waste_tender_current_user');
+      return data ? JSON.parse(data) : null;
+    }
+
+    function saveCurrentUserToStorage(user) {
+      if (user) {
+        localStorage.setItem('waste_tender_current_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('waste_tender_current_user');
       }
+    }
+
+    function initApp() {
+      currentUser = loadCurrentUserFromStorage();
       renderApp();
     }
 
@@ -282,53 +293,52 @@
     }
 
     function renderLoginPage() {
-      const config = window.elementSdk?.config || defaultConfig;
       return `
-        <div class="w-full min-h-full" style="background-color: ${config.background_color};">
+        <div class="w-full min-h-full" style="background-color: ${CONFIG.background_color};">
           <div class="gradient-bg w-full py-6">
             <div class="max-w-6xl mx-auto px-6">
-              <h1 class="text-3xl font-bold text-white">${config.portal_title}</h1>
+              <h1 class="text-3xl font-bold text-white">${CONFIG.portal_title}</h1>
               <p class="text-white text-opacity-90 mt-1">Vendor Registration & Submission Portal</p>
             </div>
           </div>
           
           <div class="max-w-md mx-auto px-6 py-12">
-            <div class="card-shadow rounded-lg p-8" style="background-color: ${config.surface_color};">
+            <div class="card-shadow rounded-lg p-8" style="background-color: ${CONFIG.surface_color};">
               <div class="text-center mb-6">
                 <div class="splash-accent w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
                   <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
                   </svg>
                 </div>
-                <h2 class="text-2xl font-bold" style="color: ${config.text_color};">Vendor Registration</h2>
+                <h2 class="text-2xl font-bold" style="color: ${CONFIG.text_color};">Vendor Registration</h2>
                 <p class="text-gray-600 mt-2">Register or login to access the tender</p>
               </div>
 
               <form id="registrationForm" onsubmit="handleRegistration(event)">
                 <div class="mb-4">
-                  <label for="email" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Email Address</label>
-                  <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};" placeholder="your@email.com">
+                  <label for="email" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Email Address</label>
+                  <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};" placeholder="your@email.com">
                   <p class="text-xs text-gray-500 mt-1">Enter your email to login or register</p>
                 </div>
 
                 <div id="additionalFields" style="display: none;">
                   <div class="mb-4">
-                    <label for="companyName" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Company Name</label>
-                    <input type="text" id="companyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};">
+                    <label for="companyName" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Company Name</label>
+                    <input type="text" id="companyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
                   </div>
 
                   <div class="mb-4">
-                    <label for="contactName" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Contact Name</label>
-                    <input type="text" id="contactName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};">
+                    <label for="contactName" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Contact Name</label>
+                    <input type="text" id="contactName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
                   </div>
 
                   <div class="mb-4">
-                    <label for="phone" class="block text-sm font-medium mb-2" style="color: ${config.text_color};">Phone Number</label>
-                    <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${config.primary_color};">
+                    <label for="phone" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Phone Number</label>
+                    <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
                   </div>
                 </div>
 
-                <button type="submit" id="submitBtn" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${config.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
+                <button type="submit" id="submitBtn" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${CONFIG.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
                   ${isLoading ? '<span class="loading-spinner"></span>Checking...' : 'Continue'}
                 </button>
               </form>
@@ -339,16 +349,15 @@
     }
 
     function renderTenderPortal() {
-      const config = window.elementSdk?.config || defaultConfig;
       const hasSubmitted = currentUser.submission_status === 'submitted';
 
       return `
-        <div class="w-full min-h-full" style="background-color: ${config.background_color};">
+        <div class="w-full min-h-full" style="background-color: ${CONFIG.background_color};">
           <div class="gradient-bg w-full py-6">
             <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
               <div>
-                <h1 class="text-3xl font-bold text-white">${config.portal_title}</h1>
-                <p class="text-white text-opacity-90 mt-1">${config.client_name} Waste Services Tender</p>
+                <h1 class="text-3xl font-bold text-white">${CONFIG.portal_title}</h1>
+                <p class="text-white text-opacity-90 mt-1">${CONFIG.client_name} Waste Services Tender</p>
               </div>
               <button onclick="logout()" class="text-white bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
                 Logout
@@ -357,10 +366,10 @@
           </div>
 
           <div class="max-w-6xl mx-auto px-6 py-8">
-            <div class="card-shadow rounded-lg p-6 mb-6" style="background-color: ${config.surface_color};">
+            <div class="card-shadow rounded-lg p-6 mb-6" style="background-color: ${CONFIG.surface_color};">
               <div class="flex items-center justify-between">
                 <div>
-                  <h2 class="text-xl font-bold" style="color: ${config.text_color};">Welcome, ${currentUser.company_name}</h2>
+                  <h2 class="text-xl font-bold" style="color: ${CONFIG.text_color};">Welcome, ${currentUser.company_name}</h2>
                   <p class="text-gray-600 mt-1">Contact: ${currentUser.contact_name} | ${currentUser.email}</p>
                 </div>
                 ${hasSubmitted ? `
@@ -375,18 +384,18 @@
               
               ${!hasSubmitted ? `
                 <div class="mt-4 pt-4 border-t border-gray-200">
-                  <h3 class="text-sm font-semibold mb-2" style="color: ${config.text_color};">📋 How to Submit Your Quotation:</h3>
+                  <h3 class="text-sm font-semibold mb-2" style="color: ${CONFIG.text_color};">📋 How to Submit Your Quotation:</h3>
                   <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-600">
                     <div class="flex items-start">
-                      <span class="font-semibold mr-2" style="color: ${config.secondary_color};">1.</span>
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">1.</span>
                       <span><strong>Tender Requirements</strong> - Review all project details and service requirements</span>
                     </div>
                     <div class="flex items-start">
-                      <span class="font-semibold mr-2" style="color: ${config.secondary_color};">2.</span>
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">2.</span>
                       <span><strong>Site Photos</strong> - View photos of all four collection sites</span>
                     </div>
                     <div class="flex items-start">
-                      <span class="font-semibold mr-2" style="color: ${config.secondary_color};">3.</span>
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">3.</span>
                       <span><strong>Submit Quotation</strong> - Complete the pricing form and submit your quote</span>
                     </div>
                   </div>
@@ -394,21 +403,21 @@
               ` : ''}
             </div>
 
-            ${hasSubmitted ? renderSubmissionConfirmation(config) : renderTenderContentWithTabs(config)}
+            ${hasSubmitted ? renderSubmissionConfirmation() : renderTenderContentWithTabs()}
           </div>
         </div>
       `;
     }
 
-    function renderSubmissionConfirmation(config) {
+    function renderSubmissionConfirmation() {
       return `
-        <div class="card-shadow rounded-lg p-8 text-center" style="background-color: ${config.surface_color};">
+        <div class="card-shadow rounded-lg p-8 text-center" style="background-color: ${CONFIG.surface_color};">
           <div class="splash-accent w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center">
             <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
               <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
             </svg>
           </div>
-          <h2 class="text-3xl font-bold mb-3" style="color: ${config.text_color};">Submission Successful!</h2>
+          <h2 class="text-3xl font-bold mb-3" style="color: ${CONFIG.text_color};">Submission Successful!</h2>
           <p class="text-gray-600 text-lg mb-6">Your quotation has been successfully submitted.</p>
           <div class="text-left max-w-md mx-auto bg-gray-50 p-4 rounded-lg">
             <p class="text-sm text-gray-600 mb-2"><strong>Submitted:</strong> ${new Date(currentUser.submitted_at).toLocaleString()}</p>
@@ -419,61 +428,61 @@
       `;
     }
 
-    function renderTenderContentWithTabs(config) {
+    function renderTenderContentWithTabs() {
       return `
-        <div class="card-shadow rounded-lg" style="background-color: ${config.surface_color};">
+        <div class="card-shadow rounded-lg" style="background-color: ${CONFIG.surface_color};">
           <div class="border-b border-gray-200">
             <div class="flex space-x-2 px-6">
-              <button class="tab-button ${activeTab === 'requirements' ? 'active' : ''}" onclick="switchTab('requirements')" style="color: ${activeTab === 'requirements' ? config.secondary_color : config.text_color};">
+              <button class="tab-button ${activeTab === 'requirements' ? 'active' : ''}" onclick="switchTab('requirements')" style="color: ${activeTab === 'requirements' ? CONFIG.secondary_color : CONFIG.text_color};">
                 Tender Requirements
               </button>
-              <button class="tab-button ${activeTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')" style="color: ${activeTab === 'photos' ? config.secondary_color : config.text_color};">
+              <button class="tab-button ${activeTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')" style="color: ${activeTab === 'photos' ? CONFIG.secondary_color : CONFIG.text_color};">
                 Site Photos
               </button>
-              <button class="tab-button ${activeTab === 'submit' ? 'active' : ''}" onclick="switchTab('submit')" style="color: ${activeTab === 'submit' ? config.secondary_color : config.text_color};">
+              <button class="tab-button ${activeTab === 'submit' ? 'active' : ''}" onclick="switchTab('submit')" style="color: ${activeTab === 'submit' ? CONFIG.secondary_color : CONFIG.text_color};">
                 Submit Quotation
               </button>
             </div>
           </div>
 
           <div class="p-6">
-            ${activeTab === 'requirements' ? renderRequirementsTab(config) : ''}
-            ${activeTab === 'photos' ? renderPhotosTab(config) : ''}
-            ${activeTab === 'submit' ? renderSubmitTab(config) : ''}
+            ${activeTab === 'requirements' ? renderRequirementsTab() : ''}
+            ${activeTab === 'photos' ? renderPhotosTab() : ''}
+            ${activeTab === 'submit' ? renderSubmitTab() : ''}
           </div>
         </div>
       `;
     }
 
-    function renderRequirementsTab(config) {
+    function renderRequirementsTab() {
       return `
         <div>
-          <h2 class="text-2xl font-bold mb-4" style="color: ${config.text_color};">${config.tender_title}</h2>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">${CONFIG.tender_title}</h2>
           
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Prepared By</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Prepared By</h3>
             <p class="text-gray-700">Shrunk Innovation Group Pty Ltd</p>
             <p class="text-gray-700">On behalf of: Cedar Pacific Pty Ltd</p>
             <p class="text-gray-700">Site Tenant: Unilodge</p>
-            <p class="text-gray-700 mt-2"><strong>Contact:</strong> ${config.contact_name}</p>
-            <p class="text-gray-700">${config.contact_details}</p>
+            <p class="text-gray-700 mt-2"><strong>Contact:</strong> ${CONFIG.contact_name}</p>
+            <p class="text-gray-700">${CONFIG.contact_details}</p>
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Customer Overview</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Customer Overview</h3>
             <p class="text-gray-700 leading-relaxed">Cedar Pacific is one of Australia's leading specialist investors and developers in purpose-built student accommodation (PBSA) and build-to-rent (BTR) assets. They own and manage a large national portfolio of residential properties, focused on long-term asset performance, operational efficiency, and sustainability outcomes.</p>
             <p class="text-gray-700 leading-relaxed mt-3">UniLodge operates as the on-site property and facilities manager for many of Cedar Pacific's student accommodation assets. Their teams manage the day-to-day operations, including tenant engagement, cleaning, and building services.</p>
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Services Overview</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Services Overview</h3>
             <p class="text-gray-700 leading-relaxed">Cedar Pacific's UniLodge-operated buildings generate high volumes of General Waste, Co-mingled Recycling, and Cardboard, driven by dense student occupancy and continuous daily turnover. Most buildings operate with 7-day-per-week waste collections.</p>
             <p class="text-gray-700 leading-relaxed mt-3">Co-mingled Recycling presents consistent challenges due to the chute system. High contamination rates are common. Contractors are expected to proactively identify contamination issues and work with Shrunk and Cedar Pacific to implement practical solutions.</p>
             <p class="text-gray-700 leading-relaxed mt-3">Sites require occasional bulk dry waste, e-waste, and furniture disposal services in addition to regular collections. Clear communication, scheduling flexibility, and transparent pricing for these ad-hoc services are essential.</p>
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-3" style="color: ${config.text_color};">Sites</h3>
+            <h3 class="text-lg font-semibold mb-3" style="color: ${CONFIG.text_color};">Sites</h3>
             <table class="site-table">
               <thead>
                 <tr>
@@ -508,7 +517,7 @@
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Service Requirements</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Service Requirements</h3>
             <ul class="list-disc list-inside text-gray-700 space-y-2">
               <li>Early/overnight collection times preferred with provided keys/codes</li>
               <li>Drivers must move bins (~5-10m) to service location</li>
@@ -519,7 +528,7 @@
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Contamination Management</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Contamination Management</h3>
             <ul class="list-disc list-inside text-gray-700 space-y-2">
               <li>Operational cadence for discarding contaminated Co-Mingle as General Waste (same day collection)</li>
               <li>Monthly reporting on contamination events by day</li>
@@ -527,19 +536,19 @@
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Reporting Requirements</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Reporting Requirements</h3>
             <p class="text-gray-700">Monthly reporting on number of lifts, weight, and diversion metrics via portal or Excel file</p>
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Commencement & Term</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Commencement & Term</h3>
             <p class="text-gray-700">Contract commencement: On or after 01/02/2026</p>
             <p class="text-gray-700 mt-2">Contract term: 2 years with optional 1 year extension (2+1)</p>
             <p class="text-gray-700 mt-2">Price increases: Once per annum, capped increase (with justification), on anniversary of commencement</p>
           </div>
 
           <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${config.text_color};">Quotation Requirements</h3>
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Quotation Requirements</h3>
             <ul class="list-disc list-inside text-gray-700 space-y-2">
               <li>General Waste pricing based on 60kg per m³ density</li>
               <li>Co-Mingle pricing based on 30kg per m³ density</li>
@@ -551,15 +560,15 @@
       `;
     }
 
-    function renderPhotosTab(config) {
+    function renderPhotosTab() {
       return `
         <div>
-          <h2 class="text-2xl font-bold mb-4" style="color: ${config.text_color};">Site Photos</h2>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Site Photos</h2>
           <p class="text-gray-600 mb-6">Visual documentation of waste collection areas and site access points</p>
 
           <div class="space-y-8">
             <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Melbourne CBD</h3>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Melbourne CBD</h3>
               <p class="text-sm text-gray-600 mb-2">17-23 Wills Street, Melbourne, VIC, 3000</p>
               <div class="photo-grid">
                 ${sitePhotos.melbourne_cbd.map(photo => `
@@ -575,7 +584,7 @@
             </div>
 
             <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Melbourne Central</h3>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Melbourne Central</h3>
               <p class="text-sm text-gray-600 mb-2">303 La Trobe Street, Melbourne, VIC, 3000</p>
               <div class="photo-grid">
                 ${sitePhotos.melbourne_central.map(photo => `
@@ -591,7 +600,7 @@
             </div>
 
             <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Victoria University</h3>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Victoria University</h3>
               <p class="text-sm text-gray-600 mb-2">101 Ballarat Road, Footscray, VIC, 3011</p>
               <div class="photo-grid">
                 ${sitePhotos.victoria_university.map(photo => `
@@ -607,7 +616,7 @@
             </div>
 
             <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${config.text_color};">Unilodge Kensington</h3>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Kensington</h3>
               <p class="text-sm text-gray-600 mb-2">177-197 Anzac Parade, Kensington, NSW, 2033</p>
               <div class="photo-grid">
                 ${sitePhotos.kensington.map(photo => `
@@ -626,10 +635,10 @@
       `;
     }
 
-    function renderSubmitTab(config) {
+    function renderSubmitTab() {
       return `
         <div>
-          <h2 class="text-2xl font-bold mb-4" style="color: ${config.text_color};">Submit Your Quotation</h2>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Submit Your Quotation</h2>
           
           <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
             <h3 class="font-semibold text-blue-900 mb-3">Instructions & Requirements</h3>
@@ -643,14 +652,20 @@
             </ul>
           </div>
 
-          <form id="quotationForm" onsubmit="submitQuotationForm(event)">
+          <form id="quotationForm" onsubmit="submitQuotationForm(event)" action="${CONFIG.form_endpoint}" method="POST">
+            <input type="hidden" name="_subject" value="New Tender Submission - ${currentUser.company_name}">
+            <input type="hidden" name="vendor_email" value="${currentUser.email}">
+            <input type="hidden" name="vendor_company" value="${currentUser.company_name}">
+            <input type="hidden" name="vendor_contact" value="${currentUser.contact_name}">
+            <input type="hidden" name="vendor_phone" value="${currentUser.phone}">
+            
             <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <label for="annualUplift" class="block text-sm font-semibold mb-2" style="color: ${config.text_color};">Annual (Capped) Uplift %</label>
-              <input type="number" id="annualUplift" step="0.01" min="0" max="100" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" placeholder="e.g., 2.5">
+              <label for="annualUplift" class="block text-sm font-semibold mb-2" style="color: ${CONFIG.text_color};">Annual (Capped) Uplift %</label>
+              <input type="number" id="annualUplift" name="annual_uplift" step="0.01" min="0" max="100" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" placeholder="e.g., 2.5">
             </div>
 
             <div class="mb-6">
-              <h3 class="text-xl font-bold mb-4" style="color: ${config.text_color};">Core Services</h3>
+              <h3 class="text-xl font-bold mb-4" style="color: ${CONFIG.text_color};">Core Services</h3>
               <div class="overflow-x-auto">
                 <table class="w-full text-sm border-collapse quotation-table">
                   <thead>
@@ -688,7 +703,7 @@
             </div>
 
             <div class="mb-6">
-              <h3 class="text-xl font-bold mb-4" style="color: ${config.text_color};">Additional Services</h3>
+              <h3 class="text-xl font-bold mb-4" style="color: ${CONFIG.text_color};">Additional Services</h3>
               <div class="overflow-x-auto">
                 <table class="w-full text-sm border-collapse">
                   <thead>
@@ -711,15 +726,15 @@
               </div>
             </div>
 
-            <button type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${config.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
+            <button type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${CONFIG.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
               ${isLoading ? '<span class="loading-spinner"></span>Submitting...' : 'Submit Quotation'}
             </button>
           </form>
 
-          <div class="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
-            <h3 class="font-semibold text-purple-900 mb-2">📡 Webhook Integration</h3>
-            <p class="text-sm text-purple-800 mb-2">Submissions will be sent to your configured webhook endpoint:</p>
-            <code class="text-xs bg-purple-100 px-2 py-1 rounded text-purple-900 break-all">${config.webhook_url}</code>
+          <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 class="font-semibold text-yellow-900 mb-2">⚠️ Setup Required</h3>
+            <p class="text-sm text-yellow-800 mb-2">To receive submissions, update the <code class="bg-yellow-100 px-1 py-0.5 rounded">form_endpoint</code> in the CONFIG section at the top of this file.</p>
+            <p class="text-sm text-yellow-800">Recommended services: Formspree, Web3Forms, or EmailJS</p>
           </div>
         </div>
       `;
@@ -743,14 +758,8 @@
           <td class="border border-gray-300 px-2 py-2">${binSize}</td>
           <td class="border border-gray-300 px-2 py-2">${avgCollected}</td>
           <td class="border border-gray-300 px-1 py-1 bg-gray-100">
-            <select name="core_frequency_${index}" required class="w-full px-2 py-1 border border-gray-300 rounded text-xs bg-gray-100 cursor-not-allowed" disabled>
-              <option value="Daily" ${defaultFrequency === 'Daily' ? 'selected' : ''}>Daily</option>
-              <option value="Weekly" ${defaultFrequency === 'Weekly' ? 'selected' : ''}>Weekly</option>
-              <option value="Bi-Weekly" ${defaultFrequency === 'Bi-Weekly' ? 'selected' : ''}>Bi-Weekly</option>
-              <option value="Tri-Weekly" ${defaultFrequency === 'Tri-Weekly' ? 'selected' : ''}>Tri-Weekly</option>
-              <option value="Other" ${defaultFrequency === 'Other' ? 'selected' : ''}>Other</option>
-            </select>
             <input type="hidden" name="core_frequency_${index}" value="${defaultFrequency}">
+            <span class="text-xs">${defaultFrequency}</span>
           </td>
           <td class="border border-gray-300 px-2 py-2 bg-gray-100">
             <div class="flex flex-wrap">${dayCheckboxes}</div>
@@ -799,7 +808,7 @@
       renderApp();
     }
 
-    async function handleRegistration(event) {
+    function handleRegistration(event) {
       event.preventDefault();
       
       if (isLoading) return;
@@ -807,14 +816,12 @@
       const email = document.getElementById('email').value.trim();
       const additionalFields = document.getElementById('additionalFields');
 
-      const existingVendor = allVendors.find(v => v.email.toLowerCase() === email.toLowerCase());
+      const vendors = loadVendorsFromStorage();
+      const existingVendor = vendors.find(v => v.email.toLowerCase() === email.toLowerCase());
       
       if (existingVendor) {
-        isLoading = true;
-        renderApp();
-        await new Promise(resolve => setTimeout(resolve, 500));
         currentUser = existingVendor;
-        isLoading = false;
+        saveCurrentUserToStorage(currentUser);
         showMessage(`Welcome back, ${existingVendor.company_name}!`, "success");
         renderApp();
         return;
@@ -830,14 +837,6 @@
         return;
       }
 
-      if (allVendors.length >= 999) {
-        showMessage("Maximum vendor limit reached. Please contact support.", "error");
-        return;
-      }
-
-      isLoading = true;
-      renderApp();
-
       const companyName = document.getElementById('companyName').value.trim();
       const contactName = document.getElementById('contactName').value.trim();
       const phone = document.getElementById('phone').value.trim();
@@ -850,127 +849,49 @@
         phone: phone,
         registered_at: new Date().toISOString(),
         submission_status: "pending",
-        submitted_at: "",
-        file_name: ""
+        submitted_at: ""
       };
 
-      const result = await window.dataSdk.create(newVendor);
+      vendors.push(newVendor);
+      saveVendorsToStorage(vendors);
       
-      isLoading = false;
-
-      if (result.isOk) {
-        currentUser = newVendor;
-        showMessage("Registration successful!", "success");
-        renderApp();
-      } else {
-        showMessage("Registration failed. Please try again.", "error");
-        renderApp();
-      }
+      currentUser = newVendor;
+      saveCurrentUserToStorage(currentUser);
+      
+      showMessage("Registration successful!", "success");
+      renderApp();
     }
 
-    async function submitQuotationForm(event) {
+    function submitQuotationForm(event) {
       event.preventDefault();
       
       if (isLoading) return;
-
-      if (allVendors.length >= 999) {
-        showMessage("Maximum submission limit reached. Please contact support.", "error");
-        return;
-      }
-
+      
       isLoading = true;
       renderApp();
 
-      const config = window.elementSdk?.config || defaultConfig;
-      const formData = new FormData(event.target);
+      const form = event.target;
       
-      const quotationData = {
-        annual_uplift: formData.get('annualUplift'),
-        core_services: [],
-        additional_services: []
-      };
-
-      // Collect core services data
-      for (let i = 0; i < 12; i++) {
-        const selectedDays = formData.getAll(`core_days_${i}`);
-        quotationData.core_services.push({
-          frequency: formData.get(`core_frequency_${i}`),
-          collection_days: selectedDays.join(','),
-          price_per_collection: formData.get(`core_price_${i}`),
-          rental_per_month: formData.get(`core_rental_${i}`),
-          collection_window: formData.get(`core_window_${i}`),
-          comments: formData.get(`core_comments_${i}`) || ''
-        });
+      // Update vendor status in localStorage
+      const vendors = loadVendorsFromStorage();
+      const vendorIndex = vendors.findIndex(v => v.id === currentUser.id);
+      
+      if (vendorIndex !== -1) {
+        vendors[vendorIndex].submission_status = "submitted";
+        vendors[vendorIndex].submitted_at = new Date().toISOString();
+        saveVendorsToStorage(vendors);
+        
+        currentUser = vendors[vendorIndex];
+        saveCurrentUserToStorage(currentUser);
       }
 
-      // Collect additional services data
-      for (let i = 0; i < 4; i++) {
-        quotationData.additional_services.push({
-          price_per_delivery: formData.get(`add_delivery_${i}`),
-          price_per_removal: formData.get(`add_removal_${i}`),
-          disposal_price: formData.get(`add_disposal_${i}`)
-        });
-      }
-
-      try {
-        const webhookPayload = {
-          vendor: {
-            id: currentUser.id,
-            email: currentUser.email,
-            company_name: currentUser.company_name,
-            contact_name: currentUser.contact_name,
-            phone: currentUser.phone
-          },
-          quotation: quotationData,
-          submission: {
-            submitted_at: new Date().toISOString()
-          },
-          tender: {
-            title: config.tender_title,
-            client: config.client_name
-          }
-        };
-
-        await fetch(config.webhook_url, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify(webhookPayload)
-        }).catch(err => {
-          console.log('Webhook notification sent (or attempted):', err);
-        });
-
-      } catch (error) {
-        console.log('Webhook error (continuing with submission):', error);
-      }
-
-      await new Promise(resolve => setTimeout(resolve, 1000));
-
-      const updatedVendor = {
-        ...currentUser,
-        submission_status: "submitted",
-        submitted_at: new Date().toISOString(),
-        file_name: "quotation_form.json"
-      };
-
-      const result = await window.dataSdk.update(updatedVendor);
-
-      isLoading = false;
-
-      if (result.isOk) {
-        currentUser = updatedVendor;
-        activeTab = 'requirements';
-        renderApp();
-        showMessage("Quotation submitted successfully!", "success");
-      } else {
-        showMessage("Submission failed. Please try again.", "error");
-        renderApp();
-      }
+      // Submit the form
+      form.submit();
     }
 
     function logout() {
       currentUser = null;
+      saveCurrentUserToStorage(null);
       activeTab = 'requirements';
       renderApp();
     }
@@ -1058,73 +979,11 @@
       }
     }
 
-    async function onConfigChange(config) {
-      renderApp();
-    }
-
-    if (window.elementSdk) {
-      window.elementSdk.init({
-        defaultConfig,
-        onConfigChange,
-        mapToCapabilities: (config) => ({
-          recolorables: [
-            {
-              get: () => config.primary_color || defaultConfig.primary_color,
-              set: (value) => {
-                config.primary_color = value;
-                window.elementSdk.setConfig({ primary_color: value });
-              }
-            },
-            {
-              get: () => config.secondary_color || defaultConfig.secondary_color,
-              set: (value) => {
-                config.secondary_color = value;
-                window.elementSdk.setConfig({ secondary_color: value });
-              }
-            },
-            {
-              get: () => config.background_color || defaultConfig.background_color,
-              set: (value) => {
-                config.background_color = value;
-                window.elementSdk.setConfig({ background_color: value });
-              }
-            },
-            {
-              get: () => config.text_color || defaultConfig.text_color,
-              set: (value) => {
-                config.text_color = value;
-                window.elementSdk.setConfig({ text_color: value });
-              }
-            },
-            {
-              get: () => config.surface_color || defaultConfig.surface_color,
-              set: (value) => {
-                config.surface_color = value;
-                window.elementSdk.setConfig({ surface_color: value });
-              }
-            }
-          ],
-          borderables: [],
-          fontEditable: undefined,
-          fontSizeable: undefined
-        }),
-        mapToEditPanelValues: (config) => new Map([
-          ["portal_title", config.portal_title || defaultConfig.portal_title],
-          ["client_name", config.client_name || defaultConfig.client_name],
-          ["tender_title", config.tender_title || defaultConfig.tender_title],
-          ["contact_name", config.contact_name || defaultConfig.contact_name],
-          ["contact_details", config.contact_details || defaultConfig.contact_details],
-          ["webhook_url", config.webhook_url || defaultConfig.webhook_url]
-        ])
-      });
-    }
-
+    // Initialize app on page load
     document.addEventListener('DOMContentLoaded', initApp);
-    if (document.readyState === 'loading') {
-      document.addEventListener('DOMContentLoaded', initApp);
-    } else {
+    if (document.readyState !== 'loading') {
       initApp();
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a86f72f743c29a4',t:'MTc2NDgwNTgxOS4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8708dad04329a4',t:'MTc2NDgwNjU0Mi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
