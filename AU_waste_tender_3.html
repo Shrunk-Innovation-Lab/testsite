@@ -3,1167 +3,1490 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Waste Management Tender Dashboard</title>
-  <link rel="icon" type="image/png" href="https://imgur.com/dZR7M8C.png">
+  <title>Shrunk Waste Tender Portal</title>
+  <script src="https://cdn.tailwindcss.com"></script>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
     body {
       box-sizing: border-box;
+      font-family: 'Inter', sans-serif;
       margin: 0;
       padding: 0;
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
-      width: 100%;
       height: 100%;
-      overflow-x: hidden;
     }
-
-    * {
-      box-sizing: border-box;
+    html {
+      height: 100%;
     }
-
-    .dashboard-wrapper {
-      width: 100%;
-      min-height: 100%;
-      padding: 3rem 2rem;
+    .gradient-bg {
+      background: linear-gradient(135deg, #7c3aed 0%, #a78bfa 100%);
     }
-
-    .header {
-      margin-bottom: 3rem;
-      position: relative;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      gap: 0;
-      padding: 0;
+    .splash-accent {
+      background: linear-gradient(135deg, #8b5cf6 0%, #a78bfa 100%);
     }
-
-    .header-logo {
-      width: 20%;
-      max-width: 800px;
-      height: auto;
-      object-fit: contain;
+    .card-shadow {
+      box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
+    }
+    .tender-section {
+      padding-left: 0;
       margin-bottom: 2rem;
     }
-
-    .footer {
-      margin-top: 4rem;
-      padding: 2rem 0;
-      text-align: center;
-      border-top: 2px solid #e2e8f0;
-    }
-
-    .footer p {
-      margin: 0;
-      color: #64748b;
-      font-size: 0.875rem;
-      font-weight: 500;
-    }
-
-    .client-branding {
-      position: absolute;
-      right: 1.5rem;
-      top: 1.5rem;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      gap: 0.5rem;
-    }
-
-    .client-logo {
-      width: 80px;
-      height: 80px;
-      object-fit: contain;
+    .site-table {
+      width: 100%;
+      border-collapse: separate;
+      border-spacing: 0;
+      margin: 1rem 0;
+      border: 1px solid #e5e7eb;
       border-radius: 12px;
-      background: white;
-      padding: 0.5rem;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.08);
-    }
-    
-    .current-costs-section {
-      position: relative;
-      max-width: 1400px;
-      margin: 0 auto 3rem;
-      background: white;
-      border-radius: 16px;
-      padding: 2.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
       overflow: hidden;
     }
-
-    .current-costs-section::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
+    .site-table th,
+    .site-table td {
+      border-bottom: 1px solid #e5e7eb;
+      border-right: 1px solid #e5e7eb;
+      padding: 0.75rem;
+      text-align: left;
     }
-
-    .header-content {
-      flex: 1;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      text-align: center;
-      padding-top: 1.5rem;
-      margin-top: 0;
-      position: relative;
+    .site-table th:last-child,
+    .site-table td:last-child {
+      border-right: none;
     }
-
-    .header-content::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80px;
-      height: 4px;
-      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-      border-radius: 2px;
+    .site-table tr:last-child td {
+      border-bottom: none;
     }
-
-    .header h1 {
-      font-size: 2.5rem;
-      color: #1e293b;
-      margin: 0;
-      font-weight: 700;
-      letter-spacing: -0.5px;
-    }
-
-    .nav-tabs {
-      display: flex;
-      gap: 1rem;
-      margin-bottom: 2rem;
-      justify-content: center;
-      flex-wrap: wrap;
-    }
-
-    .nav-tab {
-      padding: 0.875rem 1.75rem;
-      font-size: 1rem;
+    .site-table th {
+      background-color: #faf5ff;
       font-weight: 600;
-      color: #64748b;
-      background: white;
-      border: 2px solid #e2e8f0;
+      color: #374151;
+    }
+    .quotation-table {
+      table-layout: fixed;
+      border-collapse: separate;
+      border-spacing: 0;
+      border: 1px solid #e5e7eb;
       border-radius: 12px;
-      cursor: pointer;
+      overflow: hidden;
+    }
+    .quotation-table th:nth-child(1) { width: 50px; }
+    .quotation-table th:nth-child(2) { width: 100px; }
+    .quotation-table th:nth-child(3) { width: 140px; }
+    .quotation-table th:nth-child(4) { width: 120px; }
+    .quotation-table th:nth-child(5) { width: 70px; }
+    .quotation-table th:nth-child(6) { width: 100px; }
+    .quotation-table th:nth-child(7) { width: 110px; }
+    .quotation-table th:nth-child(8) { width: 220px; }
+    .quotation-table th:nth-child(9) { width: 100px; }
+    .quotation-table th:nth-child(10) { width: 100px; }
+    .quotation-table th:nth-child(11) { width: 130px; }
+    .quotation-table th:nth-child(12) { width: 90px; }
+    .loading-spinner {
+      border: 3px solid #f3f4f6;
+      border-top: 3px solid #8b5cf6;
+      border-radius: 50%;
+      width: 24px;
+      height: 24px;
+      animation: spin 1s linear infinite;
+      display: inline-block;
+      margin-right: 0.5rem;
+    }
+    @keyframes spin {
+      0% { transform: rotate(0deg); }
+      100% { transform: rotate(360deg); }
+    }
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
       transition: all 0.3s ease;
+      cursor: pointer;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
     }
-
-    .nav-tab:hover {
-      border-color: #6366f1;
-      color: #6366f1;
+    .tab-button:hover {
+      background-color: rgba(0,0,0,0.05);
     }
-
-    .nav-tab.active {
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      border-color: transparent;
+    .tab-button.active {
+      border-bottom-color: #8b5cf6;
+      color: #8b5cf6;
     }
-
-    .page {
-      display: none;
-    }
-
-    .page.active {
-      display: block;
-    }
-
-    .vendors-grid {
+    .photo-grid {
       display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 2rem;
-      max-width: 1400px;
-      margin: 0 auto 3rem;
-    }
-
-    .vendor-card {
-      background: white;
-      border-radius: 16px;
-      padding: 2rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
-      transition: transform 0.3s ease, box-shadow 0.3s ease;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .vendor-card::before {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      height: 6px;
-      background: linear-gradient(90deg, #6366f1 0%, #8b5cf6 100%);
-    }
-
-    .vendor-card:hover {
-      transform: translateY(-5px);
-      box-shadow: 0 8px 12px rgba(0, 0, 0, 0.08), 0 20px 25px rgba(0, 0, 0, 0.08);
-    }
-
-    .vendor-card.best-price::after {
-      content: '✓ Best Price';
-      position: absolute;
-      top: 1.5rem;
-      right: 1.5rem;
-      background: linear-gradient(135deg, #6366f1 0%, #8b5cf6 100%);
-      color: white;
-      padding: 0.4rem 0.8rem;
-      border-radius: 20px;
-      font-size: 0.75rem;
-      font-weight: 600;
-      letter-spacing: 0.5px;
-    }
-
-    .vendor-header {
-      display: flex;
-      align-items: center;
+      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
       gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .vendor-logo {
-      width: 120px;
-      height: 80px;
-      object-fit: contain;
-      flex-shrink: 0;
-    }
-
-    .price-section {
-      margin: 2rem 0;
-    }
-
-    .price-label {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .price-display {
-      width: 100%;
-      padding: 1rem 1rem 1rem 2.5rem;
-      font-size: 2rem;
-      font-weight: 700;
-      color: #1e293b;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
-      min-height: 4rem;
-      display: flex;
-      align-items: center;
-    }
-
-    .current-costs-header {
-      display: flex;
-      align-items: center;
-      gap: 1rem;
-      margin-bottom: 1.5rem;
-    }
-
-    .current-costs-icon {
-      width: 50px;
-      height: 50px;
-      background: linear-gradient(135deg, #10b981 0%, #059669 100%);
-      border-radius: 12px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 1.5rem;
-      flex-shrink: 0;
-    }
-
-    .current-costs-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0;
-    }
-
-    .current-total {
-      text-align: center;
       margin-top: 1rem;
     }
-
-    .current-total-label {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .current-total-amount {
-      font-size: 3rem;
-      font-weight: 700;
-      color: #10b981;
-    }
-
-    .savings-section {
-      margin-top: 2.5rem;
-      padding-top: 2rem;
-      border-top: 2px solid #f1f5f9;
-      display: flex;
-      align-items: center;
-      gap: 3rem;
-    }
-
-    .savings-header {
-      flex: 0 0 auto;
-      text-align: left;
-    }
-
-    .savings-title {
-      font-size: 0.875rem;
-      color: #64748b;
-      margin-bottom: 0.5rem;
-      font-weight: 500;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-    }
-
-    .savings-amount {
-      font-size: 2.5rem;
-      font-weight: 700;
-      color: #10b981;
-      margin-bottom: 0.25rem;
-    }
-
-    .savings-vendor {
-      font-size: 0.9rem;
-      color: #64748b;
-      font-weight: 500;
-    }
-
-    .savings-vendor-name {
-      color: #6366f1;
-      font-weight: 700;
-    }
-
-    .savings-meter {
-      flex: 1;
-      position: relative;
-    }
-
-    .meter-background {
-      width: 100%;
-      height: 40px;
-      background: #f1f5f9;
-      border-radius: 20px;
-      overflow: hidden;
-      position: relative;
-    }
-
-    .meter-fill {
-      height: 100%;
-      background: linear-gradient(90deg, #10b981 0%, #059669 100%);
-      border-radius: 20px;
-      transition: width 0.8s ease;
-      display: flex;
-      align-items: center;
-      justify-content: flex-end;
-      padding-right: 1rem;
-      position: relative;
-    }
-
-    .meter-fill::after {
-      content: '';
-      position: absolute;
-      top: 0;
-      left: 0;
-      right: 0;
-      bottom: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.2) 50%, transparent 100%);
-      animation: shimmer 2s infinite;
-    }
-
-    @keyframes shimmer {
-      0% { transform: translateX(-100%); }
-      100% { transform: translateX(100%); }
-    }
-
-    .meter-percentage {
-      color: white;
-      font-weight: 700;
-      font-size: 1rem;
-      z-index: 1;
-      text-shadow: 0 1px 2px rgba(0, 0, 0, 0.2);
-    }
-
-    .sites-section {
-      max-width: 1400px;
-      margin: 0 auto;
-      background: white;
+    .photo-item {
+      border: 1px solid #e5e7eb;
       border-radius: 16px;
-      padding: 2.5rem;
-      box-shadow: 0 4px 6px rgba(0, 0, 0, 0.05), 0 10px 15px rgba(0, 0, 0, 0.05);
-    }
-
-    .sites-header {
-      margin-bottom: 2rem;
-    }
-
-    .sites-title {
-      font-size: 1.75rem;
-      font-weight: 700;
-      color: #1e293b;
-      margin: 0 0 1.5rem 0;
-    }
-
-    .filter-section {
-      display: flex;
-      gap: 1rem;
-      flex-wrap: wrap;
-      margin-bottom: 2rem;
-    }
-
-    .search-input {
-      flex: 1;
-      min-width: 250px;
-      padding: 0.875rem 1.25rem;
-      font-size: 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
+      overflow: hidden;
+      background-color: #ffffff;
+      padding: 0.75rem;
+      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
       transition: all 0.3s ease;
     }
-
-    .search-input:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+    .photo-item:hover {
+      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
+      transform: translateY(-2px);
     }
-
-    .filter-select {
-      padding: 0.875rem 1.25rem;
-      font-size: 1rem;
-      border: 2px solid #e2e8f0;
-      border-radius: 12px;
-      background: #f8fafc;
-      color: #1e293b;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      min-width: 180px;
-    }
-
-    .filter-select:focus {
-      outline: none;
-      border-color: #6366f1;
-      background: white;
-      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-      border-radius: 12px;
-      border: 1px solid #e2e8f0;
-    }
-
-    table {
+    .photo-item img {
       width: 100%;
-      border-collapse: collapse;
-      background: white;
+      height: 200px;
+      object-fit: cover;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: transform 0.2s ease;
     }
-
-    thead {
-      background: #f8fafc;
+    .photo-item img:hover {
+      transform: scale(1.02);
     }
-
-    th {
-      padding: 1rem;
-      text-align: left;
+    .photo-placeholder {
+      width: 100%;
+      height: 200px;
+      background-color: #e5e7eb;
+      border-radius: 4px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
       font-size: 0.875rem;
-      font-weight: 600;
-      color: #64748b;
-      text-transform: uppercase;
-      letter-spacing: 0.5px;
-      border-bottom: 2px solid #e2e8f0;
-      white-space: nowrap;
     }
-
-    td {
-      padding: 1rem;
-      border-bottom: 1px solid #f1f5f9;
-      font-size: 0.9375rem;
-    }
-
-    tbody tr:hover {
-      background-color: #f8fafc;
-    }
-
-    .price-cell {
-      font-weight: 600;
-      color: #1e293b;
-    }
-
-    .best-cell {
-      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1) 0%, rgba(139, 92, 246, 0.1) 100%);
-      font-weight: 700;
-      color: #6366f1;
-      border-radius: 6px;
-    }
-
-    .summary-row {
-      background: #f8fafc;
-      font-weight: 700;
-      border-top: 2px solid #e2e8f0;
-    }
-
-    .summary-row td {
-      padding: 1.25rem 1rem;
-      font-size: 1.125rem;
-    }
-
-    .no-results {
-      text-align: center;
-      padding: 3rem;
-      color: #64748b;
-      font-size: 1rem;
-    }
-
-    .loading-overlay {
+    .photo-modal {
       position: fixed;
       top: 0;
       left: 0;
-      right: 0;
-      bottom: 0;
-      background: rgba(255, 255, 255, 0.9);
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.9);
       display: flex;
       align-items: center;
       justify-content: center;
-      z-index: 9999;
-    }
-
-    .loading-spinner {
-      width: 60px;
-      height: 60px;
-      border: 4px solid #e2e8f0;
-      border-top-color: #6366f1;
-      border-radius: 50%;
-      animation: spin 0.8s linear infinite;
-    }
-
-    @keyframes spin {
-      to { transform: rotate(360deg); }
-    }
-
-    .error-message {
-      text-align: center;
+      z-index: 2000;
       padding: 2rem;
-      color: #ef4444;
-      font-size: 1.125rem;
-      background: #fef2f2;
-      border-radius: 12px;
-      margin: 2rem auto;
-      max-width: 600px;
     }
-
-    @media (max-width: 768px) {
-      .dashboard-wrapper {
-        padding: 2rem 1rem;
-      }
-
-      .header h1 {
-        font-size: 2rem;
-      }
-
-      .vendors-grid {
-        grid-template-columns: 1fr;
-      }
-
-      .price-display {
-        font-size: 1.5rem;
-      }
-
-      .savings-section {
-        flex-direction: column;
-        gap: 1.5rem;
-        align-items: stretch;
-      }
-
-      .savings-header {
-        text-align: center;
-      }
-
-      th, td {
-        padding: 0.75rem 0.5rem;
-      }
-
-      .client-branding {
-        right: 1rem;
-        top: 1rem;
-      }
-      
-      .client-logo {
-        width: 60px;
-        height: 60px;
-      }
+    .photo-modal img {
+      max-width: 90%;
+      max-height: 90%;
+      object-fit: contain;
+      border-radius: 16px;
+    }
+    .photo-modal-close {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: rgba(255, 255, 255, 0.9);
+      color: #1f2937;
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-size: 1.5rem;
+      font-weight: bold;
+      transition: background-color 0.2s ease;
+    }
+    .photo-modal-close:hover {
+      background-color: white;
+    }
+    .notes-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background-color: rgba(0, 0, 0, 0.5);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 2rem;
+    }
+    .notes-modal-content {
+      background-color: white;
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 100%;
+      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
+    }
+    .notes-icon-button {
+      cursor: pointer;
+      padding: 0.25rem 0.5rem;
+      background-color: #f3f4f6;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.75rem;
+      transition: background-color 0.2s ease;
+    }
+    .notes-icon-button:hover {
+      background-color: #e5e7eb;
+    }
+    .document-link {
+      display: flex;
+      align-items: center;
+      padding: 1rem;
+      border: 1px solid #e5e7eb;
+      border-radius: 8px;
+      margin-bottom: 0.75rem;
+      transition: all 0.2s ease;
+      text-decoration: none;
+      color: #374151;
+    }
+    .document-link:hover {
+      background-color: #f9fafb;
+      border-color: #8b5cf6;
+    }
+    .question-field {
+      margin-bottom: 1.5rem;
+    }
+    .question-field label {
+      display: block;
+      font-weight: 500;
+      margin-bottom: 0.5rem;
+      color: #374151;
+    }
+    .question-field input[type="text"],
+    .question-field textarea {
+      width: 100%;
+      padding: 0.75rem;
+      border: 1px solid #d1d5db;
+      border-radius: 8px;
+      font-size: 0.875rem;
+    }
+    .question-field textarea {
+      min-height: 100px;
+      resize: vertical;
     }
   </style>
+  <style>@view-transition { navigation: auto; }</style>
+  <script src="/_sdk/data_sdk.js" type="text/javascript"></script>
+  <script src="/_sdk/element_sdk.js" type="text/javascript"></script>
  </head>
  <body>
-  <div class="dashboard-wrapper">
-   <header class="header">
-    <img src="https://i.imgur.com/Z4iSIu0.png" alt="Header Logo" class="header-logo" onerror="this.style.display='none'">
-    <div class="header-content">
-     <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
-    </div>
-    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
-   </header>
-   
-   <nav class="nav-tabs">
-    <button class="nav-tab active" data-page="summary">Summary View</button>
-    <button class="nav-tab" data-page="services">Service Details</button>
-   </nav>
-
-   <!-- SUMMARY PAGE -->
-   <div class="page active" id="summary-page">
-    <section class="current-costs-section">
-     <div class="client-branding">
-      <img src="https://i.imgur.com/irwL8qo.png" alt="Australian Unity Logo" class="client-logo" onerror="this.style.display='none'">
-     </div>
-     <div class="current-costs-header">
-      <div class="current-costs-icon">💰</div>
-      <h2 class="current-costs-title">Current Annual Costs</h2>
-     </div>
-     <div class="current-total">
-      <div class="current-total-label">Total Across All Sites</div>
-      <div class="current-total-amount" id="current-total-amount">$0</div>
-     </div>
-     <div class="savings-section">
-      <div class="savings-header">
-       <div class="savings-title">Savings on Current Costs</div>
-       <div class="savings-amount" id="savings-amount">$0</div>
-       <div class="savings-vendor">Best Price: <span class="savings-vendor-name" id="best-vendor-name">—</span></div>
-      </div>
-      <div class="savings-meter">
-       <div class="meter-background">
-        <div class="meter-fill" id="meter-fill" style="width: 0%;">
-         <span class="meter-percentage" id="meter-percentage">0%</span>
-        </div>
-       </div>
-      </div>
-     </div>
-    </section>
-
-    <section class="vendors-grid">
-     <article class="vendor-card" id="cleanaway-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/dKfORRD.png" alt="Cleanaway Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="cleanaway-price">$0</div>
-      </div>
-     </article>
-     
-     <article class="vendor-card" id="veolia-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/JnDdCDI.png" alt="Veolia Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="veolia-price">$0</div>
-      </div>
-     </article>
-     
-     <article class="vendor-card" id="remondis-card">
-      <div class="vendor-header">
-       <img src="https://i.imgur.com/zJoffeV.png" alt="Remondis Logo" class="vendor-logo" onerror="this.style.display='none'">
-      </div>
-      <div class="price-section">
-       <div class="price-label">Annual Service Cost</div>
-       <div class="price-display" id="remondis-price">$0</div>
-      </div>
-     </article>
-    </section>
-
-    <section class="sites-section">
-     <div class="sites-header">
-      <h2 class="sites-title">Site-by-Site Comparison</h2>
-      <div class="filter-section">
-       <input type="text" id="site-search" class="search-input" placeholder="🔍 Search sites...">
-       <select id="site-type-filter" class="filter-select">
-        <option value="">All Site Types</option>
-       </select>
-       <select id="waste-stream-filter" class="filter-select">
-        <option value="">All Waste Streams</option>
-       </select>
-      </div>
-     </div>
-     <div class="table-wrapper">
-      <table>
-       <thead>
-        <tr>
-         <th>Rank</th>
-         <th>Site Name</th>
-         <th>Site Type</th>
-         <th>Service Description</th>
-         <th>Waste Stream</th>
-         <th>Bin Size</th>
-         <th>Cleanaway</th>
-         <th>Veolia</th>
-         <th>Remondis</th>
-         <th>Current</th>
-        </tr>
-       </thead>
-       <tbody id="sites-tbody">
-        <!-- Rows will be added here -->
-       </tbody>
-       <tfoot>
-        <tr class="summary-row">
-         <td colspan="6">Total</td>
-         <td id="total-cleanaway">$0</td>
-         <td id="total-veolia">$0</td>
-         <td id="total-remondis">$0</td>
-         <td id="total-current">$0</td>
-        </tr>
-       </tfoot>
-      </table>
-     </div>
-     <div id="no-results" class="no-results" style="display: none;">No sites match your search</div>
-    </section>
-   </div>
-
-   <!-- SERVICES PAGE -->
-   <div class="page" id="services-page">
-    <section class="sites-section">
-     <div class="sites-header">
-      <h2 class="sites-title">Service Description Details</h2>
-      <div class="filter-section">
-       <input type="text" id="service-search" class="search-input" placeholder="🔍 Search services or sites...">
-       <select id="service-site-filter" class="filter-select">
-        <option value="">All Sites</option>
-       </select>
-      </div>
-     </div>
-     <div class="table-wrapper">
-      <table>
-       <thead>
-        <tr>
-         <th>Rank</th>
-         <th>Site Name</th>
-         <th style="min-width: 250px;">Service Description</th>
-         <th>Cleanaway</th>
-         <th>Veolia</th>
-         <th>Remondis</th>
-         <th>Current</th>
-        </tr>
-       </thead>
-       <tbody id="services-tbody">
-        <!-- Service rows will be added here -->
-       </tbody>
-       <tfoot>
-        <tr class="summary-row">
-         <td colspan="3">Total</td>
-         <td id="service-total-cleanaway">$0</td>
-         <td id="service-total-veolia">$0</td>
-         <td id="service-total-remondis">$0</td>
-         <td id="service-total-current">$0</td>
-        </tr>
-       </tfoot>
-      </table>
-     </div>
-     <div id="no-service-results" class="no-results" style="display: none;">No services match your search</div>
-    </section>
-   </div>
-
-   <footer class="footer">
-    <p>©2025 | Wasted by Shrunk | All Rights Reserved</p>
-   </footer>
-  </div>
-
+  <div id="app" class="w-full min-h-full"></div>
   <script>
-    // Global variables
-    let sites = [];
-    let searchTerm = '';
-    let siteTypeFilter = '';
-    let wasteStreamFilter = '';
-    let serviceSearchTerm = '';
-    let serviceSiteFilter = '';
+    // Configuration - CHANGE THESE VALUES FOR YOUR SETUP
+    const CONFIG = {
+      portal_title: "Shrunk Waste Tender Portal",
+      client_name: "Cedar Pacific",
+      tender_title: "Request for Waste Services Quotation",
+      contact_name: "Nick Twining – Shrunk",
+      contact_details: "M: 0418 854 628 | E: nick@shrunk.ai",
+      // IMPORTANT: Replace with your form submission endpoint
+      // Options:
+      // 1. Formspree: https://formspree.io (free tier available)
+      // 2. Web3Forms: https://web3forms.com (free, no signup)
+      // 3. EmailJS: https://www.emailjs.com (sends to email)
+      form_endpoint: "https://formspree.io/f/YOUR_FORM_ID", // <-- CHANGE THIS
+      primary_color: "#7c3aed",
+      secondary_color: "#8b5cf6",
+      background_color: "#f9fafb",
+      text_color: "#1f2937",
+      surface_color: "#ffffff",
+      // Document URLs - CHANGE THESE TO YOUR ACTUAL DOCUMENT LINKS
+      document_urls: {
+        code_of_conduct: "https://drive.google.com/file/d/14GVTuUjH6wUZ58puTYgDIgqEkzS9gFWR/view?usp=sharing",
+        procurement_policy: "https://example.com/procurement-policy.pdf",
+        modern_slavery_policy: "https://example.com/modern-slavery-policy.pdf",
+        sustainable_operations: "https://example.com/sustainable-operations.pdf"
+      }
+    };
 
-    // Initialize the application
-    async function initializeApp() {
-      showLoadingOverlay();
-      await loadGitHubData();
+    let currentUser = null;
+    let isLoading = false;
+    let activeTab = "requirements";
+    let notesData = {};
+    let questionnaireData = {
+      acknowledged: false
+    };
+
+    const sitePhotos = {
+      "melbourne_cbd": [
+        { url: "https://i.imgur.com/BteWMvZ.png", caption: "Building Entrance" },
+        { url: "https://i.imgur.com/8uDbJhv.png", caption: "Waste Collection Area" }
+      ],
+      "melbourne_central": [
+        { url: "https://i.imgur.com/7CJKzPR.png", caption: "Front Access" },
+        { url: "https://i.imgur.com/7CJKzPR.png", caption: "Loading Dock" }
+      ],
+      "victoria_university": [
+        { url: "https://i.imgur.com/krwtpkU.png", caption: "Site Overview" },
+        { url: "https://i.imgur.com/XI9x0ct.png", caption: "Collection Point" },
+        { url: "https://i.imgur.com/ISrH4Wl.png", caption: "Bin Area" }
+      ],
+      "kensington": [
+        { url: "https://i.imgur.com/mUYtja3.png", caption: "Underground Access" },
+        { url: "https://i.imgur.com/gUhXw4L.png", caption: "Waste Room" }
+      ]
+    };
+
+    // LocalStorage functions
+    function loadVendorsFromStorage() {
+      const data = localStorage.getItem('waste_tender_vendors');
+      return data ? JSON.parse(data) : [];
     }
 
-    // Load data from GitHub
-    async function loadGitHubData() {
-      try {
-        // Use the raw GitHub content URL (replace with your actual raw URL)
-        // Format: https://raw.githubusercontent.com/[username]/[repo]/[branch]/[filename]
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/main/datatest.csv';
-        
-        const response = await fetch(githubUrl);
-        if (!response.ok) {
-          throw new Error('Failed to fetch data from GitHub');
-        }
-        
-        const csvText = await response.text();
-        parseCSV(csvText);
-        
-        hideLoadingOverlay();
-      } catch (error) {
-        console.error('Error loading data:', error);
-        hideLoadingOverlay();
-        showError('Failed to load data. Please check the CSV file URL.');
+    function saveVendorsToStorage(vendors) {
+      localStorage.setItem('waste_tender_vendors', JSON.stringify(vendors));
+    }
+
+    function loadCurrentUserFromStorage() {
+      const data = localStorage.getItem('waste_tender_current_user');
+      return data ? JSON.parse(data) : null;
+    }
+
+    function saveCurrentUserToStorage(user) {
+      if (user) {
+        localStorage.setItem('waste_tender_current_user', JSON.stringify(user));
+      } else {
+        localStorage.removeItem('waste_tender_current_user');
       }
     }
 
-    // Parse CSV data
-    function parseCSV(csvText) {
-      const lines = csvText.split('\n').filter(line => line.trim());
-      if (lines.length < 2) {
-        showError('CSV file is empty or invalid.');
+    function loadQuestionnaireData() {
+      const data = localStorage.getItem('questionnaire_data_' + (currentUser ? currentUser.id : ''));
+      if (data) {
+        questionnaireData = JSON.parse(data);
+      }
+    }
+
+    function saveQuestionnaireData() {
+      if (currentUser) {
+        localStorage.setItem('questionnaire_data_' + currentUser.id, JSON.stringify(questionnaireData));
+      }
+    }
+
+    function initApp() {
+      currentUser = loadCurrentUserFromStorage();
+      if (currentUser) {
+        loadQuestionnaireData();
+      }
+      renderApp();
+    }
+
+    function renderApp() {
+      const app = document.getElementById('app');
+      
+      if (!currentUser) {
+        app.innerHTML = renderLoginPage();
+      } else {
+        app.innerHTML = renderTenderPortal();
+      }
+    }
+
+    function renderLoginPage() {
+      return `
+        <div class="w-full min-h-full" style="background-color: ${CONFIG.background_color};">
+          <div class="gradient-bg w-full py-6">
+            <div class="max-w-6xl mx-auto px-6">
+              <h1 class="text-3xl font-bold text-white">${CONFIG.portal_title}</h1>
+              <p class="text-white text-opacity-90 mt-1">Vendor Registration & Submission Portal</p>
+            </div>
+          </div>
+          
+          <div class="max-w-md mx-auto px-6 py-12">
+            <div class="card-shadow rounded-lg p-8" style="background-color: ${CONFIG.surface_color};">
+              <div class="text-center mb-6">
+                <div class="splash-accent w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
+                  </svg>
+                </div>
+                <h2 class="text-2xl font-bold" style="color: ${CONFIG.text_color};">Vendor Registration</h2>
+                <p class="text-gray-600 mt-2">Register or login to access the tender</p>
+              </div>
+
+              <form id="registrationForm" onsubmit="handleRegistration(event)">
+                <div class="mb-4">
+                  <label for="email" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Email Address</label>
+                  <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};" placeholder="your@email.com">
+                  <p class="text-xs text-gray-500 mt-1">Enter your email to login or register</p>
+                </div>
+
+                <div id="additionalFields" style="display: none;">
+                  <div class="mb-4">
+                    <label for="companyName" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Company Name</label>
+                    <input type="text" id="companyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="contactName" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Contact Name</label>
+                    <input type="text" id="contactName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
+                  </div>
+
+                  <div class="mb-4">
+                    <label for="phone" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Phone Number</label>
+                    <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
+                  </div>
+                </div>
+
+                <button type="submit" id="submitBtn" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${CONFIG.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
+                  ${isLoading ? '<span class="loading-spinner"></span>Checking...' : 'Continue'}
+                </button>
+              </form>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderTenderPortal() {
+      const hasSubmitted = currentUser.submission_status === 'submitted';
+
+      return `
+        <div class="w-full min-h-full" style="background-color: ${CONFIG.background_color};">
+          <div class="gradient-bg w-full py-6">
+            <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+              <div>
+                <h1 class="text-3xl font-bold text-white">${CONFIG.portal_title}</h1>
+                <p class="text-white text-opacity-90 mt-1">${CONFIG.client_name} Waste Services Tender</p>
+              </div>
+              <button onclick="logout()" class="text-white bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+                Logout
+              </button>
+            </div>
+          </div>
+
+          <div class="max-w-6xl mx-auto px-6 py-8">
+            <div class="card-shadow rounded-lg p-6 mb-6" style="background-color: ${CONFIG.surface_color};">
+              <div class="flex items-center justify-between">
+                <div>
+                  <h2 class="text-xl font-bold" style="color: ${CONFIG.text_color};">Welcome, ${currentUser.company_name}</h2>
+                  <p class="text-gray-600 mt-1">Contact: ${currentUser.contact_name} | ${currentUser.email}</p>
+                </div>
+                ${hasSubmitted ? `
+                  <div class="flex items-center text-green-600">
+                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
+                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
+                    </svg>
+                    <span class="font-semibold">Submission Complete</span>
+                  </div>
+                ` : ''}
+              </div>
+              
+              ${!hasSubmitted ? `
+                <div class="mt-4 pt-4 border-t border-gray-200">
+                  <div class="flex items-center mb-3">
+                    <svg class="w-5 h-5 mr-2" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
+                    </svg>
+                    <h3 class="text-sm font-semibold" style="color: ${CONFIG.text_color};">How to Submit Your Quotation:</h3>
+                  </div>
+                  <div class="grid grid-cols-1 md:grid-cols-4 gap-3 text-sm text-gray-600">
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">1.</span>
+                      <span><strong>Tender Requirements</strong> - Review all project details and service requirements</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">2.</span>
+                      <span><strong>Site Photos</strong> - View photos of all four collection sites</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">3.</span>
+                      <span><strong>Supplier Questionnaire</strong> - Review policies and complete questionnaire</span>
+                    </div>
+                    <div class="flex items-start">
+                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">4.</span>
+                      <span><strong>Submit Quotation</strong> - Complete the pricing form and submit your quote</span>
+                    </div>
+                  </div>
+                </div>
+              ` : ''}
+            </div>
+
+            ${hasSubmitted ? renderSubmissionConfirmation() : renderTenderContentWithTabs()}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSubmissionConfirmation() {
+      return `
+        <div class="card-shadow rounded-lg p-8 text-center" style="background-color: ${CONFIG.surface_color};">
+          <div class="splash-accent w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center">
+            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
+              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
+            </svg>
+          </div>
+          <h2 class="text-3xl font-bold mb-3" style="color: ${CONFIG.text_color};">Submission Successful!</h2>
+          <p class="text-gray-600 text-lg mb-6">Your quotation has been successfully submitted.</p>
+          <div class="text-left max-w-md mx-auto bg-gray-50 p-4 rounded-lg">
+            <p class="text-sm text-gray-600 mb-2"><strong>Submitted:</strong> ${new Date(currentUser.submitted_at).toLocaleString()}</p>
+            <p class="text-sm text-gray-600 mb-2"><strong>Company:</strong> ${currentUser.company_name}</p>
+          </div>
+          <p class="text-gray-500 mt-6">Our team will review your submission and contact you shortly.</p>
+        </div>
+      `;
+    }
+
+    function renderTenderContentWithTabs() {
+      return `
+        <div class="card-shadow rounded-lg" style="background-color: ${CONFIG.surface_color};">
+          <div class="border-b border-gray-200">
+            <div class="flex space-x-2 px-6">
+              <button class="tab-button ${activeTab === 'requirements' ? 'active' : ''}" onclick="switchTab('requirements')" style="color: ${activeTab === 'requirements' ? CONFIG.secondary_color : CONFIG.text_color};">
+                Tender Requirements
+              </button>
+              <button class="tab-button ${activeTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')" style="color: ${activeTab === 'photos' ? CONFIG.secondary_color : CONFIG.text_color};">
+                Site Photos
+              </button>
+              <button class="tab-button ${activeTab === 'questionnaire' ? 'active' : ''}" onclick="switchTab('questionnaire')" style="color: ${activeTab === 'questionnaire' ? CONFIG.secondary_color : CONFIG.text_color};">
+                Supplier Questionnaire
+              </button>
+              <button class="tab-button ${activeTab === 'submit' ? 'active' : ''}" onclick="switchTab('submit')" style="color: ${activeTab === 'submit' ? CONFIG.secondary_color : CONFIG.text_color};">
+                Submit Quotation
+              </button>
+            </div>
+          </div>
+
+          <div class="p-6">
+            ${activeTab === 'requirements' ? renderRequirementsTab() : ''}
+            ${activeTab === 'photos' ? renderPhotosTab() : ''}
+            ${activeTab === 'questionnaire' ? renderQuestionnaireTab() : ''}
+            ${activeTab === 'submit' ? renderSubmitTab() : ''}
+          </div>
+        </div>
+      `;
+    }
+
+    function renderRequirementsTab() {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">${CONFIG.tender_title}</h2>
+          
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Prepared By</h3>
+            <p class="text-gray-700">Shrunk Innovation Group Pty Ltd</p>
+            <p class="text-gray-700">On behalf of: Cedar Pacific Pty Ltd</p>
+            <p class="text-gray-700">Site Tenant: Unilodge</p>
+            <p class="text-gray-700 mt-2"><strong>Contact:</strong> ${CONFIG.contact_name}</p>
+            <p class="text-gray-700">${CONFIG.contact_details}</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Customer Overview</h3>
+            <p class="text-gray-700 leading-relaxed">Cedar Pacific is one of Australia's leading specialist investors and developers in purpose-built student accommodation (PBSA) and build-to-rent (BTR) assets. They own and manage a large national portfolio of residential properties, focused on long-term asset performance, operational efficiency, and sustainability outcomes.</p>
+            <p class="text-gray-700 leading-relaxed mt-3">UniLodge operates as the on-site property and facilities manager for many of Cedar Pacific's student accommodation assets. Their teams manage the day-to-day operations, including tenant engagement, cleaning, and building services.</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Services Overview</h3>
+            <p class="text-gray-700 leading-relaxed">Cedar Pacific's UniLodge-operated buildings generate high volumes of General Waste, Co-mingled Recycling, and Cardboard, driven by dense student occupancy and continuous daily turnover. Most buildings operate with 7-day-per-week waste collections.</p>
+            <p class="text-gray-700 leading-relaxed mt-3">Co-mingled Recycling presents consistent challenges due to the chute system. High contamination rates are common. Contractors are expected to proactively identify contamination issues and work with Shrunk and Cedar Pacific to implement practical solutions.</p>
+            <p class="text-gray-700 leading-relaxed mt-3">Sites require occasional bulk dry waste, e-waste, and furniture disposal services in addition to regular collections. Clear communication, scheduling flexibility, and transparent pricing for these ad-hoc services are essential.</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-3" style="color: ${CONFIG.text_color};">Sites</h3>
+            <table class="site-table">
+              <thead>
+                <tr>
+                  <th>Site Name</th>
+                  <th>State</th>
+                  <th>Address</th>
+                </tr>
+              </thead>
+              <tbody>
+                <tr>
+                  <td>Unilodge Melbourne CBD</td>
+                  <td>VIC</td>
+                  <td>17-23 Wills Street, Melbourne, VIC, 3000</td>
+                </tr>
+                <tr>
+                  <td>Unilodge Melbourne Central</td>
+                  <td>VIC</td>
+                  <td>303 La Trobe Street, Melbourne, VIC, 3000</td>
+                </tr>
+                <tr>
+                  <td>Unilodge Victoria University</td>
+                  <td>VIC</td>
+                  <td>101 Ballarat Road, Footscray, VIC, 3011</td>
+                </tr>
+                <tr>
+                  <td>Unilodge Kensington</td>
+                  <td>NSW</td>
+                  <td>177-197 Anzac Parade, Kensington, NSW, 2033</td>
+                </tr>
+              </tbody>
+            </table>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Service Requirements</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>Early/overnight collection times preferred with provided keys/codes</li>
+              <li>Drivers must move bins (~5-10m) to service location</li>
+              <li>Low access rear-lift truck required for Unilodge Kensington (max height 4.3m)</li>
+              <li>Trucks must have scales to weigh bins/waste with reporting capability</li>
+              <li><strong>SIFOT (Service in full on time) of 99% required</strong></li>
+            </ul>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Contamination Management</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>Operational cadence for discarding contaminated Co-Mingle as General Waste (same day collection)</li>
+              <li>Monthly reporting on contamination events by day</li>
+            </ul>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Reporting Requirements</h3>
+            <p class="text-gray-700">Monthly reporting on number of lifts, weight, and diversion metrics via portal or Excel file</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Commencement & Term</h3>
+            <p class="text-gray-700">Contract commencement: On or after 01/02/2026</p>
+            <p class="text-gray-700 mt-2">Contract term: 2 years with optional 1 year extension (2+1)</p>
+            <p class="text-gray-700 mt-2">Price increases: Once per annum, capped increase (with justification), on anniversary of commencement</p>
+          </div>
+
+          <div class="tender-section">
+            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Quotation Requirements</h3>
+            <ul class="list-disc list-inside text-gray-700 space-y-2">
+              <li>General Waste pricing based on 60kg per m³ density</li>
+              <li>Co-Mingle pricing based on 30kg per m³ density</li>
+              <li>Outline all additional fees: rental, fuel levies, futile fees, energy surcharges, weekend/holiday surcharges, overweight fees</li>
+              <li><strong>Providers with excessive additional fees will not be considered favorably</strong></li>
+            </ul>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderPhotosTab() {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Site Photos</h2>
+          <p class="text-gray-600 mb-6">Visual documentation of waste collection areas and site access points</p>
+
+          <div class="space-y-8">
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Melbourne CBD</h3>
+              <p class="text-sm text-gray-600 mb-2">17-23 Wills Street, Melbourne, VIC, 3000</p>
+              <div class="photo-grid">
+                ${sitePhotos.melbourne_cbd.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Melbourne Central</h3>
+              <p class="text-sm text-gray-600 mb-2">303 La Trobe Street, Melbourne, VIC, 3000</p>
+              <div class="photo-grid">
+                ${sitePhotos.melbourne_central.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Victoria University</h3>
+              <p class="text-sm text-gray-600 mb-2">101 Ballarat Road, Footscray, VIC, 3011</p>
+              <div class="photo-grid">
+                ${sitePhotos.victoria_university.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+
+            <div>
+              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Kensington</h3>
+              <p class="text-sm text-gray-600 mb-2">177-197 Anzac Parade, Kensington, NSW, 2033</p>
+              <div class="photo-grid">
+                ${sitePhotos.kensington.map(photo => `
+                  <div class="photo-item">
+                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div class="photo-placeholder" style="display: none;">
+                      <span>Photo: ${photo.caption}</span>
+                    </div>
+                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
+                  </div>
+                `).join('')}
+              </div>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderQuestionnaireTab() {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Supplier Questionnaire</h2>
+          
+          <div class="mb-8">
+            <h3 class="text-lg font-semibold mb-4" style="color: ${CONFIG.text_color};">Please review the following Cedar Pacific Documentation:</h3>
+            
+            <a href="${CONFIG.document_urls.code_of_conduct}" target="_blank" rel="noopener noreferrer" class="document-link">
+              <svg class="w-6 h-6 mr-3" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <div class="flex-1">
+                <p class="font-semibold">Cedar Pacific Supplier Code of Conduct</p>
+                <p class="text-sm text-gray-500">Click to view document</p>
+              </div>
+            </a>
+
+            <a href="${CONFIG.document_urls.procurement_policy}" target="_blank" rel="noopener noreferrer" class="document-link">
+              <svg class="w-6 h-6 mr-3" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <div class="flex-1">
+                <p class="font-semibold">Cedar Pacific Procurement Policy</p>
+                <p class="text-sm text-gray-500">Click to download PDF</p>
+              </div>
+            </a>
+
+            <a href="${CONFIG.document_urls.modern_slavery_policy}" target="_blank" rel="noopener noreferrer" class="document-link">
+              <svg class="w-6 h-6 mr-3" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <div class="flex-1">
+                <p class="font-semibold">Cedar Pacific Modern Slavery Policy</p>
+                <p class="text-sm text-gray-500">Click to download PDF</p>
+              </div>
+            </a>
+
+            <a href="${CONFIG.document_urls.sustainable_operations}" target="_blank" rel="noopener noreferrer" class="document-link">
+              <svg class="w-6 h-6 mr-3" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 10v6m0 0l-3-3m3 3l3-3m2 8H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+              </svg>
+              <div class="flex-1">
+                <p class="font-semibold">Cedar Pacific Sustainable Operations Policy</p>
+                <p class="text-sm text-gray-500">Click to download PDF</p>
+              </div>
+            </a>
+          </div>
+
+          <div class="border-t pt-6">
+            <h3 class="text-lg font-semibold mb-4" style="color: ${CONFIG.text_color};">Please complete the Cedar Pacific Supplier Questionnaire:</h3>
+            
+            <div class="space-y-6">
+              <!-- Modern Slavery Section -->
+              <div class="mb-6">
+                <h4 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: ${CONFIG.text_color}; border-color: ${CONFIG.secondary_color};">Modern Slavery</h4>
+                
+                <div class="question-field">
+                  <label>1. Have you read, and do you agree to comply with our Modern Slavery Policy?</label>
+                  <select id="q_modern_1" onchange="updateQuestionnaireField('q_modern_1', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_modern_1 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_modern_1 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                </div>
+
+                <div class="question-field">
+                  <label>2. Does your company have any written policies and procedures relating to modern slavery, human rights, ethical trading and/or whistleblowing?</label>
+                  <select id="q_modern_2" onchange="handleModern2Change(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_modern_2 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_modern_2 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                  
+                  <div id="q_modern_2_upload" style="display: ${questionnaireData.q_modern_2 === 'Yes' ? 'block' : 'none'};" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label class="block text-sm font-medium mb-2">Please upload your policy documents (PDF or Word):</label>
+                    <input type="file" id="q_modern_2_file" name="q_modern_2_file" accept=".pdf,.doc,.docx" multiple class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm">
+                    <p class="text-xs text-gray-600 mt-1">You can select multiple files</p>
+                  </div>
+                </div>
+
+                <div class="question-field">
+                  <label>3. How frequently are the above policies and procedures reviewed and updated (if any)?</label>
+                  <textarea id="q_modern_3" onchange="updateQuestionnaireField('q_modern_3', this.value)" placeholder="Your response">${questionnaireData.q_modern_3 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>4. Is your company committed to do what is deemed necessary to eliminate occurrences of modern slavery in its supply chain?</label>
+                  <select id="q_modern_4" onchange="updateQuestionnaireField('q_modern_4', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_modern_4 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_modern_4 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                </div>
+
+                <div class="question-field">
+                  <label>5. Has your company undertaken a modern slavery risk assessment or is committed to actioning same within a 6-month window of engagement?</label>
+                  <select id="q_modern_5" onchange="handleModern5Change(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_modern_5 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_modern_5 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                  
+                  <div id="q_modern_5_explanation" style="display: ${questionnaireData.q_modern_5 === 'No' ? 'block' : 'none'};" class="mt-3">
+                    <label class="block text-sm font-medium mb-2">Please provide an explanation:</label>
+                    <textarea id="q_modern_5_text" onchange="updateQuestionnaireField('q_modern_5_explanation', this.value)" placeholder="Explain why you do not deem this necessary" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="4">${questionnaireData.q_modern_5_explanation || ''}</textarea>
+                  </div>
+                </div>
+
+                <div class="question-field">
+                  <label>6. Have you read and signed the Supplier Code of Conduct?</label>
+                  <select id="q_modern_6" onchange="updateQuestionnaireField('q_modern_6', this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_modern_6 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_modern_6 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                </div>
+              </div>
+
+              <!-- Relationships Section -->
+              <div class="mb-6">
+                <h4 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: ${CONFIG.text_color}; border-color: ${CONFIG.secondary_color};">Relationships</h4>
+                
+                <div class="question-field">
+                  <label>Who are your direct suppliers and subcontractors for the supply of goods and/or services you will provide to us?</label>
+                  <textarea id="q_rel_1" onchange="updateQuestionnaireField('q_rel_1', this.value)" placeholder="Your response">${questionnaireData.q_rel_1 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>Who is responsible for managing these relationships?</label>
+                  <textarea id="q_rel_2" onchange="updateQuestionnaireField('q_rel_2', this.value)" placeholder="Your response">${questionnaireData.q_rel_2 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>How frequently do you review these relationships?</label>
+                  <textarea id="q_rel_3" onchange="updateQuestionnaireField('q_rel_3', this.value)" placeholder="Your response">${questionnaireData.q_rel_3 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>Please provide details of any steps you take to mitigate the risk of modern slavery affecting your supply chains, including any labour-related due diligence you conduct on the above suppliers.</label>
+                  <textarea id="q_rel_4" onchange="updateQuestionnaireField('q_rel_4', this.value)" placeholder="Your response">${questionnaireData.q_rel_4 || ''}</textarea>
+                </div>
+              </div>
+
+              <!-- ESG Section -->
+              <div class="mb-6">
+                <h4 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: ${CONFIG.text_color}; border-color: ${CONFIG.secondary_color};">ESG</h4>
+                
+                <div class="question-field">
+                  <label>1. Does your company have an ESG or Sustainability Policy?</label>
+                  <select id="q_esg_1" onchange="handleEsg1Change(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_esg_1 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_esg_1 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                  
+                  <div id="q_esg_1_upload" style="display: ${questionnaireData.q_esg_1 === 'Yes' ? 'block' : 'none'};" class="mt-3 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label class="block text-sm font-medium mb-2">Please upload your ESG or Sustainability Policy (PDF):</label>
+                    <input type="file" id="q_esg_1_file" name="q_esg_1_file" accept=".pdf" multiple class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm">
+                    <p class="text-xs text-gray-600 mt-1">You can select multiple files</p>
+                  </div>
+                </div>
+
+                <div class="question-field">
+                  <label>2. Has your company set net-zero, or other ESG targets that can be shared with us? Please provide details.</label>
+                  <textarea id="q_esg_2" onchange="updateQuestionnaireField('q_esg_2', this.value)" placeholder="Your response" class="mb-2">${questionnaireData.q_esg_2 || ''}</textarea>
+                  
+                  <div class="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <label class="block text-sm font-medium mb-2">Upload supporting documents (optional):</label>
+                    <input type="file" id="q_esg_2_file" name="q_esg_2_file" accept=".pdf,.doc,.docx" multiple class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm">
+                    <p class="text-xs text-gray-600 mt-1">You can select multiple files</p>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Goods and Services Section -->
+              <div class="mb-6">
+                <h4 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: ${CONFIG.text_color}; border-color: ${CONFIG.secondary_color};">Goods and Services</h4>
+                
+                <div class="question-field">
+                  <label>1. Where are all materials or components from products sourced from?</label>
+                  <textarea id="q_goods_1" onchange="updateQuestionnaireField('q_goods_1', this.value)" placeholder="Your response">${questionnaireData.q_goods_1 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>2. Are you aware of any raised risk of modern slavery relating to the supply of materials or products to us?</label>
+                  <select id="q_goods_2" onchange="handleGoods2Change(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_goods_2 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_goods_2 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                  
+                  <div id="q_goods_2_details" style="display: ${questionnaireData.q_goods_2 === 'Yes' ? 'block' : 'none'};" class="mt-3">
+                    <label class="block text-sm font-medium mb-2">Please provide details:</label>
+                    <textarea id="q_goods_2_text" onchange="updateQuestionnaireField('q_goods_2_details', this.value)" placeholder="Provide details about the risks" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="4">${questionnaireData.q_goods_2_details || ''}</textarea>
+                  </div>
+                </div>
+
+                <div class="question-field">
+                  <label>3. Is any of the work for the provision of services outsourced?</label>
+                  <select id="q_goods_3" onchange="handleGoods3Change(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_goods_3 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_goods_3 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                  
+                  <div id="q_goods_3_details" style="display: ${questionnaireData.q_goods_3 === 'Yes' ? 'block' : 'none'};" class="mt-3">
+                    <label class="block text-sm font-medium mb-2">Please provide details:</label>
+                    <textarea id="q_goods_3_text" onchange="updateQuestionnaireField('q_goods_3_details', this.value)" placeholder="Provide details about outsourced work" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="4">${questionnaireData.q_goods_3_details || ''}</textarea>
+                  </div>
+                </div>
+
+                <div class="question-field">
+                  <label>4. Do any of the services you provide use contract workers or seasonal workers?</label>
+                  <select id="q_goods_4" onchange="handleGoods4Change(this.value)" class="w-full px-3 py-2 border border-gray-300 rounded-lg">
+                    <option value="">-- Select --</option>
+                    <option value="Yes" ${questionnaireData.q_goods_4 === 'Yes' ? 'selected' : ''}>Yes</option>
+                    <option value="No" ${questionnaireData.q_goods_4 === 'No' ? 'selected' : ''}>No</option>
+                  </select>
+                  
+                  <div id="q_goods_4_details" style="display: ${questionnaireData.q_goods_4 === 'Yes' ? 'block' : 'none'};" class="mt-3">
+                    <label class="block text-sm font-medium mb-2">Please provide details:</label>
+                    <textarea id="q_goods_4_text" onchange="updateQuestionnaireField('q_goods_4_details', this.value)" placeholder="Provide details about contract or seasonal workers" class="w-full px-3 py-2 border border-gray-300 rounded-lg" rows="4">${questionnaireData.q_goods_4_details || ''}</textarea>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Governance Section -->
+              <div class="mb-6">
+                <h4 class="text-lg font-bold mb-4 pb-2 border-b-2" style="color: ${CONFIG.text_color}; border-color: ${CONFIG.secondary_color};">Governance</h4>
+                
+                <div class="question-field">
+                  <label>How is compliance with your company's policies and procedures monitored?</label>
+                  <textarea id="q_gov_1" onchange="updateQuestionnaireField('q_gov_1', this.value)" placeholder="Your response">${questionnaireData.q_gov_1 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>Is senior management involved in enforcing all policies?</label>
+                  <textarea id="q_gov_2" onchange="updateQuestionnaireField('q_gov_2', this.value)" placeholder="Your response">${questionnaireData.q_gov_2 || ''}</textarea>
+                </div>
+
+                <div class="question-field">
+                  <label>What is your company's approach to employee training? Do employees have mandatory training to complete each year? If yes, please provide details of what training topics are included.</label>
+                  <textarea id="q_gov_3" onchange="updateQuestionnaireField('q_gov_3', this.value)" placeholder="Your response">${questionnaireData.q_gov_3 || ''}</textarea>
+                </div>
+              </div>
+            </div>
+
+            <div class="mt-8 p-4 bg-gray-50 border border-gray-200 rounded-lg">
+              <h4 class="text-lg font-semibold mb-3" style="color: ${CONFIG.text_color};">Additional Documentation</h4>
+              <label class="block text-sm font-medium mb-2">Do you have any additional attachments to include with your submission?</label>
+              <p class="text-xs text-gray-600 mb-3">You may upload up to 4 additional files (PDF, Word, or Excel documents)</p>
+              <input type="file" id="additional_attachments" name="additional_attachments" accept=".pdf,.doc,.docx,.xls,.xlsx" multiple class="w-full px-3 py-2 border border-gray-300 rounded-lg bg-white text-sm">
+              <p class="text-xs text-gray-500 mt-2">Maximum 4 files allowed</p>
+            </div>
+
+            <div class="mt-6 p-4 bg-purple-50 border border-purple-200 rounded-lg">
+              <label class="flex items-start cursor-pointer">
+                <input type="checkbox" id="policyAcknowledgement" ${questionnaireData.acknowledged ? 'checked' : ''} onchange="updateQuestionnaireAcknowledgement(this.checked)" class="mt-1 mr-3 w-5 h-5" style="accent-color: ${CONFIG.secondary_color};">
+                <span class="text-sm text-gray-800">
+                  <strong>I acknowledge that Cedar Pacific policies have been reviewed and our organisation is compliant</strong>
+                </span>
+              </label>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSubmitTab() {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Submit Your Quotation</h2>
+          
+          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
+            <h3 class="font-semibold text-blue-900 mb-3">Instructions & Requirements</h3>
+            <ul class="text-sm text-blue-800 space-y-1">
+              <li>• Enter your responses/pricing into the fields below</li>
+              <li>• General Waste services are to be priced at 60kg/m³</li>
+              <li>• Dry Waste services are to be priced at 30kg/m³</li>
+              <li>• Enter a capped annual price uplift %</li>
+              <li>• Outline your approximate collection window for servicing (eg 6:00-6:30am)</li>
+              <li>• Add any additional comments about fees or charges in the notes fields</li>
+            </ul>
+          </div>
+
+          <form id="quotationForm" onsubmit="submitQuotationForm(event)" action="${CONFIG.form_endpoint}" method="POST">
+            <input type="hidden" name="_subject" value="New Tender Submission - ${currentUser.company_name}">
+            <input type="hidden" name="vendor_email" value="${currentUser.email}">
+            <input type="hidden" name="vendor_company" value="${currentUser.company_name}">
+            <input type="hidden" name="vendor_contact" value="${currentUser.contact_name}">
+            <input type="hidden" name="vendor_phone" value="${currentUser.phone}">
+            
+            ${Object.keys(questionnaireData).map(key => 
+              `<input type="hidden" name="questionnaire_${key}" value="${questionnaireData[key] || ''}">`
+            ).join('')}
+            
+            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+              <label for="annualUplift" class="block text-sm font-semibold mb-2" style="color: ${CONFIG.text_color};">Annual (Capped) Uplift %</label>
+              <input type="number" id="annualUplift" name="annual_uplift" step="0.01" min="0" max="100" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 mb-4" placeholder="e.g., 2.5">
+              
+              <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mt-4">
+                <div>
+                  <label for="generalWasteDensity" class="block text-sm font-semibold mb-2" style="color: ${CONFIG.text_color};">General Waste Density (kg/m³)</label>
+                  <input type="number" id="generalWasteDensity" name="general_waste_density" step="0.01" min="0" value="60" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" placeholder="60">
+                  <p class="text-xs text-gray-500 mt-1">Default: 60kg/m³ (modify if different)</p>
+                </div>
+                
+                <div>
+                  <label for="dryWasteDensity" class="block text-sm font-semibold mb-2" style="color: ${CONFIG.text_color};">Dry Waste Density (kg/m³)</label>
+                  <input type="number" id="dryWasteDensity" name="dry_waste_density" step="0.01" min="0" value="30" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" placeholder="30">
+                  <p class="text-xs text-gray-500 mt-1">Default: 30kg/m³ (modify if different)</p>
+                </div>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-xl font-bold mb-3" style="color: ${CONFIG.text_color};">Core Services</h3>
+              
+              <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
+                <div class="flex items-center mb-2">
+                  <svg class="w-4 h-4 mr-2" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
+                  </svg>
+                  <h4 class="font-semibold text-gray-700 text-sm">Column Visibility (click to toggle):</h4>
+                </div>
+                <div class="flex flex-wrap gap-2">
+                  <button type="button" onclick="toggleColumn('service')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-service">Hide</span> Service Details
+                  </button>
+                  <button type="button" onclick="toggleColumn('stream')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-stream">Hide</span> Stream
+                  </button>
+                  <button type="button" onclick="toggleColumn('bin')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-bin">Hide</span> Bin Size
+                  </button>
+                  <button type="button" onclick="toggleColumn('avg')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-avg">Hide</span> Average Collection
+                  </button>
+                  <button type="button" onclick="toggleColumn('days')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
+                    <span id="toggle-days">Hide</span> Collection Days
+                  </button>
+                </div>
+              </div>
+              
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm quotation-table">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-state">State</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-site">Site</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-service">Service</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-stream">Stream</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-bin">Bin</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-avg">
+                        <div class="flex items-center">
+                          <span>Average Collection</span>
+                          <span class="cursor-help ml-1" title="Per collection/visit" style="color: #8b5cf6;">ⓘ</span>
+                        </div>
+                      </th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Frequency</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200 col-days">
+                        <div class="flex items-center">
+                          <span>Collection Days</span>
+                          <span class="cursor-help ml-1" title="Green badges = Collection day | Red badges = No collection" style="color: #8b5cf6;">ⓘ</span>
+                        </div>
+                      </th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Price/Collection</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Rental/Month</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Collection Window</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Notes</th>
+                    </tr>
+                  </thead>
+                  <tbody class="text-xs">
+                    ${renderCoreServiceRow('VIC', 'Wills St', '11x1100L GW-7xW', 'General Waste', '1100L', '3.98', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 0)}
+                    ${renderCoreServiceRow('VIC', 'Wills St', '6x1100L CM-7xW', 'Comingle', '1100L', '2.06', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 1)}
+                    ${renderCoreServiceRow('VIC', 'Wills St', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Daily', 'Tue,Fri', 2)}
+                    ${renderCoreServiceRow('VIC', 'La Trobe', '10x1100L GW-7xW', 'General Waste', '1100L', '4.17', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 3)}
+                    ${renderCoreServiceRow('VIC', 'La Trobe', '4x1100L CM-7xW', 'Comingle', '1100L', '2.16', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 4)}
+                    ${renderCoreServiceRow('VIC', 'La Trobe', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Daily', 'Tue,Fri', 5)}
+                    ${renderCoreServiceRow('VIC', 'Footscray', '4x1100L GW-7xW', 'General Waste', '1100L', '2.3', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 6)}
+                    ${renderCoreServiceRow('VIC', 'Footscray', '3x1100L CM-7xW', 'Comingle', '1100L', '2', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 7)}
+                    ${renderCoreServiceRow('VIC', 'Footscray', '1x1100L P&C-2xW', 'P&C', '1100L', '1', 'Daily', 'Tue,Fri', 8)}
+                    ${renderCoreServiceRow('NSW', 'Kensington', '16x660L GW-3xW', 'General Waste', '660L', '13.13', 'Daily', 'Mon,Wed,Fri', 9)}
+                    ${renderCoreServiceRow('NSW', 'Kensington', '16x660L CM-3xW', 'Comingle', '660L', '11.3', 'Daily', 'Mon,Wed,Fri', 10)}
+                    ${renderCoreServiceRow('NSW', 'Kensington', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Daily', 'Tue,Fri', 11)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <div class="mb-6">
+              <h3 class="text-xl font-bold mb-4" style="color: ${CONFIG.text_color};">Additional Services</h3>
+              <div class="overflow-x-auto">
+                <table class="w-full text-sm border-collapse">
+                  <thead>
+                    <tr class="bg-gray-100">
+                      <th class="border border-gray-300 px-2 py-2 text-left">State</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left">Site Name</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left">Service</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Price/Delivery ($)</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Price/Removal ($)</th>
+                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Disposal ($/Tonne)</th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    ${renderAdditionalServiceRow('VIC', 'Wills Street', '6-8m3 Dry Waste Skip', 0)}
+                    ${renderAdditionalServiceRow('VIC', 'La Trobe Street', '6-8m3 Dry Waste Skip', 1)}
+                    ${renderAdditionalServiceRow('VIC', 'Footscray', '6-8m3 Dry Waste Skip', 2)}
+                    ${renderAdditionalServiceRow('NSW', 'Kensington', '6-8m3 Dry Waste Skip', 3)}
+                  </tbody>
+                </table>
+              </div>
+            </div>
+
+            <button type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${CONFIG.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
+              ${isLoading ? '<span class="loading-spinner"></span>Submitting...' : 'Submit Quotation'}
+            </button>
+          </form>
+
+          <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
+            <h3 class="font-semibold text-yellow-900 mb-2">⚠️ Setup Required</h3>
+            <p class="text-sm text-yellow-800 mb-2">To receive submissions, update the <code class="bg-yellow-100 px-1 py-0.5 rounded">form_endpoint</code> in the CONFIG section at the top of this file.</p>
+            <p class="text-sm text-yellow-800">Recommended services: Formspree, Web3Forms, or EmailJS</p>
+          </div>
+        </div>
+      `;
+    }
+
+    function formatCollectionDays(daysString) {
+      const selectedDays = daysString.split(',');
+      const allDays = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
+      const dayAbbrev = {
+        'Mon': 'M', 'Tue': 'Tu', 'Wed': 'W', 
+        'Thu': 'Th', 'Fri': 'F', 'Sat': 'Sa', 'Sun': 'Su'
+      };
+      
+      // Show all 7 days, selected in green (#c1ff72), unselected in purple (#f1ebff)
+      return allDays.map(day => {
+        const isSelected = selectedDays.includes(day);
+        const bgColor = isSelected ? '#c1ff72' : '#f1ebff';
+        const borderColor = isSelected ? '#a8e055' : '#d4c5f9';
+        
+        return `<span class="inline-block px-1.5 py-0.5 border rounded text-xs font-medium mr-1 mb-1" style="background-color: ${bgColor}; border-color: ${borderColor}; color: #1f2937;">${dayAbbrev[day]}</span>`;
+      }).join('');
+    }
+
+    function renderCoreServiceRow(state, site, description, wasteStream, binSize, avgCollected, defaultFrequency, defaultDays, index) {
+      return `
+        <tr>
+          <td class="border border-gray-300 px-2 py-2 col-state">${state}</td>
+          <td class="border border-gray-300 px-2 py-2 col-site">${site}</td>
+          <td class="border border-gray-300 px-2 py-2 col-service">${description}</td>
+          <td class="border border-gray-300 px-2 py-2 col-stream">${wasteStream}</td>
+          <td class="border border-gray-300 px-2 py-2 col-bin">${binSize}</td>
+          <td class="border border-gray-300 px-2 py-2 col-avg">${avgCollected}</td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-100">
+            <input type="hidden" name="core_frequency_${index}" value="${defaultFrequency}">
+            <span class="text-xs font-medium">${defaultFrequency}</span>
+          </td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-100 col-days">
+            <div class="flex flex-wrap items-center">
+              ${formatCollectionDays(defaultDays)}
+            </div>
+            ${defaultDays.split(',').map(day => `<input type="hidden" name="core_days_${index}" value="${day}">`).join('')}
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="core_price_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="core_rental_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="text" required name="core_window_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="6:00-6:30am">
+          </td>
+          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
+            <input type="hidden" name="core_comments_${index}" id="core_comments_${index}" value="">
+            <button type="button" class="notes-icon-button flex items-center justify-center" onclick="openNotesModal('core_comments_${index}')">
+              <svg class="w-3.5 h-3.5 mr-1" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M11 5H6a2 2 0 00-2 2v11a2 2 0 002 2h11a2 2 0 002-2v-5m-1.414-9.414a2 2 0 112.828 2.828L11.828 15H9v-2.828l8.586-8.586z"></path>
+              </svg>
+              ${notesData[`core_comments_${index}`] ? 'Edit' : 'Add'}
+            </button>
+          </td>
+        </tr>
+      `;
+    }
+
+    function renderAdditionalServiceRow(state, site, service, index) {
+      return `
+        <tr>
+          <td class="border border-gray-300 px-2 py-2">${state}</td>
+          <td class="border border-gray-300 px-2 py-2">${site}</td>
+          <td class="border border-gray-300 px-2 py-2">${service}</td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="add_delivery_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="add_removal_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
+          </td>
+          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
+            <input type="number" step="0.01" min="0" required name="add_disposal_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
+          </td>
+        </tr>
+      `;
+    }
+
+    function switchTab(tab) {
+      activeTab = tab;
+      renderApp();
+    }
+
+    function updateQuestionnaireField(field, value) {
+      questionnaireData[field] = value;
+      saveQuestionnaireData();
+    }
+
+    function handleModern2Change(value) {
+      questionnaireData.q_modern_2 = value;
+      saveQuestionnaireData();
+      renderApp();
+    }
+
+    function handleModern5Change(value) {
+      questionnaireData.q_modern_5 = value;
+      saveQuestionnaireData();
+      renderApp();
+    }
+
+    function handleEsg1Change(value) {
+      questionnaireData.q_esg_1 = value;
+      saveQuestionnaireData();
+      renderApp();
+    }
+
+    function handleGoods2Change(value) {
+      questionnaireData.q_goods_2 = value;
+      saveQuestionnaireData();
+      renderApp();
+    }
+
+    function handleGoods3Change(value) {
+      questionnaireData.q_goods_3 = value;
+      saveQuestionnaireData();
+      renderApp();
+    }
+
+    function handleGoods4Change(value) {
+      questionnaireData.q_goods_4 = value;
+      saveQuestionnaireData();
+      renderApp();
+    }
+
+    function updateQuestionnaireAcknowledgement(checked) {
+      questionnaireData.acknowledged = checked;
+      saveQuestionnaireData();
+    }
+
+    function handleRegistration(event) {
+      event.preventDefault();
+      
+      if (isLoading) return;
+
+      const email = document.getElementById('email').value.trim();
+      const additionalFields = document.getElementById('additionalFields');
+
+      const vendors = loadVendorsFromStorage();
+      const existingVendor = vendors.find(v => v.email.toLowerCase() === email.toLowerCase());
+      
+      if (existingVendor) {
+        currentUser = existingVendor;
+        saveCurrentUserToStorage(currentUser);
+        loadQuestionnaireData();
+        showMessage(`Welcome back, ${existingVendor.company_name}!`, "success");
+        renderApp();
         return;
       }
 
-      const headers = lines[0].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(h => h.trim().replace(/^"|"$/g, '').toLowerCase());
-      
-      const columnMap = {
-        rank: headers.findIndex(h => h.includes('rank')),
-        siteName: headers.findIndex(h => h.includes('site name') || h.includes('site') || h === 'name'),
-        siteType: headers.findIndex(h => h.includes('site type') || h.includes('asset type')),
-        serviceDescription: headers.findIndex(h => h.includes('service description') || h.includes('description')),
-        uniqueServiceLine: headers.findIndex(h => h.includes('unique service line') || h.includes('service line')),
-        serviceType: headers.findIndex(h => h.includes('service type')),
-        wasteStream: headers.findIndex(h => h.includes('waste stream') || h.includes('waste') || h.includes('stream')),
-        binSize: headers.findIndex(h => h.includes('bin size') || h.includes('bin')),
-        cleanaway: headers.findIndex(h => h.includes('cleanaway')),
-        veolia: headers.findIndex(h => h.includes('veolia')),
-        remondis: headers.findIndex(h => h.includes('remondis')),
-        current: headers.findIndex(h => h === 'current' || h.includes('current cost') || h.includes('existing') || h.includes('baseline'))
+      if (additionalFields.style.display === 'none') {
+        additionalFields.style.display = 'block';
+        document.getElementById('companyName').required = true;
+        document.getElementById('contactName').required = true;
+        document.getElementById('phone').required = true;
+        document.getElementById('submitBtn').innerHTML = 'Register & Access Tender';
+        showMessage("New email - please complete registration", "success");
+        return;
+      }
+
+      const companyName = document.getElementById('companyName').value.trim();
+      const contactName = document.getElementById('contactName').value.trim();
+      const phone = document.getElementById('phone').value.trim();
+
+      const newVendor = {
+        id: `vendor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
+        email: email,
+        company_name: companyName,
+        contact_name: contactName,
+        phone: phone,
+        registered_at: new Date().toISOString(),
+        submission_status: "pending",
+        submitted_at: ""
       };
 
-      sites = [];
+      vendors.push(newVendor);
+      saveVendorsToStorage(vendors);
       
-      for (let i = 1; i < lines.length; i++) {
-        const values = lines[i].split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/).map(v => v.trim().replace(/^"|"$/g, ''));
+      currentUser = newVendor;
+      saveCurrentUserToStorage(currentUser);
+      loadQuestionnaireData();
+      
+      showMessage("Registration successful!", "success");
+      renderApp();
+    }
+
+    function submitQuotationForm(event) {
+      event.preventDefault();
+      
+      if (isLoading) return;
+      
+      isLoading = true;
+      renderApp();
+
+      const form = event.target;
+      
+      // Update vendor status in localStorage
+      const vendors = loadVendorsFromStorage();
+      const vendorIndex = vendors.findIndex(v => v.id === currentUser.id);
+      
+      if (vendorIndex !== -1) {
+        vendors[vendorIndex].submission_status = "submitted";
+        vendors[vendorIndex].submitted_at = new Date().toISOString();
+        saveVendorsToStorage(vendors);
         
-        const siteNameValue = columnMap.siteName >= 0 ? values[columnMap.siteName] : values[1];
-        if (!siteNameValue) continue;
-        
-        const site = {
-          id: i,
-          rank: parseInt((columnMap.rank >= 0 ? values[columnMap.rank] : '0') || '0') || 0,
-          siteName: siteNameValue || `Site ${i}`,
-          siteType: (columnMap.siteType >= 0 ? values[columnMap.siteType] : '') || '',
-          serviceDescription: (columnMap.serviceDescription >= 0 ? values[columnMap.serviceDescription] : '') || '',
-          uniqueServiceLine: (columnMap.uniqueServiceLine >= 0 ? values[columnMap.uniqueServiceLine] : '') || '',
-          serviceType: (columnMap.serviceType >= 0 ? values[columnMap.serviceType] : '') || '',
-          wasteStream: (columnMap.wasteStream >= 0 ? values[columnMap.wasteStream] : '') || '',
-          binSize: (columnMap.binSize >= 0 ? values[columnMap.binSize] : '') || '',
-          cleanaway: parseFloat(((columnMap.cleanaway >= 0 ? values[columnMap.cleanaway] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          veolia: parseFloat(((columnMap.veolia >= 0 ? values[columnMap.veolia] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          remondis: parseFloat(((columnMap.remondis >= 0 ? values[columnMap.remondis] : '0') || '0').replace(/[$,]/g, '')) || 0,
-          current: parseFloat(((columnMap.current >= 0 ? values[columnMap.current] : '0') || '0').replace(/[$,]/g, '')) || 0
-        };
-        
-        sites.push(site);
+        currentUser = vendors[vendorIndex];
+        saveCurrentUserToStorage(currentUser);
       }
 
-      updateFilters();
-      renderSites();
-      renderServices();
-      updateTotals();
+      // Submit the form
+      form.submit();
     }
 
-    // Update filter dropdowns
-    function updateFilters() {
-      const siteTypes = [...new Set(sites.map(s => s.siteType).filter(Boolean))].sort();
-      const wasteStreams = [...new Set(sites.map(s => s.wasteStream).filter(Boolean))].sort();
-      const siteNames = [...new Set(sites.map(s => s.siteName))].sort();
-
-      // Site type filter
-      const siteTypeSelect = document.getElementById('site-type-filter');
-      siteTypeSelect.innerHTML = '<option value="">All Site Types</option>' +
-        siteTypes.map(type => `<option value="${type}">${type}</option>`).join('');
-
-      // Waste stream filter
-      const wasteStreamSelect = document.getElementById('waste-stream-filter');
-      wasteStreamSelect.innerHTML = '<option value="">All Waste Streams</option>' +
-        wasteStreams.map(stream => `<option value="${stream}">${stream}</option>`).join('');
-
-      // Service site filter
-      const serviceSiteSelect = document.getElementById('service-site-filter');
-      serviceSiteSelect.innerHTML = '<option value="">All Sites</option>' +
-        siteNames.map(site => `<option value="${site}">${site}</option>`).join('');
+    function logout() {
+      currentUser = null;
+      saveCurrentUserToStorage(null);
+      activeTab = 'requirements';
+      questionnaireData = { acknowledged: false };
+      renderApp();
     }
 
-    // Format currency
-    function formatCurrency(value) {
-      return '$' + Math.round(Number(value)).toLocaleString('en-US', { minimumFractionDigits: 0, maximumFractionDigits: 0 });
+    function showMessage(message, type) {
+      const color = type === "error" ? "#ef4444" : "#10b981";
+      const toast = document.createElement('div');
+      toast.style.cssText = `
+        position: fixed;
+        top: 20px;
+        right: 20px;
+        background-color: ${color};
+        color: white;
+        padding: 1rem 1.5rem;
+        border-radius: 8px;
+        box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        z-index: 1000;
+        font-weight: 500;
+      `;
+      toast.textContent = message;
+      document.body.appendChild(toast);
+      setTimeout(() => toast.remove(), 4000);
     }
 
-    // Get best vendor for a site
-    function getBestVendorForSite(site) {
-      const prices = [
-        { vendor: 'cleanaway', price: site.cleanaway || 0 },
-        { vendor: 'veolia', price: site.veolia || 0 },
-        { vendor: 'remondis', price: site.remondis || 0 }
-      ];
-
-      const validPrices = prices.filter(p => p.price > 0);
-      if (validPrices.length === 0) return null;
-
-      const minPrice = Math.min(...validPrices.map(p => p.price));
-      return prices.find(p => p.price === minPrice && p.price > 0)?.vendor;
+    function openPhotoModal(url, caption) {
+      const modal = document.createElement('div');
+      modal.className = 'photo-modal';
+      modal.innerHTML = `
+        <div class="photo-modal-close" onclick="closePhotoModal(this)">×</div>
+        <img src="${url}" alt="${caption}">
+      `;
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closePhotoModal(modal);
+        }
+      };
+      document.body.appendChild(modal);
     }
 
-    // Render sites table
-    function renderSites() {
-      const tbody = document.getElementById('sites-tbody');
-      const noResults = document.getElementById('no-results');
+    function closePhotoModal(element) {
+      const modal = element.classList?.contains('photo-modal') ? element : element.closest('.photo-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    function openNotesModal(fieldId) {
+      const currentValue = notesData[fieldId] || '';
+      const modal = document.createElement('div');
+      modal.className = 'notes-modal';
+      modal.innerHTML = `
+        <div class="notes-modal-content">
+          <h3 class="text-lg font-semibold mb-4">Add Notes / Comments</h3>
+          <textarea id="notesTextarea" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" rows="6" placeholder="Enter any additional notes, fees, or comments...">${currentValue}</textarea>
+          <div class="flex justify-end space-x-3 mt-4">
+            <button type="button" onclick="closeNotesModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
+            <button type="button" onclick="saveNotes('${fieldId}')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Save</button>
+          </div>
+        </div>
+      `;
+      modal.onclick = function(e) {
+        if (e.target === modal) {
+          closeNotesModal();
+        }
+      };
+      document.body.appendChild(modal);
+    }
+
+    function saveNotes(fieldId) {
+      const textarea = document.getElementById('notesTextarea');
+      const value = textarea.value.trim();
+      notesData[fieldId] = value;
+      const hiddenInput = document.getElementById(fieldId);
+      if (hiddenInput) {
+        hiddenInput.value = value;
+      }
+      closeNotesModal();
+      renderApp();
+    }
+
+    function closeNotesModal() {
+      const modal = document.querySelector('.notes-modal');
+      if (modal) {
+        modal.remove();
+      }
+    }
+
+    function toggleColumn(columnName) {
+      const columns = document.querySelectorAll(`.col-${columnName}`);
+      const toggleBtn = document.getElementById(`toggle-${columnName}`);
       
-      const filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
-        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
-        return matchesSearch && matchesSiteType && matchesWasteStream;
+      if (columns.length === 0) return;
+      
+      const isHidden = columns[0].style.display === 'none';
+      
+      columns.forEach(col => {
+        col.style.display = isHidden ? '' : 'none';
       });
-
-      if (filteredSites.length === 0) {
-        tbody.innerHTML = '';
-        noResults.style.display = 'block';
-        return;
-      }
-
-      noResults.style.display = 'none';
       
-      tbody.innerHTML = filteredSites.map(site => {
-        const bestVendor = getBestVendorForSite(site);
-        return `
-          <tr>
-            <td>${site.rank}</td>
-            <td>${site.siteName}</td>
-            <td>${site.siteType}</td>
-            <td>${site.serviceDescription}</td>
-            <td>${site.wasteStream}</td>
-            <td>${site.binSize}</td>
-            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
-            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(site.veolia)}</td>
-            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(site.remondis)}</td>
-            <td class="price-cell">${formatCurrency(site.current)}</td>
-          </tr>
-        `;
-      }).join('');
-    }
-
-    // Render services table
-    function renderServices() {
-      const tbody = document.getElementById('services-tbody');
-      const noResults = document.getElementById('no-service-results');
-      
-      const services = sites.filter(site => site.serviceDescription && site.serviceDescription.trim());
-      
-      const filteredServices = services.filter(service => {
-        const matchesSearch = service.siteName.toLowerCase().includes(serviceSearchTerm.toLowerCase()) ||
-                             service.serviceDescription.toLowerCase().includes(serviceSearchTerm.toLowerCase());
-        const matchesSite = !serviceSiteFilter || service.siteName === serviceSiteFilter;
-        return matchesSearch && matchesSite;
-      });
-
-      if (filteredServices.length === 0) {
-        tbody.innerHTML = '';
-        noResults.style.display = 'block';
-        updateServiceTotals([]);
-        return;
-      }
-
-      noResults.style.display = 'none';
-      
-      tbody.innerHTML = filteredServices.map(service => {
-        const bestVendor = getBestVendorForSite(service);
-        return `
-          <tr>
-            <td>${service.rank}</td>
-            <td><strong>${service.siteName}</strong></td>
-            <td>${service.serviceDescription}</td>
-            <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(service.cleanaway)}</td>
-            <td class="price-cell ${bestVendor === 'veolia' ? 'best-cell' : ''}">${formatCurrency(service.veolia)}</td>
-            <td class="price-cell ${bestVendor === 'remondis' ? 'best-cell' : ''}">${formatCurrency(service.remondis)}</td>
-            <td class="price-cell">${formatCurrency(service.current)}</td>
-          </tr>
-        `;
-      }).join('');
-
-      updateServiceTotals(filteredServices);
-    }
-
-    // Update totals
-    function updateTotals() {
-      const filteredSites = sites.filter(site => {
-        const matchesSearch = site.siteName.toLowerCase().includes(searchTerm.toLowerCase());
-        const matchesSiteType = !siteTypeFilter || site.siteType === siteTypeFilter;
-        const matchesWasteStream = !wasteStreamFilter || site.wasteStream === wasteStreamFilter;
-        return matchesSearch && matchesSiteType && matchesWasteStream;
-      });
-
-      const totalCurrent = filteredSites.reduce((sum, site) => sum + (site.current || 0), 0);
-      const totalCleanaway = filteredSites.reduce((sum, site) => sum + (site.cleanaway || 0), 0);
-      const totalVeolia = filteredSites.reduce((sum, site) => sum + (site.veolia || 0), 0);
-      const totalRemondis = filteredSites.reduce((sum, site) => sum + (site.remondis || 0), 0);
-
-      document.getElementById('current-total-amount').textContent = formatCurrency(totalCurrent);
-      document.getElementById('total-current').textContent = formatCurrency(totalCurrent);
-      document.getElementById('total-cleanaway').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('total-veolia').textContent = formatCurrency(totalVeolia);
-      document.getElementById('total-remondis').textContent = formatCurrency(totalRemondis);
-
-      document.getElementById('cleanaway-price').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('veolia-price').textContent = formatCurrency(totalVeolia);
-      document.getElementById('remondis-price').textContent = formatCurrency(totalRemondis);
-
-      updateBestPrice(totalCleanaway, totalVeolia, totalRemondis);
-      updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis);
-    }
-
-    // Update service totals
-    function updateServiceTotals(services) {
-      const totalCurrent = services.reduce((sum, service) => sum + (service.current || 0), 0);
-      const totalCleanaway = services.reduce((sum, service) => sum + (service.cleanaway || 0), 0);
-      const totalVeolia = services.reduce((sum, service) => sum + (service.veolia || 0), 0);
-      const totalRemondis = services.reduce((sum, service) => sum + (service.remondis || 0), 0);
-
-      document.getElementById('service-total-current').textContent = formatCurrency(totalCurrent);
-      document.getElementById('service-total-cleanaway').textContent = formatCurrency(totalCleanaway);
-      document.getElementById('service-total-veolia').textContent = formatCurrency(totalVeolia);
-      document.getElementById('service-total-remondis').textContent = formatCurrency(totalRemondis);
-    }
-
-    // Update best price indicator
-    function updateBestPrice(cleanawayTotal, veoliaTotal, remondisTotal) {
-      const cards = [
-        { price: cleanawayTotal, card: document.getElementById('cleanaway-card') },
-        { price: veoliaTotal, card: document.getElementById('veolia-card') },
-        { price: remondisTotal, card: document.getElementById('remondis-card') }
-      ];
-
-      cards.forEach(item => item.card.classList.remove('best-price'));
-
-      const validPrices = cards.filter(p => p.price > 0);
-      if (validPrices.length > 0) {
-        const bestPrice = Math.min(...validPrices.map(p => p.price));
-        const bestVendor = validPrices.find(p => p.price === bestPrice);
-        bestVendor.card.classList.add('best-price');
+      if (toggleBtn) {
+        toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
       }
     }
 
-    // Update savings meter
-    function updateSavingsMeter(totalCurrent, totalCleanaway, totalVeolia, totalRemondis) {
-      const vendors = [
-        { name: 'Cleanaway', price: totalCleanaway },
-        { name: 'Veolia', price: totalVeolia },
-        { name: 'Remondis', price: totalRemondis }
-      ];
-
-      const validVendors = vendors.filter(v => v.price > 0);
-      
-      if (validVendors.length === 0 || totalCurrent === 0) {
-        document.getElementById('savings-amount').textContent = '$0';
-        document.getElementById('best-vendor-name').textContent = '—';
-        document.getElementById('meter-fill').style.width = '0%';
-        document.getElementById('meter-percentage').textContent = '0%';
-        return;
-      }
-
-      const bestVendor = validVendors.reduce((min, vendor) => 
-        vendor.price < min.price ? vendor : min
-      );
-
-      const savings = totalCurrent - bestVendor.price;
-      const savingsPercentage = (savings / totalCurrent) * 100;
-
-      document.getElementById('savings-amount').textContent = formatCurrency(savings);
-      document.getElementById('best-vendor-name').textContent = bestVendor.name;
-      
-      setTimeout(() => {
-        document.getElementById('meter-fill').style.width = savingsPercentage.toFixed(1) + '%';
-        document.getElementById('meter-percentage').textContent = savingsPercentage.toFixed(1) + '%';
-      }, 100);
+    // Initialize app on page load
+    document.addEventListener('DOMContentLoaded', initApp);
+    if (document.readyState !== 'loading') {
+      initApp();
     }
-
-    // Show loading overlay
-    function showLoadingOverlay() {
-      if (!document.querySelector('.loading-overlay')) {
-        const overlay = document.createElement('div');
-        overlay.className = 'loading-overlay';
-        overlay.innerHTML = '<div class="loading-spinner"></div>';
-        document.body.appendChild(overlay);
-      }
-    }
-
-    // Hide loading overlay
-    function hideLoadingOverlay() {
-      const overlay = document.querySelector('.loading-overlay');
-      if (overlay) {
-        overlay.remove();
-      }
-    }
-
-    // Show error message
-    function showError(message) {
-      const errorDiv = document.createElement('div');
-      errorDiv.className = 'error-message';
-      errorDiv.textContent = message;
-      
-      const wrapper = document.querySelector('.dashboard-wrapper');
-      const firstChild = wrapper.firstChild;
-      wrapper.insertBefore(errorDiv, firstChild.nextSibling);
-    }
-
-    // Event listeners for page navigation
-    document.querySelectorAll('.nav-tab').forEach(tab => {
-      tab.addEventListener('click', () => {
-        const targetPage = tab.dataset.page;
-        
-        document.querySelectorAll('.nav-tab').forEach(t => t.classList.remove('active'));
-        tab.classList.add('active');
-        
-        document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
-        document.getElementById(`${targetPage}-page`).classList.add('active');
-      });
-    });
-
-    // Event listeners for filters
-    document.getElementById('site-search').addEventListener('input', (e) => {
-      searchTerm = e.target.value;
-      renderSites();
-      updateTotals();
-    });
-
-    document.getElementById('site-type-filter').addEventListener('change', (e) => {
-      siteTypeFilter = e.target.value;
-      renderSites();
-      updateTotals();
-    });
-
-    document.getElementById('waste-stream-filter').addEventListener('change', (e) => {
-      wasteStreamFilter = e.target.value;
-      renderSites();
-      updateTotals();
-    });
-
-    document.getElementById('service-search').addEventListener('input', (e) => {
-      serviceSearchTerm = e.target.value;
-      renderServices();
-    });
-
-    document.getElementById('service-site-filter').addEventListener('change', (e) => {
-      serviceSiteFilter = e.target.value;
-      renderServices();
-    });
-
-    // Initialize the app when the page loads
-    document.addEventListener('DOMContentLoaded', initializeApp);
   </script>
- </body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a90c002b3ade695',t:'MTc2NDkwODQxNi4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
