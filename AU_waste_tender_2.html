@@ -3,7 +3,7 @@
  <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Shrunk Waste Tender Portal</title>
+  <title>Tender Portal - Admin View</title>
   <script src="https://cdn.tailwindcss.com"></script>
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&amp;display=swap" rel="stylesheet">
   <style>
@@ -26,15 +26,137 @@
     .card-shadow {
       box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.1), 0 8px 10px -6px rgba(0, 0, 0, 0.1);
     }
-    .tender-section {
-      padding-left: 0;
-      margin-bottom: 2rem;
+    .admin-edit-field {
+      width: 100%;
+      padding: 0.5rem;
+      border: 2px solid #e5e7eb;
+      border-radius: 8px;
+      font-size: 0.875rem;
+      transition: border-color 0.2s ease;
+    }
+    .admin-edit-field:focus {
+      outline: none;
+      border-color: #8b5cf6;
+    }
+    .admin-section {
+      background-color: #f9fafb;
+      padding: 1.5rem;
+      border-radius: 12px;
+      margin-bottom: 1.5rem;
+      border: 2px dashed #d1d5db;
+    }
+    .admin-section:hover {
+      border-color: #8b5cf6;
+    }
+    .admin-label {
+      display: block;
+      font-weight: 600;
+      color: #374151;
+      margin-bottom: 0.5rem;
+      font-size: 0.875rem;
+    }
+    .photo-grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+    .photo-item {
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      overflow: hidden;
+      background-color: #ffffff;
+      padding: 0.75rem;
+      position: relative;
+    }
+    .photo-item img {
+      width: 100%;
+      height: 150px;
+      object-fit: cover;
+      border-radius: 8px;
+      margin-bottom: 0.5rem;
+    }
+    .photo-placeholder {
+      width: 100%;
+      height: 150px;
+      background-color: #e5e7eb;
+      border-radius: 8px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #9ca3af;
+      font-size: 0.875rem;
+      margin-bottom: 0.5rem;
+    }
+    .delete-btn {
+      position: absolute;
+      top: 1rem;
+      right: 1rem;
+      background-color: #ef4444;
+      color: white;
+      width: 28px;
+      height: 28px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      font-weight: bold;
+      font-size: 1.2rem;
+      transition: background-color 0.2s ease;
+    }
+    .delete-btn:hover {
+      background-color: #dc2626;
+    }
+    .add-photo-btn {
+      border: 2px dashed #8b5cf6;
+      background-color: #f5f3ff;
+      border-radius: 12px;
+      padding: 2rem;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .add-photo-btn:hover {
+      background-color: #ede9fe;
+      border-color: #7c3aed;
+    }
+    .tab-button {
+      padding: 0.75rem 1.5rem;
+      border-bottom: 3px solid transparent;
+      font-weight: 500;
+      transition: all 0.3s ease;
+      cursor: pointer;
+      background: none;
+      border-top: none;
+      border-left: none;
+      border-right: none;
+    }
+    .tab-button:hover {
+      background-color: rgba(0,0,0,0.05);
+    }
+    .tab-button.active {
+      border-bottom-color: #8b5cf6;
+      color: #8b5cf6;
+    }
+    .question-item {
+      background-color: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
+    }
+    .question-item:hover {
+      border-color: #8b5cf6;
     }
     .site-table {
       width: 100%;
       border-collapse: separate;
       border-spacing: 0;
-      margin: 1rem 0;
       border: 1px solid #e5e7eb;
       border-radius: 12px;
       overflow: hidden;
@@ -58,170 +180,21 @@
       font-weight: 600;
       color: #374151;
     }
-    .quotation-table {
-      table-layout: fixed;
-      border-collapse: separate;
-      border-spacing: 0;
-      border: 1px solid #e5e7eb;
-      border-radius: 12px;
-      overflow: hidden;
-    }
-    .quotation-table th:nth-child(1) { width: 50px; }
-    .quotation-table th:nth-child(2) { width: 100px; }
-    .quotation-table th:nth-child(3) { width: 140px; }
-    .quotation-table th:nth-child(4) { width: 120px; }
-    .quotation-table th:nth-child(5) { width: 70px; }
-    .quotation-table th:nth-child(6) { width: 80px; }
-    .quotation-table th:nth-child(7) { width: 110px; }
-    .quotation-table th:nth-child(8) { width: 220px; }
-    .quotation-table th:nth-child(9) { width: 100px; }
-    .quotation-table th:nth-child(10) { width: 100px; }
-    .quotation-table th:nth-child(11) { width: 130px; }
-    .quotation-table th:nth-child(12) { width: 90px; }
-    .loading-spinner {
-      border: 3px solid #f3f4f6;
-      border-top: 3px solid #8b5cf6;
-      border-radius: 50%;
-      width: 24px;
-      height: 24px;
-      animation: spin 1s linear infinite;
-      display: inline-block;
-      margin-right: 0.5rem;
-    }
-    @keyframes spin {
-      0% { transform: rotate(0deg); }
-      100% { transform: rotate(360deg); }
-    }
-    .tab-button {
-      padding: 0.75rem 1.5rem;
-      border-bottom: 3px solid transparent;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      cursor: pointer;
-      background: none;
-      border-top: none;
-      border-left: none;
-      border-right: none;
-    }
-    .tab-button:hover {
-      background-color: rgba(0,0,0,0.05);
-    }
-    .tab-button.active {
-      border-bottom-color: #8b5cf6;
-      color: #8b5cf6;
-    }
-    .photo-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
-      gap: 1rem;
-      margin-top: 1rem;
-    }
-    .photo-item {
-      border: 1px solid #e5e7eb;
-      border-radius: 16px;
-      overflow: hidden;
-      background-color: #ffffff;
-      padding: 0.75rem;
-      box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.05);
-      transition: all 0.3s ease;
-    }
-    .photo-item:hover {
-      box-shadow: 0 10px 20px -5px rgba(0, 0, 0, 0.1);
-      transform: translateY(-2px);
-    }
-    .photo-item img {
-      width: 100%;
-      height: 200px;
-      object-fit: cover;
-      border-radius: 12px;
-      cursor: pointer;
-      transition: transform 0.2s ease;
-    }
-    .photo-item img:hover {
-      transform: scale(1.02);
-    }
-    .photo-placeholder {
-      width: 100%;
-      height: 200px;
-      background-color: #e5e7eb;
-      border-radius: 4px;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #9ca3af;
-      font-size: 0.875rem;
-    }
-    .photo-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.9);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 2rem;
-    }
-    .photo-modal img {
-      max-width: 90%;
-      max-height: 90%;
-      object-fit: contain;
-      border-radius: 16px;
-    }
-    .photo-modal-close {
-      position: absolute;
-      top: 1rem;
-      right: 1rem;
-      background-color: rgba(255, 255, 255, 0.9);
-      color: #1f2937;
-      width: 40px;
-      height: 40px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      font-size: 1.5rem;
-      font-weight: bold;
-      transition: background-color 0.2s ease;
-    }
-    .photo-modal-close:hover {
+    .document-item {
       background-color: white;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
     }
-    .notes-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background-color: rgba(0, 0, 0, 0.5);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 2rem;
-    }
-    .notes-modal-content {
+    .service-row-item {
       background-color: white;
-      border-radius: 16px;
-      padding: 2rem;
-      max-width: 500px;
-      width: 100%;
-      box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.1), 0 10px 10px -5px rgba(0, 0, 0, 0.04);
-    }
-    .notes-icon-button {
-      cursor: pointer;
-      padding: 0.25rem 0.5rem;
-      background-color: #f3f4f6;
-      border: 1px solid #d1d5db;
-      border-radius: 8px;
-      font-size: 0.75rem;
-      transition: background-color 0.2s ease;
-    }
-    .notes-icon-button:hover {
-      background-color: #e5e7eb;
+      border: 2px solid #e5e7eb;
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+      position: relative;
     }
   </style>
   <style>@view-transition { navigation: auto; }</style>
@@ -231,251 +204,302 @@
  <body>
   <div id="app" class="w-full min-h-full"></div>
   <script>
-    // Configuration - CHANGE THESE VALUES FOR YOUR SETUP
-    const CONFIG = {
-      portal_title: "Shrunk Waste Tender Portal",
+    // Admin credentials - CHANGE THESE
+    const ADMIN_CREDENTIALS = {
+      username: "admin",
+      password: "admin123"
+    };
+
+    let isAdmin = false;
+    let activeTab = "settings";
+    
+    // Admin configuration stored in localStorage
+    let adminConfig = {
+      portal_title: "Tender Portal",
       client_name: "Cedar Pacific",
       tender_title: "Request for Waste Services Quotation",
       contact_name: "Nick Twining – Shrunk",
       contact_details: "M: 0418 854 628 | E: nick@shrunk.ai",
-      // IMPORTANT: Replace with your form submission endpoint
-      // Options:
-      // 1. Formspree: https://formspree.io (free tier available)
-      // 2. Web3Forms: https://web3forms.com (free, no signup)
-      // 3. EmailJS: https://www.emailjs.com (sends to email)
-      form_endpoint: "https://formspree.io/f/YOUR_FORM_ID", // <-- CHANGE THIS
+      form_endpoint: "https://formspree.io/f/YOUR_FORM_ID",
       primary_color: "#7c3aed",
       secondary_color: "#8b5cf6",
-      background_color: "#f9fafb",
-      text_color: "#1f2937",
-      surface_color: "#ffffff"
-    };
-
-    let currentUser = null;
-    let isLoading = false;
-    let activeTab = "requirements";
-    let notesData = {};
-
-    const sitePhotos = {
-      "melbourne_cbd": [
-        { url: "https://i.imgur.com/BteWMvZ.png", caption: "Building Entrance" },
-        { url: "https://i.imgur.com/8uDbJhv.png", caption: "Waste Collection Area" }
+      
+      // Customer details
+      customer_overview: "Cedar Pacific is one of Australia's leading specialist investors and developers in purpose-built student accommodation (PBSA) and build-to-rent (BTR) assets. They own and manage a large national portfolio of residential properties, focused on long-term asset performance, operational efficiency, and sustainability outcomes.\n\nUniLodge operates as the on-site property and facilities manager for many of Cedar Pacific's student accommodation assets. Their teams manage the day-to-day operations, including tenant engagement, cleaning, and building services.",
+      
+      // Services overview
+      services_overview: "Cedar Pacific's UniLodge-operated buildings generate high volumes of General Waste, Co-mingled Recycling, and Cardboard, driven by dense student occupancy and continuous daily turnover. Most buildings operate with 7-day-per-week waste collections.\n\nCo-mingled Recycling presents consistent challenges due to the chute system. High contamination rates are common. Contractors are expected to proactively identify contamination issues and work with Shrunk and Cedar Pacific to implement practical solutions.\n\nSites require occasional bulk dry waste, e-waste, and furniture disposal services in addition to regular collections. Clear communication, scheduling flexibility, and transparent pricing for these ad-hoc services are essential.",
+      
+      // Sites
+      sites: [
+        { name: "Unilodge Melbourne CBD", state: "VIC", address: "17-23 Wills Street, Melbourne, VIC, 3000" },
+        { name: "Unilodge Melbourne Central", state: "VIC", address: "303 La Trobe Street, Melbourne, VIC, 3000" },
+        { name: "Unilodge Victoria University", state: "VIC", address: "101 Ballarat Road, Footscray, VIC, 3011" },
+        { name: "Unilodge Kensington", state: "NSW", address: "177-197 Anzac Parade, Kensington, NSW, 2033" }
       ],
-      "melbourne_central": [
-        { url: "https://i.imgur.com/7CJKzPR.png", caption: "Front Access" },
-        { url: "https://i.imgur.com/7CJKzPR.png", caption: "Loading Dock" }
+      
+      // Service requirements
+      service_requirements: [
+        "Early/overnight collection times preferred with provided keys/codes",
+        "Drivers must move bins (~5-10m) to service location",
+        "Low access rear-lift truck required for Unilodge Kensington (max height 4.3m)",
+        "Trucks must have scales to weigh bins/waste with reporting capability",
+        "SIFOT (Service in full on time) of 99% required"
       ],
-      "victoria_university": [
-        { url: "https://i.imgur.com/krwtpkU.png", caption: "Site Overview" },
-        { url: "https://i.imgur.com/XI9x0ct.png", caption: "Collection Point" },
-        { url: "https://i.imgur.com/ISrH4Wl.png", caption: "Bin Area" }
+      
+      // Additional sections
+      contamination_management: [
+        "Operational cadence for discarding contaminated Co-Mingle as General Waste (same day collection)",
+        "Monthly reporting on contamination events by day"
       ],
-      "kensington": [
-        { url: "https://i.imgur.com/mUYtja3.png", caption: "Underground Access" },
-        { url: "https://i.imgur.com/gUhXw4L.png", caption: "Waste Room" }
+      
+      reporting_requirements: "Monthly reporting on number of lifts, weight, and diversion metrics via portal or Excel file",
+      
+      commencement_term: "Contract commencement: On or after 01/02/2026\n\nContract term: 2 years with optional 1 year extension (2+1)\n\nPrice increases: Once per annum, capped increase (with justification), on anniversary of commencement",
+      
+      quotation_requirements: [
+        "General Waste pricing based on 60kg per m³ density",
+        "Co-Mingle pricing based on 30kg per m³ density",
+        "Outline all additional fees: rental, fuel levies, futile fees, energy surcharges, weekend/holiday surcharges, overweight fees",
+        "Providers with excessive additional fees will not be considered favorably"
+      ],
+      
+      // Site photos
+      site_photos: {
+        "melbourne_cbd": [
+          { url: "https://i.imgur.com/BteWMvZ.png", caption: "Building Entrance" },
+          { url: "https://i.imgur.com/8uDbJhv.png", caption: "Waste Collection Area" }
+        ],
+        "melbourne_central": [
+          { url: "https://i.imgur.com/7CJKzPR.png", caption: "Front Access" },
+          { url: "https://i.imgur.com/7CJKzPR.png", caption: "Loading Dock" }
+        ],
+        "victoria_university": [
+          { url: "https://i.imgur.com/krwtpkU.png", caption: "Site Overview" },
+          { url: "https://i.imgur.com/XI9x0ct.png", caption: "Collection Point" },
+          { url: "https://i.imgur.com/ISrH4Wl.png", caption: "Bin Area" }
+        ],
+        "kensington": [
+          { url: "https://i.imgur.com/mUYtja3.png", caption: "Underground Access" },
+          { url: "https://i.imgur.com/gUhXw4L.png", caption: "Waste Room" }
+        ]
+      },
+      
+      // Documents
+      documents: [
+        { title: "Cedar Pacific Supplier Code of Conduct", url: "https://drive.google.com/file/d/14GVTuUjH6wUZ58puTYgDIgqEkzS9gFWR/view?usp=sharing" },
+        { title: "Cedar Pacific Procurement Policy", url: "https://example.com/procurement-policy.pdf" },
+        { title: "Cedar Pacific Modern Slavery Policy", url: "https://example.com/modern-slavery-policy.pdf" },
+        { title: "Cedar Pacific Sustainable Operations Policy", url: "https://example.com/sustainable-operations.pdf" }
+      ],
+      
+      // Questionnaire questions
+      questionnaire: [
+        { id: "q1", section: "Modern Slavery", question: "Have you read, and do you agree to comply with our Modern Slavery Policy?", type: "yes_no" },
+        { id: "q2", section: "Modern Slavery", question: "Does your company have any written policies and procedures relating to modern slavery, human rights, ethical trading and/or whistleblowing?", type: "yes_no_upload" },
+        { id: "q3", section: "Modern Slavery", question: "How frequently are the above policies and procedures reviewed and updated (if any)?", type: "text" },
+        { id: "q4", section: "Relationships", question: "Who are your direct suppliers and subcontractors for the supply of goods and/or services you will provide to us?", type: "text" },
+        { id: "q5", section: "ESG", question: "Does your company have an ESG or Sustainability Policy?", type: "yes_no_upload" }
+      ],
+      
+      // Quotation table - Core services
+      core_services: [
+        { state: "VIC", site: "Wills St", description: "11x1100L GW-7xW", stream: "General Waste", bin: "1100L", avg: "3.98", frequency: "Daily", days: "Mon,Tue,Wed,Thu,Fri,Sat,Sun" },
+        { state: "VIC", site: "Wills St", description: "6x1100L CM-7xW", stream: "Comingle", bin: "1100L", avg: "2.06", frequency: "Daily", days: "Mon,Tue,Wed,Thu,Fri,Sat,Sun" },
+        { state: "VIC", site: "Wills St", description: "1x1100L P&C-2xW", stream: "P&C", bin: "1100L", avg: "New", frequency: "Daily", days: "Tue,Fri" },
+        { state: "VIC", site: "La Trobe", description: "10x1100L GW-7xW", stream: "General Waste", bin: "1100L", avg: "4.17", frequency: "Daily", days: "Mon,Tue,Wed,Thu,Fri,Sat,Sun" }
+      ],
+      
+      // Additional services
+      additional_services: [
+        { state: "VIC", site: "Wills Street", service: "6-8m3 Dry Waste Skip" },
+        { state: "VIC", site: "La Trobe Street", service: "6-8m3 Dry Waste Skip" },
+        { state: "VIC", site: "Footscray", service: "6-8m3 Dry Waste Skip" },
+        { state: "NSW", site: "Kensington", service: "6-8m3 Dry Waste Skip" }
       ]
     };
 
-    // LocalStorage functions
-    function loadVendorsFromStorage() {
-      const data = localStorage.getItem('waste_tender_vendors');
-      return data ? JSON.parse(data) : [];
-    }
-
-    function saveVendorsToStorage(vendors) {
-      localStorage.setItem('waste_tender_vendors', JSON.stringify(vendors));
-    }
-
-    function loadCurrentUserFromStorage() {
-      const data = localStorage.getItem('waste_tender_current_user');
-      return data ? JSON.parse(data) : null;
-    }
-
-    function saveCurrentUserToStorage(user) {
-      if (user) {
-        localStorage.setItem('waste_tender_current_user', JSON.stringify(user));
-      } else {
-        localStorage.removeItem('waste_tender_current_user');
+    function loadAdminConfig() {
+      const stored = localStorage.getItem('admin_tender_config');
+      if (stored) {
+        adminConfig = { ...adminConfig, ...JSON.parse(stored) };
       }
     }
 
+    function saveAdminConfig() {
+      localStorage.setItem('admin_tender_config', JSON.stringify(adminConfig));
+    }
+
     function initApp() {
-      currentUser = loadCurrentUserFromStorage();
+      loadAdminConfig();
       renderApp();
     }
 
     function renderApp() {
       const app = document.getElementById('app');
       
-      if (!currentUser) {
-        app.innerHTML = renderLoginPage();
+      if (!isAdmin) {
+        app.innerHTML = renderAdminLogin();
       } else {
-        app.innerHTML = renderTenderPortal();
+        app.innerHTML = renderAdminPanel();
       }
     }
 
-    function renderLoginPage() {
+    function renderAdminLogin() {
       return `
-        <div class="w-full min-h-full" style="background-color: ${CONFIG.background_color};">
-          <div class="gradient-bg w-full py-6">
-            <div class="max-w-6xl mx-auto px-6">
-              <h1 class="text-3xl font-bold text-white">${CONFIG.portal_title}</h1>
-              <p class="text-white text-opacity-90 mt-1">Vendor Registration & Submission Portal</p>
+        <div class="w-full min-h-full flex items-center justify-center" style="background-color: #f9fafb;">
+          <div class="card-shadow rounded-lg p-8 w-full max-w-md" style="background-color: white;">
+            <div class="text-center mb-6">
+              <div class="splash-accent w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
+                <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z"></path>
+                </svg>
+              </div>
+              <h2 class="text-2xl font-bold text-gray-900">Admin Login</h2>
+              <p class="text-gray-600 mt-2">Enter credentials to access admin panel</p>
             </div>
-          </div>
-          
-          <div class="max-w-md mx-auto px-6 py-12">
-            <div class="card-shadow rounded-lg p-8" style="background-color: ${CONFIG.surface_color};">
-              <div class="text-center mb-6">
-                <div class="splash-accent w-16 h-16 rounded-full mx-auto mb-4 flex items-center justify-center">
-                  <svg class="w-8 h-8 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"></path>
-                  </svg>
-                </div>
-                <h2 class="text-2xl font-bold" style="color: ${CONFIG.text_color};">Vendor Registration</h2>
-                <p class="text-gray-600 mt-2">Register or login to access the tender</p>
+
+            <form onsubmit="handleAdminLogin(event)">
+              <div class="mb-4">
+                <label for="username" class="admin-label">Username</label>
+                <input type="text" id="username" required class="admin-edit-field">
               </div>
 
-              <form id="registrationForm" onsubmit="handleRegistration(event)">
-                <div class="mb-4">
-                  <label for="email" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Email Address</label>
-                  <input type="email" id="email" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};" placeholder="your@email.com">
-                  <p class="text-xs text-gray-500 mt-1">Enter your email to login or register</p>
-                </div>
+              <div class="mb-6">
+                <label for="password" class="admin-label">Password</label>
+                <input type="password" id="password" required class="admin-edit-field">
+              </div>
 
-                <div id="additionalFields" style="display: none;">
-                  <div class="mb-4">
-                    <label for="companyName" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Company Name</label>
-                    <input type="text" id="companyName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
-                  </div>
-
-                  <div class="mb-4">
-                    <label for="contactName" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Contact Name</label>
-                    <input type="text" id="contactName" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
-                  </div>
-
-                  <div class="mb-4">
-                    <label for="phone" class="block text-sm font-medium mb-2" style="color: ${CONFIG.text_color};">Phone Number</label>
-                    <input type="tel" id="phone" class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" style="focus:ring-color: ${CONFIG.primary_color};">
-                  </div>
-                </div>
-
-                <button type="submit" id="submitBtn" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${CONFIG.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
-                  ${isLoading ? '<span class="loading-spinner"></span>Checking...' : 'Continue'}
-                </button>
-              </form>
-            </div>
+              <button type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: #8b5cf6;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                Login
+              </button>
+            </form>
           </div>
         </div>
       `;
     }
 
-    function renderTenderPortal() {
-      const hasSubmitted = currentUser.submission_status === 'submitted';
-
+    function renderAdminPanel() {
       return `
-        <div class="w-full min-h-full" style="background-color: ${CONFIG.background_color};">
+        <div class="w-full min-h-full" style="background-color: #f9fafb;">
           <div class="gradient-bg w-full py-6">
-            <div class="max-w-6xl mx-auto px-6 flex justify-between items-center">
+            <div class="max-w-7xl mx-auto px-6 flex justify-between items-center">
               <div>
-                <h1 class="text-3xl font-bold text-white">${CONFIG.portal_title}</h1>
-                <p class="text-white text-opacity-90 mt-1">${CONFIG.client_name} Waste Services Tender</p>
+                <h1 class="text-3xl font-bold text-white">Admin Panel - Tender Configuration</h1>
+                <p class="text-white text-opacity-90 mt-1">Customize all aspects of the tender portal</p>
               </div>
-              <button onclick="logout()" class="text-white bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all">
+              <button onclick="logout()" class="text-white bg-white bg-opacity-20 hover:bg-opacity-30 px-4 py-2 rounded-lg transition-all flex items-center">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1"></path>
+                </svg>
                 Logout
               </button>
             </div>
           </div>
 
-          <div class="max-w-6xl mx-auto px-6 py-8">
-            <div class="card-shadow rounded-lg p-6 mb-6" style="background-color: ${CONFIG.surface_color};">
-              <div class="flex items-center justify-between">
-                <div>
-                  <h2 class="text-xl font-bold" style="color: ${CONFIG.text_color};">Welcome, ${currentUser.company_name}</h2>
-                  <p class="text-gray-600 mt-1">Contact: ${currentUser.contact_name} | ${currentUser.email}</p>
+          <div class="max-w-7xl mx-auto px-6 py-8">
+            <div class="card-shadow rounded-lg" style="background-color: white;">
+              <div class="border-b border-gray-200">
+                <div class="flex space-x-2 px-6 overflow-x-auto">
+                  <button class="tab-button ${activeTab === 'settings' ? 'active' : ''}" onclick="switchTab('settings')" style="color: ${activeTab === 'settings' ? adminConfig.secondary_color : '#374151'};">
+                    Portal Settings
+                  </button>
+                  <button class="tab-button ${activeTab === 'requirements' ? 'active' : ''}" onclick="switchTab('requirements')" style="color: ${activeTab === 'requirements' ? adminConfig.secondary_color : '#374151'};">
+                    Tender Requirements
+                  </button>
+                  <button class="tab-button ${activeTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')" style="color: ${activeTab === 'photos' ? adminConfig.secondary_color : '#374151'};">
+                    Site Photos
+                  </button>
+                  <button class="tab-button ${activeTab === 'questionnaire' ? 'active' : ''}" onclick="switchTab('questionnaire')" style="color: ${activeTab === 'questionnaire' ? adminConfig.secondary_color : '#374151'};">
+                    Questionnaire
+                  </button>
+                  <button class="tab-button ${activeTab === 'quotation' ? 'active' : ''}" onclick="switchTab('quotation')" style="color: ${activeTab === 'quotation' ? adminConfig.secondary_color : '#374151'};">
+                    Quotation Table
+                  </button>
                 </div>
-                ${hasSubmitted ? `
-                  <div class="flex items-center text-green-600">
-                    <svg class="w-6 h-6 mr-2" fill="currentColor" viewBox="0 0 20 20">
-                      <path fill-rule="evenodd" d="M10 18a8 8 0 100-16 8 8 0 000 16zm3.707-9.293a1 1 0 00-1.414-1.414L9 10.586 7.707 9.293a1 1 0 00-1.414 1.414l2 2a1 1 0 001.414 0l4-4z" clip-rule="evenodd"></path>
-                    </svg>
-                    <span class="font-semibold">Submission Complete</span>
-                  </div>
-                ` : ''}
               </div>
-              
-              ${!hasSubmitted ? `
-                <div class="mt-4 pt-4 border-t border-gray-200">
-                  <div class="flex items-center mb-3">
-                    <svg class="w-5 h-5 mr-2" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9.663 17h4.673M12 3v1m6.364 1.636l-.707.707M21 12h-1M4 12H3m3.343-5.657l-.707-.707m2.828 9.9a5 5 0 117.072 0l-.548.547A3.374 3.374 0 0014 18.469V19a2 2 0 11-4 0v-.531c0-.895-.356-1.754-.988-2.386l-.548-.547z"></path>
-                    </svg>
-                    <h3 class="text-sm font-semibold" style="color: ${CONFIG.text_color};">How to Submit Your Quotation:</h3>
-                  </div>
-                  <div class="grid grid-cols-1 md:grid-cols-3 gap-3 text-sm text-gray-600">
-                    <div class="flex items-start">
-                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">1.</span>
-                      <span><strong>Tender Requirements</strong> - Review all project details and service requirements</span>
-                    </div>
-                    <div class="flex items-start">
-                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">2.</span>
-                      <span><strong>Site Photos</strong> - View photos of all four collection sites</span>
-                    </div>
-                    <div class="flex items-start">
-                      <span class="font-semibold mr-2" style="color: ${CONFIG.secondary_color};">3.</span>
-                      <span><strong>Submit Quotation</strong> - Complete the pricing form and submit your quote</span>
-                    </div>
-                  </div>
+
+              <div class="p-6">
+                ${activeTab === 'settings' ? renderSettingsTab() : ''}
+                ${activeTab === 'requirements' ? renderRequirementsTab() : ''}
+                ${activeTab === 'photos' ? renderPhotosTab() : ''}
+                ${activeTab === 'questionnaire' ? renderQuestionnaireTab() : ''}
+                ${activeTab === 'quotation' ? renderQuotationTab() : ''}
+              </div>
+            </div>
+
+            <div class="mt-6 flex justify-end">
+              <button onclick="saveAllChanges()" class="text-white font-semibold py-3 px-8 rounded-lg transition-all flex items-center" style="background-color: #10b981;" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'">
+                <svg class="w-5 h-5 mr-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7"></path>
+                </svg>
+                Save All Changes
+              </button>
+            </div>
+          </div>
+        </div>
+      `;
+    }
+
+    function renderSettingsTab() {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-6" style="color: #374151;">Portal Settings</h2>
+          
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Basic Information</h3>
+            
+            <div class="mb-4">
+              <label class="admin-label">Portal Title</label>
+              <input type="text" value="${adminConfig.portal_title}" onchange="updateConfig('portal_title', this.value)" class="admin-edit-field">
+            </div>
+
+            <div class="mb-4">
+              <label class="admin-label">Client Name</label>
+              <input type="text" value="${adminConfig.client_name}" onchange="updateConfig('client_name', this.value)" class="admin-edit-field">
+            </div>
+
+            <div class="mb-4">
+              <label class="admin-label">Tender Title</label>
+              <input type="text" value="${adminConfig.tender_title}" onchange="updateConfig('tender_title', this.value)" class="admin-edit-field">
+            </div>
+
+            <div class="mb-4">
+              <label class="admin-label">Contact Name</label>
+              <input type="text" value="${adminConfig.contact_name}" onchange="updateConfig('contact_name', this.value)" class="admin-edit-field">
+            </div>
+
+            <div class="mb-4">
+              <label class="admin-label">Contact Details</label>
+              <input type="text" value="${adminConfig.contact_details}" onchange="updateConfig('contact_details', this.value)" class="admin-edit-field">
+            </div>
+
+            <div class="mb-4">
+              <label class="admin-label">Form Submission Endpoint (Formspree, Web3Forms, etc.)</label>
+              <input type="text" value="${adminConfig.form_endpoint}" onchange="updateConfig('form_endpoint', this.value)" class="admin-edit-field">
+            </div>
+          </div>
+
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Color Scheme</h3>
+            
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <label class="admin-label">Primary Color</label>
+                <div class="flex items-center">
+                  <input type="color" value="${adminConfig.primary_color}" onchange="updateConfig('primary_color', this.value)" class="mr-2" style="width: 60px; height: 40px;">
+                  <input type="text" value="${adminConfig.primary_color}" onchange="updateConfig('primary_color', this.value)" class="admin-edit-field">
                 </div>
-              ` : ''}
+              </div>
+
+              <div>
+                <label class="admin-label">Secondary Color</label>
+                <div class="flex items-center">
+                  <input type="color" value="${adminConfig.secondary_color}" onchange="updateConfig('secondary_color', this.value)" class="mr-2" style="width: 60px; height: 40px;">
+                  <input type="text" value="${adminConfig.secondary_color}" onchange="updateConfig('secondary_color', this.value)" class="admin-edit-field">
+                </div>
+              </div>
             </div>
-
-            ${hasSubmitted ? renderSubmissionConfirmation() : renderTenderContentWithTabs()}
-          </div>
-        </div>
-      `;
-    }
-
-    function renderSubmissionConfirmation() {
-      return `
-        <div class="card-shadow rounded-lg p-8 text-center" style="background-color: ${CONFIG.surface_color};">
-          <div class="splash-accent w-20 h-20 rounded-full mx-auto mb-6 flex items-center justify-center">
-            <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 20 20">
-              <path fill-rule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clip-rule="evenodd"></path>
-            </svg>
-          </div>
-          <h2 class="text-3xl font-bold mb-3" style="color: ${CONFIG.text_color};">Submission Successful!</h2>
-          <p class="text-gray-600 text-lg mb-6">Your quotation has been successfully submitted.</p>
-          <div class="text-left max-w-md mx-auto bg-gray-50 p-4 rounded-lg">
-            <p class="text-sm text-gray-600 mb-2"><strong>Submitted:</strong> ${new Date(currentUser.submitted_at).toLocaleString()}</p>
-            <p class="text-sm text-gray-600 mb-2"><strong>Company:</strong> ${currentUser.company_name}</p>
-          </div>
-          <p class="text-gray-500 mt-6">Our team will review your submission and contact you shortly.</p>
-        </div>
-      `;
-    }
-
-    function renderTenderContentWithTabs() {
-      return `
-        <div class="card-shadow rounded-lg" style="background-color: ${CONFIG.surface_color};">
-          <div class="border-b border-gray-200">
-            <div class="flex space-x-2 px-6">
-              <button class="tab-button ${activeTab === 'requirements' ? 'active' : ''}" onclick="switchTab('requirements')" style="color: ${activeTab === 'requirements' ? CONFIG.secondary_color : CONFIG.text_color};">
-                Tender Requirements
-              </button>
-              <button class="tab-button ${activeTab === 'photos' ? 'active' : ''}" onclick="switchTab('photos')" style="color: ${activeTab === 'photos' ? CONFIG.secondary_color : CONFIG.text_color};">
-                Site Photos
-              </button>
-              <button class="tab-button ${activeTab === 'submit' ? 'active' : ''}" onclick="switchTab('submit')" style="color: ${activeTab === 'submit' ? CONFIG.secondary_color : CONFIG.text_color};">
-                Submit Quotation
-              </button>
-            </div>
-          </div>
-
-          <div class="p-6">
-            ${activeTab === 'requirements' ? renderRequirementsTab() : ''}
-            ${activeTab === 'photos' ? renderPhotosTab() : ''}
-            ${activeTab === 'submit' ? renderSubmitTab() : ''}
           </div>
         </div>
       `;
@@ -484,378 +508,305 @@
     function renderRequirementsTab() {
       return `
         <div>
-          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">${CONFIG.tender_title}</h2>
+          <h2 class="text-2xl font-bold mb-6" style="color: #374151;">Tender Requirements Content</h2>
           
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Prepared By</h3>
-            <p class="text-gray-700">Shrunk Innovation Group Pty Ltd</p>
-            <p class="text-gray-700">On behalf of: Cedar Pacific Pty Ltd</p>
-            <p class="text-gray-700">Site Tenant: Unilodge</p>
-            <p class="text-gray-700 mt-2"><strong>Contact:</strong> ${CONFIG.contact_name}</p>
-            <p class="text-gray-700">${CONFIG.contact_details}</p>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Customer Overview</h3>
+            <textarea rows="6" onchange="updateConfig('customer_overview', this.value)" class="admin-edit-field">${adminConfig.customer_overview}</textarea>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Customer Overview</h3>
-            <p class="text-gray-700 leading-relaxed">Cedar Pacific is one of Australia's leading specialist investors and developers in purpose-built student accommodation (PBSA) and build-to-rent (BTR) assets. They own and manage a large national portfolio of residential properties, focused on long-term asset performance, operational efficiency, and sustainability outcomes.</p>
-            <p class="text-gray-700 leading-relaxed mt-3">UniLodge operates as the on-site property and facilities manager for many of Cedar Pacific's student accommodation assets. Their teams manage the day-to-day operations, including tenant engagement, cleaning, and building services.</p>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Services Overview</h3>
+            <textarea rows="8" onchange="updateConfig('services_overview', this.value)" class="admin-edit-field">${adminConfig.services_overview}</textarea>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Services Overview</h3>
-            <p class="text-gray-700 leading-relaxed">Cedar Pacific's UniLodge-operated buildings generate high volumes of General Waste, Co-mingled Recycling, and Cardboard, driven by dense student occupancy and continuous daily turnover. Most buildings operate with 7-day-per-week waste collections.</p>
-            <p class="text-gray-700 leading-relaxed mt-3">Co-mingled Recycling presents consistent challenges due to the chute system. High contamination rates are common. Contractors are expected to proactively identify contamination issues and work with Shrunk and Cedar Pacific to implement practical solutions.</p>
-            <p class="text-gray-700 leading-relaxed mt-3">Sites require occasional bulk dry waste, e-waste, and furniture disposal services in addition to regular collections. Clear communication, scheduling flexibility, and transparent pricing for these ad-hoc services are essential.</p>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Sites</h3>
+            <div id="sitesList">
+              ${adminConfig.sites.map((site, index) => `
+                <div class="question-item mb-3">
+                  <div class="delete-btn" onclick="deleteSite(${index})" title="Delete site">×</div>
+                  <div class="grid grid-cols-3 gap-3">
+                    <div>
+                      <label class="admin-label">Site Name</label>
+                      <input type="text" value="${site.name}" onchange="updateSite(${index}, 'name', this.value)" class="admin-edit-field">
+                    </div>
+                    <div>
+                      <label class="admin-label">State</label>
+                      <input type="text" value="${site.state}" onchange="updateSite(${index}, 'state', this.value)" class="admin-edit-field">
+                    </div>
+                    <div>
+                      <label class="admin-label">Address</label>
+                      <input type="text" value="${site.address}" onchange="updateSite(${index}, 'address', this.value)" class="admin-edit-field">
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addSite()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Site</button>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-3" style="color: ${CONFIG.text_color};">Sites</h3>
-            <table class="site-table">
-              <thead>
-                <tr>
-                  <th>Site Name</th>
-                  <th>State</th>
-                  <th>Address</th>
-                </tr>
-              </thead>
-              <tbody>
-                <tr>
-                  <td>Unilodge Melbourne CBD</td>
-                  <td>VIC</td>
-                  <td>17-23 Wills Street, Melbourne, VIC, 3000</td>
-                </tr>
-                <tr>
-                  <td>Unilodge Melbourne Central</td>
-                  <td>VIC</td>
-                  <td>303 La Trobe Street, Melbourne, VIC, 3000</td>
-                </tr>
-                <tr>
-                  <td>Unilodge Victoria University</td>
-                  <td>VIC</td>
-                  <td>101 Ballarat Road, Footscray, VIC, 3011</td>
-                </tr>
-                <tr>
-                  <td>Unilodge Kensington</td>
-                  <td>NSW</td>
-                  <td>177-197 Anzac Parade, Kensington, NSW, 2033</td>
-                </tr>
-              </tbody>
-            </table>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Service Requirements</h3>
+            <div id="serviceReqsList">
+              ${adminConfig.service_requirements.map((req, index) => `
+                <div class="flex items-center mb-2">
+                  <input type="text" value="${req}" onchange="updateServiceRequirement(${index}, this.value)" class="admin-edit-field mr-2">
+                  <button onclick="deleteServiceRequirement(${index})" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addServiceRequirement()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Requirement</button>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Service Requirements</h3>
-            <ul class="list-disc list-inside text-gray-700 space-y-2">
-              <li>Early/overnight collection times preferred with provided keys/codes</li>
-              <li>Drivers must move bins (~5-10m) to service location</li>
-              <li>Low access rear-lift truck required for Unilodge Kensington (max height 4.3m)</li>
-              <li>Trucks must have scales to weigh bins/waste with reporting capability</li>
-              <li><strong>SIFOT (Service in full on time) of 99% required</strong></li>
-            </ul>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Contamination Management</h3>
+            <div id="contaminationList">
+              ${adminConfig.contamination_management.map((item, index) => `
+                <div class="flex items-center mb-2">
+                  <input type="text" value="${item}" onchange="updateContamination(${index}, this.value)" class="admin-edit-field mr-2">
+                  <button onclick="deleteContamination(${index})" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addContamination()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Item</button>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Contamination Management</h3>
-            <ul class="list-disc list-inside text-gray-700 space-y-2">
-              <li>Operational cadence for discarding contaminated Co-Mingle as General Waste (same day collection)</li>
-              <li>Monthly reporting on contamination events by day</li>
-            </ul>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Reporting Requirements</h3>
+            <textarea rows="3" onchange="updateConfig('reporting_requirements', this.value)" class="admin-edit-field">${adminConfig.reporting_requirements}</textarea>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Reporting Requirements</h3>
-            <p class="text-gray-700">Monthly reporting on number of lifts, weight, and diversion metrics via portal or Excel file</p>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Commencement & Term</h3>
+            <textarea rows="4" onchange="updateConfig('commencement_term', this.value)" class="admin-edit-field">${adminConfig.commencement_term}</textarea>
           </div>
 
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Commencement & Term</h3>
-            <p class="text-gray-700">Contract commencement: On or after 01/02/2026</p>
-            <p class="text-gray-700 mt-2">Contract term: 2 years with optional 1 year extension (2+1)</p>
-            <p class="text-gray-700 mt-2">Price increases: Once per annum, capped increase (with justification), on anniversary of commencement</p>
-          </div>
-
-          <div class="tender-section">
-            <h3 class="text-lg font-semibold mb-2" style="color: ${CONFIG.text_color};">Quotation Requirements</h3>
-            <ul class="list-disc list-inside text-gray-700 space-y-2">
-              <li>General Waste pricing based on 60kg per m³ density</li>
-              <li>Co-Mingle pricing based on 30kg per m³ density</li>
-              <li>Outline all additional fees: rental, fuel levies, futile fees, energy surcharges, weekend/holiday surcharges, overweight fees</li>
-              <li><strong>Providers with excessive additional fees will not be considered favorably</strong></li>
-            </ul>
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Quotation Requirements</h3>
+            <div id="quotationReqsList">
+              ${adminConfig.quotation_requirements.map((req, index) => `
+                <div class="flex items-center mb-2">
+                  <input type="text" value="${req}" onchange="updateQuotationRequirement(${index}, this.value)" class="admin-edit-field mr-2">
+                  <button onclick="deleteQuotationRequirement(${index})" class="px-3 py-2 bg-red-500 text-white rounded-lg hover:bg-red-600">×</button>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addQuotationRequirement()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Requirement</button>
           </div>
         </div>
       `;
     }
 
     function renderPhotosTab() {
-      return `
-        <div>
-          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Site Photos</h2>
-          <p class="text-gray-600 mb-6">Visual documentation of waste collection areas and site access points</p>
-
-          <div class="space-y-8">
-            <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Melbourne CBD</h3>
-              <p class="text-sm text-gray-600 mb-2">17-23 Wills Street, Melbourne, VIC, 3000</p>
-              <div class="photo-grid">
-                ${sitePhotos.melbourne_cbd.map(photo => `
-                  <div class="photo-item">
-                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="photo-placeholder" style="display: none;">
-                      <span>Photo: ${photo.caption}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Melbourne Central</h3>
-              <p class="text-sm text-gray-600 mb-2">303 La Trobe Street, Melbourne, VIC, 3000</p>
-              <div class="photo-grid">
-                ${sitePhotos.melbourne_central.map(photo => `
-                  <div class="photo-item">
-                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="photo-placeholder" style="display: none;">
-                      <span>Photo: ${photo.caption}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Victoria University</h3>
-              <p class="text-sm text-gray-600 mb-2">101 Ballarat Road, Footscray, VIC, 3011</p>
-              <div class="photo-grid">
-                ${sitePhotos.victoria_university.map(photo => `
-                  <div class="photo-item">
-                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="photo-placeholder" style="display: none;">
-                      <span>Photo: ${photo.caption}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-
-            <div>
-              <h3 class="text-xl font-semibold mb-3" style="color: ${CONFIG.text_color};">Unilodge Kensington</h3>
-              <p class="text-sm text-gray-600 mb-2">177-197 Anzac Parade, Kensington, NSW, 2033</p>
-              <div class="photo-grid">
-                ${sitePhotos.kensington.map(photo => `
-                  <div class="photo-item">
-                    <img src="${photo.url}" alt="${photo.caption}" onclick="openPhotoModal('${photo.url}', '${photo.caption}')" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                    <div class="photo-placeholder" style="display: none;">
-                      <span>Photo: ${photo.caption}</span>
-                    </div>
-                    <p class="text-sm text-gray-600 mt-2 text-center">${photo.caption}</p>
-                  </div>
-                `).join('')}
-              </div>
-            </div>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderSubmitTab() {
-      return `
-        <div>
-          <h2 class="text-2xl font-bold mb-4" style="color: ${CONFIG.text_color};">Submit Your Quotation</h2>
-          
-          <div class="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-200">
-            <h3 class="font-semibold text-blue-900 mb-3">Instructions & Requirements</h3>
-            <ul class="text-sm text-blue-800 space-y-1">
-              <li>• Enter your responses/pricing into the fields below</li>
-              <li>• General Waste services are to be priced at 60kg/m³</li>
-              <li>• Dry Waste services are to be priced at 30kg/m³</li>
-              <li>• Enter a capped annual price uplift %</li>
-              <li>• Outline your approximate collection window for servicing (eg 6:00-6:30am)</li>
-              <li>• Add any additional comments about fees or charges in the notes fields</li>
-            </ul>
-          </div>
-
-          <form id="quotationForm" onsubmit="submitQuotationForm(event)" action="${CONFIG.form_endpoint}" method="POST">
-            <input type="hidden" name="_subject" value="New Tender Submission - ${currentUser.company_name}">
-            <input type="hidden" name="vendor_email" value="${currentUser.email}">
-            <input type="hidden" name="vendor_company" value="${currentUser.company_name}">
-            <input type="hidden" name="vendor_contact" value="${currentUser.contact_name}">
-            <input type="hidden" name="vendor_phone" value="${currentUser.phone}">
-            
-            <div class="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
-              <label for="annualUplift" class="block text-sm font-semibold mb-2" style="color: ${CONFIG.text_color};">Annual (Capped) Uplift %</label>
-              <input type="number" id="annualUplift" name="annual_uplift" step="0.01" min="0" max="100" required class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2" placeholder="e.g., 2.5">
-            </div>
-
-            <div class="mb-6">
-              <h3 class="text-xl font-bold mb-3" style="color: ${CONFIG.text_color};">Core Services</h3>
-              
-              <div class="mb-4 p-3 bg-gray-50 rounded-lg border border-gray-200">
-                <div class="flex items-center mb-2">
-                  <svg class="w-4 h-4 mr-2" style="color: ${CONFIG.secondary_color};" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z"></path>
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M2.458 12C3.732 7.943 7.523 5 12 5c4.478 0 8.268 2.943 9.542 7-1.274 4.057-5.064 7-9.542 7-4.477 0-8.268-2.943-9.542-7z"></path>
-                  </svg>
-                  <h4 class="font-semibold text-gray-700 text-sm">Column Visibility (click to toggle):</h4>
-                </div>
-                <div class="flex flex-wrap gap-2">
-                  <button type="button" onclick="toggleColumn('service')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
-                    <span id="toggle-service">Hide</span> Service Details
-                  </button>
-                  <button type="button" onclick="toggleColumn('stream')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
-                    <span id="toggle-stream">Hide</span> Stream
-                  </button>
-                  <button type="button" onclick="toggleColumn('bin')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
-                    <span id="toggle-bin">Hide</span> Bin Size
-                  </button>
-                  <button type="button" onclick="toggleColumn('avg')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
-                    <span id="toggle-avg">Hide</span> Avg/Day
-                  </button>
-                  <button type="button" onclick="toggleColumn('days')" class="px-3 py-1 bg-white border border-gray-300 rounded text-xs hover:bg-gray-200 transition-colors">
-                    <span id="toggle-days">Hide</span> Collection Days
-                  </button>
-                </div>
-              </div>
-              
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm quotation-table">
-                  <thead>
-                    <tr class="bg-gray-100">
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-state">State</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-site">Site</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-service">Service</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-stream">Stream</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-bin">Bin</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs col-avg">Avg/Day</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Frequency</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200 col-days">Collection Days</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Price/Collection</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Rental/Month</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Collection Window</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left text-xs bg-gray-200">Notes</th>
-                    </tr>
-                  </thead>
-                  <tbody class="text-xs">
-                    ${renderCoreServiceRow('VIC', 'Wills St', '11x1100L GW-7xW', 'General Waste', '1100L', '3.98', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 0)}
-                    ${renderCoreServiceRow('VIC', 'Wills St', '6x1100L CM-7xW', 'Comingle', '1100L', '2.06', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 1)}
-                    ${renderCoreServiceRow('VIC', 'Wills St', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Bi-Weekly', 'Tue,Fri', 2)}
-                    ${renderCoreServiceRow('VIC', 'La Trobe', '10x1100L GW-7xW', 'General Waste', '1100L', '4.17', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 3)}
-                    ${renderCoreServiceRow('VIC', 'La Trobe', '4x1100L CM-7xW', 'Comingle', '1100L', '2.16', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 4)}
-                    ${renderCoreServiceRow('VIC', 'La Trobe', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Bi-Weekly', 'Tue,Fri', 5)}
-                    ${renderCoreServiceRow('VIC', 'Footscray', '4x1100L GW-7xW', 'General Waste', '1100L', '2.3', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 6)}
-                    ${renderCoreServiceRow('VIC', 'Footscray', '3x1100L CM-7xW', 'Comingle', '1100L', '2', 'Daily', 'Mon,Tue,Wed,Thu,Fri,Sat,Sun', 7)}
-                    ${renderCoreServiceRow('VIC', 'Footscray', '1x1100L P&C-2xW', 'P&C', '1100L', '1', 'Bi-Weekly', 'Tue,Fri', 8)}
-                    ${renderCoreServiceRow('NSW', 'Kensington', '16x660L GW-3xW', 'General Waste', '660L', '13.13', 'Tri-Weekly', 'Mon,Wed,Fri', 9)}
-                    ${renderCoreServiceRow('NSW', 'Kensington', '16x660L CM-3xW', 'Comingle', '660L', '11.3', 'Tri-Weekly', 'Mon,Wed,Fri', 10)}
-                    ${renderCoreServiceRow('NSW', 'Kensington', '1x1100L P&C-2xW', 'P&C', '1100L', 'New', 'Bi-Weekly', 'Tue,Fri', 11)}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <div class="mb-6">
-              <h3 class="text-xl font-bold mb-4" style="color: ${CONFIG.text_color};">Additional Services</h3>
-              <div class="overflow-x-auto">
-                <table class="w-full text-sm border-collapse">
-                  <thead>
-                    <tr class="bg-gray-100">
-                      <th class="border border-gray-300 px-2 py-2 text-left">State</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left">Site Name</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left">Service</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Price/Delivery ($)</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Price/Removal ($)</th>
-                      <th class="border border-gray-300 px-2 py-2 text-left bg-gray-200">Disposal ($/Tonne)</th>
-                    </tr>
-                  </thead>
-                  <tbody>
-                    ${renderAdditionalServiceRow('VIC', 'Wills Street', '6-8m3 Dry Waste Skip', 0)}
-                    ${renderAdditionalServiceRow('VIC', 'La Trobe Street', '6-8m3 Dry Waste Skip', 1)}
-                    ${renderAdditionalServiceRow('VIC', 'Footscray', '6-8m3 Dry Waste Skip', 2)}
-                    ${renderAdditionalServiceRow('NSW', 'Kensington', '6-8m3 Dry Waste Skip', 3)}
-                  </tbody>
-                </table>
-              </div>
-            </div>
-
-            <button type="submit" class="w-full text-white font-semibold py-3 rounded-lg transition-all" style="background-color: ${CONFIG.secondary_color};" onmouseover="this.style.opacity='0.9'" onmouseout="this.style.opacity='1'" ${isLoading ? 'disabled' : ''}>
-              ${isLoading ? '<span class="loading-spinner"></span>Submitting...' : 'Submit Quotation'}
-            </button>
-          </form>
-
-          <div class="mt-6 p-4 bg-yellow-50 border border-yellow-200 rounded-lg">
-            <h3 class="font-semibold text-yellow-900 mb-2">⚠️ Setup Required</h3>
-            <p class="text-sm text-yellow-800 mb-2">To receive submissions, update the <code class="bg-yellow-100 px-1 py-0.5 rounded">form_endpoint</code> in the CONFIG section at the top of this file.</p>
-            <p class="text-sm text-yellow-800">Recommended services: Formspree, Web3Forms, or EmailJS</p>
-          </div>
-        </div>
-      `;
-    }
-
-    function renderCoreServiceRow(state, site, description, wasteStream, binSize, avgCollected, defaultFrequency, defaultDays, index) {
-      const days = ['Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat', 'Sun'];
-      const dayCheckboxes = days.map(day => `
-        <label class="inline-flex items-center mr-2 mb-1">
-          <input type="checkbox" name="core_days_${index}" value="${day}" ${defaultDays.includes(day) ? 'checked' : ''} class="mr-1" disabled>
-          <span class="text-xs">${day}</span>
-        </label>
-      `).join('');
+      const siteKeys = Object.keys(adminConfig.site_photos);
       
       return `
-        <tr>
-          <td class="border border-gray-300 px-2 py-2 col-state">${state}</td>
-          <td class="border border-gray-300 px-2 py-2 col-site">${site}</td>
-          <td class="border border-gray-300 px-2 py-2 col-service">${description}</td>
-          <td class="border border-gray-300 px-2 py-2 col-stream">${wasteStream}</td>
-          <td class="border border-gray-300 px-2 py-2 col-bin">${binSize}</td>
-          <td class="border border-gray-300 px-2 py-2 col-avg">${avgCollected}</td>
-          <td class="border border-gray-300 px-1 py-1 bg-gray-100">
-            <input type="hidden" name="core_frequency_${index}" value="${defaultFrequency}">
-            <span class="text-xs">${defaultFrequency}</span>
-          </td>
-          <td class="border border-gray-300 px-2 py-2 bg-gray-100 col-days">
-            <div class="flex flex-wrap">${dayCheckboxes}</div>
-            ${defaultDays.split(',').map(day => `<input type="hidden" name="core_days_${index}" value="${day}">`).join('')}
-          </td>
-          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
-            <input type="number" step="0.01" min="0" required name="core_price_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.00">
-          </td>
-          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
-            <input type="number" step="0.01" min="0" required name="core_rental_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="0.00">
-          </td>
-          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
-            <input type="text" required name="core_window_${index}" class="w-full px-2 py-1 border border-gray-300 rounded text-xs" placeholder="6:00-6:30am">
-          </td>
-          <td class="border border-gray-300 px-1 py-1 bg-gray-50">
-            <input type="hidden" name="core_comments_${index}" id="core_comments_${index}" value="">
-            <button type="button" class="notes-icon-button" onclick="openNotesModal('core_comments_${index}')">
-              ${notesData[`core_comments_${index}`] ? '📝 Edit' : '📝 Add'}
-            </button>
-          </td>
-        </tr>
+        <div>
+          <h2 class="text-2xl font-bold mb-6" style="color: #374151;">Site Photos Management</h2>
+          <p class="text-gray-600 mb-6">Manage photos for each site. Add photo URLs and captions.</p>
+
+          ${siteKeys.map(siteKey => {
+            const siteName = siteKey.replace(/_/g, ' ').replace(/\b\w/g, l => l.toUpperCase());
+            return `
+              <div class="admin-section">
+                <h3 class="text-lg font-semibold mb-4" style="color: #374151;">${siteName}</h3>
+                <div class="photo-grid">
+                  ${adminConfig.site_photos[siteKey].map((photo, index) => `
+                    <div class="photo-item">
+                      <div class="delete-btn" onclick="deletePhoto('${siteKey}', ${index})" title="Delete photo">×</div>
+                      ${photo.url ? `<img src="${photo.url}" alt="${photo.caption}">` : `<div class="photo-placeholder">No Image</div>`}
+                      <div class="mt-2">
+                        <label class="admin-label text-xs">Image URL</label>
+                        <input type="text" value="${photo.url}" onchange="updatePhoto('${siteKey}', ${index}, 'url', this.value)" class="admin-edit-field text-xs mb-2" placeholder="https://...">
+                        <label class="admin-label text-xs">Caption</label>
+                        <input type="text" value="${photo.caption}" onchange="updatePhoto('${siteKey}', ${index}, 'caption', this.value)" class="admin-edit-field text-xs">
+                      </div>
+                    </div>
+                  `).join('')}
+                  <div class="add-photo-btn" onclick="addPhoto('${siteKey}')">
+                    <svg class="w-12 h-12 text-purple-600 mb-2" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 6v6m0 0v6m0-6h6m-6 0H6"></path>
+                    </svg>
+                    <span class="text-sm font-medium text-purple-600">Add Photo</span>
+                  </div>
+                </div>
+              </div>
+            `;
+          }).join('')}
+
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Add New Site Photo Category</h3>
+            <div class="flex items-center">
+              <input type="text" id="newSiteKey" placeholder="e.g., sydney_campus" class="admin-edit-field mr-2" style="max-width: 300px;">
+              <button onclick="addNewSiteCategory()" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Add Category</button>
+            </div>
+            <p class="text-xs text-gray-500 mt-2">Use lowercase with underscores (e.g., sydney_campus, perth_office)</p>
+          </div>
+        </div>
       `;
     }
 
-    function renderAdditionalServiceRow(state, site, service, index) {
+    function renderQuestionnaireTab() {
       return `
-        <tr>
-          <td class="border border-gray-300 px-2 py-2">${state}</td>
-          <td class="border border-gray-300 px-2 py-2">${site}</td>
-          <td class="border border-gray-300 px-2 py-2">${service}</td>
-          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
-            <input type="number" step="0.01" min="0" required name="add_delivery_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
-          </td>
-          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
-            <input type="number" step="0.01" min="0" required name="add_removal_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
-          </td>
-          <td class="border border-gray-300 px-2 py-2 bg-gray-50">
-            <input type="number" step="0.01" min="0" required name="add_disposal_${index}" class="w-full px-2 py-1 border border-gray-300 rounded" placeholder="0.00">
-          </td>
-        </tr>
+        <div>
+          <h2 class="text-2xl font-bold mb-6" style="color: #374151;">Supplier Questionnaire</h2>
+          
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Policy Documents</h3>
+            <div id="documentsList">
+              ${adminConfig.documents.map((doc, index) => `
+                <div class="document-item">
+                  <div class="delete-btn" onclick="deleteDocument(${index})" title="Delete document">×</div>
+                  <div class="grid grid-cols-2 gap-3">
+                    <div>
+                      <label class="admin-label">Document Title</label>
+                      <input type="text" value="${doc.title}" onchange="updateDocument(${index}, 'title', this.value)" class="admin-edit-field">
+                    </div>
+                    <div>
+                      <label class="admin-label">Document URL</label>
+                      <input type="text" value="${doc.url}" onchange="updateDocument(${index}, 'url', this.value)" class="admin-edit-field">
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addDocument()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Document</button>
+          </div>
+
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Questionnaire Questions</h3>
+            <div id="questionsList">
+              ${adminConfig.questionnaire.map((q, index) => `
+                <div class="question-item">
+                  <div class="delete-btn" onclick="deleteQuestion(${index})" title="Delete question">×</div>
+                  <div class="mb-3">
+                    <label class="admin-label">Section</label>
+                    <input type="text" value="${q.section}" onchange="updateQuestion(${index}, 'section', this.value)" class="admin-edit-field">
+                  </div>
+                  <div class="mb-3">
+                    <label class="admin-label">Question</label>
+                    <textarea rows="2" onchange="updateQuestion(${index}, 'question', this.value)" class="admin-edit-field">${q.question}</textarea>
+                  </div>
+                  <div>
+                    <label class="admin-label">Answer Type</label>
+                    <select onchange="updateQuestion(${index}, 'type', this.value)" class="admin-edit-field">
+                      <option value="text" ${q.type === 'text' ? 'selected' : ''}>Text Area</option>
+                      <option value="yes_no" ${q.type === 'yes_no' ? 'selected' : ''}>Yes/No</option>
+                      <option value="yes_no_upload" ${q.type === 'yes_no_upload' ? 'selected' : ''}>Yes/No with Upload</option>
+                    </select>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addQuestion()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Question</button>
+          </div>
+        </div>
       `;
+    }
+
+    function renderQuotationTab() {
+      return `
+        <div>
+          <h2 class="text-2xl font-bold mb-6" style="color: #374151;">Quotation Table Configuration</h2>
+          
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Core Services</h3>
+            <div id="coreServicesList">
+              ${adminConfig.core_services.map((service, index) => `
+                <div class="service-row-item">
+                  <div class="delete-btn" onclick="deleteCoreService(${index})" title="Delete service">×</div>
+                  <div class="grid grid-cols-4 gap-2 mb-2">
+                    <div>
+                      <label class="admin-label text-xs">State</label>
+                      <input type="text" value="${service.state}" onchange="updateCoreService(${index}, 'state', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Site</label>
+                      <input type="text" value="${service.site}" onchange="updateCoreService(${index}, 'site', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Description</label>
+                      <input type="text" value="${service.description}" onchange="updateCoreService(${index}, 'description', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Stream</label>
+                      <input type="text" value="${service.stream}" onchange="updateCoreService(${index}, 'stream', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                  </div>
+                  <div class="grid grid-cols-4 gap-2">
+                    <div>
+                      <label class="admin-label text-xs">Bin Size</label>
+                      <input type="text" value="${service.bin}" onchange="updateCoreService(${index}, 'bin', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Avg Collection</label>
+                      <input type="text" value="${service.avg}" onchange="updateCoreService(${index}, 'avg', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Frequency</label>
+                      <input type="text" value="${service.frequency}" onchange="updateCoreService(${index}, 'frequency', this.value)" class="admin-edit-field text-sm">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Days (comma-separated)</label>
+                      <input type="text" value="${service.days}" onchange="updateCoreService(${index}, 'days', this.value)" class="admin-edit-field text-sm" placeholder="Mon,Tue,Wed">
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addCoreService()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Core Service</button>
+          </div>
+
+          <div class="admin-section">
+            <h3 class="text-lg font-semibold mb-4" style="color: #374151;">Additional Services</h3>
+            <div id="additionalServicesList">
+              ${adminConfig.additional_services.map((service, index) => `
+                <div class="service-row-item">
+                  <div class="delete-btn" onclick="deleteAdditionalService(${index})" title="Delete service">×</div>
+                  <div class="grid grid-cols-3 gap-3">
+                    <div>
+                      <label class="admin-label text-xs">State</label>
+                      <input type="text" value="${service.state}" onchange="updateAdditionalService(${index}, 'state', this.value)" class="admin-edit-field">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Site</label>
+                      <input type="text" value="${service.site}" onchange="updateAdditionalService(${index}, 'site', this.value)" class="admin-edit-field">
+                    </div>
+                    <div>
+                      <label class="admin-label text-xs">Service Description</label>
+                      <input type="text" value="${service.service}" onchange="updateAdditionalService(${index}, 'service', this.value)" class="admin-edit-field">
+                    </div>
+                  </div>
+                </div>
+              `).join('')}
+            </div>
+            <button onclick="addAdditionalService()" class="mt-3 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">+ Add Additional Service</button>
+          </div>
+        </div>
+      `;
+    }
+
+    // Admin login handler
+    function handleAdminLogin(event) {
+      event.preventDefault();
+      
+      const username = document.getElementById('username').value;
+      const password = document.getElementById('password').value;
+      
+      if (username === ADMIN_CREDENTIALS.username && password === ADMIN_CREDENTIALS.password) {
+        isAdmin = true;
+        showMessage("Login successful!", "success");
+        renderApp();
+      } else {
+        showMessage("Invalid credentials", "error");
+      }
+    }
+
+    function logout() {
+      isAdmin = false;
+      activeTab = "settings";
+      renderApp();
     }
 
     function switchTab(tab) {
@@ -863,92 +814,193 @@
       renderApp();
     }
 
-    function handleRegistration(event) {
-      event.preventDefault();
-      
-      if (isLoading) return;
+    // Configuration update functions
+    function updateConfig(key, value) {
+      adminConfig[key] = value;
+    }
 
-      const email = document.getElementById('email').value.trim();
-      const additionalFields = document.getElementById('additionalFields');
+    // Sites management
+    function updateSite(index, field, value) {
+      adminConfig.sites[index][field] = value;
+    }
 
-      const vendors = loadVendorsFromStorage();
-      const existingVendor = vendors.find(v => v.email.toLowerCase() === email.toLowerCase());
-      
-      if (existingVendor) {
-        currentUser = existingVendor;
-        saveCurrentUserToStorage(currentUser);
-        showMessage(`Welcome back, ${existingVendor.company_name}!`, "success");
+    function addSite() {
+      adminConfig.sites.push({ name: "New Site", state: "VIC", address: "" });
+      renderApp();
+    }
+
+    function deleteSite(index) {
+      if (confirm('Are you sure you want to delete this site?')) {
+        adminConfig.sites.splice(index, 1);
         renderApp();
-        return;
       }
+    }
 
-      if (additionalFields.style.display === 'none') {
-        additionalFields.style.display = 'block';
-        document.getElementById('companyName').required = true;
-        document.getElementById('contactName').required = true;
-        document.getElementById('phone').required = true;
-        document.getElementById('submitBtn').innerHTML = 'Register & Access Tender';
-        showMessage("New email - please complete registration", "success");
-        return;
-      }
+    // Service requirements management
+    function updateServiceRequirement(index, value) {
+      adminConfig.service_requirements[index] = value;
+    }
 
-      const companyName = document.getElementById('companyName').value.trim();
-      const contactName = document.getElementById('contactName').value.trim();
-      const phone = document.getElementById('phone').value.trim();
-
-      const newVendor = {
-        id: `vendor_${Date.now()}_${Math.random().toString(36).substr(2, 9)}`,
-        email: email,
-        company_name: companyName,
-        contact_name: contactName,
-        phone: phone,
-        registered_at: new Date().toISOString(),
-        submission_status: "pending",
-        submitted_at: ""
-      };
-
-      vendors.push(newVendor);
-      saveVendorsToStorage(vendors);
-      
-      currentUser = newVendor;
-      saveCurrentUserToStorage(currentUser);
-      
-      showMessage("Registration successful!", "success");
+    function addServiceRequirement() {
+      adminConfig.service_requirements.push("New requirement");
       renderApp();
     }
 
-    function submitQuotationForm(event) {
-      event.preventDefault();
-      
-      if (isLoading) return;
-      
-      isLoading = true;
+    function deleteServiceRequirement(index) {
+      adminConfig.service_requirements.splice(index, 1);
       renderApp();
-
-      const form = event.target;
-      
-      // Update vendor status in localStorage
-      const vendors = loadVendorsFromStorage();
-      const vendorIndex = vendors.findIndex(v => v.id === currentUser.id);
-      
-      if (vendorIndex !== -1) {
-        vendors[vendorIndex].submission_status = "submitted";
-        vendors[vendorIndex].submitted_at = new Date().toISOString();
-        saveVendorsToStorage(vendors);
-        
-        currentUser = vendors[vendorIndex];
-        saveCurrentUserToStorage(currentUser);
-      }
-
-      // Submit the form
-      form.submit();
     }
 
-    function logout() {
-      currentUser = null;
-      saveCurrentUserToStorage(null);
-      activeTab = 'requirements';
+    // Contamination management
+    function updateContamination(index, value) {
+      adminConfig.contamination_management[index] = value;
+    }
+
+    function addContamination() {
+      adminConfig.contamination_management.push("New item");
       renderApp();
+    }
+
+    function deleteContamination(index) {
+      adminConfig.contamination_management.splice(index, 1);
+      renderApp();
+    }
+
+    // Quotation requirements management
+    function updateQuotationRequirement(index, value) {
+      adminConfig.quotation_requirements[index] = value;
+    }
+
+    function addQuotationRequirement() {
+      adminConfig.quotation_requirements.push("New requirement");
+      renderApp();
+    }
+
+    function deleteQuotationRequirement(index) {
+      adminConfig.quotation_requirements.splice(index, 1);
+      renderApp();
+    }
+
+    // Photo management
+    function updatePhoto(siteKey, index, field, value) {
+      adminConfig.site_photos[siteKey][index][field] = value;
+      renderApp();
+    }
+
+    function addPhoto(siteKey) {
+      adminConfig.site_photos[siteKey].push({ url: "", caption: "New Photo" });
+      renderApp();
+    }
+
+    function deletePhoto(siteKey, index) {
+      if (confirm('Are you sure you want to delete this photo?')) {
+        adminConfig.site_photos[siteKey].splice(index, 1);
+        renderApp();
+      }
+    }
+
+    function addNewSiteCategory() {
+      const key = document.getElementById('newSiteKey').value.trim().toLowerCase().replace(/\s+/g, '_');
+      if (key && !adminConfig.site_photos[key]) {
+        adminConfig.site_photos[key] = [];
+        renderApp();
+      } else if (adminConfig.site_photos[key]) {
+        showMessage("This category already exists", "error");
+      } else {
+        showMessage("Please enter a valid category name", "error");
+      }
+    }
+
+    // Document management
+    function updateDocument(index, field, value) {
+      adminConfig.documents[index][field] = value;
+    }
+
+    function addDocument() {
+      adminConfig.documents.push({ title: "New Document", url: "" });
+      renderApp();
+    }
+
+    function deleteDocument(index) {
+      if (confirm('Are you sure you want to delete this document?')) {
+        adminConfig.documents.splice(index, 1);
+        renderApp();
+      }
+    }
+
+    // Question management
+    function updateQuestion(index, field, value) {
+      adminConfig.questionnaire[index][field] = value;
+    }
+
+    function addQuestion() {
+      adminConfig.questionnaire.push({
+        id: `q${adminConfig.questionnaire.length + 1}`,
+        section: "New Section",
+        question: "New question?",
+        type: "text"
+      });
+      renderApp();
+    }
+
+    function deleteQuestion(index) {
+      if (confirm('Are you sure you want to delete this question?')) {
+        adminConfig.questionnaire.splice(index, 1);
+        renderApp();
+      }
+    }
+
+    // Core services management
+    function updateCoreService(index, field, value) {
+      adminConfig.core_services[index][field] = value;
+    }
+
+    function addCoreService() {
+      adminConfig.core_services.push({
+        state: "VIC",
+        site: "New Site",
+        description: "Service Description",
+        stream: "General Waste",
+        bin: "1100L",
+        avg: "0",
+        frequency: "Daily",
+        days: "Mon,Tue,Wed,Thu,Fri"
+      });
+      renderApp();
+    }
+
+    function deleteCoreService(index) {
+      if (confirm('Are you sure you want to delete this service?')) {
+        adminConfig.core_services.splice(index, 1);
+        renderApp();
+      }
+    }
+
+    // Additional services management
+    function updateAdditionalService(index, field, value) {
+      adminConfig.additional_services[index][field] = value;
+    }
+
+    function addAdditionalService() {
+      adminConfig.additional_services.push({
+        state: "VIC",
+        site: "New Site",
+        service: "Service Description"
+      });
+      renderApp();
+    }
+
+    function deleteAdditionalService(index) {
+      if (confirm('Are you sure you want to delete this service?')) {
+        adminConfig.additional_services.splice(index, 1);
+        renderApp();
+      }
+    }
+
+    // Save all changes
+    function saveAllChanges() {
+      saveAdminConfig();
+      showMessage("All changes saved successfully!", "success");
     }
 
     function showMessage(message, type) {
@@ -963,99 +1015,19 @@
         padding: 1rem 1.5rem;
         border-radius: 8px;
         box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-        z-index: 1000;
+        z-index: 10000;
         font-weight: 500;
       `;
       toast.textContent = message;
       document.body.appendChild(toast);
-      setTimeout(() => toast.remove(), 4000);
+      setTimeout(() => toast.remove(), 3000);
     }
 
-    function openPhotoModal(url, caption) {
-      const modal = document.createElement('div');
-      modal.className = 'photo-modal';
-      modal.innerHTML = `
-        <div class="photo-modal-close" onclick="closePhotoModal(this)">×</div>
-        <img src="${url}" alt="${caption}">
-      `;
-      modal.onclick = function(e) {
-        if (e.target === modal) {
-          closePhotoModal(modal);
-        }
-      };
-      document.body.appendChild(modal);
-    }
-
-    function closePhotoModal(element) {
-      const modal = element.classList?.contains('photo-modal') ? element : element.closest('.photo-modal');
-      if (modal) {
-        modal.remove();
-      }
-    }
-
-    function openNotesModal(fieldId) {
-      const currentValue = notesData[fieldId] || '';
-      const modal = document.createElement('div');
-      modal.className = 'notes-modal';
-      modal.innerHTML = `
-        <div class="notes-modal-content">
-          <h3 class="text-lg font-semibold mb-4">Add Notes / Comments</h3>
-          <textarea id="notesTextarea" class="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-purple-500" rows="6" placeholder="Enter any additional notes, fees, or comments...">${currentValue}</textarea>
-          <div class="flex justify-end space-x-3 mt-4">
-            <button type="button" onclick="closeNotesModal()" class="px-4 py-2 border border-gray-300 rounded-lg hover:bg-gray-50">Cancel</button>
-            <button type="button" onclick="saveNotes('${fieldId}')" class="px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700">Save</button>
-          </div>
-        </div>
-      `;
-      modal.onclick = function(e) {
-        if (e.target === modal) {
-          closeNotesModal();
-        }
-      };
-      document.body.appendChild(modal);
-    }
-
-    function saveNotes(fieldId) {
-      const textarea = document.getElementById('notesTextarea');
-      const value = textarea.value.trim();
-      notesData[fieldId] = value;
-      const hiddenInput = document.getElementById(fieldId);
-      if (hiddenInput) {
-        hiddenInput.value = value;
-      }
-      closeNotesModal();
-      renderApp();
-    }
-
-    function closeNotesModal() {
-      const modal = document.querySelector('.notes-modal');
-      if (modal) {
-        modal.remove();
-      }
-    }
-
-    function toggleColumn(columnName) {
-      const columns = document.querySelectorAll(`.col-${columnName}`);
-      const toggleBtn = document.getElementById(`toggle-${columnName}`);
-      
-      if (columns.length === 0) return;
-      
-      const isHidden = columns[0].style.display === 'none';
-      
-      columns.forEach(col => {
-        col.style.display = isHidden ? '' : 'none';
-      });
-      
-      if (toggleBtn) {
-        toggleBtn.textContent = isHidden ? 'Hide' : 'Show';
-      }
-    }
-
-    // Initialize app on page load
+    // Initialize app
     document.addEventListener('DOMContentLoaded', initApp);
     if (document.readyState !== 'loading') {
       initApp();
     }
   </script>
- <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a8817e0953a29a4',t:'MTc2NDgxNzY0My4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
+ <script>(function(){function c(){var b=a.contentDocument||a.contentWindow.document;if(b){var d=b.createElement('script');d.innerHTML="window.__CF$cv$params={r:'9a9fd15e86f129c5',t:'MTc2NTA2NjQxNC4wMDAwMDA='};var a=document.createElement('script');a.nonce='';a.src='/cdn-cgi/challenge-platform/scripts/jsd/main.js';document.getElementsByTagName('head')[0].appendChild(a);";b.getElementsByTagName('head')[0].appendChild(d)}}if(document.body){var a=document.createElement('iframe');a.height=1;a.width=1;a.style.position='absolute';a.style.top=0;a.style.left=0;a.style.border='none';a.style.visibility='hidden';document.body.appendChild(a);if('loading'!==document.readyState)c();else if(window.addEventListener)document.addEventListener('DOMContentLoaded',c);else{var e=document.onreadystatechange||function(){};document.onreadystatechange=function(b){e(b);'loading'!==document.readyState&&(document.onreadystatechange=e,c())}}}})();</script></body>
 </html>
