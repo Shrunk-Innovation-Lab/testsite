@@ -1,24 +1,79 @@
 {
-  "version": 1763072043717,
+  "version": 1763072043716,
   "entries": [
     {
-      "mac": "bc:57:29:05:7f:f0",
-      "alias": "240L General Waste",
+      "mac": "bc:57:29:1f:86:12",
+      "alias": "Bin 1",
       "mfg_len": 25
     },
     {
-      "mac": "bc:57:29:05:7f:7f",
-      "alias": "1100L General Waste",
+      "mac": "bc:57:29:1f:86:14",
+      "alias": "Bin 2",
       "mfg_len": 25
     },
     {
-      "mac": "bc:57:29:05:7f:f9",
-      "alias": "1100L Co-Mingled",
+      "mac": "bc:57:29:1f:86:15",
+      "alias": "Bin 3",
       "mfg_len": 25
     },
     {
-      "mac": "bc:57:29:05:7f:b5",
-      "alias": "1100L Cardboard",
+      "mac": "bc:57:29:1f:86:19",
+      "alias": "Bin 4",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:21",
+      "alias": "Bin 5",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:27",
+      "alias": "Bin 6",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:30",
+      "alias": "Bin 7",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:32",
+      "alias": "Bin 8",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:39",
+      "alias": "Bin 9",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:3b",
+      "alias": "Bin 10",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:4a",
+      "alias": "Bin 11",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:50",
+      "alias": "Bin 12",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:51",
+      "alias": "Bin 13",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:36",
+      "alias": "Bin 14",
+      "mfg_len": 25
+    },
+    {
+      "mac": "bc:57:29:1f:86:66",
+      "alias": "Bin 15",
       "mfg_len": 25
     }
   ]
