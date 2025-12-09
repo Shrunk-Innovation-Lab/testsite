@@ -27,22 +27,51 @@
             -webkit-font-smoothing: antialiased;
         }
 
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            width: 100%;
+        }
+
         header {
             display: flex;
-            justify-content: space-between;
             align-items: center;
+            gap: 12px;
             margin-bottom: 15px;
             padding: 10px 0;
-            gap: 15px;
             flex-wrap: wrap;
         }
 
-        .header-left {
-            display: flex;
+        .home-link {
+            display: inline-flex;
             align-items: center;
-            gap: 15px;
-            flex: 1;
-            min-width: 0;
+            justify-content: center;
+            width: 38px;
+            height: 38px;
+            border-radius: 999px;
+            border: 1px solid #d2d2d7;
+            background-color: #ffffff;
+            color: #007aff;
+            text-decoration: none;
+            flex-shrink: 0;
+            box-shadow: 0 1px 2px rgba(0,0,0,0.08);
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.1s, border-color 0.2s;
+        }
+
+        .home-link:hover {
+            background-color: #f5f5f7;
+            border-color: #007aff;
+            box-shadow: 0 2px 6px rgba(0,0,0,0.12);
+        }
+
+        .home-link:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+
+        .home-link svg {
+            width: 20px;
+            height: 20px;
         }
 
         .logo {
@@ -55,47 +84,7 @@
             font-weight: 600;
             color: #1d1d1f;
             text-align: left;
-        }
-
-        .home-btn {
-            display: inline-flex;
-            align-items: center;
-            justify-content: center;
-            width: 40px;
-            height: 40px;
-            border-radius: 999px;
-            border: 1px solid #d2d2d7;
-            background-color: #ffffff;
-            cursor: pointer;
-            text-decoration: none;
-            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
-            flex-shrink: 0;
-        }
-
-        .home-btn svg {
-            width: 20px;
-            height: 20px;
-            stroke: #007aff;
-            stroke-width: 1.8;
-            stroke-linecap: round;
-            stroke-linejoin: round;
-            fill: none;
-        }
-
-        .home-btn:hover {
-            background-color: #f5f5f7;
-            box-shadow: 0 1px 4px rgba(0,0,0,0.18);
-        }
-
-        .home-btn:active {
-            transform: scale(0.96);
-            box-shadow: none;
-        }
-
-        .container {
-            max-width: 1400px;
-            margin: 0 auto;
-            width: 100%;
+            flex: 1;
         }
 
         .controls-row {
@@ -116,6 +105,13 @@
             display: flex;
             gap: 8px;
             flex-wrap: wrap;
+        }
+
+        .controls-actions {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            flex: 0 1 auto;
         }
 
         .view-btn, .export-btn, .nav-btn, .filter-btn, .refresh-btn {
@@ -690,7 +686,7 @@
             display: none;
         }
 
-        /* Desktop Optimization - Fit calendar on screen */
+        /* Desktop tweaks */
         @media screen and (min-width: 769px) {
             .month-grid {
                 gap: 5px;
@@ -713,25 +709,34 @@
             }
 
             header {
-                flex-direction: row;
+                flex-direction: column;
+                justify-content: center;
                 align-items: center;
-                justify-content: space-between;
-            }
-
-            .header-left {
-                flex: 1;
-                min-width: 0;
+                text-align: center;
+                gap: 8px;
             }
 
             .header-title {
                 font-size: 1.1em;
+                text-align: center;
+            }
+
+            .home-link {
+                width: 42px;
+                height: 42px;
             }
 
             .controls-row {
-                padding: 12px;
+                flex-direction: column;
+                align-items: stretch;
             }
 
             .view-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .controls-actions {
                 width: 100%;
                 justify-content: center;
             }
@@ -741,6 +746,11 @@
                 min-width: 70px;
                 padding: 10px 12px;
                 font-size: 14px;
+            }
+
+            .refresh-btn,
+            .export-btn {
+                flex: 1;
             }
 
             .filters {
@@ -896,20 +906,28 @@
     </style>
 </head>
 <body>
-    <header>
-        <div class="header-left">
+    <div class="container">
+        <header>
+            <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
+                <svg viewBox="0 0 24 24" aria-hidden="true">
+                    <path d="M4 11L12 4L20 11V19A2 2 0 0 1 18 21H6A2 2 0 0 1 4 19V11Z"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
+                    <path d="M10 21V14H14V21"
+                          fill="none"
+                          stroke="currentColor"
+                          stroke-width="1.8"
+                          stroke-linecap="round"
+                          stroke-linejoin="round"/>
+                </svg>
+            </a>
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
             <h1 class="header-title">BinSpy Location Tracking Dashboard - Wills Street</h1>
-        </div>
-        <a href="/testsite/flipper/menu.html" class="home-btn" aria-label="Back to BinSpy menu">
-            <svg viewBox="0 0 24 24" aria-hidden="true">
-                <path d="M4 11L12 4l8 7"></path>
-                <path d="M6 10v9h5v-5h2v5h5v-9"></path>
-            </svg>
-        </a>
-    </header>
+        </header>
 
-    <div class="container">
         <div class="loading" id="loading">Loading bin data...</div>
         <div class="error" id="error" style="display: none;"></div>
         
@@ -921,7 +939,7 @@
                     <button class="view-btn" data-view="week">Weekly</button>
                     <button class="view-btn" data-view="day">Daily</button>
                 </div>
-                <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 0 1 auto;">
+                <div class="controls-actions">
                     <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
                         Refresh
                     </button>
@@ -1628,6 +1646,7 @@
             });
         });
 
+        // Auto-refresh every 10 seconds
         setInterval(() => loadData(true), 10000);
     </script>
 </body>
