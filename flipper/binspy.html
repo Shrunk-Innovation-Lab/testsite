@@ -9,6 +9,7 @@
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <link rel="apple-touch-icon" href="https://i.imgur.com/dZR7M8C.png">
     <style>
+
         * {
             margin: 0;
             padding: 0;
@@ -47,6 +48,36 @@
             color: #1d1d1f;
             text-align: center;
             flex: 1;
+        }
+
+        /* Home button */
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            padding: 8px 12px;
+            background-color: #007aff;
+            border: 1px solid #007aff;
+            color: #ffffff;
+            font-weight: 600;
+            font-size: 0.9em;
+            border-radius: 8px;
+            text-decoration: none;
+            cursor: pointer;
+            min-height: 36px;
+            -webkit-user-select: none;
+            user-select: none;
+            transition: transform 0.12s ease, background-color 0.12s ease;
+        }
+
+        .home-btn svg {
+            flex-shrink: 0;
+        }
+
+        .home-btn:active {
+            transform: scale(0.97);
+            background-color: #005ec9;
         }
 
         .container {
@@ -851,6 +882,17 @@
 <body>
     <header>
         <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
+
+        <!-- Home button back to index -->
+        <a href="index.html" class="home-btn" aria-label="Back to BinSpy directory">
+            <svg width="18" height="18" viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M3 11l9-8 9 8v9a2 2 0 0 1-2 2h-4a2 2 0 0 1-2-2v-4H9v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-9z"
+                      stroke="#ffffff" stroke-width="2" fill="none"
+                      stroke-linecap="round" stroke-linejoin="round"/>
+            </svg>
+            <span>Home</span>
+        </a>
+
         <h1 class="header-title">BinSpy Location Tracking Dashboard - Latrobe Street</h1>
     </header>
 
