@@ -1,0 +1,204 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BinSpy Location Directory</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+
+    <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/dZR7M8C.png">
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            padding: 12px 15px;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            width: 100%;
+            flex: 1;
+            display: flex;
+            flex-direction: column;
+        }
+
+        header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 20px;
+            padding-top: 10px;
+            flex-wrap: wrap;
+        }
+
+        .logo {
+            height: 40px;
+        }
+
+        .header-title {
+            font-size: 1.6em;
+            font-weight: 700;
+        }
+
+        .intro-text {
+            background: #ffffff;
+            padding: 16px;
+            border-radius: 12px;
+            border: 1px solid #d2d2d7;
+            margin-bottom: 20px;
+            font-size: 0.95em;
+            color: #555;
+        }
+
+        .location-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+            gap: 18px;
+        }
+
+        .location-card {
+            background-color: #ffffff;
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #d2d2d7;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+            transition: transform .15s ease, box-shadow .15s ease;
+        }
+
+        .location-card:hover {
+            transform: translateY(-3px);
+            box-shadow: 0 4px 12px rgba(0,0,0,0.14);
+        }
+
+        .location-title {
+            font-size: 1.15em;
+            font-weight: 600;
+        }
+
+        .location-desc {
+            font-size: 0.9em;
+            color: #666;
+            line-height: 1.45;
+        }
+
+        .dashboard-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            background-color: #007aff;
+            border: 1px solid #007aff;
+            color: #ffffff;
+            text-decoration: none;
+            padding: 12px 18px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 0.95em;
+            cursor: pointer;
+            min-height: 44px;
+            -webkit-user-select: none;
+            user-select: none;
+            transition: transform .12s ease, background-color .12s ease;
+        }
+
+        .dashboard-btn:active {
+            transform: scale(0.97);
+            background-color: #005ec9;
+        }
+
+        .dashboard-btn svg {
+            flex-shrink: 0;
+        }
+
+        footer {
+            margin-top: 24px;
+            text-align: center;
+            padding: 14px 10px 8px;
+            font-size: 0.75em;
+            color: #666;
+            background-color: #f5f5f7;
+        }
+
+        @media (max-width: 760px) {
+            .header-title { font-size: 1.3em; }
+            .location-card { padding: 16px; }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+
+        <!-- Header -->
+        <header>
+            <img src="https://i.imgur.com/iB983sa.png" class="logo" alt="BinSpy Logo">
+            <div class="header-title">BinSpy Location Directory</div>
+        </header>
+
+        <!-- Intro -->
+        <p class="intro-text">
+            Select a location to view its live BinSpy dashboard.
+        </p>
+
+        <!-- Locations -->
+        <div class="location-grid">
+
+            <!-- LaTrobe Street -->
+            <div class="location-card">
+                <div class="location-title">LaTrobe Street</div>
+                <div class="location-desc">
+                    Real-time bin tracking and status for the LaTrobe Street site.
+                </div>
+
+                <a href="https://shrunk-innovation-lab.github.io/testsite/flipper/binspy.html" class="dashboard-btn">
+                    <!-- Flat arrow icon -->
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M5 12h11M12 5l7 7-7 7"
+                              stroke="#ffffff" stroke-width="2" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Open Dashboard
+                </a>
+            </div>
+
+            <!-- Wills Street -->
+            <div class="location-card">
+                <div class="location-title">Wills Street</div>
+                <div class="location-desc">
+                    Monitor active bin movements and history for the Wills Street location.
+                </div>
+
+                <a href="https://shrunk-innovation-lab.github.io/testsite/flipper/binspy2.html" class="dashboard-btn">
+                    <svg width="20" height="20" viewBox="0 0 24 24">
+                        <path d="M5 12h11M12 5l7 7-7 7"
+                              stroke="#ffffff" stroke-width="2" fill="none"
+                              stroke-linecap="round" stroke-linejoin="round"/>
+                    </svg>
+                    Open Dashboard
+                </a>
+            </div>
+
+        </div>
+
+        <footer>2025 | Wasted by Shrunk | All Rights Reserved</footer>
+
+    </div>
+</body>
+</html>
