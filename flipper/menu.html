@@ -2,10 +2,10 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=5.0, user-scalable=yes">
+    <title>BinSpy Dashboards</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
-    <title>BinSpy Menu</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <link rel="apple-touch-icon" href="https://i.imgur.com/dZR7M8C.png">
     <style>
@@ -20,242 +20,313 @@
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
             background-color: #f5f5f7;
             color: #1d1d1f;
+            min-height: 100vh;
             display: flex;
             flex-direction: column;
-            min-height: 100vh;
-            padding: 12px 15px;
             -webkit-font-smoothing: antialiased;
         }
 
-        .container {
-            max-width: 900px;
-            margin: 0 auto;
+        .page {
+            max-width: 1100px;
             width: 100%;
+            margin: 0 auto;
+            padding: 16px 16px 24px;
+            display: flex;
+            flex-direction: column;
+            gap: 18px;
         }
 
-        header {
+        header.site-header {
             display: flex;
             align-items: center;
-            justify-content: flex-start;
-            gap: 16px;
-            padding: 10px 0 20px 0;
+            gap: 14px;
+            margin-bottom: 8px;
+            flex-wrap: wrap;
         }
 
         .logo {
-            height: 40px;
+            height: 42px;
             flex-shrink: 0;
         }
 
-        .header-text {
+        .title-block {
             display: flex;
             flex-direction: column;
             gap: 4px;
         }
 
-        .header-title {
-            font-size: 1.5em;
+        .title-block h1 {
+            font-size: 1.6rem;
             font-weight: 700;
-            color: #1d1d1f;
+            letter-spacing: 0.01em;
         }
 
-        .header-subtitle {
-            font-size: 0.95em;
-            color: #666;
+        .title-block p {
+            font-size: 0.95rem;
+            color: #5f5f62;
         }
 
-        .menu-section {
-            background-color: #ffffff;
-            border-radius: 14px;
-            padding: 18px 16px 20px;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        .info-banner {
+            background: #ffffff;
+            border-radius: 10px;
+            padding: 10px 12px;
             border: 1px solid #d2d2d7;
+            font-size: 0.9rem;
+            color: #555;
+            display: flex;
+            align-items: center;
+            gap: 8px;
         }
 
-        .menu-heading {
-            font-size: 1.05em;
-            font-weight: 600;
-            margin-bottom: 12px;
-            color: #1d1d1f;
+        .info-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 999px;
+            background: #34c759;
+            box-shadow: 0 0 0 4px rgba(52,199,89,0.2);
+            flex-shrink: 0;
         }
 
         .menu-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            gap: 14px;
+            margin-top: 4px;
         }
 
         .menu-card {
-            display: block;
-            padding: 14px 14px 16px;
+            background-color: #ffffff;
             border-radius: 12px;
             border: 1px solid #d2d2d7;
-            background-color: #ffffff;
-            text-decoration: none;
-            color: inherit;
             box-shadow: 0 1px 3px rgba(0,0,0,0.08);
-            transition: transform 0.15s ease, box-shadow 0.15s ease, border-color 0.15s ease, background-color 0.15s ease;
-        }
-
-        .menu-card:hover {
-            transform: translateY(-1px);
-            box-shadow: 0 4px 10px rgba(0,0,0,0.12);
-            border-color: #007aff;
-        }
-
-        .menu-card:active {
-            transform: scale(0.97);
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            padding: 16px 16px 14px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            gap: 10px;
         }
 
         .menu-card-header {
             display: flex;
             align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            margin-bottom: 8px;
+            gap: 10px;
         }
 
-        .menu-card-title {
-            font-size: 1.02em;
-            font-weight: 600;
-        }
-
-        .tag {
-            font-size: 0.7em;
+        .menu-pill {
+            font-size: 0.75rem;
             text-transform: uppercase;
-            letter-spacing: 0.6px;
-            padding: 3px 8px;
+            letter-spacing: 0.05em;
+            padding: 4px 8px;
             border-radius: 999px;
             border: 1px solid #d2d2d7;
             color: #666;
-            background-color: #f5f5f7;
-            flex-shrink: 0;
         }
 
-        .menu-card-body {
-            font-size: 0.9em;
+        .menu-card h2 {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .menu-card p {
+            font-size: 0.9rem;
             color: #555;
-            margin-bottom: 10px;
         }
 
-        .menu-card-meta {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 8px;
-            font-size: 0.78em;
+        .menu-meta {
+            font-size: 0.8rem;
             color: #777;
+            margin-top: 2px;
         }
 
-        .chip {
-            padding: 3px 8px;
+        .menu-actions {
+            margin-top: 4px;
+            display: flex;
+            gap: 8px;
+        }
+
+        .menu-link {
+            flex: 1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 11px 14px;
             border-radius: 999px;
-            background-color: #e5f2ff;
-            color: #0056b3;
-            font-weight: 500;
+            border: 1px solid #007aff;
+            background: #007aff;
+            color: #ffffff;
+            font-size: 0.95rem;
+            font-weight: 600;
+            text-decoration: none;
+            min-height: 44px;
+            cursor: pointer;
+            transition: background-color 0.2s, box-shadow 0.2s, transform 0.08s;
         }
 
-        .arrow {
-            font-size: 1.1em;
+        .menu-link.secondary {
+            background: #ffffff;
+            color: #007aff;
+        }
+
+        .menu-link svg {
+            width: 16px;
+            height: 16px;
+        }
+
+        .menu-link:active {
+            transform: scale(0.97);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.16);
+        }
+
+        .coming-soon {
+            opacity: 0.6;
+        }
+
+        .coming-soon .menu-link {
+            border-style: dashed;
+            border-color: #d2d2d7;
+            background: #f5f5f7;
+            color: #777;
+            pointer-events: none;
         }
 
         footer {
             margin-top: auto;
+            padding: 10px 16px 16px;
             text-align: center;
-            padding: 15px 20px;
-            font-size: 12px;
-            background-color: #f5f5f7;
-            color: #1d1d1f;
+            font-size: 0.75rem;
+            color: #888;
         }
 
-        /* Mobile: center logo + heading */
-        @media screen and (max-width: 768px) {
-            body {
-                padding: 12px 12px 16px;
+        /* Mobile layout */
+        @media (max-width: 768px) {
+            .page {
+                padding: 14px 12px 20px;
             }
 
-            header {
+            header.site-header {
                 flex-direction: column;
-                justify-content: center;
                 align-items: center;
                 text-align: center;
             }
 
-            .header-text {
-                align-items: center;
-            }
-
-            .header-title {
-                font-size: 1.3em;
-            }
-
-            .header-subtitle {
-                font-size: 0.9em;
-            }
-
-            .menu-section {
-                padding: 14px 12px 18px;
-            }
-
-            .menu-card {
-                padding: 12px 12px 14px;
-            }
-        }
-
-        @media screen and (max-width: 480px) {
             .logo {
-                height: 36px;
+                height: 40px;
+            }
+
+            .title-block h1 {
+                font-size: 1.3rem;
+            }
+
+            .title-block p {
+                font-size: 0.9rem;
+            }
+
+            .info-banner {
+                font-size: 0.85rem;
             }
 
             .menu-grid {
                 grid-template-columns: 1fr;
             }
+
+            .menu-card {
+                padding: 14px 14px 12px;
+            }
+        }
+
+        @media (max-width: 420px) {
+            .title-block h1 {
+                font-size: 1.15rem;
+            }
+
+            .menu-link {
+                font-size: 0.9rem;
+                padding: 10px 12px;
+            }
         }
     </style>
 </head>
 <body>
-    <div class="container">
-        <header>
+    <div class="page">
+        <header class="site-header">
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
-            <div class="header-text">
-                <h1 class="header-title">BinSpy Site Dashboards</h1>
-                <p class="header-subtitle">Choose a site to view bin location data</p>
+            <div class="title-block">
+                <h1>BinSpy Live Dashboards</h1>
+                <p>Choose a site to view real-time bin location status.</p>
             </div>
         </header>
 
-        <main>
-            <section class="menu-section">
-                <h2 class="menu-heading">Sites</h2>
+        <div class="info-banner">
+            <div class="info-dot"></div>
+            <div>Dashboards auto-refresh while open. For the best experience, add this page to your home screen.</div>
+        </div>
 
-                <div class="menu-grid">
-                    <!-- LaTrobe Street -->
-                    <a href="binspy.html" class="menu-card">
-                        <div class="menu-card-header">
-                            <div class="menu-card-title">LaTrobe Street</div>
-                            <span class="tag">BinSpy</span>
-                        </div>
-                        <p class="menu-card-body">
-                            Monitor live bin presence and historical movements for binspy trackers deployed on LaTrobe Street.
-                        </p>
-                        <div class="menu-card-meta">
-                            <span class="chip">Location Tracking</span>
-                            <span class="arrow">›</span>
-                        </div>
+        <main class="menu-grid" aria-label="BinSpy dashboard selection">
+            <!-- LaTrobe Street -->
+            <section class="menu-card">
+                <div>
+                    <div class="menu-card-header">
+                        <span class="menu-pill">Active</span>
+                    </div>
+                    <h2>LaTrobe Street</h2>
+                    <p>Live tracking of tagged bins in and around LaTrobe Street.</p>
+                    <div class="menu-meta">View dashboard, filter by bin and time period, export CSV.</div>
+                </div>
+                <div class="menu-actions">
+                    <a href="binspy.html" class="menu-link">
+                        <span>Open LaTrobe Dashboard</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12H19M13 6L19 12L13 18"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
                     </a>
+                </div>
+            </section>
 
-                    <!-- Wills Street -->
-                    <a href="binspy2.html" class="menu-card">
-                        <div class="menu-card-header">
-                            <div class="menu-card-title">Wills Street</div>
-                            <span class="tag">BinSpy</span>
-                        </div>
-                        <p class="menu-card-body">
-                            Monitor live bin presence and historical movements for binspy trackers deployed on Wills Street.
-                        </p>
-                        <div class="menu-card-meta">
-                            <span class="chip">Location Tracking</span>
-                            <span class="arrow">›</span>
-                        </div>
+            <!-- Wills Street -->
+            <section class="menu-card">
+                <div>
+                    <div class="menu-card-header">
+                        <span class="menu-pill">Active</span>
+                    </div>
+                    <h2>Wills Street</h2>
+                    <p>Location and signal strength of Wills Street smart bins.</p>
+                    <div class="menu-meta">Includes dashboard, calendar views, and CSV exports.</div>
+                </div>
+                <div class="menu-actions">
+                    <a href="binspy2.html" class="menu-link">
+                        <span>Open Wills Dashboard</span>
+                        <svg viewBox="0 0 24 24" aria-hidden="true">
+                            <path d="M5 12H19M13 6L19 12L13 18"
+                                  fill="none"
+                                  stroke="currentColor"
+                                  stroke-width="1.8"
+                                  stroke-linecap="round"
+                                  stroke-linejoin="round"/>
+                        </svg>
+                    </a>
+                </div>
+            </section>
+
+            <!-- Extra slot / future site -->
+            <section class="menu-card coming-soon">
+                <div>
+                    <div class="menu-card-header">
+                        <span class="menu-pill">Coming soon</span>
+                    </div>
+                    <h2>Additional Sites</h2>
+                    <p>Future locations will appear here as new BinSpy deployments go live.</p>
+                    <div class="menu-meta">Speak to Shrunk Innovation Lab to add another site.</div>
+                </div>
+                <div class="menu-actions">
+                    <a class="menu-link secondary">
+                        <span>Not yet available</span>
                     </a>
                 </div>
             </section>
@@ -263,7 +334,7 @@
     </div>
 
     <footer>
-        2025 | Wasted by Shrunk | All Rights Reserved
+        2025 &middot; Wasted by Shrunk &middot; All Rights Reserved
     </footer>
 </body>
 </html>
