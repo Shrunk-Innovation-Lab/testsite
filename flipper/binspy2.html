@@ -2,7 +2,7 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes">
+    <meta name="viewport" content="width=device-width, initial-scale=5.0, user-scalable=yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <title>BinSpy</title>
@@ -29,7 +29,7 @@
 
         header {
             display: flex;
-            justify-content: flex-start;
+            justify-content: space-between;
             align-items: center;
             margin-bottom: 15px;
             padding: 10px 0;
@@ -37,16 +37,59 @@
             flex-wrap: wrap;
         }
 
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            flex: 1;
+            min-width: 0;
+        }
+
         .logo {
             height: 35px;
+            flex-shrink: 0;
         }
 
         .header-title {
             font-size: 1.2em;
             font-weight: 600;
             color: #1d1d1f;
-            text-align: center;
-            flex: 1;
+            text-align: left;
+        }
+
+        .home-btn {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid #d2d2d7;
+            background-color: #ffffff;
+            cursor: pointer;
+            text-decoration: none;
+            transition: background-color 0.2s ease, box-shadow 0.2s ease, transform 0.08s ease;
+            flex-shrink: 0;
+        }
+
+        .home-btn svg {
+            width: 20px;
+            height: 20px;
+            stroke: #007aff;
+            stroke-width: 1.8;
+            stroke-linecap: round;
+            stroke-linejoin: round;
+            fill: none;
+        }
+
+        .home-btn:hover {
+            background-color: #f5f5f7;
+            box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        }
+
+        .home-btn:active {
+            transform: scale(0.96);
+            box-shadow: none;
         }
 
         .container {
@@ -670,10 +713,14 @@
             }
 
             header {
-                flex-direction: column;
+                flex-direction: row;
                 align-items: center;
-                gap: 10px;
-                padding: 10px 0;
+                justify-content: space-between;
+            }
+
+            .header-left {
+                flex: 1;
+                min-width: 0;
             }
 
             .header-title {
@@ -850,8 +897,16 @@
 </head>
 <body>
     <header>
-        <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
-        <h1 class="header-title">BinSpy Location Tracking Dashboard - Wills Street</h1>
+        <div class="header-left">
+            <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
+            <h1 class="header-title">BinSpy Location Tracking Dashboard - Wills Street</h1>
+        </div>
+        <a href="/testsite/flipper/menu.html" class="home-btn" aria-label="Back to BinSpy menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 11L12 4l8 7"></path>
+                <path d="M6 10v9h5v-5h2v5h5v-9"></path>
+            </svg>
+        </a>
     </header>
 
     <div class="container">
@@ -1136,7 +1191,6 @@
             document.getElementById('dashboardView').classList.add('hidden');
             document.getElementById('calendarView').classList.remove('hidden');
             
-            // Show/hide expand all button based on view
             const existingBtn = document.getElementById('expandAllBtn');
             if (existingBtn) {
                 existingBtn.remove();
@@ -1146,7 +1200,6 @@
                 displayMonthView();
             } else if (currentView === 'week') {
                 displayWeekView();
-                // Add expand all button after rendering
                 setTimeout(() => {
                     const calendarNav = document.querySelector('.calendar-nav');
                     if (calendarNav && !document.getElementById('expandAllBtn')) {
@@ -1178,7 +1231,6 @@
                 currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
             
             const firstDay = new Date(year, month, 1);
-            const lastDay = new Date(year, month + 1, 0);
             const startDate = new Date(firstDay);
             startDate.setDate(startDate.getDate() - startDate.getDay());
             
@@ -1282,7 +1334,6 @@
             html += '</div>';
             document.getElementById('calendarContent').innerHTML = html;
             
-            // Set initial max-height for expanded days only
             setTimeout(() => {
                 for (let i = 0; i < 7; i++) {
                     const eventsElement = document.getElementById(`week-events-${i}`);
@@ -1299,13 +1350,11 @@
             const headerElement = dayElement.querySelector('.week-day-header');
             
             if (eventsElement.classList.contains('collapsed')) {
-                // Expand
                 eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                 eventsElement.classList.remove('collapsed');
                 headerElement.classList.remove('collapsed');
                 dayElement.classList.remove('collapsed');
             } else {
-                // Collapse
                 eventsElement.style.maxHeight = '0';
                 eventsElement.classList.add('collapsed');
                 headerElement.classList.add('collapsed');
@@ -1314,7 +1363,6 @@
         }
 
         function toggleAllWeekDays() {
-            // Count how many days are collapsed
             let collapsedCount = 0;
             for (let i = 0; i < 7; i++) {
                 const eventsElement = document.getElementById(`week-events-${i}`);
@@ -1323,7 +1371,6 @@
                 }
             }
             
-            // If more than half are collapsed, expand all. Otherwise collapse all.
             const shouldExpand = collapsedCount >= 4;
             
             for (let i = 0; i < 7; i++) {
@@ -1334,13 +1381,11 @@
                 if (!dayElement || !eventsElement || !headerElement) continue;
                 
                 if (shouldExpand) {
-                    // Expand all
                     eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                     eventsElement.classList.remove('collapsed');
                     headerElement.classList.remove('collapsed');
                     dayElement.classList.remove('collapsed');
                 } else {
-                    // Collapse all
                     eventsElement.style.maxHeight = '0';
                     eventsElement.classList.add('collapsed');
                     headerElement.classList.add('collapsed');
@@ -1348,7 +1393,6 @@
                 }
             }
             
-            // Update button text
             const btn = document.getElementById('expandAllBtn');
             if (btn) {
                 btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
@@ -1401,22 +1445,19 @@
             const now = new Date();
             const textElement = document.getElementById('lastUpdatedText');
             if (textElement) {
-                textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
+                textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 10s`;
             }
         }
 
-        // Manual Refresh Function
         function manualRefresh() {
             loadData(true);
         }
 
-        // CSV Export Function
         function exportToCSV() {
             let dataToExport = [];
             let filename = '';
 
             if (currentView === 'dashboard') {
-                // Export current dashboard data
                 let filteredBins = latestBins;
                 
                 if (currentFilter === 'in') {
@@ -1444,7 +1485,6 @@
                 filename = `binspy-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
 
             } else {
-                // Export calendar view data
                 const readings = getFilteredReadings();
                 
                 if (currentView === 'month') {
@@ -1512,10 +1552,8 @@
                 return;
             }
 
-            // Convert to CSV
             const csv = Papa.unparse(dataToExport);
             
-            // Create download link
             const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
             const link = document.createElement('a');
             const url = URL.createObjectURL(blob);
@@ -1590,7 +1628,6 @@
             });
         });
 
-        // Auto-refresh every 10 seconds
         setInterval(() => loadData(true), 10000);
     </script>
 </body>
