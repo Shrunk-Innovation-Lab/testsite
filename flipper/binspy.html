@@ -251,10 +251,19 @@
             border-left-color: #ff3b30;
         }
 
+        /* Header row: name + waste pill */
+        .bin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
         .bin-name {
             font-size: 1.02em;
             font-weight: 600;
-            margin-bottom: 6px;
+            margin-bottom: 0; /* changed from 6px so it works inside .bin-header */
             color: #1d1d1f;
         }
 
@@ -286,6 +295,27 @@
 
         .bin-details div {
             margin: 3px 0;
+        }
+
+        /* Waste-type pills */
+        .bin-type-pill {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .bin-type-pill.general {
+            background-color: #ff3b30; /* red */
+            color: #ffffff;
+        }
+
+        .bin-type-pill.commingle {
+            background-color: #ffd60a; /* yellow */
+            color: #1d1d1f;
         }
 
         .loading {
@@ -1113,6 +1143,33 @@
         return state === 'IN';
     }
 
+    // Map bin number → waste type for LaTrobe (1–15)
+    // 1,2,3,5,6,7,10,12,13,14 = General Waste
+    // 4,8,9,11,15 = Commingle
+    const wasteTypeByNumber = {
+        1: 'general',
+        2: 'general',
+        3: 'general',
+        4: 'commingle',
+        5: 'general',
+        6: 'general',
+        7: 'general',
+        8: 'commingle',
+        9: 'commingle',
+        10: 'general',
+        11: 'commingle',
+        12: 'general',
+        13: 'general',
+        14: 'general',
+        15: 'commingle'
+    };
+
+    // Extract first number from alias/name (e.g. "1 - General Waste")
+    function getBinNumberFromName(name) {
+        const match = String(name).match(/\d+/);
+        return match ? parseInt(match[0], 10) : null;
+    }
+
     function displayBins() {
         let filteredBins = latestBins;
 
@@ -1147,9 +1204,21 @@
             const mac = bin.mac || bin.MAC || '';
             const rssi = bin.rssi || bin.RSSI || '';
 
+            const binNumber = getBinNumberFromName(binName);
+            const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+            let wastePillHtml = '';
+
+            if (wasteTypeKey) {
+                const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingle';
+                wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
+            }
+
             return `
                 <div class="bin-card ${statusClass}">
-                    <div class="bin-name">${binName}</div>
+                    <div class="bin-header">
+                        <div class="bin-name">${binName}</div>
+                        ${wastePillHtml}
+                    </div>
                     <span class="bin-status ${statusClass}">${statusText}</span>
                     <div class="bin-details">
                         ${timestampStr ? `<div><strong>Last Seen:</strong> ${timestampStr}</div>` : ''}
