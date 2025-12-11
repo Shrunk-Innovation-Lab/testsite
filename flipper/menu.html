@@ -88,8 +88,9 @@
         }
 
         .menu-grid {
+            /* slightly wider cards so CTAs fit */
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+            grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
             gap: 14px;
             margin-top: 4px;
         }
@@ -103,7 +104,7 @@
             display: flex;
             flex-direction: column;
             justify-content: space-between;
-            gap: 10px;
+            gap: 12px;
         }
 
         .menu-card-header {
@@ -142,52 +143,78 @@
         .menu-actions {
             margin-top: 4px;
             display: flex;
-            gap: 8px;
+            justify-content: flex-start;
         }
 
+        /* slimmer pill-style CTA that fits in card */
         .menu-link {
-            flex: 1;
             display: inline-flex;
             align-items: center;
             justify-content: center;
-            gap: 6px;
-            padding: 11px 14px;
+            gap: 8px;
+            padding: 7px 12px;
             border-radius: 999px;
-            border: 1px solid #007aff;
-            background: #007aff;
-            color: #ffffff;
-            font-size: 0.95rem;
+            border: 1px solid rgba(0, 122, 255, 0.25);
+            background: rgba(0, 122, 255, 0.08);
+            color: #007aff;
+            font-size: 0.9rem;
             font-weight: 600;
             text-decoration: none;
-            min-height: 44px;
             cursor: pointer;
-            transition: background-color 0.2s, box-shadow 0.2s, transform 0.08s;
+            min-height: 36px;
+            white-space: nowrap;     /* keep text single line */
+            flex: 0 0 auto;          /* size to content */
+            transition: background-color 0.16s, border-color 0.16s, transform 0.08s, box-shadow 0.16s;
         }
 
-        .menu-link.secondary {
+        .menu-link-label {
+            display: inline-block;
+            white-space: nowrap;
+        }
+
+        .menu-link-icon {
+            width: 20px;
+            height: 20px;
+            border-radius: 999px;
             background: #ffffff;
-            color: #007aff;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
         }
 
-        .menu-link svg {
-            width: 16px;
-            height: 16px;
+        .menu-link-icon svg {
+            width: 12px;
+            height: 12px;
+        }
+
+        .menu-link:hover {
+            background: rgba(0, 122, 255, 0.12);
+            border-color: rgba(0, 122, 255, 0.4);
         }
 
         .menu-link:active {
-            transform: scale(0.97);
-            box-shadow: 0 1px 4px rgba(0,0,0,0.16);
+            transform: translateY(1px);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.14);
         }
 
-        .coming-soon {
-            opacity: 0.6;
-        }
-
-        .coming-soon .menu-link {
+        .menu-link.secondary {
             border-style: dashed;
             border-color: #d2d2d7;
             background: #f5f5f7;
             color: #777;
+        }
+
+        .menu-link.secondary .menu-link-icon {
+            background: #ffffff;
+            opacity: 0.7;
+        }
+
+        .coming-soon {
+            opacity: 0.7;
+        }
+
+        .coming-soon .menu-link {
             pointer-events: none;
         }
 
@@ -242,8 +269,8 @@
             }
 
             .menu-link {
-                font-size: 0.9rem;
-                padding: 10px 12px;
+                font-size: 0.86rem;
+                padding: 6px 10px;
             }
         }
     </style>
@@ -276,15 +303,17 @@
                 </div>
                 <div class="menu-actions">
                     <a href="binspy.html" class="menu-link">
-                        <span>Go BinSpying at LaTrobe</span>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M5 12H19M13 6L19 12L13 18"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  stroke-width="1.8"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"/>
-                        </svg>
+                        <span class="menu-link-label">Go BinSpying at LaTrobe</span>
+                        <span class="menu-link-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12H19M13 6L19 12L13 18"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                        </span>
                     </a>
                 </div>
             </section>
@@ -297,19 +326,21 @@
                     </div>
                     <h2>Wills Street</h2>
                     <p>Dashboard for Wills Street BinSpy monitoring.</p>
-                    <div class="menu-meta">Includes livedashboard, calendar views and CSV exports.</div>
+                    <div class="menu-meta">Includes live dashboard, calendar views and CSV exports.</div>
                 </div>
                 <div class="menu-actions">
                     <a href="binspy2.html" class="menu-link">
-                        <span>Go BinSpying at Wills St</span>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M5 12H19M13 6L19 12L13 18"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  stroke-width="1.8"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"/>
-                        </svg>
+                        <span class="menu-link-label">Go BinSpying at Wills St</span>
+                        <span class="menu-link-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12H19M13 6L19 12L13 18"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                        </span>
                     </a>
                 </div>
             </section>
@@ -322,19 +353,21 @@
                     </div>
                     <h2>Footscray</h2>
                     <p>Dashboard for Footscray BinSpy monitoring.</p>
-                    <div class="menu-meta">Includes livedashboard, calendar views and CSV exports.</div>
+                    <div class="menu-meta">Includes live dashboard, calendar views and CSV exports.</div>
                 </div>
                 <div class="menu-actions">
                     <a href="binspy3.html" class="menu-link">
-                        <span>Go BinSpying at Footscray</span>
-                        <svg viewBox="0 0 24 24" aria-hidden="true">
-                            <path d="M5 12H19M13 6L19 12L13 18"
-                                  fill="none"
-                                  stroke="currentColor"
-                                  stroke-width="1.8"
-                                  stroke-linecap="round"
-                                  stroke-linejoin="round"/>
-                        </svg>
+                        <span class="menu-link-label">Go BinSpying at Footscray</span>
+                        <span class="menu-link-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12H19M13 6L19 12L13 18"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                        </span>
                     </a>
                 </div>
             </section>
@@ -351,7 +384,17 @@
                 </div>
                 <div class="menu-actions">
                     <a class="menu-link secondary">
-                        <span>Not yet available</span>
+                        <span class="menu-link-label">Not yet available</span>
+                        <span class="menu-link-icon">
+                            <svg viewBox="0 0 24 24" aria-hidden="true">
+                                <path d="M5 12H19M13 6L19 12L13 18"
+                                      fill="none"
+                                      stroke="currentColor"
+                                      stroke-width="1.8"
+                                      stroke-linecap="round"
+                                      stroke-linejoin="round"/>
+                            </svg>
+                        </span>
                     </a>
                 </div>
             </section>
