@@ -1,3 +1,10 @@
+Here you go — full, fixed code with:
+
+* **General / Commingle pills** on dashboard cards
+* **Pill moved to the right side** in the *Daily* timeline view
+* The **syntax error (`the total`) fixed** → now `const total = ...`
+
+```html
 <!DOCTYPE html>
 <html lang="en">
 <head>
@@ -263,7 +270,7 @@
         .bin-name {
             font-size: 1.02em;
             font-weight: 600;
-            margin-bottom: 0; /* changed from 6px so it works inside .bin-header */
+            margin-bottom: 0;
             color: #1d1d1f;
         }
 
@@ -656,14 +663,38 @@
             border-left-color: #ff3b30;
         }
 
+        /* New layout for daily entries: time, main text, pill on the right */
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+
+        .timeline-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+            flex: 1;
+        }
+
         .timeline-time {
             font-weight: 600;
-            margin-bottom: 2px;
             color: #1d1d1f;
+            font-size: 0.86em;
         }
 
         .timeline-details {
             color: #1d1d1f;
+        }
+
+        .timeline-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .timeline-info {
@@ -1144,8 +1175,6 @@
     }
 
     // Map bin number → waste type for LaTrobe (1–15)
-    // 1,2,3,5,6,7,10,12,13,14 = General Waste
-    // 4,8,9,11,15 = Commingle
     const wasteTypeByNumber = {
         1: 'general',
         2: 'general',
@@ -1463,9 +1492,25 @@
                 const mac = reading.mac || reading.MAC || '';
                 const rssi = reading.rssi || reading.RSSI || '';
 
+                const binNumber = getBinNumberFromName(alias);
+                const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+                let wastePillHtml = '';
+
+                if (wasteTypeKey) {
+                    const label = wasteTypeKey === 'general' ? 'GENERAL WASTE' : 'COMMINGLE';
+                    wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
+                }
+
                 html += `<div class="timeline-event ${statusClass}">
-                    <div class="timeline-time">${time}</div>
-                    <div class="timeline-details">${alias} - ${state}</div>
+                    <div class="timeline-header">
+                        <div class="timeline-main">
+                            <div class="timeline-time">${time}</div>
+                            <div class="timeline-details">${alias} - ${state}</div>
+                        </div>
+                        <div class="timeline-right">
+                            ${wastePillHtml}
+                        </div>
+                    </div>
                     <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
                 </div>`;
             });
@@ -1676,3 +1721,4 @@
 </script>
 </body>
 </html>
+```
