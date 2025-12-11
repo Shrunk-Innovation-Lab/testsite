@@ -251,7 +251,7 @@
             border-left-color: #ff3b30;
         }
 
-        /* Header row: name + waste-type pill */
+        /* Header row: name + waste pill */
         .bin-header {
             display: flex;
             align-items: center;
@@ -263,7 +263,7 @@
         .bin-name {
             font-size: 1.02em;
             font-weight: 600;
-            margin-bottom: 0; /* changed from 6px to work inside .bin-header */
+            margin-bottom: 0;
             color: #1d1d1f;
         }
 
@@ -297,7 +297,7 @@
             margin: 3px 0;
         }
 
-        /* Waste type pills */
+        /* Waste-type pills */
         .bin-type-pill {
             padding: 3px 10px;
             border-radius: 999px;
@@ -313,7 +313,7 @@
             color: #ffffff;
         }
 
-        .bin-type-pill.commingled {
+        .bin-type-pill.commingle {
             background-color: #ffd60a; /* yellow */
             color: #1d1d1f;
         }
@@ -656,14 +656,38 @@
             border-left-color: #ff3b30;
         }
 
+        /* New layout for daily entries: time, main text, pill on the right */
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+
+        .timeline-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+            flex: 1;
+        }
+
         .timeline-time {
             font-weight: 600;
-            margin-bottom: 2px;
             color: #1d1d1f;
+            font-size: 0.86em;
         }
 
         .timeline-details {
             color: #1d1d1f;
+        }
+
+        .timeline-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
         }
 
         .timeline-info {
@@ -718,6 +742,7 @@
             display: none;
         }
 
+        /* Desktop tweaks */
         @media screen and (min-width: 769px) {
             .month-grid {
                 gap: 5px;
@@ -731,6 +756,7 @@
             }
         }
 
+        /* Mobile optimisations */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px 10px 14px;
@@ -895,7 +921,7 @@
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
             <h1 class="header-title">
                 BinSpy Location Tracking Dashboard
-                <span>Wills Street</span>
+                <span>LaTrobe Street</span>
             </h1>
         </div>
         <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
@@ -937,6 +963,7 @@
                 <span id="lastUpdatedText"></span>
             </div>
 
+            <!-- Dashboard View -->
             <div id="dashboardView">
                 <div class="stats" id="stats"></div>
 
@@ -950,6 +977,7 @@
                 <div class="bins-grid" id="binsGrid"></div>
             </div>
 
+            <!-- Calendar Views -->
             <div id="calendarView" class="hidden">
                 <div class="calendar-container">
                     <div class="calendar-header">
@@ -1160,7 +1188,7 @@
         32: 'commingled'
     };
 
-    // Extract first number from alias/name (e.g. "16 - General Waste")
+    // Extract first number from alias/name (e.g. "1 - General Waste")
     function getBinNumberFromName(name) {
         const match = String(name).match(/\d+/);
         return match ? parseInt(match[0], 10) : null;
@@ -1205,7 +1233,7 @@
             let wastePillHtml = '';
 
             if (wasteTypeKey) {
-                const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingled';
+                const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingle';
                 wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
             }
 
@@ -1459,9 +1487,25 @@
                 const mac = reading.mac || reading.MAC || '';
                 const rssi = reading.rssi || reading.RSSI || '';
 
+                const binNumber = getBinNumberFromName(alias);
+                const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+                let wastePillHtml = '';
+
+                if (wasteTypeKey) {
+                    const label = wasteTypeKey === 'general' ? 'GENERAL WASTE' : 'COMMINGLE';
+                    wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
+                }
+
                 html += `<div class="timeline-event ${statusClass}">
-                    <div class="timeline-time">${time}</div>
-                    <div class="timeline-details">${alias} - ${state}</div>
+                    <div class="timeline-header">
+                        <div class="timeline-main">
+                            <div class="timeline-time">${time}</div>
+                            <div class="timeline-details">${alias} - ${state}</div>
+                        </div>
+                        <div class="timeline-right">
+                            ${wastePillHtml}
+                        </div>
+                    </div>
                     <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
                 </div>`;
             });
@@ -1484,7 +1528,7 @@
         const now = new Date();
         const textElement = document.getElementById('lastUpdatedText');
         if (textElement) {
-            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 10s`;
+            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
         }
     }
 
@@ -1667,8 +1711,8 @@
         });
     });
 
-    // Auto-refresh every 10 seconds
-    setInterval(() => loadData(true), 10000);
+    // Auto-refresh every 60 seconds
+    setInterval(() => loadData(true), 60000);
 </script>
 </body>
 </html>
