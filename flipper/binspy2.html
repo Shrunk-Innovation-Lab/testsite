@@ -251,7 +251,7 @@
             border-left-color: #ff3b30;
         }
 
-        /* Header row: name + waste pill */
+        /* Header row: name + waste-type pill */
         .bin-header {
             display: flex;
             align-items: center;
@@ -297,7 +297,7 @@
             margin: 3px 0;
         }
 
-        /* Waste-type pills */
+        /* Waste type pills */
         .bin-type-pill {
             padding: 3px 10px;
             border-radius: 999px;
@@ -313,7 +313,7 @@
             color: #ffffff;
         }
 
-        .bin-type-pill.commingle {
+        .bin-type-pill.commingled {
             background-color: #ffd60a; /* yellow */
             color: #1d1d1f;
         }
@@ -656,38 +656,23 @@
             border-left-color: #ff3b30;
         }
 
-        /* New layout for daily entries: time, main text, pill on the right */
-        .timeline-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 2px;
-        }
-
-        .timeline-main {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            min-width: 0;
-            flex: 1;
-        }
-
         .timeline-time {
             font-weight: 600;
+            margin-bottom: 2px;
             color: #1d1d1f;
-            font-size: 0.86em;
         }
 
+        /* NEW: make details a flex row and allow pill to go to the right */
         .timeline-details {
             color: #1d1d1f;
-        }
-
-        .timeline-right {
-            flex-shrink: 0;
             display: flex;
             align-items: center;
-            justify-content: flex-end;
+            gap: 6px;
+            flex-wrap: wrap;
+        }
+
+        .timeline-pill {
+            margin-left: auto;
         }
 
         .timeline-info {
@@ -742,7 +727,6 @@
             display: none;
         }
 
-        /* Desktop tweaks */
         @media screen and (min-width: 769px) {
             .month-grid {
                 gap: 5px;
@@ -756,7 +740,6 @@
             }
         }
 
-        /* Mobile optimisations */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px 10px 14px;
@@ -921,7 +904,7 @@
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
             <h1 class="header-title">
                 BinSpy Location Tracking Dashboard
-                <span>LaTrobe Street</span>
+                <span>Wills Street</span>
             </h1>
         </div>
         <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
@@ -1167,7 +1150,7 @@
         return state === 'IN';
     }
 
-    // Map bin number → waste type
+    // Map bin number → waste type for Wills Street (16–32)
     const wasteTypeByNumber = {
         16: 'general',
         17: 'general',
@@ -1188,7 +1171,7 @@
         32: 'commingled'
     };
 
-    // Extract first number from alias/name (e.g. "1 - General Waste")
+    // Extract first number from alias/name
     function getBinNumberFromName(name) {
         const match = String(name).match(/\d+/);
         return match ? parseInt(match[0], 10) : null;
@@ -1233,7 +1216,7 @@
             let wastePillHtml = '';
 
             if (wasteTypeKey) {
-                const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingle';
+                const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingled';
                 wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
             }
 
@@ -1468,7 +1451,12 @@
 
     function displayDayView() {
         document.getElementById('calendarTitle').textContent =
-            currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+            currentDate.toLocaleDateString('en-US', {
+                weekday: 'long',
+                year: 'numeric',
+                month: 'long',
+                day: 'numeric'
+            });
 
         const readings = getFilteredReadings().filter(r =>
             r.timestamp.toDateString() === currentDate.toDateString()
@@ -1487,24 +1475,20 @@
                 const mac = reading.mac || reading.MAC || '';
                 const rssi = reading.rssi || reading.RSSI || '';
 
+                // Determine waste type for this bin and build a pill aligned to the right
                 const binNumber = getBinNumberFromName(alias);
                 const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
                 let wastePillHtml = '';
-
                 if (wasteTypeKey) {
-                    const label = wasteTypeKey === 'general' ? 'GENERAL WASTE' : 'COMMINGLE';
-                    wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
+                    const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingled';
+                    wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey} timeline-pill">${label}</span>`;
                 }
 
                 html += `<div class="timeline-event ${statusClass}">
-                    <div class="timeline-header">
-                        <div class="timeline-main">
-                            <div class="timeline-time">${time}</div>
-                            <div class="timeline-details">${alias} - ${state}</div>
-                        </div>
-                        <div class="timeline-right">
-                            ${wastePillHtml}
-                        </div>
+                    <div class="timeline-time">${time}</div>
+                    <div class="timeline-details">
+                        <span>${alias} - ${state}</span>
+                        ${wastePillHtml}
                     </div>
                     <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
                 </div>`;
@@ -1528,7 +1512,7 @@
         const now = new Date();
         const textElement = document.getElementById('lastUpdatedText');
         if (textElement) {
-            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
+            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 10s`;
         }
     }
 
@@ -1711,8 +1695,8 @@
         });
     });
 
-    // Auto-refresh every 60 seconds
-    setInterval(() => loadData(true), 60000);
+    // Auto-refresh every 10 seconds
+    setInterval(() => loadData(true), 10000);
 </script>
 </body>
 </html>
