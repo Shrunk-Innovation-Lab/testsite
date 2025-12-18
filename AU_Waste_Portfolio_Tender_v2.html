@@ -683,7 +683,7 @@
     <div class="header-content">
      <h1 id="dashboard-title">Waste Management Tender Comparison</h1>
     </div>
-    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites (BAFO)</p>
+    <p style="margin: 1rem 0 0 0; color: #64748b; font-size: 1rem;">Compare vendor proposals and current costs across all sites</p>
    </header>
 
    <section class="current-costs-section">
@@ -799,7 +799,6 @@
         <th>State</th>
         <th>Asset Type</th>
         <th>Waste Stream</th>
-        <th>Service Description</th>
         <th>Incumbent</th>
         <th>Current Cost</th>
         <th>Cleanaway</th>
@@ -810,7 +809,7 @@
       <tbody id="sites-tbody"></tbody>
       <tfoot>
        <tr class="summary-row">
-        <td colspan="7">Total</td>
+        <td colspan="6">Total</td>
         <td id="total-current">$0</td>
         <td id="total-cleanaway">$0</td>
         <td id="total-veolia">$0</td>
@@ -988,7 +987,7 @@
 
     async function loadGitHubData() {
       try {
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/d63f2e8579c58a5852ccef39130104d73df1479c/BAFO_dataset.csv';
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/https://github.com/Shrunk-Innovation-Lab/testsite/blob/ac2c745079e8c7053bbc717200ef250dfbb83a7e/BAFO_dataset.csv';
         const response = await fetch(githubUrl);
         if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
         const csvText = await response.text();
@@ -1118,7 +1117,6 @@
             <td>${site.state}</td>
             <td>${site.siteType}</td>
             <td>${site.wasteStream}</td>
-            <td>${site.serviceDescription}</td>
             <td>${site.incumbent}</td>
             <td class="price-cell">${formatCurrency(site.current)}</td>
             <td class="price-cell ${bestVendor === 'cleanaway' ? 'best-cell' : ''}">${formatCurrency(site.cleanaway)}</td>
