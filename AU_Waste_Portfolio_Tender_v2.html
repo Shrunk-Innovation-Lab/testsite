@@ -987,7 +987,7 @@
 
     async function loadGitHubData() {
       try {
-        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/https://github.com/Shrunk-Innovation-Lab/testsite/blob/ac2c745079e8c7053bbc717200ef250dfbb83a7e/BAFO_dataset.csv';
+        const githubUrl = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/blob/ac2c745079e8c7053bbc717200ef250dfbb83a7e/BAFO_dataset.csv';
         const response = await fetch(githubUrl);
         if (!response.ok) throw new Error(`Failed to fetch: ${response.status}`);
         const csvText = await response.text();
