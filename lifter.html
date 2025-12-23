@@ -1,0 +1,1576 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Bin Lifter History Viewer</title>
+    <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
+    <link rel="shortcut icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
+    <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-date-fns@3.0.0/dist/chartjs-adapter-date-fns.bundle.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/hammerjs@2.0.8"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom@2.0.1/dist/chartjs-plugin-zoom.min.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            line-height: 1.6;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        header {
+            margin-bottom: 30px;
+            background-color: #ffffff;
+            padding: 20px 30px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            display: flex;
+            align-items: center;
+            gap: 20px;
+        }
+        
+        .logo {
+            height: 50px;
+            width: auto;
+        }
+        
+        .header-content {
+            flex: 1;
+        }
+        
+        h1 {
+            font-size: 28px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 5px;
+        }
+        
+        .subtitle {
+            color: #86868b;
+            font-size: 14px;
+            font-weight: 400;
+        }
+        
+        .upload-panel {
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            padding: 30px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .upload-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+        }
+        
+        .upload-area {
+            border: 2px dashed #d2d2d7;
+            border-radius: 10px;
+            padding: 50px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            background-color: #f5f5f7;
+        }
+        
+        .upload-area:hover {
+            border-color: #007aff;
+            background-color: #ffffff;
+        }
+        
+        .upload-area.drag-over {
+            border-color: #007aff;
+            background-color: rgba(0, 122, 255, 0.05);
+        }
+        
+        .upload-icon {
+            font-size: 48px;
+            margin-bottom: 15px;
+        }
+        
+        .upload-text {
+            font-size: 16px;
+            color: #1d1d1f;
+            margin-bottom: 5px;
+            font-weight: 500;
+        }
+        
+        .upload-subtext {
+            font-size: 14px;
+            color: #86868b;
+        }
+        
+        input[type="file"] {
+            display: none;
+        }
+        
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+        
+        .stat-card {
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            padding: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .stat-label {
+            font-size: 12px;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #86868b;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+        
+        .stat-value {
+            font-size: 32px;
+            font-weight: 600;
+            color: #007aff;
+        }
+        
+        .timeline-controls {
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            padding: 20px;
+            margin-bottom: 20px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 15px;
+            align-items: center;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .timeline-controls label {
+            font-size: 13px;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+        
+        .timeline-controls input,
+        .timeline-controls select {
+            padding: 8px 16px;
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            color: #1d1d1f;
+            font-size: 14px;
+            transition: all 0.3s ease;
+        }
+        
+        .timeline-controls input:focus,
+        .timeline-controls select:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+        
+        .timeline-controls button {
+            padding: 8px 16px;
+            background-color: #007aff;
+            border: none;
+            border-radius: 6px;
+            color: white;
+            font-size: 14px;
+            font-weight: 500;
+            cursor: pointer;
+            transition: background-color 0.3s ease;
+        }
+        
+        .timeline-controls button:hover {
+            background-color: #0056b3;
+        }
+        
+        .filter-group {
+            display: flex;
+            gap: 10px;
+            align-items: center;
+        }
+        
+        .quick-filters {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .quick-filter-btn {
+            padding: 6px 14px;
+            background-color: #f5f5f7;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            color: #1d1d1f;
+            font-size: 13px;
+            cursor: pointer;
+            transition: all 0.25s ease;
+            font-weight: 500;
+        }
+        
+        .quick-filter-btn:hover {
+            background-color: #e8e8ed;
+            transform: translateY(-1px);
+        }
+        
+        .quick-filter-btn.active {
+            background-color: #007aff;
+            border-color: #007aff;
+            color: white;
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+        
+        .charts-section {
+            margin-bottom: 20px;
+        }
+        
+        .chart-container {
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            padding: 25px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .chart-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .chart-title-left {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+        
+        .collapse-btn {
+            background: none;
+            border: none;
+            cursor: pointer;
+            padding: 4px;
+            color: #007aff;
+            font-size: 18px;
+            transition: transform 0.3s ease;
+            display: flex;
+            align-items: center;
+        }
+        
+        .collapse-btn:hover {
+            color: #0056b3;
+        }
+        
+        .collapse-btn.collapsed {
+            transform: rotate(-90deg);
+        }
+        
+        .chart-content {
+            overflow: hidden;
+            transition: max-height 0.4s ease, opacity 0.3s ease;
+            max-height: 2000px;
+            opacity: 1;
+        }
+        
+        .chart-content.collapsed {
+            max-height: 0;
+            opacity: 0;
+            margin: 0;
+        }
+        
+        .zoom-controls {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .zoom-btn {
+            padding: 4px 10px;
+            background-color: #f5f5f7;
+            border: 1px solid #d2d2d7;
+            border-radius: 4px;
+            color: #1d1d1f;
+            font-size: 11px;
+            cursor: pointer;
+            transition: all 0.2s ease;
+            font-weight: 500;
+        }
+        
+        .zoom-btn:hover {
+            background-color: #e8e8ed;
+        }
+        
+        .zoom-btn:active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+        
+        .zoom-instruction {
+            font-size: 11px;
+            color: #86868b;
+            margin-top: 8px;
+            text-align: center;
+        }
+        
+        .chart-canvas {
+            max-height: 400px;
+            cursor: crosshair;
+        }
+        
+        .chart-canvas:active {
+            cursor: grabbing;
+        }
+        
+        .history-container {
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 10px;
+            overflow: hidden;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+        }
+        
+        .history-header {
+            padding: 20px 25px;
+            background-color: #f5f5f7;
+            border-bottom: 1px solid #d2d2d7;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+        
+        .history-title {
+            font-size: 16px;
+            font-weight: 600;
+            color: #1d1d1f;
+        }
+        
+        .filter-controls select {
+            padding: 6px 12px;
+            background-color: #ffffff;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            color: #1d1d1f;
+            font-size: 13px;
+        }
+        
+        .event-list {
+            max-height: 600px;
+            overflow-y: auto;
+        }
+        
+        .event-item {
+            padding: 20px 25px;
+            border-bottom: 1px solid #f5f5f7;
+            transition: background-color 0.2s ease;
+        }
+        
+        .event-item:hover {
+            background-color: #fafafa;
+        }
+        
+        .event-item:last-child {
+            border-bottom: none;
+        }
+        
+        .event-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+        }
+        
+        .event-status {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: 600;
+            font-size: 14px;
+            color: #1d1d1f;
+        }
+        
+        .status-indicator {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            background: #007aff;
+            animation: statusPulse 2s ease-in-out infinite;
+        }
+        
+        @keyframes statusPulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.5; }
+        }
+        
+        .event-time {
+            font-size: 13px;
+            color: #86868b;
+        }
+        
+        .event-details {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(180px, 1fr));
+            gap: 15px;
+            margin-top: 12px;
+        }
+        
+        .detail-item {
+            display: flex;
+            flex-direction: column;
+            gap: 4px;
+        }
+        
+        .detail-label {
+            font-size: 11px;
+            color: #86868b;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            font-weight: 500;
+        }
+        
+        .detail-value {
+            font-size: 14px;
+            color: #1d1d1f;
+            font-weight: 500;
+        }
+        
+        .signal-strength {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+        }
+        
+        .signal-bars {
+            display: flex;
+            gap: 2px;
+            align-items: flex-end;
+            height: 16px;
+        }
+        
+        .signal-bar {
+            width: 3px;
+            background: #d2d2d7;
+            border-radius: 2px;
+        }
+        
+        .signal-bar.active {
+            background: #007aff;
+        }
+        
+        .signal-bar:nth-child(1) { height: 25%; }
+        .signal-bar:nth-child(2) { height: 50%; }
+        .signal-bar:nth-child(3) { height: 75%; }
+        .signal-bar:nth-child(4) { height: 100%; }
+        
+        .error {
+            background-color: #fff5f5;
+            border: 1px solid #ffdddd;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 20px 0;
+            color: #ff3b30;
+            font-size: 14px;
+        }
+        
+        .event-list::-webkit-scrollbar {
+            width: 10px;
+        }
+        
+        .event-list::-webkit-scrollbar-track {
+            background: #f5f5f7;
+        }
+        
+        .event-list::-webkit-scrollbar-thumb {
+            background: #d2d2d7;
+            border-radius: 5px;
+        }
+        
+        .event-list::-webkit-scrollbar-thumb:hover {
+            background: #86868b;
+        }
+        
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+            
+            header {
+                flex-direction: column;
+                text-align: center;
+            }
+            
+            .logo {
+                height: 40px;
+            }
+            
+            h1 {
+                font-size: 24px;
+            }
+            
+            .upload-panel {
+                padding: 20px;
+            }
+            
+            .upload-area {
+                padding: 30px 20px;
+            }
+            
+            .timeline-controls {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .filter-group {
+                flex-direction: column;
+                align-items: stretch;
+            }
+            
+            .quick-filters {
+                flex-wrap: wrap;
+            }
+            
+            .stats-grid {
+                grid-template-columns: 1fr;
+            }
+            
+            .event-details {
+                grid-template-columns: 1fr;
+            }
+            
+            .zoom-instruction {
+                font-size: 10px;
+            }
+            
+            .chart-title {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+            
+            .chart-title-left {
+                width: 100%;
+            }
+            
+            .chart-title-left > div {
+                flex-wrap: wrap;
+            }
+            
+            .chart-container .chart-title > div {
+                width: 100%;
+                justify-content: space-between;
+            }
+            
+            .collapse-btn {
+                font-size: 16px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo">
+            <div class="header-content">
+                <h1>Bin Lifter Monitor</h1>
+                <p class="subtitle">CSV Data Viewer · Times in AEDT</p>
+            </div>
+        </header>
+        
+        <div class="upload-panel">
+            <div class="upload-title">Upload CSV Export</div>
+            <div class="upload-area" id="uploadArea" onclick="document.getElementById('csvFile').click()">
+                <div class="upload-icon">📁</div>
+                <div class="upload-text">Click to upload or drag & drop</div>
+                <div class="upload-subtext">ShrunkIOT CSV export file (report-Lifter-*.csv)</div>
+            </div>
+            <input type="file" id="csvFile" accept=".csv" onchange="handleFile(this.files[0])">
+        </div>
+        
+        <div id="statsContainer" style="display: none;">
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Total Flips</div>
+                    <div class="stat-value" id="totalFlips">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Events Shown</div>
+                    <div class="stat-value" id="eventCount">0</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Last Activity</div>
+                    <div class="stat-value" id="lastActivity" style="font-size: 1.2rem;">—</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Avg Signal</div>
+                    <div class="stat-value" id="avgSignal">— dBm</div>
+                </div>
+            </div>
+        </div>
+        
+        <div id="timelineSection" style="display: none;">
+            <div class="timeline-controls">
+                <div class="filter-group">
+                    <label>Debounce:</label>
+                    <div class="quick-filters">
+                        <button class="quick-filter-btn active" onclick="setDebounce(0)">None</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(5)">5s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(10)">10s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(15)">15s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(20)">20s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(30)">30s</button>
+                    </div>
+                </div>
+            </div>
+            
+            <div class="timeline-controls">
+                <div class="filter-group">
+                    <label>Quick Filters:</label>
+                    <div class="quick-filters">
+                        <button class="quick-filter-btn active" id="timeFilterAll" onclick="setQuickFilter('all')">All Time</button>
+                        <button class="quick-filter-btn" onclick="setQuickFilter('day')">Last 24h</button>
+                        <button class="quick-filter-btn" onclick="setQuickFilter('week')">Last 7 Days</button>
+                        <button class="quick-filter-btn" onclick="setQuickFilter('month')">Last 30 Days</button>
+                    </div>
+                </div>
+                <div class="filter-group">
+                    <label for="startDate">From:</label>
+                    <input type="datetime-local" id="startDate" onchange="applyCustomFilter()">
+                </div>
+                <div class="filter-group">
+                    <label for="endDate">To:</label>
+                    <input type="datetime-local" id="endDate" onchange="applyCustomFilter()">
+                </div>
+                <button onclick="resetFilters()">Reset</button>
+            </div>
+            
+            <div class="charts-section">
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <div class="chart-title-left">
+                            <button class="collapse-btn" onclick="toggleChart('flipsChart')" title="Collapse/Expand Chart">▼</button>
+                            <span>Flips Over Time</span>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="resetZoom('flipsChart')">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-content" id="flipsChartContent">
+                        <canvas id="flipsChart" class="chart-canvas"></canvas>
+                        <div class="zoom-instruction">💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <div class="chart-title-left">
+                            <button class="collapse-btn" onclick="toggleChart('rssiChart')" title="Collapse/Expand Chart">▼</button>
+                            <span>Signal Strength (RSSI) Over Time</span>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="resetZoom('rssiChart')">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-content" id="rssiChartContent">
+                        <canvas id="rssiChart" class="chart-canvas"></canvas>
+                        <div class="zoom-instruction">💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <div class="chart-title-left">
+                            <button class="collapse-btn" onclick="toggleChart('heatmapChart')" title="Collapse/Expand Chart">▼</button>
+                            <div style="display: flex; align-items: center; gap: 15px;">
+                                <span>Activity Heatmap</span>
+                                <span style="font-size: 11px; color: #86868b; font-weight: 400;">
+                                    <span style="color: hsl(120, 80%, 50%);">■</span> Low
+                                    <span style="color: hsl(60, 80%, 50%); margin-left: 8px;">■</span> Medium
+                                    <span style="color: hsl(0, 80%, 50%); margin-left: 8px;">■</span> High
+                                </span>
+                            </div>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <select id="heatmapGrouping" onchange="updateCharts()" style="padding: 6px 12px; background: #ffffff; border: 1px solid #d2d2d7; border-radius: 6px; color: #1d1d1f; font-size: 13px;">
+                                <option value="hour">Per Hour</option>
+                                <option value="day" selected>Per Day</option>
+                                <option value="week">Per Week</option>
+                            </select>
+                            <button class="zoom-btn" onclick="resetZoom('heatmapChart')">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-content" id="heatmapChartContent">
+                        <canvas id="heatmapChart" class="chart-canvas"></canvas>
+                        <div class="zoom-instruction">💡 Scroll to zoom · Drag to pan when zoomed</div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <div class="history-container" id="historyContainer" style="display: none;">
+            <div class="history-header">
+                <div class="history-title">Event Log</div>
+                <div class="filter-controls">
+                    <select id="sortOrder" onchange="updateDisplay()">
+                        <option value="desc">Newest First</option>
+                        <option value="asc">Oldest First</option>
+                    </select>
+                </div>
+            </div>
+            <div class="event-list" id="eventList"></div>
+        </div>
+        
+        <div id="errorContainer"></div>
+    </div>
+
+    <footer style="margin-top: 40px; text-align: center; padding: 20px; font-size: 12px; color: #86868b;">
+        2026 | Wasted by Shrunk | All Rights Reserved
+    </footer>
+
+    <script>
+        let historyData = [];
+        let filteredData = [];
+        let debouncedData = [];
+        let currentDebounce = 0; // seconds
+        let flipsChart, rssiChart, heatmapChart;
+        
+        // Drag and drop handlers
+        const uploadArea = document.getElementById('uploadArea');
+        
+        uploadArea.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadArea.classList.add('drag-over');
+        });
+        
+        uploadArea.addEventListener('dragleave', () => {
+            uploadArea.classList.remove('drag-over');
+        });
+        
+        uploadArea.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadArea.classList.remove('drag-over');
+            const file = e.dataTransfer.files[0];
+            if (file && file.name.endsWith('.csv')) {
+                handleFile(file);
+            } else {
+                showError('Please upload a CSV file');
+            }
+        });
+        
+        function handleFile(file) {
+            if (!file) return;
+            
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                try {
+                    const csvText = e.target.result;
+                    parseCSV(csvText);
+                } catch (error) {
+                    showError(`Error reading file: ${error.message}`);
+                }
+            };
+            reader.readAsText(file);
+        }
+        
+        function parseCSV(csvText) {
+            const lines = csvText.trim().split('\n');
+            const events = [];
+            
+            // Skip header line
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                // Parse CSV line (handles quoted fields)
+                const matches = line.match(/("(?:[^"]|"")*"|[^,]+)/g);
+                if (!matches || matches.length < 4) continue;
+                
+                const time = matches[0].replace(/"/g, '');
+                const deviceName = matches[1].replace(/"/g, '');
+                const serialNumber = matches[2].replace(/"/g, '');
+                const flipData = matches[3].replace(/"/g, '');
+                
+                // Parse FLIP data string: "1 | Time: 2025-12-20T23:23:09Z | RSSI: -50dBm | Queued: 0 | Flips: 2025-12-20T23:23:05Z"
+                const flipMatch = flipData.match(/^(\d+)/);
+                const timeMatch = flipData.match(/Time:\s*([^\s|]+)/);
+                const rssiMatch = flipData.match(/RSSI:\s*(-?\d+)dBm/);
+                const queuedMatch = flipData.match(/Queued:\s*(\d+)/);
+                const flipsMatch = flipData.match(/Flips:\s*([^|]+)/);
+                
+                if (flipMatch) {
+                    const event = {
+                        csvTime: new Date(time),
+                        timestamp: timeMatch ? new Date(timeMatch[1]) : new Date(time),
+                        flip: parseInt(flipMatch[1]),
+                        rssi: rssiMatch ? parseInt(rssiMatch[1]) : null,
+                        queued: queuedMatch ? parseInt(queuedMatch[1]) : 0,
+                        flipTime: flipsMatch ? flipsMatch[1].trim() : null,
+                        deviceName: deviceName,
+                        serialNumber: serialNumber,
+                        raw: flipData
+                    };
+                    
+                    events.push(event);
+                }
+            }
+            
+            console.log(`Parsed ${events.length} events from CSV`);
+            historyData = events;
+            filteredData = events;
+            debouncedData = events;
+            
+            if (events.length > 0) {
+                initializeFilters();
+                initializeCharts();
+                updateDisplay();
+                updateStats();
+                updateCharts();
+                document.getElementById('statsContainer').style.display = 'block';
+                document.getElementById('timelineSection').style.display = 'block';
+                document.getElementById('historyContainer').style.display = 'block';
+            } else {
+                showError('No valid events found in CSV file');
+            }
+        }
+        
+        function createEventItem(event) {
+            const signalStrength = getSignalStrength(event.rssi);
+            const signalBars = createSignalBars(signalStrength);
+            
+            const flipLabel = event.flip > 1 ? `${event.flip} BINS EMPTIED` : 'BIN EMPTIED';
+            const mergedBadge = event.merged ? `<span style="font-size: 11px; color: #ff9500; margin-left: 8px; background: #fff8e6; padding: 2px 8px; border-radius: 4px; font-weight: 500;">${event.mergedCount} merged</span>` : '';
+            
+            // Parse multiple flip times
+            let flipTimesDisplay = 'N/A';
+            if (event.flipTime) {
+                const times = event.flipTime.split(',').map(t => t.trim());
+                if (times.length > 1) {
+                    flipTimesDisplay = times.slice(0, 5).map(t => formatTime(new Date(t))).join('<br>');
+                    if (times.length > 5) {
+                        flipTimesDisplay += `<br><span style="color: #86868b; font-size: 12px;">+${times.length - 5} more</span>`;
+                    }
+                } else {
+                    flipTimesDisplay = formatTime(new Date(event.flipTime));
+                }
+            } else {
+                flipTimesDisplay = formatTime(event.timestamp);
+            }
+            
+            return `
+                <div class="event-item">
+                    <div class="event-header">
+                        <div class="event-status">
+                            <span class="status-indicator"></span>
+                            ${flipLabel}${mergedBadge}
+                        </div>
+                        <div class="event-time">${formatDateTime(event.timestamp)}</div>
+                    </div>
+                    <div class="event-details">
+                        <div class="detail-item">
+                            <span class="detail-label">Flip Time${event.flip > 1 ? 's' : ''}</span>
+                            <span class="detail-value">${flipTimesDisplay}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Signal Strength</span>
+                            <span class="detail-value signal-strength">
+                                <span class="signal-bars">${signalBars}</span>
+                                ${event.rssi !== null ? event.rssi + ' dBm' : 'N/A'}
+                            </span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Queued Messages</span>
+                            <span class="detail-value">${event.queued}</span>
+                        </div>
+                        <div class="detail-item">
+                            <span class="detail-label">Flip Count</span>
+                            <span class="detail-value" style="color: #34c759">${event.flip}</span>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }
+        
+        function createSignalBars(strength) {
+            const bars = [];
+            for (let i = 1; i <= 4; i++) {
+                const active = i <= strength ? 'active' : '';
+                bars.push(`<div class="signal-bar ${active}"></div>`);
+            }
+            return bars.join('');
+        }
+        
+        function getSignalStrength(rssi) {
+            if (!rssi) return 0;
+            if (rssi >= -50) return 4;
+            if (rssi >= -60) return 3;
+            if (rssi >= -70) return 2;
+            if (rssi >= -80) return 1;
+            return 1;
+        }
+        
+        function formatDateTime(date) {
+            return date.toLocaleString('en-AU', {
+                year: 'numeric',
+                month: 'short',
+                day: 'numeric',
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Australia/Sydney'
+            }) + ' AEDT';
+        }
+        
+        function formatTime(date) {
+            return date.toLocaleTimeString('en-AU', {
+                hour: '2-digit',
+                minute: '2-digit',
+                second: '2-digit',
+                timeZone: 'Australia/Sydney'
+            }) + ' AEDT';
+        }
+        
+        function formatRelativeTime(date) {
+            const seconds = Math.floor((new Date() - date) / 1000);
+            
+            if (seconds < 60) return 'Just now';
+            if (seconds < 3600) return Math.floor(seconds / 60) + 'm ago';
+            if (seconds < 86400) return Math.floor(seconds / 3600) + 'h ago';
+            return Math.floor(seconds / 86400) + 'd ago';
+        }
+        
+        function showError(message) {
+            const errorContainer = document.getElementById('errorContainer');
+            errorContainer.innerHTML = `<div class="error">⚠ ${message}</div>`;
+        }
+        
+        // Debounce Function
+        function applyDebounce(data, debounceSeconds) {
+            if (debounceSeconds === 0 || data.length === 0) {
+                return data;
+            }
+            
+            // Sort by timestamp
+            const sorted = [...data].sort((a, b) => a.timestamp - b.timestamp);
+            const debounced = [];
+            let currentGroup = [sorted[0]];
+            
+            for (let i = 1; i < sorted.length; i++) {
+                const timeDiff = (sorted[i].timestamp - currentGroup[0].timestamp) / 1000; // seconds
+                
+                if (timeDiff <= debounceSeconds) {
+                    // Add to current group
+                    currentGroup.push(sorted[i]);
+                } else {
+                    // Process current group and start new one
+                    debounced.push(mergeEvents(currentGroup));
+                    currentGroup = [sorted[i]];
+                }
+            }
+            
+            // Process last group
+            if (currentGroup.length > 0) {
+                debounced.push(mergeEvents(currentGroup));
+            }
+            
+            console.log(`Debounced ${data.length} events into ${debounced.length} events (${debounceSeconds}s window)`);
+            return debounced;
+        }
+        
+        function mergeEvents(events) {
+            if (events.length === 1) return events[0];
+            
+            // Use first event's timestamp
+            const merged = {
+                csvTime: events[0].csvTime,
+                timestamp: events[0].timestamp,
+                flip: events.reduce((sum, e) => sum + e.flip, 0),
+                rssi: null,
+                queued: events.reduce((sum, e) => sum + e.queued, 0),
+                flipTime: null,
+                deviceName: events[0].deviceName,
+                serialNumber: events[0].serialNumber,
+                raw: `Merged ${events.length} events`,
+                merged: true,
+                mergedCount: events.length
+            };
+            
+            // Get best RSSI (least negative = strongest signal)
+            const validRssi = events.map(e => e.rssi).filter(r => r !== null);
+            if (validRssi.length > 0) {
+                merged.rssi = Math.max(...validRssi); // -50 is better than -80
+            }
+            
+            // Combine all flip times
+            const allFlipTimes = events
+                .map(e => e.flipTime)
+                .filter(t => t)
+                .flatMap(t => t.split(',').map(s => s.trim()))
+                .filter((v, i, a) => a.indexOf(v) === i); // unique
+            
+            merged.flipTime = allFlipTimes.join(', ');
+            
+            return merged;
+        }
+        
+        function setDebounce(seconds) {
+            console.log('=== DEBOUNCE FILTER CLICKED ===');
+            console.log('Debounce seconds:', seconds);
+            console.log('Filtered data length before debounce:', filteredData.length);
+            
+            currentDebounce = seconds;
+            
+            // Update active button in debounce group
+            const debounceButtons = document.querySelectorAll('.timeline-controls:first-child .quick-filter-btn');
+            debounceButtons.forEach(btn => btn.classList.remove('active'));
+            
+            // Find and activate the clicked button
+            debounceButtons.forEach(btn => {
+                if (btn.textContent.includes(seconds + 's') || (seconds === 0 && btn.textContent === 'None')) {
+                    btn.classList.add('active');
+                }
+            });
+            
+            // Reapply debouncing
+            console.log(`Applying ${seconds}s debounce filter`);
+            debouncedData = applyDebounce(filteredData, currentDebounce);
+            console.log(`Result: ${filteredData.length} events → ${debouncedData.length} events after debouncing`);
+            
+            console.log('Calling updateDisplay...');
+            updateDisplay();
+            console.log('Calling updateStats...');
+            updateStats();
+            console.log('Calling updateCharts...');
+            updateCharts();
+            console.log('=== DEBOUNCE COMPLETE ===');
+        }
+        
+        // Timeline and Filter Functions
+        function initializeFilters() {
+            if (historyData.length === 0) return;
+            
+            const earliest = historyData.reduce((a, b) => a.timestamp < b.timestamp ? a : b);
+            const latest = historyData.reduce((a, b) => a.timestamp > b.timestamp ? a : b);
+            
+            // Set default date inputs
+            document.getElementById('startDate').value = formatDateTimeInput(earliest.timestamp);
+            document.getElementById('endDate').value = formatDateTimeInput(latest.timestamp);
+        }
+        
+        function formatDateTimeInput(date) {
+            const year = date.getFullYear();
+            const month = String(date.getMonth() + 1).padStart(2, '0');
+            const day = String(date.getDate()).padStart(2, '0');
+            const hours = String(date.getHours()).padStart(2, '0');
+            const minutes = String(date.getMinutes()).padStart(2, '0');
+            return `${year}-${month}-${day}T${hours}:${minutes}`;
+        }
+        
+        function setQuickFilter(filter) {
+            // Update active button
+            const timeFilterButtons = document.querySelectorAll('#timeFilterAll').concat(
+                Array.from(document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn'))
+            );
+            document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+            event.target.classList.add('active');
+            
+            const now = new Date();
+            let startDate;
+            
+            switch(filter) {
+                case 'day':
+                    startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    break;
+                case 'week':
+                    startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'month':
+                    startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    break;
+                case 'all':
+                default:
+                    filteredData = historyData;
+                    debouncedData = applyDebounce(filteredData, currentDebounce);
+                    updateDisplay();
+                    updateStats();
+                    updateCharts();
+                    return;
+            }
+            
+            filteredData = historyData.filter(event => event.timestamp >= startDate);
+            debouncedData = applyDebounce(filteredData, currentDebounce);
+            updateDisplay();
+            updateStats();
+            updateCharts();
+        }
+        
+        function applyCustomFilter() {
+            const startInput = document.getElementById('startDate').value;
+            const endInput = document.getElementById('endDate').value;
+            
+            if (!startInput || !endInput) return;
+            
+            const startDate = new Date(startInput);
+            const endDate = new Date(endInput);
+            
+            // Deactivate quick filter buttons
+            document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+            
+            filteredData = historyData.filter(event => 
+                event.timestamp >= startDate && event.timestamp <= endDate
+            );
+            
+            debouncedData = applyDebounce(filteredData, currentDebounce);
+            updateDisplay();
+            updateStats();
+            updateCharts();
+        }
+        
+        function resetFilters() {
+            // Reset debounce
+            currentDebounce = 0;
+            document.querySelectorAll('.timeline-controls:first-child .quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelectorAll('.timeline-controls:first-child .quick-filter-btn')[0].classList.add('active');
+            
+            // Reset time filter
+            document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn').forEach(btn => btn.classList.remove('active'));
+            document.querySelector('#timeFilterAll').classList.add('active');
+            
+            filteredData = historyData;
+            debouncedData = historyData;
+            initializeFilters();
+            updateDisplay();
+            updateStats();
+            updateCharts();
+        }
+        
+        // Chart Functions
+        function initializeCharts() {
+            const zoomOptions = {
+                zoom: {
+                    wheel: {
+                        enabled: true,
+                        speed: 0.1
+                    },
+                    pinch: {
+                        enabled: true
+                    },
+                    mode: 'xy'
+                },
+                pan: {
+                    enabled: true,
+                    mode: 'xy'
+                },
+                limits: {
+                    x: {min: 'original', max: 'original'},
+                    y: {min: 'original', max: 'original'}
+                }
+            };
+            
+            const chartOptions = {
+                responsive: true,
+                maintainAspectRatio: true,
+                plugins: {
+                    legend: {
+                        labels: {
+                            color: '#1d1d1f',
+                            font: {
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                size: 12
+                            }
+                        }
+                    },
+                    zoom: zoomOptions
+                },
+                scales: {
+                    x: {
+                        type: 'time',
+                        time: {
+                            unit: 'hour',
+                            displayFormats: {
+                                hour: 'MMM d, HH:mm'
+                            }
+                        },
+                        ticks: {
+                            color: '#86868b',
+                            font: {
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: '#e5e5e7'
+                        }
+                    },
+                    y: {
+                        ticks: {
+                            color: '#86868b',
+                            font: {
+                                family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                size: 11
+                            }
+                        },
+                        grid: {
+                            color: '#e5e5e7'
+                        }
+                    }
+                }
+            };
+            
+            // Flips Over Time Chart
+            const flipsCtx = document.getElementById('flipsChart').getContext('2d');
+            flipsChart = new Chart(flipsCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Cumulative Flips',
+                        data: [],
+                        borderColor: '#007aff',
+                        backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        zoom: {
+                            ...zoomOptions,
+                            zoom: {
+                                ...zoomOptions.zoom,
+                                drag: {
+                                    enabled: true,
+                                    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                                    borderColor: '#007aff',
+                                    borderWidth: 1
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // RSSI Chart
+            const rssiCtx = document.getElementById('rssiChart').getContext('2d');
+            rssiChart = new Chart(rssiCtx, {
+                type: 'line',
+                data: {
+                    datasets: [{
+                        label: 'Signal Strength (dBm)',
+                        data: [],
+                        borderColor: '#34c759',
+                        backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                        fill: true,
+                        tension: 0.4,
+                        borderWidth: 2
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    plugins: {
+                        ...chartOptions.plugins,
+                        zoom: {
+                            ...zoomOptions,
+                            zoom: {
+                                ...zoomOptions.zoom,
+                                drag: {
+                                    enabled: true,
+                                    backgroundColor: 'rgba(52, 199, 89, 0.1)',
+                                    borderColor: '#34c759',
+                                    borderWidth: 1
+                                }
+                            }
+                        }
+                    }
+                }
+            });
+            
+            // Heatmap Chart (Bar chart showing flips per time period)
+            const heatmapCtx = document.getElementById('heatmapChart').getContext('2d');
+            heatmapChart = new Chart(heatmapCtx, {
+                type: 'bar',
+                data: {
+                    labels: [],
+                    datasets: [{
+                        label: 'Flips per Day',
+                        data: [],
+                        backgroundColor: [],
+                        borderColor: [],
+                        borderWidth: 1
+                    }]
+                },
+                options: {
+                    ...chartOptions,
+                    scales: {
+                        x: {
+                            ticks: {
+                                color: '#86868b',
+                                font: {
+                                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                    size: 11
+                                }
+                            },
+                            grid: {
+                                color: '#e5e5e7'
+                            }
+                        },
+                        y: {
+                            ticks: {
+                                color: '#86868b',
+                                font: {
+                                    family: '-apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif',
+                                    size: 11
+                                },
+                                stepSize: 1
+                            },
+                            grid: {
+                                color: '#e5e5e7'
+                            }
+                        }
+                    }
+                }
+            });
+        }
+        
+        function getColorForValue(value, max) {
+            // Generate color gradient from green (low) to red (high)
+            if (max === 0 || max === undefined) return 'rgba(0, 255, 136, 0.8)';
+            
+            const ratio = value / max;
+            
+            // HSL color: Green (120°) → Yellow (60°) → Red (0°)
+            // We'll go from 120° (green) down to 0° (red)
+            const hue = Math.round(120 * (1 - ratio)); // 120 = green, 0 = red
+            const saturation = 80; // Keep colors vivid
+            const lightness = 50; // Keep colors bright
+            
+            return `hsla(${hue}, ${saturation}%, ${lightness}%, 0.8)`;
+        }
+        
+        function getBorderColorForValue(value, max) {
+            if (max === 0 || max === undefined) return '#00ff88';
+            
+            const ratio = value / max;
+            const hue = Math.round(120 * (1 - ratio));
+            
+            return `hsl(${hue}, 80%, 40%)`; // Darker version for border
+        }
+        
+        function resetZoom(chartId) {
+            let chart;
+            switch(chartId) {
+                case 'flipsChart':
+                    chart = flipsChart;
+                    break;
+                case 'rssiChart':
+                    chart = rssiChart;
+                    break;
+                case 'heatmapChart':
+                    chart = heatmapChart;
+                    break;
+            }
+            
+            if (chart) {
+                chart.resetZoom();
+                console.log(`Reset zoom for ${chartId}`);
+            }
+        }
+        
+        function toggleChart(chartId) {
+            const contentId = chartId + 'Content';
+            const content = document.getElementById(contentId);
+            const button = event.target;
+            
+            if (content.classList.contains('collapsed')) {
+                // Expand
+                content.classList.remove('collapsed');
+                button.classList.remove('collapsed');
+                console.log(`Expanded ${chartId}`);
+                
+                // Trigger chart resize after animation
+                setTimeout(() => {
+                    let chart;
+                    switch(chartId) {
+                        case 'flipsChart': chart = flipsChart; break;
+                        case 'rssiChart': chart = rssiChart; break;
+                        case 'heatmapChart': chart = heatmapChart; break;
+                    }
+                    if (chart) chart.resize();
+                }, 400);
+            } else {
+                // Collapse
+                content.classList.add('collapsed');
+                button.classList.add('collapsed');
+                console.log(`Collapsed ${chartId}`);
+            }
+        }
+        
+        function updateCharts() {
+            if (!flipsChart || !rssiChart || !heatmapChart) {
+                console.warn('Charts not initialized yet');
+                return;
+            }
+            
+            console.log(`Updating charts with ${debouncedData.length} events`);
+            
+            // Prepare data for Flips Over Time (cumulative)
+            const sortedData = [...debouncedData].sort((a, b) => a.timestamp - b.timestamp);
+            let cumulativeFlips = 0;
+            const flipsData = sortedData.map(event => {
+                cumulativeFlips += event.flip;
+                return {
+                    x: event.timestamp,
+                    y: cumulativeFlips
+                };
+            });
+            
+            flipsChart.data.datasets[0].data = flipsData;
+            flipsChart.reset();
+            flipsChart.update('none');
+            console.log(`Flips chart updated with ${flipsData.length} points, cumulative total: ${cumulativeFlips}`);
+            
+            // Prepare data for RSSI Chart
+            const rssiData = sortedData
+                .filter(event => event.rssi !== null)
+                .map(event => ({
+                    x: event.timestamp,
+                    y: event.rssi
+                }));
+            
+            rssiChart.data.datasets[0].data = rssiData;
+            rssiChart.reset();
+            rssiChart.update('none');
+            console.log(`RSSI chart updated with ${rssiData.length} points`);
+            
+            // Prepare data for Heatmap (flips per selected time period)
+            const grouping = document.getElementById('heatmapGrouping').value;
+            const groupedData = {};
+            
+            sortedData.forEach(event => {
+                const date = new Date(event.timestamp);
+                let key, displayLabel;
+                
+                switch(grouping) {
+                    case 'hour':
+                        date.setMinutes(0, 0, 0);
+                        key = date.toISOString();
+                        displayLabel = date.toLocaleString('en-AU', {
+                            month: 'short',
+                            day: 'numeric',
+                            hour: '2-digit',
+                            timeZone: 'Australia/Sydney'
+                        });
+                        break;
+                    case 'day':
+                        date.setHours(0, 0, 0, 0);
+                        key = date.toISOString();
+                        displayLabel = date.toLocaleDateString('en-AU', {
+                            month: 'short',
+                            day: 'numeric',
+                            year: 'numeric',
+                            timeZone: 'Australia/Sydney'
+                        });
+                        break;
+                    case 'week':
+                        // Get start of week (Monday)
+                        const day = date.getDay();
+                        const diff = date.getDate() - day + (day === 0 ? -6 : 1);
+                        date.setDate(diff);
+                        date.setHours(0, 0, 0, 0);
+                        key = date.toISOString();
+                        const endDate = new Date(date);
+                        endDate.setDate(endDate.getDate() + 6);
+                        displayLabel = `${date.toLocaleDateString('en-AU', { month: 'short', day: 'numeric', timeZone: 'Australia/Sydney' })} - ${endDate.toLocaleDateString('en-AU', { month: 'short', day: 'numeric', timeZone: 'Australia/Sydney' })}`;
+                        break;
+                }
+                
+                if (!groupedData[key]) {
+                    groupedData[key] = { count: 0, label: displayLabel };
+                }
+                groupedData[key].count += event.flip;
+            });
+            
+            const groupedLabels = Object.keys(groupedData).sort();
+            const groupedValues = groupedLabels.map(key => groupedData[key].count);
+            const groupedDisplayLabels = groupedLabels.map(key => groupedData[key].label);
+            
+            // Generate colors based on values
+            const maxValue = Math.max(...groupedValues);
+            const backgroundColors = groupedValues.map(val => getColorForValue(val, maxValue));
+            const borderColors = groupedValues.map(val => getBorderColorForValue(val, maxValue));
+            
+            heatmapChart.data.labels = groupedDisplayLabels;
+            heatmapChart.data.datasets[0].data = groupedValues;
+            heatmapChart.data.datasets[0].backgroundColor = backgroundColors;
+            heatmapChart.data.datasets[0].borderColor = borderColors;
+            
+            // Update chart label based on grouping
+            const groupingLabels = {
+                'hour': 'Flips per Hour',
+                'day': 'Flips per Day',
+                'week': 'Flips per Week'
+            };
+            heatmapChart.data.datasets[0].label = groupingLabels[grouping];
+            
+            heatmapChart.reset();
+            heatmapChart.update('none');
+            console.log(`Heatmap updated with ${groupedValues.length} ${grouping} periods, max value: ${maxValue}`);
+            console.log('Grouped values:', groupedValues);
+            console.log('Background colors sample:', backgroundColors.slice(0, 5));
+        }
+        
+        function updateDisplay() {
+            const eventList = document.getElementById('eventList');
+            const sortOrder = document.getElementById('sortOrder').value;
+            
+            const sorted = [...debouncedData].sort((a, b) => {
+                return sortOrder === 'desc' 
+                    ? b.timestamp - a.timestamp 
+                    : a.timestamp - b.timestamp;
+            });
+            
+            eventList.innerHTML = sorted.map(event => createEventItem(event)).join('');
+        }
+        
+        function updateStats() {
+            document.getElementById('totalFlips').textContent = debouncedData.reduce((sum, e) => sum + e.flip, 0);
+            document.getElementById('eventCount').textContent = debouncedData.length;
+            
+            if (debouncedData.length > 0) {
+                const latest = debouncedData.reduce((a, b) => a.timestamp > b.timestamp ? a : b);
+                document.getElementById('lastActivity').textContent = formatRelativeTime(latest.timestamp);
+                
+                const validRssi = debouncedData.filter(e => e.rssi !== null).map(e => e.rssi);
+                if (validRssi.length > 0) {
+                    const avgRssi = Math.round(validRssi.reduce((a, b) => a + b, 0) / validRssi.length);
+                    document.getElementById('avgSignal').textContent = avgRssi + ' dBm';
+                } else {
+                    document.getElementById('avgSignal').textContent = 'N/A';
+                }
+            }
+        }
+    </script>
+</body>
+</html>
