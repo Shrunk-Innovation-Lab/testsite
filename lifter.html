@@ -233,17 +233,17 @@
         }
         
         .quick-filter-btn.active {
-            background: linear-gradient(135deg, #007aff, #0056b3);
-            border-color: #007aff;
+            background: linear-gradient(135deg, #34c759, #30d158);
+            border-color: #34c759;
             color: white;
-            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.4);
             transform: translateY(-2px);
             font-weight: 600;
         }
         
         .quick-filter-btn.active:hover {
-            background: linear-gradient(135deg, #0056b3, #003d82);
-            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.5);
+            background: linear-gradient(135deg, #30d158, #32d74b);
+            box-shadow: 0 6px 16px rgba(52, 199, 89, 0.5);
         }
         
         .charts-section {
@@ -632,7 +632,7 @@
             <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Logo" class="logo">
             <div class="header-content">
                 <h1>Bin Lifter Monitor</h1>
-                <p class="subtitle"> Data Viewer · Times in AEDT</p>
+                <p class="subtitle">CSV Data Viewer · Times in AEDT</p>
             </div>
         </header>
         
@@ -678,6 +678,9 @@
                         <button class="quick-filter-btn" onclick="setDebounce(15)">15s</button>
                         <button class="quick-filter-btn" onclick="setDebounce(20)">20s</button>
                         <button class="quick-filter-btn" onclick="setDebounce(30)">30s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(40)">40s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(50)">50s</button>
+                        <button class="quick-filter-btn" onclick="setDebounce(60)">60s</button>
                     </div>
                 </div>
             </div>
@@ -716,7 +719,10 @@
                     </div>
                     <div class="chart-content" id="flipsChartContent">
                         <canvas id="flipsChart" class="chart-canvas"></canvas>
-                        <div class="zoom-instruction">💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed</div>
+                        <div class="zoom-instruction">
+                            💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed
+                            <span id="flipsDataInfo" style="margin-left: 15px; color: #007aff; font-weight: 600;"></span>
+                        </div>
                     </div>
                 </div>
                 
@@ -744,7 +750,10 @@
                     </div>
                     <div class="chart-content" id="heatmapChartContent">
                         <canvas id="heatmapChart" class="chart-canvas"></canvas>
-                        <div class="zoom-instruction">💡 Scroll to zoom · Drag to pan when zoomed</div>
+                        <div class="zoom-instruction">
+                            💡 Scroll to zoom · Drag to pan when zoomed
+                            <span id="heatmapDataInfo" style="margin-left: 15px; color: #007aff; font-weight: 600;"></span>
+                        </div>
                     </div>
                 </div>
                 
@@ -768,7 +777,10 @@
                     </div>
                     <div class="chart-content" id="rssiChartContent">
                         <canvas id="rssiChart" class="chart-canvas"></canvas>
-                        <div class="zoom-instruction">💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed</div>
+                        <div class="zoom-instruction">
+                            💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed
+                            <span id="rssiDataInfo" style="margin-left: 15px; color: #34c759; font-weight: 600;"></span>
+                        </div>
                     </div>
                 </div>
             </div>
@@ -1133,12 +1145,18 @@
         }
         
         function setQuickFilter(filter) {
+            console.log(`=== TIME FILTER CLICKED: ${filter} ===`);
+            
             // Update active button
-            const timeFilterButtons = document.querySelectorAll('#timeFilterAll').concat(
-                Array.from(document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn'))
-            );
-            document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn').forEach(btn => btn.classList.remove('active'));
-            event.target.classList.add('active');
+            document.querySelectorAll('.timeline-controls:nth-child(2) .quick-filter-btn').forEach(btn => {
+                btn.classList.remove('active');
+                if ((filter === 'all' && btn.textContent === 'All Time') ||
+                    (filter === 'day' && btn.textContent === 'Last 24h') ||
+                    (filter === 'week' && btn.textContent === 'Last 7 Days') ||
+                    (filter === 'month' && btn.textContent === 'Last 30 Days')) {
+                    btn.classList.add('active');
+                }
+            });
             
             const now = new Date();
             let startDate;
@@ -1146,28 +1164,36 @@
             switch(filter) {
                 case 'day':
                     startDate = new Date(now.getTime() - 24 * 60 * 60 * 1000);
+                    console.log(`Filtering from: ${startDate} to: ${now}`);
                     break;
                 case 'week':
                     startDate = new Date(now.getTime() - 7 * 24 * 60 * 60 * 1000);
+                    console.log(`Filtering from: ${startDate} to: ${now}`);
                     break;
                 case 'month':
                     startDate = new Date(now.getTime() - 30 * 24 * 60 * 60 * 1000);
+                    console.log(`Filtering from: ${startDate} to: ${now}`);
                     break;
                 case 'all':
                 default:
+                    console.log(`Showing all ${historyData.length} events`);
                     filteredData = historyData;
                     debouncedData = applyDebounce(filteredData, currentDebounce);
                     updateDisplay();
                     updateStats();
                     updateCharts();
+                    console.log('=== TIME FILTER COMPLETE ===');
                     return;
             }
             
             filteredData = historyData.filter(event => event.timestamp >= startDate);
+            console.log(`Filtered ${historyData.length} events to ${filteredData.length} events`);
             debouncedData = applyDebounce(filteredData, currentDebounce);
+            console.log(`After debounce: ${debouncedData.length} events`);
             updateDisplay();
             updateStats();
             updateCharts();
+            console.log('=== TIME FILTER COMPLETE ===');
         }
         
         function applyCustomFilter() {
@@ -1479,7 +1505,9 @@
                 return;
             }
             
-            console.log(`Updating charts with ${debouncedData.length} events`);
+            console.log(`%c📊 UPDATING CHARTS`, 'color: #007aff; font-weight: bold; font-size: 14px');
+            console.log(`Using ${debouncedData.length} debounced events (from ${filteredData.length} filtered events)`);
+            console.log(`Debounce setting: ${currentDebounce}s`);
             
             // Prepare data for Flips Over Time (cumulative)
             const sortedData = [...debouncedData].sort((a, b) => a.timestamp - b.timestamp);
@@ -1495,7 +1523,13 @@
             flipsChart.data.datasets[0].data = flipsData;
             flipsChart.reset();
             flipsChart.update('none');
-            console.log(`Flips chart updated with ${flipsData.length} points, cumulative total: ${cumulativeFlips}`);
+            console.log(`✓ Flips chart updated with ${flipsData.length} data points, cumulative total: ${cumulativeFlips}`);
+            
+            // Update data point count display
+            const flipsDataInfo = document.getElementById('flipsDataInfo');
+            if (flipsDataInfo) {
+                flipsDataInfo.textContent = `${flipsData.length} data points plotted`;
+            }
             
             // Prepare data for RSSI Chart
             const rssiData = sortedData
@@ -1508,7 +1542,13 @@
             rssiChart.data.datasets[0].data = rssiData;
             rssiChart.reset();
             rssiChart.update('none');
-            console.log(`RSSI chart updated with ${rssiData.length} points`);
+            console.log(`✓ RSSI chart updated with ${rssiData.length} data points`);
+            
+            // Update data point count display
+            const rssiDataInfo = document.getElementById('rssiDataInfo');
+            if (rssiDataInfo) {
+                rssiDataInfo.textContent = `${rssiData.length} data points plotted`;
+            }
             
             // Prepare data for Heatmap (flips per selected time period)
             const grouping = document.getElementById('heatmapGrouping').value;
@@ -1582,9 +1622,15 @@
             
             heatmapChart.reset();
             heatmapChart.update('none');
-            console.log(`Heatmap updated with ${groupedValues.length} ${grouping} periods, max value: ${maxValue}`);
+            console.log(`✓ Heatmap updated with ${groupedValues.length} ${grouping} periods, max value: ${maxValue}`);
             console.log('Grouped values:', groupedValues);
             console.log('Background colors sample:', backgroundColors.slice(0, 5));
+            
+            // Update data point count display
+            const heatmapDataInfo = document.getElementById('heatmapDataInfo');
+            if (heatmapDataInfo) {
+                heatmapDataInfo.textContent = `${groupedValues.length} ${grouping} periods plotted`;
+            }
         }
         
         function updateDisplay() {
