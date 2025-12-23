@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bin Lifter History Viewer</title>
+    <title>Bin Lifter History | CSV Viewer</title>
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <link rel="shortcut icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
@@ -233,10 +233,17 @@
         }
         
         .quick-filter-btn.active {
-            background-color: #007aff;
+            background: linear-gradient(135deg, #007aff, #0056b3);
             border-color: #007aff;
             color: white;
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.4);
+            transform: translateY(-2px);
+            font-weight: 600;
+        }
+        
+        .quick-filter-btn.active:hover {
+            background: linear-gradient(135deg, #0056b3, #003d82);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.5);
         }
         
         .charts-section {
@@ -334,6 +341,27 @@
             margin-top: 8px;
             text-align: center;
         }
+        
+        .rssi-legend {
+            font-size: 11px;
+            color: #86868b;
+            font-weight: 400;
+            margin-left: 12px;
+            display: flex;
+            gap: 12px;
+            align-items: center;
+        }
+        
+        .rssi-item {
+            display: flex;
+            align-items: center;
+            gap: 4px;
+        }
+        
+        .rssi-excellent { color: #34c759; font-weight: 600; }
+        .rssi-good { color: #32d74b; font-weight: 600; }
+        .rssi-fair { color: #ff9500; font-weight: 600; }
+        .rssi-poor { color: #ff3b30; font-weight: 600; }
         
         .chart-canvas {
             max-height: 400px;
@@ -585,6 +613,16 @@
             .collapse-btn {
                 font-size: 16px;
             }
+            
+            .rssi-legend {
+                flex-wrap: wrap;
+                margin-left: 0;
+                margin-top: 5px;
+            }
+            
+            .rssi-item {
+                font-size: 10px;
+            }
         }
     </style>
 </head>
@@ -599,11 +637,11 @@
         </header>
         
         <div class="upload-panel">
-            <div class="upload-title">Upload CSV Export</div>
+            <div class="upload-title">Upload Datacake CSV Export</div>
             <div class="upload-area" id="uploadArea" onclick="document.getElementById('csvFile').click()">
                 <div class="upload-icon">📁</div>
                 <div class="upload-text">Click to upload or drag & drop</div>
-                <div class="upload-subtext">ShrunkIOT CSV export file (report-Lifter-*.csv)</div>
+                <div class="upload-subtext">Datacake CSV export file (report-Lifter-*.csv)</div>
             </div>
             <input type="file" id="csvFile" accept=".csv" onchange="handleFile(this.files[0])">
         </div>
@@ -685,22 +723,6 @@
                 <div class="chart-container">
                     <div class="chart-title">
                         <div class="chart-title-left">
-                            <button class="collapse-btn" onclick="toggleChart('rssiChart')" title="Collapse/Expand Chart">▼</button>
-                            <span>Signal Strength (RSSI) Over Time</span>
-                        </div>
-                        <div class="zoom-controls">
-                            <button class="zoom-btn" onclick="resetZoom('rssiChart')">Reset Zoom</button>
-                        </div>
-                    </div>
-                    <div class="chart-content" id="rssiChartContent">
-                        <canvas id="rssiChart" class="chart-canvas"></canvas>
-                        <div class="zoom-instruction">💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed</div>
-                    </div>
-                </div>
-                
-                <div class="chart-container">
-                    <div class="chart-title">
-                        <div class="chart-title-left">
                             <button class="collapse-btn" onclick="toggleChart('heatmapChart')" title="Collapse/Expand Chart">▼</button>
                             <div style="display: flex; align-items: center; gap: 15px;">
                                 <span>Activity Heatmap</span>
@@ -723,6 +745,30 @@
                     <div class="chart-content" id="heatmapChartContent">
                         <canvas id="heatmapChart" class="chart-canvas"></canvas>
                         <div class="zoom-instruction">💡 Scroll to zoom · Drag to pan when zoomed</div>
+                    </div>
+                </div>
+                
+                <div class="chart-container">
+                    <div class="chart-title">
+                        <div class="chart-title-left">
+                            <button class="collapse-btn" onclick="toggleChart('rssiChart')" title="Collapse/Expand Chart">▼</button>
+                            <div style="display: flex; align-items: center; gap: 5px; flex-wrap: wrap;">
+                                <span>Signal Strength (RSSI) Over Time</span>
+                                <div class="rssi-legend">
+                                    <span class="rssi-item"><span class="rssi-excellent">●</span> Excellent ≥-50dBm</span>
+                                    <span class="rssi-item"><span class="rssi-good">●</span> Good -50 to -60</span>
+                                    <span class="rssi-item"><span class="rssi-fair">●</span> Fair -60 to -70</span>
+                                    <span class="rssi-item"><span class="rssi-poor">●</span> Poor &lt;-70</span>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="zoom-controls">
+                            <button class="zoom-btn" onclick="resetZoom('rssiChart')">Reset Zoom</button>
+                        </div>
+                    </div>
+                    <div class="chart-content" id="rssiChartContent">
+                        <canvas id="rssiChart" class="chart-canvas"></canvas>
+                        <div class="zoom-instruction">💡 Drag to select area to zoom · Scroll to zoom · Drag to pan when zoomed</div>
                     </div>
                 </div>
             </div>
