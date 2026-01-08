@@ -654,7 +654,10 @@
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
             <h1 class="header-title">
                 BinSpy RFID Checkpoint Tracker
-                <span id="heartbeatStatus">Loading heartbeat...</span>
+                <span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.78em; font-weight: 500; margin-top: 2px;">
+                    <span style="color: #5f5f62;">Footscray</span>
+                    <span id="heartbeatStatus" style="color: #666;">Loading heartbeat...</span>
+                </span>
             </h1>
         </div>
         <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
@@ -868,26 +871,20 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    console.log('Heartbeat data received:', results.data);
                     if (results.data && results.data.length > 0) {
                         // Get the last row (most recent heartbeat)
                         const latest = results.data[results.data.length - 1];
-                        console.log('Latest heartbeat row:', latest);
                         
-                        const timestampStr = latest.Timestamp || latest.timestamp;
-                        console.log('Timestamp string:', timestampStr);
-                        
+                        // Use "System Time" as the header name
+                        const timestampStr = latest['System Time'] || latest.Timestamp || latest.timestamp;
                         const parsedTimestamp = parseTimestamp(timestampStr);
-                        console.log('Parsed timestamp:', parsedTimestamp);
                         
                         lastHeartbeat = {
                             timestamp: parsedTimestamp,
-                            deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown'
+                            deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown',
+                            status: latest.Status || latest.status || 'Unknown'
                         };
-                        console.log('Last heartbeat set to:', lastHeartbeat);
                         updateHeartbeatDisplay();
-                    } else {
-                        console.log('No heartbeat data found');
                     }
                 },
                 error: function(error) {
@@ -905,12 +902,7 @@
 
         if (lastHeartbeat) {
             const now = new Date();
-            console.log('Current time:', now);
-            console.log('Heartbeat time:', lastHeartbeat.timestamp);
-            
             const diffMs = now - lastHeartbeat.timestamp;
-            console.log('Difference in ms:', diffMs);
-            
             const diffMins = Math.floor(diffMs / 60000);
             const diffHours = Math.floor(diffMins / 60);
 
@@ -931,7 +923,6 @@
                 statusColor = '#ff3b30'; // Red - more than 3 hours, alert
             }
 
-            console.log('Display text:', statusText);
             statusElement.textContent = statusText;
             statusElement.style.color = statusColor;
         } else {
