@@ -771,23 +771,26 @@
         }
         
         if (typeof timestamp === 'string') {
-            const parts = timestamp.split(' ');
+            // Try parsing DD/MM/YYYY HH:MM:SS format
+            const parts = timestamp.trim().split(' ');
             if (parts.length >= 2) {
                 const dateParts = parts[0].split('/');
                 const timeParts = parts[1].split(':');
                 
                 if (dateParts.length === 3 && timeParts.length >= 2) {
-                    return new Date(
-                        parseInt(dateParts[2]),
-                        parseInt(dateParts[1]) - 1,
-                        parseInt(dateParts[0]),
-                        parseInt(timeParts[0]),
-                        parseInt(timeParts[1]),
-                        parseInt(timeParts[2] || 0)
-                    );
+                    // DD/MM/YYYY format
+                    const day = parseInt(dateParts[0]);
+                    const month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
+                    const year = parseInt(dateParts[2]);
+                    const hour = parseInt(timeParts[0]);
+                    const minute = parseInt(timeParts[1]);
+                    const second = parseInt(timeParts[2] || 0);
+                    
+                    return new Date(year, month, day, hour, minute, second);
                 }
             }
             
+            // Fallback to standard parsing
             return new Date(timestamp);
         }
         
@@ -865,17 +868,30 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
+                    console.log('Heartbeat data received:', results.data);
                     if (results.data && results.data.length > 0) {
+                        // Get the last row (most recent heartbeat)
                         const latest = results.data[results.data.length - 1];
+                        console.log('Latest heartbeat row:', latest);
+                        
+                        const timestampStr = latest.Timestamp || latest.timestamp;
+                        console.log('Timestamp string:', timestampStr);
+                        
+                        const parsedTimestamp = parseTimestamp(timestampStr);
+                        console.log('Parsed timestamp:', parsedTimestamp);
+                        
                         lastHeartbeat = {
-                            timestamp: parseTimestamp(latest.Timestamp || latest.timestamp),
+                            timestamp: parsedTimestamp,
                             deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown'
                         };
+                        console.log('Last heartbeat set to:', lastHeartbeat);
                         updateHeartbeatDisplay();
+                    } else {
+                        console.log('No heartbeat data found');
                     }
                 },
                 error: function(error) {
-                    console.error('Error loading heartbeat:', error);
+                    console.error('Error parsing heartbeat:', error);
                 }
             });
         } catch (error) {
@@ -889,7 +905,12 @@
 
         if (lastHeartbeat) {
             const now = new Date();
+            console.log('Current time:', now);
+            console.log('Heartbeat time:', lastHeartbeat.timestamp);
+            
             const diffMs = now - lastHeartbeat.timestamp;
+            console.log('Difference in ms:', diffMs);
+            
             const diffMins = Math.floor(diffMs / 60000);
             const diffHours = Math.floor(diffMins / 60);
 
@@ -910,6 +931,7 @@
                 statusColor = '#ff3b30'; // Red - more than 3 hours, alert
             }
 
+            console.log('Display text:', statusText);
             statusElement.textContent = statusText;
             statusElement.style.color = statusColor;
         } else {
