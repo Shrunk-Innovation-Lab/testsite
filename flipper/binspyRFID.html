@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <title>BinSpy RFID - Checkpoint Tracking</title>
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-capable" content="yes">
     <meta name="apple-mobile-web-app-status-bar-style" content="default">
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
@@ -653,7 +654,7 @@
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
             <h1 class="header-title">
                 BinSpy RFID Checkpoint Tracker
-                <span>Footscray</span>
+                <span id="heartbeatStatus">Loading heartbeat...</span>
             </h1>
         </div>
         <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
@@ -753,8 +754,10 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPVoP6ihWhIntuCPMue-FMy8bWqa8YjsDeuaBiLPbm3tdWezDP08uxy2WybrTmLEiFr9UMLVzr_TJF/pub?gid=0&single=true&output=csv';
+    const HEARTBEAT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPVoP6ihWhIntuCPMue-FMy8bWqa8YjsDeuaBiLPbm3tdWezDP08uxy2WybrTmLEiFr9UMLVzr_TJF/pub?gid=1744529929&single=true&output=csv';
 
     let allDetections = [];
+    let lastHeartbeat = null;
     let currentView = 'dashboard';
     let searchTerm = '';
     let wasteTypeFilter = 'all';
@@ -853,6 +856,68 @@
         return Array.from(sizes).sort();
     }
 
+    async function loadHeartbeat() {
+        try {
+            const response = await fetch(HEARTBEAT_URL + '&t=' + new Date().getTime());
+            const csvText = await response.text();
+
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        const latest = results.data[results.data.length - 1];
+                        lastHeartbeat = {
+                            timestamp: parseTimestamp(latest.Timestamp || latest.timestamp),
+                            deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown'
+                        };
+                        updateHeartbeatDisplay();
+                    }
+                },
+                error: function(error) {
+                    console.error('Error loading heartbeat:', error);
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching heartbeat:', error);
+        }
+    }
+
+    function updateHeartbeatDisplay() {
+        const statusElement = document.getElementById('heartbeatStatus');
+        if (!statusElement) return;
+
+        if (lastHeartbeat) {
+            const now = new Date();
+            const diffMs = now - lastHeartbeat.timestamp;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+
+            let statusText = '';
+            let statusColor = '';
+
+            if (diffMins < 60) {
+                statusText = `Last heartbeat: ${diffMins}m ago`;
+                statusColor = '#34c759'; // Green - within the hour
+            } else if (diffHours < 2) {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#34c759'; // Green - slightly over 1 hour is ok
+            } else if (diffHours < 3) {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#ff9500'; // Orange - 2-3 hours, warning
+            } else {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#ff3b30'; // Red - more than 3 hours, alert
+            }
+
+            statusElement.textContent = statusText;
+            statusElement.style.color = statusColor;
+        } else {
+            statusElement.textContent = 'Waiting for heartbeat...';
+            statusElement.style.color = '#666';
+        }
+    }
+
     async function loadData(isAutoRefresh = false) {
         const indicator = document.getElementById('refreshIndicator');
         if (indicator && isAutoRefresh) {
@@ -872,6 +937,7 @@
                         timestamp: parseTimestamp(row.Timestamp || row.timestamp)
                     })).sort((a, b) => b.timestamp - a.timestamp);
 
+                    loadHeartbeat();
                     populateFilters();
                     displayCurrentView();
 
@@ -1030,9 +1096,6 @@
                         
                         <span class="bin-info-label">Type:</span>
                         <span class="bin-info-value">${bin.wasteType}</span>
-                        
-                        <span class="bin-info-label">Avg Signal:</span>
-                        <span class="bin-info-value">${bin.avgRSSI} dBm</span>
                     </div>
                     
                     <div>
@@ -1302,7 +1365,15 @@
     });
 
     // Auto-refresh every 30 seconds
-    setInterval(() => loadData(true), 30000);
+    setInterval(() => {
+        loadData(true);
+        updateHeartbeatDisplay();
+    }, 30000);
+
+    // Update heartbeat display every 5 seconds
+    setInterval(() => {
+        updateHeartbeatDisplay();
+    }, 5000);
 </script>
 </body>
 </html>
