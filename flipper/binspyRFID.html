@@ -871,31 +871,19 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    console.log('=== HEARTBEAT DEBUG ===');
-                    console.log('CSV Headers:', results.meta.fields);
-                    console.log('Total rows:', results.data.length);
-                    
                     if (results.data && results.data.length > 0) {
                         // Get the last row (most recent heartbeat)
                         const latest = results.data[results.data.length - 1];
-                        console.log('Latest heartbeat row:', latest);
                         
-                        // Use "System Time" as the header name
-                        const timestampStr = latest['System Time'] || latest.Timestamp || latest.timestamp;
-                        console.log('Timestamp string found:', timestampStr);
-                        console.log('Type of timestamp:', typeof timestampStr);
-                        
+                        // Use "System Time " (note the trailing space!) as the header name
+                        const timestampStr = latest['System Time '] || latest['System Time'] || latest.Timestamp || latest.timestamp;
                         const parsedTimestamp = parseTimestamp(timestampStr);
-                        console.log('Parsed timestamp:', parsedTimestamp);
-                        console.log('Current time:', new Date());
-                        console.log('Time difference (ms):', new Date() - parsedTimestamp);
                         
                         lastHeartbeat = {
                             timestamp: parsedTimestamp,
                             deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown',
                             status: latest.Status || latest.status || 'Unknown'
                         };
-                        console.log('lastHeartbeat object:', lastHeartbeat);
                         updateHeartbeatDisplay();
                     }
                 },
