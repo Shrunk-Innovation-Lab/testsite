@@ -1431,7 +1431,15 @@
             visit.avgQuality = visit.qualities[visit.qualities.length - 1] || 'Unknown';
         });
 
-        return visits.sort((a, b) => b.endTime - a.endTime);
+        // Filter to ONLY include visits between 1 AM (01:00) and 7 AM (07:00)
+        const filteredVisits = visits.filter(visit => {
+            const visitHour = visit.endTime.getHours();
+            // Keep ONLY visits between 1 AM (1) and 6:59 AM (6 inclusive)
+            // Include: 1, 2, 3, 4, 5, 6 (which is 01:00-06:59)
+            return visitHour >= 1 && visitHour < 7;
+        });
+
+        return filteredVisits.sort((a, b) => b.endTime - a.endTime);
     }
 
     function formatDuration(ms) {
@@ -1460,13 +1468,15 @@
         // Filter visits to only today
         const todayVisits = aggregatedVisits.filter(v => v.endTime >= today);
         
-        // First, initialize all bins from all visits (to get all bins even with no visits today)
-        aggregatedVisits.forEach(visit => {
-            if (!uniqueBins.has(visit.mac)) {
-                uniqueBins.set(visit.mac, {
-                    name: visit.name,
-                    binSize: visit.binSize,
-                    wasteType: visit.wasteType,
+        // First, initialize all bins from ALL detections (not just filtered visits)
+        // This ensures we show all bins even if they have no visits in the 1-7 AM window
+        allDetections.forEach(detection => {
+            const mac = detection.MAC || detection.mac;
+            if (!uniqueBins.has(mac)) {
+                uniqueBins.set(mac, {
+                    name: detection.Name || detection.name || 'Unknown',
+                    binSize: detection['Bin Size'] || detection.binSize || 'Unknown',
+                    wasteType: detection['Waste Type'] || detection.wasteType || 'Unknown',
                     visits: [],
                     totalDetections: 0,
                     lastSeen: null,
@@ -1476,14 +1486,16 @@
             }
         });
         
-        // Now populate with today's data
+        // Now populate with today's filtered data (1-7 AM visits only)
         todayVisits.forEach(visit => {
             const bin = uniqueBins.get(visit.mac);
-            bin.visits.push(visit);
-            bin.totalDetections += visit.detectionCount;
-            
-            if (!bin.lastSeen || visit.endTime > bin.lastSeen) {
-                bin.lastSeen = visit.endTime;
+            if (bin) {
+                bin.visits.push(visit);
+                bin.totalDetections += visit.detectionCount;
+                
+                if (!bin.lastSeen || visit.endTime > bin.lastSeen) {
+                    bin.lastSeen = visit.endTime;
+                }
             }
         });
         
@@ -1673,22 +1685,28 @@
             binColorMap.set(bin.mac, BIN_COLORS[index % BIN_COLORS.length]);
         });
 
+        // Check if "All Bins" is selected
+        const isAllSelected = selectedBins.includes('all');
+
         // Create "All Bins" checkbox
         let html = `
             <div class="bin-checkbox-item bin-select-all" id="binCheckAll">
-                <input type="checkbox" id="checkbox-all" value="all" checked>
+                <input type="checkbox" id="checkbox-all" value="all" ${isAllSelected ? 'checked' : ''}>
                 <label class="bin-checkbox-label" for="checkbox-all">All Bins</label>
             </div>
         `;
 
-        // Create individual bin checkboxes
-        html += uniqueBins.map(bin => `
-            <div class="bin-checkbox-item" data-mac="${bin.mac}">
-                <input type="checkbox" id="checkbox-${bin.mac}" value="${bin.mac}">
-                <div class="bin-color-indicator" style="background-color: ${binColorMap.get(bin.mac)}"></div>
-                <label class="bin-checkbox-label" for="checkbox-${bin.mac}">${bin.name}</label>
-            </div>
-        `).join('');
+        // Create individual bin checkboxes - preserve selection state
+        html += uniqueBins.map(bin => {
+            const isSelected = selectedBins.includes(bin.mac);
+            return `
+                <div class="bin-checkbox-item ${isSelected ? 'checked' : ''}" data-mac="${bin.mac}">
+                    <input type="checkbox" id="checkbox-${bin.mac}" value="${bin.mac}" ${isSelected ? 'checked' : ''}>
+                    <div class="bin-color-indicator" style="background-color: ${binColorMap.get(bin.mac)}"></div>
+                    <label class="bin-checkbox-label" for="checkbox-${bin.mac}">${bin.name}</label>
+                </div>
+            `;
+        }).join('');
 
         container.innerHTML = html;
 
@@ -1851,12 +1869,33 @@
         if (currentView === 'dashboard') {
             displayDashboard();
         } else if (currentView === 'timeline') {
+            restoreTimelineFilterStates();
             displayTimeline();
         } else if (currentView === 'calendar') {
             displayCalendar();
         }
         
         updateLastUpdated();
+    }
+
+    function restoreTimelineFilterStates() {
+        // Restore mobile time range button states
+        document.querySelectorAll('.mobile-time-buttons .filter-btn').forEach(btn => {
+            if (btn.dataset.timeFilter === timelineFilter) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
+
+        // Restore granularity button states
+        document.querySelectorAll('.granularity-btn').forEach(btn => {
+            if (btn.dataset.granularity === timelineGranularity) {
+                btn.classList.add('active');
+            } else {
+                btn.classList.remove('active');
+            }
+        });
     }
 
     function displayDashboard() {
@@ -1890,7 +1929,7 @@
             </div>
             <div class="stat-card detections">
                 <div class="stat-number">${weekVisits.toLocaleString()}</div>
-                <div class="stat-label">Visits this Week</div>
+                <div class="stat-label">This Week (Mon-Sun)</div>
             </div>
             <div class="stat-card today">
                 <div class="stat-number">${todayVisits.toLocaleString()}</div>
