@@ -747,42 +747,51 @@
 
         .upload-section {
             text-align: center;
-            padding: 40px 20px;
-            border: 2px dashed #d2d2d7;
-            border-radius: 10px;
+            padding: 50px 30px;
+            border: 3px dashed #d2d2d7;
+            border-radius: 12px;
             margin-bottom: 20px;
-            background-color: #f9f9f9;
-            transition: all 0.3s;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+            position: relative;
         }
 
         .upload-section:hover {
             border-color: #007aff;
-            background-color: #f5f9ff;
+            background: #f5f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
         }
 
         .upload-section.dragover {
             border-color: #007aff;
-            background-color: #e5f2ff;
+            background: #e5f2ff;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.25);
         }
 
         .upload-label {
             display: inline-block;
-            padding: 12px 24px;
-            background-color: #007aff;
+            padding: 14px 32px;
+            background: #007aff;
             color: white;
             border-radius: 8px;
             cursor: pointer;
             font-weight: 600;
-            transition: all 0.2s;
-            margin-top: 10px;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
 
         .upload-label:hover {
-            background-color: #0056b3;
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
         }
 
         .upload-label:active {
-            transform: scale(0.97);
+            transform: translateY(0px);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
 
         #pdfFileInput {
@@ -791,80 +800,303 @@
 
         .comparison-grid {
             display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
-            gap: 12px;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
             margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .comparison-card {
-            background-color: #ffffff;
-            padding: 14px;
-            border-radius: 8px;
-            border: 1px solid #d2d2d7;
-            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.3s ease backwards;
         }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .comparison-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #007aff;
+            transition: width 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: #d2d2d7;
+        }
+
+        .comparison-card:hover::before {
+            width: 6px;
+        }
+
+        .comparison-card.card-match::before {
+            background: #34c759;
+        }
+
+        .comparison-card.card-mismatch::before {
+            background: #ff9500;
+        }
+
+        .comparison-card.card-missing::before {
+            background: #ff3b30;
+        }
+
+        /* Stagger animation for cards */
+        .comparison-card:nth-child(1) { animation-delay: 0.05s; }
+        .comparison-card:nth-child(2) { animation-delay: 0.1s; }
+        .comparison-card:nth-child(3) { animation-delay: 0.15s; }
+        .comparison-card:nth-child(4) { animation-delay: 0.2s; }
+        .comparison-card:nth-child(5) { animation-delay: 0.25s; }
+        .comparison-card:nth-child(6) { animation-delay: 0.3s; }
 
         .comparison-date {
             font-weight: 600;
-            font-size: 1.1em;
-            margin-bottom: 10px;
+            font-size: 1.05em;
+            margin-bottom: 16px;
             color: #1d1d1f;
-            padding-bottom: 8px;
-            border-bottom: 1px solid #e5e5e7;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-status-badge.badge-match {
+            background: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .comparison-status-badge.badge-mismatch {
+            background: #ffe5d0;
+            color: #cc7a00;
+        }
+
+        .comparison-status-badge.badge-missing {
+            background: #ffe5e5;
+            color: #c41e3a;
         }
 
         .comparison-item {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            padding: 8px 0;
+            padding: 14px 0;
             border-bottom: 1px solid #f5f5f7;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-item:hover {
+            padding-left: 4px;
         }
 
         .comparison-item:last-child {
             border-bottom: none;
+            padding-bottom: 0;
         }
 
         .comparison-label {
             font-size: 0.9em;
             color: #666;
+            font-weight: 500;
         }
 
         .comparison-values {
             display: flex;
-            gap: 10px;
+            gap: 12px;
             align-items: center;
             font-weight: 600;
+            font-size: 1.05em;
         }
 
         .invoice-value {
             color: #007aff;
+            background: #e5f2ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            min-width: 30px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .invoice-value:hover {
+            background: #cce5ff;
         }
 
         .actual-value {
             color: #34c759;
+            background: #d1f4e0;
+            padding: 4px 10px;
+            border-radius: 6px;
+            min-width: 30px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .actual-value:hover {
+            background: #b8f0d0;
         }
 
         .difference {
-            padding: 3px 8px;
-            border-radius: 4px;
-            font-size: 0.85em;
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
             white-space: nowrap;
+            font-weight: 700;
+            transition: all 0.2s ease;
+        }
+
+        .difference:hover {
+            transform: scale(1.05);
         }
 
         .difference.positive {
-            background-color: #d1f4e0;
+            background: #d1f4e0;
             color: #1e7c3c;
         }
 
         .difference.negative {
-            background-color: #ffe5e5;
+            background: #ffe5e5;
             color: #c41e3a;
         }
 
         .difference.zero {
-            background-color: #e5e5e7;
+            background: #e5e5e7;
             color: #666;
+        }
+
+        /* Enhanced stat cards for invoice */
+        #invoiceStats {
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceStats .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #invoiceStats .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #007aff;
+            transition: height 0.3s ease;
+        }
+
+        #invoiceStats .stat-card.match::before {
+            background: #34c759;
+        }
+
+        #invoiceStats .stat-card.mismatch::before {
+            background: #ff9500;
+        }
+
+        #invoiceStats .stat-card.missing::before {
+            background: #ff3b30;
+        }
+
+        #invoiceStats .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        #invoiceStats .stat-card:hover::before {
+            height: 6px;
+        }
+
+        #invoiceFilters {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceActions {
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceActions .refresh-btn {
+            transition: all 0.2s ease;
+        }
+
+        #invoiceActions .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+
+        .invoice-export-btn {
+            background-color: #34c759 !important;
+        }
+
+        .invoice-export-btn:hover {
+            background-color: #28a745 !important;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3) !important;
+        }
+
+        #invoiceFilters .filter-btn {
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #invoiceFilters .filter-btn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        #invoiceFilters .filter-btn.active {
+            background: #007aff;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
         }
 
         footer {
@@ -1077,6 +1309,29 @@
             .comparison-grid {
                 grid-template-columns: 1fr;
             }
+
+            .upload-section {
+                padding: 40px 20px;
+            }
+
+            .upload-icon svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            .comparison-card {
+                padding: 16px;
+            }
+
+            .comparison-date {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .comparison-status-badge {
+                align-self: flex-end;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -1085,6 +1340,16 @@
             }
             .bins-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .upload-section {
+                padding: 30px 15px;
+            }
+
+            .comparison-values {
+                flex-direction: column;
+                gap: 6px;
+                align-items: flex-start;
             }
         }
     </style>
@@ -1177,19 +1442,32 @@
                     <h2 style="margin-bottom: 20px; color: #1d1d1f;">Invoice Comparison</h2>
                     
                     <div class="upload-section" id="uploadSection">
-                        <svg width="64" height="64" viewBox="0 0 24 24" fill="none" style="margin-bottom: 15px;">
-                            <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                            <path d="M14 2V8H20" stroke="#007aff" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/>
-                        </svg>
-                        <p style="font-size: 1.1em; margin-bottom: 10px; color: #1d1d1f;">Upload Invoice PDF</p>
-                        <p style="font-size: 0.9em; color: #666; margin-bottom: 15px;">Drag and drop or click to select</p>
+                        <div style="margin-bottom: 20px;">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11V17M12 11L9 14M12 11L15 14" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <p style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Upload Invoice PDF</p>
+                        <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Drag and drop your REMONDIS invoice here or click to browse</p>
                         <input type="file" id="pdfFileInput" accept="application/pdf">
-                        <label for="pdfFileInput" class="upload-label">Choose PDF File</label>
-                        <p id="fileName" style="margin-top: 15px; font-size: 0.9em; color: #666;"></p>
-                        <button id="clearInvoiceBtn" class="refresh-btn" style="margin-top: 10px; display: none;" onclick="clearInvoiceData()">Clear & Upload New</button>
+                        <label for="pdfFileInput" class="upload-label">
+                            Choose PDF File
+                        </label>
+                        <p id="fileName" style="margin-top: 20px; font-size: 0.95em; color: #666; font-weight: 500;"></p>
                     </div>
 
                     <div id="invoiceStats" class="stats hidden"></div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;" id="invoiceActions" class="hidden">
+                        <button onclick="exportInvoiceCSV()" class="refresh-btn invoice-export-btn" style="flex: 1; min-width: 150px;">
+                            Export to CSV
+                        </button>
+                        <button onclick="clearInvoiceData()" class="refresh-btn" style="flex: 1; min-width: 150px;">
+                            Clear Results
+                        </button>
+                    </div>
                     
                     <div id="invoiceFilters" class="filters hidden">
                         <button class="filter-btn active" data-invoice-filter="all">All</button>
@@ -1381,6 +1659,12 @@
         document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('calendarView').classList.add('hidden');
         document.getElementById('invoiceView').classList.add('hidden');
+
+        // Hide/show main export button based on view
+        const exportBtn = document.querySelector('.refresh-btn[onclick="exportToCSV()"]');
+        if (exportBtn) {
+            exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
+        }
 
         if (currentView === 'dashboard') {
             displayDashboard();
@@ -1954,9 +2238,33 @@
             return;
         }
 
+        // Auto-clear previous invoice data
+        if (invoiceData || comparisonData) {
+            console.log('Clearing previous invoice data...');
+            invoiceData = null;
+            comparisonData = null;
+            currentInvoiceFilter = 'all';
+            document.getElementById('invoiceStats').classList.add('hidden');
+            document.getElementById('invoiceActions').classList.add('hidden');
+            document.getElementById('invoiceFilters').classList.add('hidden');
+            document.getElementById('comparisonResults').classList.add('hidden');
+            
+            // Reset filter buttons
+            document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
+            });
+        }
+
         const fileNameEl = document.getElementById('fileName');
-        fileNameEl.textContent = `Processing: ${file.name}...`;
-        fileNameEl.style.color = '#007aff';
+        fileNameEl.innerHTML = `
+            <div style="display: inline-flex; align-items: center; gap: 10px; background: #e5f2ff; padding: 12px 20px; border-radius: 8px; border: 1px solid #99ccff;">
+                <div style="text-align: left;">
+                    <div style="font-weight: 600; color: #007aff;">Processing PDF</div>
+                    <div style="font-size: 0.9em; color: #0056b3;">${file.name}</div>
+                </div>
+            </div>
+        `;
+        fileNameEl.style.color = '';
 
         try {
             console.log('Reading file...');
@@ -1984,8 +2292,15 @@
             console.log('Parsed invoice data:', invoiceData);
             
             if (Object.keys(invoiceData.general).length === 0 && Object.keys(invoiceData.commingle).length === 0) {
-                fileNameEl.textContent = 'No invoice data found in PDF. Please check the file format.';
-                fileNameEl.style.color = '#ff3b30';
+                fileNameEl.innerHTML = `
+                    <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; color: #c41e3a;">No Invoice Data Found</div>
+                            <div style="font-size: 0.9em; color: #dc2626;">Please check the file format</div>
+                        </div>
+                    </div>
+                `;
+                fileNameEl.style.color = '';
                 alert('Could not find any service records in the PDF. Please make sure this is a REMONDIS invoice.');
                 return;
             }
@@ -1994,8 +2309,15 @@
             
         } catch (error) {
             console.error('Error processing PDF:', error);
-            fileNameEl.textContent = 'Error: ' + error.message;
-            fileNameEl.style.color = '#ff3b30';
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #c41e3a;">Error Processing PDF</div>
+                        <div style="font-size: 0.9em; color: #dc2626;">${error.message}</div>
+                    </div>
+                </div>
+            `;
+            fileNameEl.style.color = '';
             alert('Error processing PDF: ' + error.message);
         }
     }
@@ -2049,9 +2371,6 @@
 
     function displayInvoiceComparison() {
         if (!invoiceData) return;
-
-        // Show clear button
-        document.getElementById('clearInvoiceBtn').style.display = 'inline-flex';
 
         // Count comparison stats
         let totalMatches = 0;
@@ -2159,8 +2478,15 @@
         // Check if we have any actual data for comparison
         if (totalDaysWithData === 0) {
             const fileNameEl = document.getElementById('fileName');
-            fileNameEl.innerHTML = '⚠️ Warning: No actual collection data found for these dates.<br>The CSV may not contain data for this invoice period.';
-            fileNameEl.style.color = '#ff9500';
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #fff4e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffcc99; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #cc7a00; margin-bottom: 4px;">No Collection Data Found</div>
+                        <div style="font-size: 0.9em; color: #996600;">The CSV may not contain data for this invoice period</div>
+                    </div>
+                </div>
+            `;
+            fileNameEl.style.color = '';
         }
 
         // Display stats
@@ -2182,6 +2508,9 @@
         document.getElementById('invoiceStats').innerHTML = statsHtml;
         document.getElementById('invoiceStats').classList.remove('hidden');
         
+        // Show action buttons
+        document.getElementById('invoiceActions').classList.remove('hidden');
+        
         // Show filters
         document.getElementById('invoiceFilters').classList.remove('hidden');
 
@@ -2191,8 +2520,15 @@
         // Only show success message if we have data
         if (totalDaysWithData > 0) {
             const fileNameEl = document.getElementById('fileName');
-            fileNameEl.textContent = 'Analysis complete! ✓';
-            fileNameEl.style.color = '#34c759';
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #d1f4e0; padding: 12px 20px; border-radius: 8px; border: 1px solid #99e6b8; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #1e7c3c;">Analysis Complete</div>
+                        <div style="font-size: 0.9em; color: #28a745;">Found ${totalDaysWithData} days with collection data</div>
+                    </div>
+                </div>
+            `;
+            fileNameEl.style.color = '';
         }
     }
 
@@ -2223,12 +2559,16 @@
 
             // Determine the category
             let category;
+            let statusText;
             if (overallMatch) {
                 category = 'match';
+                statusText = 'Match';
             } else if (data.general.actual === 0 && data.commingle.actual === 0) {
                 category = 'missing';
+                statusText = 'Missing';
             } else {
                 category = 'mismatch';
+                statusText = 'Mismatch';
             }
 
             // Apply filter
@@ -2239,10 +2579,13 @@
             displayedCount++;
 
             comparisonHtml += `
-                <div class="comparison-card">
+                <div class="comparison-card card-${category}">
                     <div class="comparison-date">
-                        Invoice: ${date.toLocaleDateString('en-AU')}<br>
-                        Actual: ${actualDate.toLocaleDateString('en-AU')}
+                        <div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 500;">Invoice: ${date.toLocaleDateString('en-AU')}</div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 500;">Actual: ${actualDate.toLocaleDateString('en-AU')}</div>
+                        </div>
+                        <span class="comparison-status-badge badge-${category}">${statusText}</span>
                     </div>
                     
                     <div class="comparison-item">
@@ -2269,7 +2612,12 @@
         });
         
         if (displayedCount === 0) {
-            comparisonHtml += '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No results match the current filter</div>';
+            comparisonHtml += `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 1.2em; font-weight: 600; color: #1d1d1f; margin-bottom: 8px;">No Results Found</div>
+                    <div style="color: #666; font-size: 0.95em;">Try changing the filter or upload a different invoice</div>
+                </div>
+            `;
         }
         
         comparisonHtml += '</div>';
@@ -2285,9 +2633,9 @@
         document.getElementById('pdfFileInput').value = '';
         document.getElementById('fileName').textContent = '';
         document.getElementById('invoiceStats').classList.add('hidden');
+        document.getElementById('invoiceActions').classList.add('hidden');
         document.getElementById('invoiceFilters').classList.add('hidden');
         document.getElementById('comparisonResults').classList.add('hidden');
-        document.getElementById('clearInvoiceBtn').style.display = 'none';
         
         // Reset filter buttons
         document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
@@ -2295,6 +2643,88 @@
         });
         
         console.log('Invoice data cleared');
+    }
+
+    function exportInvoiceCSV() {
+        if (!comparisonData || !comparisonData.byDate) {
+            alert('No comparison data available to export');
+            return;
+        }
+
+        // CSV header
+        const headers = [
+            'Invoice Date',
+            'Actual Date',
+            'Status',
+            'General Waste (Invoice)',
+            'General Waste (Actual)',
+            'General Waste (Difference)',
+            'Commingle (Invoice)',
+            'Commingle (Actual)',
+            'Commingle (Difference)'
+        ];
+
+        const rows = [headers];
+
+        // Sort dates
+        const sortedDates = Array.from(comparisonData.byDate.keys()).sort();
+
+        sortedDates.forEach(invoiceDate => {
+            const data = comparisonData.byDate.get(invoiceDate);
+            const date = new Date(invoiceDate);
+            const actualDate = new Date(data.actualDate);
+
+            // Determine status
+            const generalMatch = data.general.diff === 0;
+            const commingeMatch = data.commingle.diff === 0;
+            let status;
+            if (generalMatch && commingeMatch) {
+                status = 'Match';
+            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
+                status = 'Missing';
+            } else {
+                status = 'Mismatch';
+            }
+
+            // Skip days with no activity
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
+                data.general.actual === 0 && data.commingle.actual === 0) {
+                return;
+            }
+
+            const row = [
+                date.toLocaleDateString('en-AU'),
+                actualDate.toLocaleDateString('en-AU'),
+                status,
+                data.general.invoice,
+                data.general.actual,
+                data.general.diff,
+                data.commingle.invoice,
+                data.commingle.actual,
+                data.commingle.diff
+            ];
+
+            rows.push(row);
+        });
+
+        // Convert to CSV
+        const csvContent = rows.map(row => row.join(',')).join('\n');
+
+        // Create download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('href', url);
+        link.setAttribute('download', `invoice-comparison-${timestamp}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log(`Exported ${rows.length - 1} rows to CSV`);
     }
 
     // Event Listeners
