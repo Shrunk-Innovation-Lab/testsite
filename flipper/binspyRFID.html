@@ -182,6 +182,25 @@
             transform: scale(0.97);
         }
 
+        .aggregation-info {
+            background-color: #e3f2fd;
+            color: #1976d2;
+            padding: 10px 14px;
+            border-radius: 8px;
+            margin-bottom: 10px;
+            font-size: 0.9em;
+            border: 1px solid #90caf9;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .aggregation-info svg {
+            width: 18px;
+            height: 18px;
+            flex-shrink: 0;
+        }
+
         .stats {
             display: grid;
             grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
@@ -269,6 +288,16 @@
             border-radius: 999px;
             font-weight: 700;
             font-size: 0.85em;
+        }
+
+        .visit-count {
+            background-color: #34c759;
+            color: white;
+            padding: 4px 10px;
+            border-radius: 999px;
+            font-weight: 700;
+            font-size: 0.85em;
+            margin-left: 6px;
         }
 
         .bin-info {
@@ -432,8 +461,12 @@
             padding: 12px;
             border-radius: 8px;
             background-color: #f8f9fa;
-            border-left: 4px solid #007aff;
+            border-left: 4px solid;
             transition: transform 0.2s;
+        }
+
+        .timeline-event.aggregated {
+            background-color: #f0f8ff;
         }
 
         .timeline-event:hover {
@@ -472,6 +505,238 @@
         .timeline-details {
             font-size: 0.85em;
             color: #666;
+        }
+
+        .timeline-duration {
+            font-size: 0.8em;
+            color: #34c759;
+            font-weight: 600;
+            margin-top: 4px;
+        }
+
+        .timeline-chart-container {
+            background-color: #ffffff;
+            padding: 16px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            margin-bottom: 20px;
+        }
+
+        .timeline-chart-header {
+            font-size: 1.2em;
+            font-weight: 600;
+            margin-bottom: 15px;
+            color: #1d1d1f;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .timeline-filters {
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            margin-bottom: 15px;
+        }
+
+        .selected-bins-display {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 10px;
+            padding: 10px;
+            background-color: #f8f9fa;
+            border-radius: 6px;
+            min-height: 40px;
+            align-items: center;
+        }
+
+        .selected-bins-display.empty {
+            display: none;
+        }
+
+        .bin-tag {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 6px 10px;
+            background-color: #007aff;
+            color: white;
+            border-radius: 6px;
+            font-size: 0.85em;
+            font-weight: 600;
+        }
+
+        .bin-tag-remove {
+            cursor: pointer;
+            font-weight: bold;
+            font-size: 1.1em;
+            line-height: 1;
+            opacity: 0.8;
+            transition: opacity 0.2s;
+        }
+
+        .bin-tag-remove:hover {
+            opacity: 1;
+        }
+
+        .filter-hint {
+            font-size: 0.8em;
+            color: #666;
+            font-style: italic;
+            margin-top: 4px;
+        }
+
+        .timeline-filter-group {
+            display: flex;
+            gap: 6px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .timeline-filter-label {
+            font-size: 0.85em;
+            color: #666;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        .bin-checkbox-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+            gap: 8px;
+            padding: 12px;
+            background-color: #f8f9fa;
+            border-radius: 8px;
+            border: 1px solid #d2d2d7;
+            max-width: 100%;
+        }
+
+        .bin-checkbox-item {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            padding: 8px 10px;
+            background-color: #ffffff;
+            border-radius: 6px;
+            border: 1px solid #d2d2d7;
+            cursor: pointer;
+            transition: all 0.2s;
+            position: relative;
+        }
+
+        .bin-checkbox-item:hover {
+            border-color: #007aff;
+            box-shadow: 0 2px 4px rgba(0, 122, 255, 0.1);
+        }
+
+        .bin-checkbox-item.checked {
+            border-color: #007aff;
+            background-color: #e3f2fd;
+        }
+
+        .bin-checkbox-item input[type="checkbox"] {
+            width: 18px;
+            height: 18px;
+            cursor: pointer;
+            accent-color: #007aff;
+        }
+
+        .bin-checkbox-label {
+            flex: 1;
+            cursor: pointer;
+            font-size: 0.9em;
+            user-select: none;
+        }
+
+        .bin-color-indicator {
+            width: 12px;
+            height: 12px;
+            border-radius: 3px;
+            flex-shrink: 0;
+        }
+
+        .bin-select-all {
+            grid-column: 1 / -1;
+            font-weight: 600;
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+
+        .bin-select-all:hover {
+            background-color: #0056b3;
+        }
+
+        .bin-select-all input[type="checkbox"] {
+            accent-color: white;
+        }
+
+        .granularity-btn {
+            padding: 8px 14px;
+            border: 1px solid #d2d2d7;
+            background-color: #ffffff;
+            color: #1d1d1f;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 0.9em;
+            min-height: 36px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .granularity-btn:active {
+            transform: scale(0.97);
+        }
+
+        .granularity-btn.active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+
+        .chart-wrapper {
+            position: relative;
+            height: 300px;
+            margin-bottom: 10px;
+        }
+
+        .chart-stats {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            margin-top: 10px;
+            padding-top: 10px;
+            border-top: 1px solid #e0e0e0;
+            font-size: 0.9em;
+        }
+
+        .chart-stat-item {
+            display: flex;
+            flex-direction: column;
+        }
+
+        .chart-stat-label {
+            color: #666;
+            font-size: 0.85em;
+            margin-bottom: 2px;
+        }
+
+        .chart-stat-value {
+            font-weight: 700;
+            font-size: 1.1em;
+            color: #007aff;
         }
 
         .calendar-container {
@@ -677,6 +942,13 @@
         <div class="error" id="error" style="display: none;"></div>
 
         <div id="content" style="display: none;">
+            <div class="aggregation-info">
+                <svg viewBox="0 0 24 24" fill="currentColor">
+                    <path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/>
+                </svg>
+                <span>Detections are grouped into visits. Consecutive detections within <strong>1 hour</strong> are combined into a single visit.</span>
+            </div>
+
             <div class="controls-row">
                 <div class="view-toggle">
                     <button class="view-btn active" data-view="dashboard">Dashboard</button>
@@ -713,21 +985,66 @@
                         <button class="filter-btn active" data-filter-type="size" data-filter="all">All</button>
                         <div id="binSizeFilters"></div>
                     </div>
+                    <div class="filter-group">
+                        <button class="filter-btn" id="toggleDetectionsBtn" style="margin-left: auto;">
+                            Show Detections
+                        </button>
+                    </div>
                 </div>
 
                 <div class="bins-grid" id="binsGrid"></div>
             </div>
 
             <div id="timelineView" class="hidden">
+                <div class="timeline-chart-container">
+                    <div class="timeline-chart-header">
+                        <span>Visit Distribution</span>
+                        <button class="filter-btn" id="clearFiltersBtn" style="display: none;">Clear Filters</button>
+                    </div>
+                    
+                    <div class="timeline-filters">
+                        <div class="timeline-filter-group" style="width: 100%; flex-direction: column; align-items: flex-start;">
+                            <span class="timeline-filter-label">Filter by Bins:</span>
+                            <div class="bin-checkbox-container" id="binCheckboxContainer">
+                                <!-- Checkboxes will be populated here -->
+                            </div>
+                        </div>
+                        
+                        <div class="timeline-filter-group">
+                            <span class="timeline-filter-label">Time Range:</span>
+                            <select id="timelineFilter" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #d2d2d7; min-height: 36px;">
+                                <option value="all">All Time</option>
+                                <option value="today">Today</option>
+                                <option value="week" selected>This Week</option>
+                                <option value="month">This Month</option>
+                            </select>
+                        </div>
+                        
+                        <div class="timeline-filter-group">
+                            <span class="timeline-filter-label">Group By:</span>
+                            <button class="granularity-btn active" data-granularity="auto">Auto</button>
+                            <button class="granularity-btn" data-granularity="hour">Hour</button>
+                            <button class="granularity-btn" data-granularity="day">Day</button>
+                            <button class="granularity-btn" data-granularity="week">Week</button>
+                            <button class="granularity-btn" data-granularity="month">Month</button>
+                        </div>
+                    </div>
+                    
+                    <div class="selected-bins-display empty" id="selectedBinsDisplay">
+                        <span style="font-size: 0.85em; color: #666; font-weight: 600; margin-right: 8px;">Filtered Bins:</span>
+                        <div id="selectedBinsTags"></div>
+                    </div>
+                    
+                    <div class="chart-wrapper">
+                        <canvas id="timelineChart"></canvas>
+                    </div>
+                    
+                    <div class="chart-stats" id="chartStats"></div>
+                </div>
+
                 <div class="timeline-container">
                     <div class="timeline-header">
-                        <span>Recent Detections</span>
-                        <select id="timelineFilter" style="padding: 6px 10px; border-radius: 6px; border: 1px solid #d2d2d7;">
-                            <option value="all">All Time</option>
-                            <option value="today">Today</option>
-                            <option value="week">This Week</option>
-                            <option value="month">This Month</option>
-                        </select>
+                        <span>Recent Visits</span>
                     </div>
                     <div class="timeline" id="timeline"></div>
                 </div>
@@ -751,22 +1068,74 @@
 </div>
 
 <footer>
-    2025 | Wasted by Shrunk | All Rights Reserved
+    2026 | Wasted by Shrunk | All Rights Reserved
 </footer>
 
+<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script>
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPVoP6ihWhIntuCPMue-FMy8bWqa8YjsDeuaBiLPbm3tdWezDP08uxy2WybrTmLEiFr9UMLVzr_TJF/pub?gid=0&single=true&output=csv';
     const HEARTBEAT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vTPVoP6ihWhIntuCPMue-FMy8bWqa8YjsDeuaBiLPbm3tdWezDP08uxy2WybrTmLEiFr9UMLVzr_TJF/pub?gid=1744529929&single=true&output=csv';
 
+    // Aggregation settings - adjust this to change grouping behavior
+    const AGGREGATION_WINDOW_MS = 60 * 60 * 1000; // 1 hour
+    
+    // Color palette for multiple bins - optimized for maximum differentiation
+    const BIN_COLORS = [
+        '#007aff', // Blue
+        '#34c759', // Green
+        '#ff9500', // Orange
+        '#af52de', // Purple
+        '#ff3b30', // Red
+        '#5ac8fa', // Cyan
+        '#ffcc00', // Yellow
+        '#ff2d55', // Pink
+        '#5856d6', // Indigo
+        '#00c7be', // Teal
+        '#8b4513', // Saddle Brown
+        '#32cd32', // Lime Green
+        '#ff1493', // Deep Pink
+        '#00bfff', // Deep Sky Blue
+        '#ff8c00', // Dark Orange
+        '#9370db', // Medium Purple
+        '#ff6347', // Tomato Red
+        '#20b2aa', // Light Sea Green
+    ];
+    
+    let binColorMap = new Map();
+
     let allDetections = [];
+    let aggregatedVisits = [];
     let lastHeartbeat = null;
     let currentView = 'dashboard';
     let searchTerm = '';
     let wasteTypeFilter = 'all';
     let binSizeFilter = 'all';
-    let timelineFilter = 'all';
+    let timelineFilter = 'week'; // Default to "This Week"
+    let timelineGranularity = 'auto';
+    let selectedBins = ['all'];
     let currentDate = new Date();
+    let timelineChart = null;
+    let showDetectionCount = false; // Default to hide detection counts on dashboard cards
+
+    // Australian Standard waste bin colors
+    function getAustralianWasteColor(wasteType) {
+        const type = (wasteType || '').toLowerCase();
+        
+        if (type.includes('co-mingle') || type.includes('comingle') || type.includes('recycl')) {
+            return '#FFD700'; // Yellow - Co-mingled recycling
+        } else if (type.includes('general') || type.includes('waste')) {
+            return '#DC143C'; // Red - General waste
+        } else if (type.includes('green') || type.includes('organic') || type.includes('garden')) {
+            return '#228B22'; // Green - Organics/Garden
+        } else if (type.includes('blue') || type.includes('paper') || type.includes('cardboard')) {
+            return '#1E90FF'; // Blue - Paper/Cardboard
+        } else if (type.includes('purple') || type.includes('glass')) {
+            return '#9370DB'; // Purple - Glass (some councils)
+        } else {
+            return '#007aff'; // Default blue
+        }
+    }
 
     function parseTimestamp(timestamp) {
         if (timestamp instanceof Date) {
@@ -774,16 +1143,14 @@
         }
         
         if (typeof timestamp === 'string') {
-            // Try parsing DD/MM/YYYY HH:MM:SS format
             const parts = timestamp.trim().split(' ');
             if (parts.length >= 2) {
                 const dateParts = parts[0].split('/');
                 const timeParts = parts[1].split(':');
                 
                 if (dateParts.length === 3 && timeParts.length >= 2) {
-                    // DD/MM/YYYY format
                     const day = parseInt(dateParts[0]);
-                    const month = parseInt(dateParts[1]) - 1; // Months are 0-indexed
+                    const month = parseInt(dateParts[1]) - 1;
                     const year = parseInt(dateParts[2]);
                     const hour = parseInt(timeParts[0]);
                     const minute = parseInt(timeParts[1]);
@@ -793,51 +1160,145 @@
                 }
             }
             
-            // Fallback to standard parsing
             return new Date(timestamp);
         }
         
         return new Date();
     }
 
-    function getBinStats() {
-        const uniqueBins = new Map();
-        
-        allDetections.forEach(detection => {
+    function aggregateDetections(detections) {
+        if (detections.length === 0) return [];
+
+        // Sort by MAC and timestamp
+        const sorted = [...detections].sort((a, b) => {
+            const macCompare = (a.MAC || a.mac || '').localeCompare(b.MAC || b.mac || '');
+            if (macCompare !== 0) return macCompare;
+            return a.timestamp - b.timestamp;
+        });
+
+        const visits = [];
+        let currentVisit = null;
+
+        sorted.forEach(detection => {
             const mac = detection.MAC || detection.mac;
-            if (!mac) return;
             
-            if (!uniqueBins.has(mac)) {
-                uniqueBins.set(mac, {
+            if (!currentVisit || 
+                currentVisit.mac !== mac || 
+                (detection.timestamp - currentVisit.endTime) > AGGREGATION_WINDOW_MS) {
+                
+                // Start a new visit
+                if (currentVisit) {
+                    visits.push(currentVisit);
+                }
+                
+                currentVisit = {
+                    mac: mac,
                     name: detection.Name || detection.name || 'Unknown',
                     binSize: detection['Bin Size'] || detection.binSize || 'Unknown',
                     wasteType: detection['Waste Type'] || detection.wasteType || 'Unknown',
-                    detections: [],
-                    lastSeen: detection.timestamp,
+                    startTime: detection.timestamp,
+                    endTime: detection.timestamp,
+                    detections: [detection],
+                    detectionCount: 1,
+                    avgRSSI: parseFloat(detection.RSSI || detection.rssi || 0),
+                    qualities: [detection.Quality || detection.quality]
+                };
+            } else {
+                // Continue current visit
+                currentVisit.endTime = detection.timestamp;
+                currentVisit.detections.push(detection);
+                currentVisit.detectionCount++;
+                
+                const rssi = parseFloat(detection.RSSI || detection.rssi);
+                if (!isNaN(rssi)) {
+                    currentVisit.avgRSSI = (currentVisit.avgRSSI * (currentVisit.detectionCount - 1) + rssi) / currentVisit.detectionCount;
+                }
+                
+                const quality = detection.Quality || detection.quality;
+                if (quality) {
+                    currentVisit.qualities.push(quality);
+                }
+            }
+        });
+
+        // Add the last visit
+        if (currentVisit) {
+            visits.push(currentVisit);
+        }
+
+        // Calculate duration and format data
+        visits.forEach(visit => {
+            visit.durationMs = visit.endTime - visit.startTime;
+            visit.durationFormatted = formatDuration(visit.durationMs);
+            visit.avgRSSI = visit.avgRSSI.toFixed(1);
+            visit.avgQuality = visit.qualities[visit.qualities.length - 1] || 'Unknown';
+        });
+
+        return visits.sort((a, b) => b.endTime - a.endTime);
+    }
+
+    function formatDuration(ms) {
+        const seconds = Math.floor(ms / 1000);
+        if (seconds < 60) return `${seconds}s`;
+        
+        const minutes = Math.floor(seconds / 60);
+        const remainingSeconds = seconds % 60;
+        
+        if (minutes < 60) {
+            return remainingSeconds > 0 ? `${minutes}m ${remainingSeconds}s` : `${minutes}m`;
+        }
+        
+        const hours = Math.floor(minutes / 60);
+        const remainingMinutes = minutes % 60;
+        return `${hours}h ${remainingMinutes}m`;
+    }
+
+    function getBinStats() {
+        const uniqueBins = new Map();
+        
+        // Get today's start time
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+        
+        // Filter visits to only today
+        const todayVisits = aggregatedVisits.filter(v => v.endTime >= today);
+        
+        // First, initialize all bins from all visits (to get all bins even with no visits today)
+        aggregatedVisits.forEach(visit => {
+            if (!uniqueBins.has(visit.mac)) {
+                uniqueBins.set(visit.mac, {
+                    name: visit.name,
+                    binSize: visit.binSize,
+                    wasteType: visit.wasteType,
+                    visits: [],
+                    totalDetections: 0,
+                    lastSeen: null,
                     avgRSSI: 0,
                     avgQuality: ''
                 });
             }
+        });
+        
+        // Now populate with today's data
+        todayVisits.forEach(visit => {
+            const bin = uniqueBins.get(visit.mac);
+            bin.visits.push(visit);
+            bin.totalDetections += visit.detectionCount;
             
-            const bin = uniqueBins.get(mac);
-            bin.detections.push(detection);
-            if (detection.timestamp > bin.lastSeen) {
-                bin.lastSeen = detection.timestamp;
+            if (!bin.lastSeen || visit.endTime > bin.lastSeen) {
+                bin.lastSeen = visit.endTime;
             }
         });
         
+        // Calculate averages for bins with visits today
         uniqueBins.forEach((bin, mac) => {
-            const rssiValues = bin.detections
-                .map(d => parseFloat(d.RSSI || d.rssi))
-                .filter(v => !isNaN(v));
-            
-            if (rssiValues.length > 0) {
-                bin.avgRSSI = (rssiValues.reduce((a, b) => a + b, 0) / rssiValues.length).toFixed(1);
-            }
-            
-            const qualities = bin.detections.map(d => d.Quality || d.quality).filter(q => q);
-            if (qualities.length > 0) {
-                bin.avgQuality = qualities[qualities.length - 1];
+            if (bin.visits.length > 0) {
+                const rssiValues = bin.visits.map(v => parseFloat(v.avgRSSI)).filter(v => !isNaN(v));
+                if (rssiValues.length > 0) {
+                    bin.avgRSSI = (rssiValues.reduce((a, b) => a + b, 0) / rssiValues.length).toFixed(1);
+                }
+                
+                bin.avgQuality = bin.visits[0].avgQuality;
             }
         });
         
@@ -846,18 +1307,16 @@
 
     function getUniqueWasteTypes() {
         const types = new Set();
-        allDetections.forEach(d => {
-            const wasteType = d['Waste Type'] || d.wasteType;
-            if (wasteType) types.add(wasteType);
+        aggregatedVisits.forEach(v => {
+            if (v.wasteType) types.add(v.wasteType);
         });
         return Array.from(types).sort();
     }
 
     function getUniqueBinSizes() {
         const sizes = new Set();
-        allDetections.forEach(d => {
-            const binSize = d['Bin Size'] || d.binSize;
-            if (binSize) sizes.add(binSize);
+        aggregatedVisits.forEach(v => {
+            if (v.binSize) sizes.add(v.binSize);
         });
         return Array.from(sizes).sort();
     }
@@ -872,10 +1331,7 @@
                 skipEmptyLines: true,
                 complete: function(results) {
                     if (results.data && results.data.length > 0) {
-                        // Get the last row (most recent heartbeat)
                         const latest = results.data[results.data.length - 1];
-                        
-                        // Use "System Time " (note the trailing space!) as the header name
                         const timestampStr = latest['System Time '] || latest['System Time'] || latest.Timestamp || latest.timestamp;
                         const parsedTimestamp = parseTimestamp(timestampStr);
                         
@@ -911,16 +1367,16 @@
 
             if (diffMins < 60) {
                 statusText = `Last heartbeat: ${diffMins}m ago`;
-                statusColor = '#34c759'; // Green - within the hour
+                statusColor = '#34c759';
             } else if (diffHours < 2) {
                 statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
-                statusColor = '#34c759'; // Green - slightly over 1 hour is ok
+                statusColor = '#34c759';
             } else if (diffHours < 3) {
                 statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
-                statusColor = '#ff9500'; // Orange - 2-3 hours, warning
+                statusColor = '#ff9500';
             } else {
                 statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
-                statusColor = '#ff3b30'; // Red - more than 3 hours, alert
+                statusColor = '#ff3b30';
             }
 
             statusElement.textContent = statusText;
@@ -948,7 +1404,10 @@
                     allDetections = results.data.map(row => ({
                         ...row,
                         timestamp: parseTimestamp(row.Timestamp || row.timestamp)
-                    })).sort((a, b) => b.timestamp - a.timestamp);
+                    }));
+
+                    // Aggregate detections into visits
+                    aggregatedVisits = aggregateDetections(allDetections);
 
                     loadHeartbeat();
                     populateFilters();
@@ -994,6 +1453,197 @@
         binSizeFilters.innerHTML = binSizes.map(size => 
             `<button class="filter-btn" data-filter-type="size" data-filter="${size}">${size}</button>`
         ).join('');
+
+        // Populate timeline bin filter
+        populateTimelineBinFilter();
+    }
+
+    function populateTimelineBinFilter() {
+        const container = document.getElementById('binCheckboxContainer');
+        if (!container) return;
+
+        const uniqueBins = Array.from(getBinStats().entries())
+            .map(([mac, data]) => ({
+                mac,
+                name: data.name,
+                visits: data.visits.length
+            }))
+            .sort((a, b) => a.name.localeCompare(b.name));
+
+        // Assign colors to bins
+        binColorMap.clear();
+        uniqueBins.forEach((bin, index) => {
+            binColorMap.set(bin.mac, BIN_COLORS[index % BIN_COLORS.length]);
+        });
+
+        // Create "All Bins" checkbox
+        let html = `
+            <div class="bin-checkbox-item bin-select-all" id="binCheckAll">
+                <input type="checkbox" id="checkbox-all" value="all" checked>
+                <label class="bin-checkbox-label" for="checkbox-all">All Bins</label>
+            </div>
+        `;
+
+        // Create individual bin checkboxes
+        html += uniqueBins.map(bin => `
+            <div class="bin-checkbox-item" data-mac="${bin.mac}">
+                <input type="checkbox" id="checkbox-${bin.mac}" value="${bin.mac}">
+                <div class="bin-color-indicator" style="background-color: ${binColorMap.get(bin.mac)}"></div>
+                <label class="bin-checkbox-label" for="checkbox-${bin.mac}">${bin.name}</label>
+            </div>
+        `).join('');
+
+        container.innerHTML = html;
+
+        // Add event listeners
+        document.getElementById('checkbox-all').addEventListener('change', handleAllBinsCheckbox);
+        
+        uniqueBins.forEach(bin => {
+            const checkbox = document.getElementById(`checkbox-${bin.mac}`);
+            const item = checkbox.closest('.bin-checkbox-item');
+            
+            checkbox.addEventListener('change', () => handleBinCheckbox(bin.mac));
+            item.addEventListener('click', (e) => {
+                if (e.target.tagName !== 'INPUT') {
+                    checkbox.checked = !checkbox.checked;
+                    handleBinCheckbox(bin.mac);
+                }
+            });
+        });
+
+        // Add click handler for "All Bins" item
+        const allItem = document.getElementById('binCheckAll');
+        allItem.addEventListener('click', (e) => {
+            if (e.target.tagName !== 'INPUT') {
+                const checkbox = document.getElementById('checkbox-all');
+                checkbox.checked = !checkbox.checked;
+                handleAllBinsCheckbox();
+            }
+        });
+    }
+
+    function handleAllBinsCheckbox() {
+        const allCheckbox = document.getElementById('checkbox-all');
+        const container = document.getElementById('binCheckboxContainer');
+        
+        if (allCheckbox.checked) {
+            // Uncheck all individual bins
+            container.querySelectorAll('input[type="checkbox"]:not(#checkbox-all)').forEach(cb => {
+                cb.checked = false;
+                cb.closest('.bin-checkbox-item').classList.remove('checked');
+            });
+            selectedBins = ['all'];
+            document.getElementById('clearFiltersBtn').style.display = 'none';
+        }
+        
+        updateSelectedBinsDisplay();
+        displayTimeline();
+    }
+
+    function handleBinCheckbox(mac) {
+        const checkbox = document.getElementById(`checkbox-${mac}`);
+        const item = checkbox.closest('.bin-checkbox-item');
+        const allCheckbox = document.getElementById('checkbox-all');
+        
+        if (checkbox.checked) {
+            item.classList.add('checked');
+            // Uncheck "All Bins"
+            allCheckbox.checked = false;
+            document.getElementById('binCheckAll').classList.remove('checked');
+            
+            // Add to selected bins
+            if (selectedBins.includes('all')) {
+                selectedBins = [mac];
+            } else if (!selectedBins.includes(mac)) {
+                selectedBins.push(mac);
+            }
+        } else {
+            item.classList.remove('checked');
+            // Remove from selected bins
+            selectedBins = selectedBins.filter(m => m !== mac);
+            
+            // If no bins selected, check "All"
+            if (selectedBins.length === 0) {
+                allCheckbox.checked = true;
+                document.getElementById('binCheckAll').classList.add('checked');
+                selectedBins = ['all'];
+            }
+        }
+
+        // Show/hide clear filters button
+        const clearBtn = document.getElementById('clearFiltersBtn');
+        if (selectedBins.length > 0 && !selectedBins.includes('all')) {
+            clearBtn.style.display = 'inline-flex';
+        } else {
+            clearBtn.style.display = 'none';
+        }
+        
+        updateSelectedBinsDisplay();
+        displayTimeline();
+    }
+
+    function updateSelectedBinsDisplay() {
+        const display = document.getElementById('selectedBinsDisplay');
+        const tagsContainer = document.getElementById('selectedBinsTags');
+        
+        if (!display || !tagsContainer) return;
+        
+        if (selectedBins.length === 0 || selectedBins.includes('all')) {
+            display.classList.add('empty');
+            return;
+        }
+        
+        display.classList.remove('empty');
+        
+        // Get bin names for the selected MACs
+        const binStats = getBinStats();
+        const binTags = selectedBins.map(mac => {
+            const binData = binStats.get(mac);
+            if (!binData) return null;
+            const color = binColorMap.get(mac) || '#007aff';
+            
+            return `
+                <div class="bin-tag" style="background-color: ${color}">
+                    <span>${binData.name}</span>
+                    <span class="bin-tag-remove" data-mac="${mac}">×</span>
+                </div>
+            `;
+        }).filter(tag => tag !== null).join('');
+        
+        tagsContainer.innerHTML = binTags;
+        
+        // Add click handlers for remove buttons
+        document.querySelectorAll('.bin-tag-remove').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const macToRemove = e.target.dataset.mac;
+                removeBinFromFilter(macToRemove);
+            });
+        });
+    }
+
+    function removeBinFromFilter(mac) {
+        const checkbox = document.getElementById(`checkbox-${mac}`);
+        if (checkbox) {
+            checkbox.checked = false;
+            checkbox.closest('.bin-checkbox-item').classList.remove('checked');
+        }
+        
+        // Remove from selectedBins array
+        selectedBins = selectedBins.filter(m => m !== mac);
+        
+        // If no bins selected, default to "All"
+        if (selectedBins.length === 0) {
+            selectedBins = ['all'];
+            const allCheckbox = document.getElementById('checkbox-all');
+            if (allCheckbox) {
+                allCheckbox.checked = true;
+                document.getElementById('binCheckAll').classList.add('checked');
+            }
+            document.getElementById('clearFiltersBtn').style.display = 'none';
+        }
+        
+        updateSelectedBinsDisplay();
+        displayTimeline();
     }
 
     function displayCurrentView() {
@@ -1021,29 +1671,33 @@
         const totalDetections = allDetections.length;
         const uniqueBins = getBinStats().size;
         
+        // Get today
         const today = new Date();
         today.setHours(0, 0, 0, 0);
-        const todayDetections = allDetections.filter(d => d.timestamp >= today).length;
+        const todayVisits = aggregatedVisits.filter(v => v.endTime >= today).length;
         
-        const oneHourAgo = new Date(Date.now() - 60 * 60 * 1000);
-        const recentDetections = allDetections.filter(d => d.timestamp >= oneHourAgo).length;
+        // Get start of this week (Monday)
+        const now = new Date();
+        const dayOfWeek = now.getDay(); // 0 = Sunday, 1 = Monday, etc.
+        const daysToMonday = dayOfWeek === 0 ? 6 : dayOfWeek - 1; // If Sunday, go back 6 days, otherwise go back to Monday
+        const monday = new Date(now);
+        monday.setDate(now.getDate() - daysToMonday);
+        monday.setHours(0, 0, 0, 0);
+        
+        const weekVisits = aggregatedVisits.filter(v => v.endTime >= monday).length;
 
         document.getElementById('stats').innerHTML = `
             <div class="stat-card detections">
-                <div class="stat-number">${totalDetections.toLocaleString()}</div>
-                <div class="stat-label">Total Detections</div>
+                <div class="stat-number">${weekVisits.toLocaleString()}</div>
+                <div class="stat-label">This Week</div>
             </div>
             <div class="stat-card bins">
                 <div class="stat-number">${uniqueBins}</div>
                 <div class="stat-label">Unique Bins</div>
             </div>
             <div class="stat-card today">
-                <div class="stat-number">${todayDetections.toLocaleString()}</div>
-                <div class="stat-label">Today</div>
-            </div>
-            <div class="stat-card recent">
-                <div class="stat-number">${recentDetections}</div>
-                <div class="stat-label">Last Hour</div>
+                <div class="stat-number">${todayVisits.toLocaleString()}</div>
+                <div class="stat-label">Visits Today</div>
             </div>
         `;
     }
@@ -1081,7 +1735,13 @@
             });
         }
 
-        binStats.sort((a, b) => b.lastSeen - a.lastSeen);
+        // Sort: bins with visits today first (by last seen), then bins without visits (alphabetically)
+        binStats.sort((a, b) => {
+            if (a.lastSeen && !b.lastSeen) return -1;
+            if (!a.lastSeen && b.lastSeen) return 1;
+            if (a.lastSeen && b.lastSeen) return b.lastSeen - a.lastSeen;
+            return a.name.localeCompare(b.name);
+        });
 
         const binsGrid = document.getElementById('binsGrid');
 
@@ -1091,85 +1751,405 @@
         }
 
         binsGrid.innerHTML = binStats.map(bin => {
-            const signalQuality = getSignalQuality(bin.avgRSSI);
+            const wasteColor = getAustralianWasteColor(bin.wasteType);
+            const hasVisitsToday = bin.visits.length > 0;
             
             return `
-                <div class="bin-card">
+                <div class="bin-card" style="border-left-color: ${wasteColor}; opacity: ${hasVisitsToday ? '1' : '0.6'}">
                     <div class="bin-header">
                         <div class="bin-name">${bin.name}</div>
-                        <div class="detection-count">${bin.detections.length}</div>
+                        ${hasVisitsToday ? `
+                            <div>
+                                <span class="visit-count">${bin.visits.length} visits</span>
+                                ${showDetectionCount ? `<span class="detection-count">${bin.totalDetections} detections</span>` : ''}
+                            </div>
+                        ` : `
+                            <div>
+                                <span style="color: #999; font-size: 0.85em; font-weight: 500;">No visits today</span>
+                            </div>
+                        `}
                     </div>
                     
-                    <div class="bin-info">
-                        <span class="bin-info-label">MAC:</span>
-                        <span class="bin-info-value">${bin.mac}</span>
-                        
-                        <span class="bin-info-label">Size:</span>
-                        <span class="bin-info-value">${bin.binSize}</span>
-                        
-                        <span class="bin-info-label">Type:</span>
-                        <span class="bin-info-value">${bin.wasteType}</span>
-                    </div>
-                    
-                    <div>
+                    <div style="margin: 12px 0;">
                         <span class="bin-badge badge-size">${bin.binSize}</span>
-                        <span class="bin-badge badge-waste">${bin.wasteType}</span>
-                        <span class="bin-badge badge-signal ${signalQuality.class}">${signalQuality.text}</span>
+                        <span class="bin-badge badge-waste" style="background-color: ${wasteColor}33; color: ${wasteColor}; border: 1px solid ${wasteColor}66;">${bin.wasteType}</span>
                     </div>
                     
-                    <div class="last-seen">
-                        <strong>Last Seen:</strong> ${bin.lastSeen.toLocaleString()}
-                    </div>
+                    ${hasVisitsToday ? `
+                        <div class="last-seen">
+                            <strong>Last Seen:</strong> ${bin.lastSeen.toLocaleString()}
+                        </div>
+                    ` : `
+                        <div class="last-seen" style="color: #999;">
+                            <strong>Status:</strong> Not detected today
+                        </div>
+                    `}
                 </div>
             `;
         }).join('');
     }
 
+    function createTimelineChart(visits) {
+        // Destroy existing chart if it exists
+        if (timelineChart) {
+            timelineChart.destroy();
+        }
+
+        if (visits.length === 0) {
+            const ctx = document.getElementById('timelineChart');
+            const parent = ctx.parentElement;
+            parent.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No data to display</div>';
+            document.getElementById('chartStats').innerHTML = '';
+            return;
+        }
+
+        // Filter by selected bins
+        let filteredVisits = visits;
+        if (selectedBins.length > 0 && !selectedBins.includes('all')) {
+            filteredVisits = visits.filter(v => selectedBins.includes(v.mac));
+        }
+
+        if (filteredVisits.length === 0) {
+            const ctx = document.getElementById('timelineChart');
+            const parent = ctx.parentElement;
+            parent.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No visits found for selected bins</div>';
+            document.getElementById('chartStats').innerHTML = '';
+            return;
+        }
+
+        // Ensure canvas exists
+        const chartWrapper = document.querySelector('.chart-wrapper');
+        if (!chartWrapper.querySelector('canvas')) {
+            chartWrapper.innerHTML = '<canvas id="timelineChart"></canvas>';
+        }
+
+        // Determine time range based on filter
+        let startTime, endTime;
+        const now = new Date();
+        
+        if (timelineFilter === 'today') {
+            startTime = new Date(now);
+            startTime.setHours(0, 0, 0, 0);
+            endTime = new Date(now);
+            endTime.setHours(23, 59, 59, 999);
+        } else if (timelineFilter === 'week') {
+            startTime = new Date(now - 7 * 24 * 60 * 60 * 1000);
+            startTime.setHours(0, 0, 0, 0);
+            endTime = new Date(now);
+            endTime.setHours(23, 59, 59, 999);
+        } else if (timelineFilter === 'month') {
+            startTime = new Date(now - 30 * 24 * 60 * 60 * 1000);
+            startTime.setHours(0, 0, 0, 0);
+            endTime = new Date(now);
+            endTime.setHours(23, 59, 59, 999);
+        } else {
+            // All time - use min and max from actual data
+            const times = filteredVisits.map(v => v.endTime.getTime());
+            startTime = new Date(Math.min(...times));
+            endTime = new Date(Math.max(...times));
+        }
+
+        // Determine granularity
+        let actualGranularity = timelineGranularity;
+        if (actualGranularity === 'auto') {
+            // Auto-select based on time filter
+            if (timelineFilter === 'today') {
+                actualGranularity = 'hour';
+            } else if (timelineFilter === 'week') {
+                actualGranularity = 'hour';
+            } else if (timelineFilter === 'month') {
+                actualGranularity = 'day';
+            } else {
+                actualGranularity = 'month';
+            }
+        }
+
+        // Group visits by time period based on granularity
+        let groupedData = {};
+        let labelFormat;
+        let groupingFunction;
+        let xAxisLabel;
+        let incrementFunction;
+
+        if (actualGranularity === 'hour') {
+            labelFormat = (date) => date.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+            groupingFunction = (date) => {
+                const d = new Date(date);
+                d.setMinutes(0, 0, 0);
+                return d.getTime();
+            };
+            incrementFunction = (date) => {
+                date.setHours(date.getHours() + 1);
+            };
+            xAxisLabel = 'Hour';
+            // Set start to beginning of hour
+            startTime.setMinutes(0, 0, 0);
+        } else if (actualGranularity === 'day') {
+            labelFormat = (date) => date.toLocaleDateString('en-US', { month: 'short', day: 'numeric' });
+            groupingFunction = (date) => {
+                const d = new Date(date);
+                d.setHours(0, 0, 0, 0);
+                return d.getTime();
+            };
+            incrementFunction = (date) => {
+                date.setDate(date.getDate() + 1);
+            };
+            xAxisLabel = 'Day';
+            // Set start to beginning of day
+            startTime.setHours(0, 0, 0, 0);
+        } else if (actualGranularity === 'week') {
+            labelFormat = (date) => {
+                const weekStart = new Date(date);
+                weekStart.setHours(0, 0, 0, 0);
+                const day = weekStart.getDay();
+                weekStart.setDate(weekStart.getDate() - day);
+                return `Week of ${weekStart.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}`;
+            };
+            groupingFunction = (date) => {
+                const d = new Date(date);
+                d.setHours(0, 0, 0, 0);
+                const day = d.getDay();
+                d.setDate(d.getDate() - day);
+                return d.getTime();
+            };
+            incrementFunction = (date) => {
+                date.setDate(date.getDate() + 7);
+            };
+            xAxisLabel = 'Week';
+            // Set start to beginning of week
+            const day = startTime.getDay();
+            startTime.setDate(startTime.getDate() - day);
+            startTime.setHours(0, 0, 0, 0);
+        } else if (actualGranularity === 'month') {
+            labelFormat = (date) => date.toLocaleDateString('en-US', { month: 'short', year: 'numeric' });
+            groupingFunction = (date) => {
+                const d = new Date(date);
+                d.setDate(1);
+                d.setHours(0, 0, 0, 0);
+                return d.getTime();
+            };
+            incrementFunction = (date) => {
+                date.setMonth(date.getMonth() + 1);
+            };
+            xAxisLabel = 'Month';
+            // Set start to beginning of month
+            startTime.setDate(1);
+            startTime.setHours(0, 0, 0, 0);
+        }
+
+        // Initialize all time periods with 0
+        const currentPeriod = new Date(startTime);
+        const allPeriods = [];
+        
+        while (currentPeriod <= endTime) {
+            const key = groupingFunction(currentPeriod);
+            groupedData[key] = {};
+            allPeriods.push(key);
+            incrementFunction(currentPeriod);
+        }
+
+        // Group visits by time period AND bin
+        filteredVisits.forEach(visit => {
+            const key = groupingFunction(visit.endTime);
+            if (groupedData.hasOwnProperty(key)) {
+                if (!groupedData[key][visit.mac]) {
+                    groupedData[key][visit.mac] = 0;
+                }
+                groupedData[key][visit.mac]++;
+            }
+        });
+
+        // Create arrays in chronological order
+        const sortedKeys = allPeriods.sort((a, b) => a - b);
+        const labels = sortedKeys.map(key => labelFormat(new Date(key)));
+
+        // Always create a dataset for each bin (stacked chart)
+        let datasets = [];
+        const binsToShow = selectedBins.includes('all') 
+            ? Array.from(getBinStats().keys()) 
+            : selectedBins;
+
+        binsToShow.forEach(mac => {
+            const binData = getBinStats().get(mac);
+            if (!binData) return;
+
+            const color = binColorMap.get(mac) || '#007aff';
+            const data = sortedKeys.map(key => groupedData[key][mac] || 0);
+
+            datasets.push({
+                label: binData.name,
+                data: data,
+                backgroundColor: color + 'CC', // Add alpha for transparency
+                borderColor: color,
+                borderWidth: 1,
+                borderRadius: 4
+            });
+        });
+
+        // Calculate statistics
+        const totalVisits = filteredVisits.length;
+        const avgVisitsPerPeriod = sortedKeys.length > 0 ? (totalVisits / sortedKeys.length).toFixed(1) : 0;
+        
+        // Calculate max - sum of all bins in a period for stacked chart
+        let maxVisits = 0;
+        sortedKeys.forEach((key, index) => {
+            const periodTotal = datasets.reduce((sum, dataset) => sum + dataset.data[index], 0);
+            maxVisits = Math.max(maxVisits, periodTotal);
+        });
+        
+        const totalDetections = filteredVisits.reduce((sum, v) => sum + v.detectionCount, 0);
+        
+        // Calculate periods with visits
+        let periodsWithVisits = 0;
+        sortedKeys.forEach((key, index) => {
+            const periodTotal = datasets.reduce((sum, dataset) => sum + dataset.data[index], 0);
+            if (periodTotal > 0) periodsWithVisits++;
+        });
+
+        // Update stats display
+        document.getElementById('chartStats').innerHTML = `
+            <div class="chart-stat-item">
+                <span class="chart-stat-label">Total Visits</span>
+                <span class="chart-stat-value">${totalVisits}</span>
+            </div>
+            <div class="chart-stat-item">
+                <span class="chart-stat-label">Total Detections</span>
+                <span class="chart-stat-value">${totalDetections}</span>
+            </div>
+            <div class="chart-stat-item">
+                <span class="chart-stat-label">Avg per ${xAxisLabel}</span>
+                <span class="chart-stat-value">${avgVisitsPerPeriod}</span>
+            </div>
+            <div class="chart-stat-item">
+                <span class="chart-stat-label">Peak ${xAxisLabel}</span>
+                <span class="chart-stat-value">${maxVisits} visits</span>
+            </div>
+            <div class="chart-stat-item">
+                <span class="chart-stat-label">Active Periods</span>
+                <span class="chart-stat-value">${periodsWithVisits} of ${sortedKeys.length}</span>
+            </div>
+        `;
+
+        // Create the chart
+        const ctx = document.getElementById('timelineChart');
+        timelineChart = new Chart(ctx, {
+            type: 'bar',
+            data: {
+                labels: labels,
+                datasets: datasets
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'bottom'
+                    },
+                    tooltip: {
+                        callbacks: {
+                            label: function(context) {
+                                const label = context.dataset.label || '';
+                                const value = context.parsed.y;
+                                return `${label}: ${value} visit${value !== 1 ? 's' : ''}`;
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        stacked: true,
+                        ticks: {
+                            stepSize: 1,
+                            precision: 0
+                        },
+                        title: {
+                            display: true,
+                            text: 'Number of Visits'
+                        }
+                    },
+                    x: {
+                        stacked: true,
+                        title: {
+                            display: true,
+                            text: xAxisLabel
+                        },
+                        ticks: {
+                            maxRotation: 45,
+                            minRotation: 45
+                        }
+                    }
+                }
+            }
+        });
+    }
+
     function displayTimeline() {
-        let filteredDetections = [...allDetections];
+        let filteredVisits = [...aggregatedVisits];
         
         const now = new Date();
         if (timelineFilter === 'today') {
             const todayStart = new Date(now);
             todayStart.setHours(0, 0, 0, 0);
-            filteredDetections = filteredDetections.filter(d => d.timestamp >= todayStart);
+            filteredVisits = filteredVisits.filter(v => v.endTime >= todayStart);
         } else if (timelineFilter === 'week') {
             const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-            filteredDetections = filteredDetections.filter(d => d.timestamp >= weekAgo);
+            filteredVisits = filteredVisits.filter(v => v.endTime >= weekAgo);
         } else if (timelineFilter === 'month') {
             const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
-            filteredDetections = filteredDetections.filter(d => d.timestamp >= monthAgo);
+            filteredVisits = filteredVisits.filter(v => v.endTime >= monthAgo);
+        }
+
+        // Create the chart
+        createTimelineChart(filteredVisits);
+
+        // Filter by selected bins for the list too
+        const isBinFiltered = selectedBins.length > 0 && !selectedBins.includes('all');
+        if (isBinFiltered) {
+            filteredVisits = filteredVisits.filter(v => selectedBins.includes(v.mac));
         }
 
         const timeline = document.getElementById('timeline');
         
-        if (filteredDetections.length === 0) {
-            timeline.innerHTML = '<div style="text-align: center; padding: 40px; color: #666;">No detections in selected time period</div>';
+        if (filteredVisits.length === 0) {
+            let message = 'No visits found';
+            if (timelineFilter !== 'all') {
+                message += ' in selected time period';
+            }
+            if (isBinFiltered) {
+                message += ' for selected bins';
+            }
+            timeline.innerHTML = `<div style="text-align: center; padding: 40px; color: #666;">${message}</div>`;
             return;
         }
 
-        timeline.innerHTML = filteredDetections.map(detection => {
-            const name = detection.Name || detection.name || 'Unknown Bin';
-            const mac = detection.MAC || detection.mac || '';
-            const binSize = detection['Bin Size'] || detection.binSize || '';
-            const wasteType = detection['Waste Type'] || detection.wasteType || '';
-            const rssi = detection.RSSI || detection.rssi || '';
-            const quality = detection.Quality || detection.quality || '';
+        timeline.innerHTML = filteredVisits.map(visit => {
+            const isAggregated = visit.detectionCount > 1;
+            const binColor = binColorMap.get(visit.mac) || '#007aff';
             
             return `
-                <div class="timeline-event">
+                <div class="timeline-event ${isAggregated ? 'aggregated' : ''}" style="border-left-color: ${binColor}">
                     <div class="timeline-time-col">
-                        <div class="timeline-time">${detection.timestamp.toLocaleTimeString()}</div>
-                        <div class="timeline-date">${detection.timestamp.toLocaleDateString()}</div>
+                        <div class="timeline-time">${visit.endTime.toLocaleTimeString()}</div>
+                        <div class="timeline-date">${visit.endTime.toLocaleDateString()}</div>
                     </div>
                     <div class="timeline-content">
-                        <div class="timeline-bin-name">${name}</div>
+                        <div class="timeline-bin-name">
+                            <span style="display: inline-block; width: 10px; height: 10px; border-radius: 2px; background-color: ${binColor}; margin-right: 6px;"></span>
+                            ${visit.name}
+                        </div>
                         <div class="timeline-details">
-                            ${binSize} • ${wasteType} • Signal: ${rssi} dBm (${quality})
+                            ${visit.binSize} • ${visit.wasteType} • Signal: ${visit.avgRSSI} dBm (${visit.avgQuality})
                         </div>
                         <div class="timeline-details" style="font-size: 0.8em; margin-top: 4px;">
-                            MAC: ${mac}
+                            MAC: ${visit.mac}
                         </div>
+                        ${isAggregated ? `
+                            <div class="timeline-duration">
+                                📍 Visit duration: ${visit.durationFormatted} (${visit.detectionCount} detections)
+                            </div>
+                        ` : ''}
                     </div>
                 </div>
             `;
@@ -1199,15 +2179,15 @@
             currentDay.setDate(startDate.getDate() + i);
 
             const isOtherMonth = currentDay.getMonth() !== month;
-            const dayDetections = allDetections.filter(d =>
-                d.timestamp.toDateString() === currentDay.toDateString()
+            const dayVisits = aggregatedVisits.filter(v =>
+                v.endTime.toDateString() === currentDay.toDateString()
             );
 
             html += `<div class="day-cell ${isOtherMonth ? 'other-month' : ''}">
                 <div class="day-number">${currentDay.getDate()}</div>`;
 
-            if (dayDetections.length > 0) {
-                html += `<div class="day-count">${dayDetections.length}</div>`;
+            if (dayVisits.length > 0) {
+                html += `<div class="day-count">${dayVisits.length}</div>`;
             }
 
             html += `</div>`;
@@ -1239,7 +2219,9 @@
                 'MAC Address': mac,
                 'Bin Size': data.binSize,
                 'Waste Type': data.wasteType,
-                'Total Detections': data.detections.length,
+                'Total Visits': data.visits.length,
+                'Total Detections': data.totalDetections,
+                'Avg Visit Duration': formatDuration(data.visits.reduce((sum, v) => sum + v.durationMs, 0) / data.visits.length),
                 'Last Seen': data.lastSeen.toLocaleString(),
                 'Avg Signal (dBm)': data.avgRSSI,
                 'Signal Quality': data.avgQuality
@@ -1249,50 +2231,55 @@
             filename = `binspy-rfid-summary-${new Date().toISOString().split('T')[0]}.csv`;
 
         } else if (currentView === 'timeline') {
-            let filteredDetections = [...allDetections];
+            let filteredVisits = [...aggregatedVisits];
             
             const now = new Date();
             if (timelineFilter === 'today') {
                 const todayStart = new Date(now);
                 todayStart.setHours(0, 0, 0, 0);
-                filteredDetections = filteredDetections.filter(d => d.timestamp >= todayStart);
+                filteredVisits = filteredVisits.filter(v => v.endTime >= todayStart);
             } else if (timelineFilter === 'week') {
                 const weekAgo = new Date(now - 7 * 24 * 60 * 60 * 1000);
-                filteredDetections = filteredDetections.filter(d => d.timestamp >= weekAgo);
+                filteredVisits = filteredVisits.filter(v => v.endTime >= weekAgo);
             } else if (timelineFilter === 'month') {
                 const monthAgo = new Date(now - 30 * 24 * 60 * 60 * 1000);
-                filteredDetections = filteredDetections.filter(d => d.timestamp >= monthAgo);
+                filteredVisits = filteredVisits.filter(v => v.endTime >= monthAgo);
             }
 
-            dataToExport = filteredDetections.map(d => ({
-                'Timestamp': d.timestamp.toLocaleString(),
-                'Bin Name': d.Name || d.name,
-                'MAC Address': d.MAC || d.mac,
-                'Bin Size': d['Bin Size'] || d.binSize,
-                'Waste Type': d['Waste Type'] || d.wasteType,
-                'Signal (dBm)': d.RSSI || d.rssi,
-                'Quality': d.Quality || d.quality,
-                'Device Time': d['Device Time'] || d.deviceTime
+            dataToExport = filteredVisits.map(v => ({
+                'Visit Start': v.startTime.toLocaleString(),
+                'Visit End': v.endTime.toLocaleString(),
+                'Duration': v.durationFormatted,
+                'Detection Count': v.detectionCount,
+                'Bin Name': v.name,
+                'MAC Address': v.mac,
+                'Bin Size': v.binSize,
+                'Waste Type': v.wasteType,
+                'Avg Signal (dBm)': v.avgRSSI,
+                'Quality': v.avgQuality
             }));
 
-            filename = `binspy-rfid-detections-${timelineFilter}-${new Date().toISOString().split('T')[0]}.csv`;
+            filename = `binspy-rfid-visits-${timelineFilter}-${new Date().toISOString().split('T')[0]}.csv`;
 
         } else if (currentView === 'calendar') {
             const year = currentDate.getFullYear();
             const month = currentDate.getMonth();
-            const monthDetections = allDetections.filter(d =>
-                d.timestamp.getFullYear() === year &&
-                d.timestamp.getMonth() === month
+            const monthVisits = aggregatedVisits.filter(v =>
+                v.endTime.getFullYear() === year &&
+                v.endTime.getMonth() === month
             );
 
-            dataToExport = monthDetections.map(d => ({
-                'Timestamp': d.timestamp.toLocaleString(),
-                'Bin Name': d.Name || d.name,
-                'MAC Address': d.MAC || d.mac,
-                'Bin Size': d['Bin Size'] || d.binSize,
-                'Waste Type': d['Waste Type'] || d.wasteType,
-                'Signal (dBm)': d.RSSI || d.rssi,
-                'Quality': d.Quality || d.quality
+            dataToExport = monthVisits.map(v => ({
+                'Visit Start': v.startTime.toLocaleString(),
+                'Visit End': v.endTime.toLocaleString(),
+                'Duration': v.durationFormatted,
+                'Detection Count': v.detectionCount,
+                'Bin Name': v.name,
+                'MAC Address': v.mac,
+                'Bin Size': v.binSize,
+                'Waste Type': v.wasteType,
+                'Avg Signal (dBm)': v.avgRSSI,
+                'Quality': v.avgQuality
             }));
 
             filename = `binspy-rfid-${currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).replace(' ', '-')}.csv`;
@@ -1333,6 +2320,22 @@
             displayBins();
         });
 
+        // Toggle detections button
+        document.getElementById('toggleDetectionsBtn').addEventListener('click', (e) => {
+            showDetectionCount = !showDetectionCount;
+            const btn = e.currentTarget;
+            
+            if (showDetectionCount) {
+                btn.classList.add('active');
+                btn.textContent = 'Show Detections';
+            } else {
+                btn.classList.remove('active');
+                btn.textContent = 'Hide Detections';
+            }
+            
+            displayBins();
+        });
+
         document.addEventListener('click', (e) => {
             if (e.target.classList.contains('filter-btn')) {
                 const filterType = e.target.dataset.filterType;
@@ -1358,6 +2361,41 @@
 
         document.getElementById('timelineFilter').addEventListener('change', (e) => {
             timelineFilter = e.target.value;
+            displayTimeline();
+        });
+
+        // Granularity buttons event listener
+        document.querySelectorAll('.granularity-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                document.querySelectorAll('.granularity-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                timelineGranularity = e.target.dataset.granularity;
+                displayTimeline();
+            });
+        });
+
+        // Clear filters button
+        document.getElementById('clearFiltersBtn').addEventListener('click', () => {
+            selectedBins = ['all'];
+            
+            // Uncheck all individual bins
+            const container = document.getElementById('binCheckboxContainer');
+            if (container) {
+                container.querySelectorAll('input[type="checkbox"]:not(#checkbox-all)').forEach(cb => {
+                    cb.checked = false;
+                    cb.closest('.bin-checkbox-item').classList.remove('checked');
+                });
+                
+                // Check "All Bins"
+                const allCheckbox = document.getElementById('checkbox-all');
+                if (allCheckbox) {
+                    allCheckbox.checked = true;
+                    document.getElementById('binCheckAll').classList.add('checked');
+                }
+            }
+            
+            document.getElementById('clearFiltersBtn').style.display = 'none';
+            updateSelectedBinsDisplay();
             displayTimeline();
         });
 
