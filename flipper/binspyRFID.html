@@ -904,10 +904,201 @@
 
             .filter-group {
                 width: 100%;
+                justify-content: flex-start;
+                margin-left: 0 !important;
             }
 
             .filter-label {
                 width: 100%;
+            }
+
+            /* Dashboard filters mobile optimization */
+            .filters {
+                gap: 12px;
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .search-box {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            #toggleDetectionsBtn {
+                width: 100%;
+                margin-left: 0 !important;
+                margin-right: auto !important;
+            }
+
+            /* Timeline view mobile optimizations */
+            .timeline-filters {
+                flex-direction: column;
+                align-items: stretch;
+            }
+
+            .timeline-filter-group {
+                width: 100%;
+            }
+
+            /* Center the entire bin filter container on mobile */
+            .timeline-filter-group:has(.bin-checkbox-container) {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+            }
+
+            .bin-checkbox-container {
+                grid-template-columns: repeat(3, 1fr);
+                max-height: 400px;
+                overflow-y: auto;
+                gap: 6px;
+                width: fit-content;
+                margin: 0 auto;
+            }
+
+            .bin-checkbox-item {
+                padding: 6px 6px;
+                font-size: 0.8em;
+                width: 100%;
+            }
+
+            .bin-checkbox-label {
+                font-size: 0.85em;
+            }
+
+            .bin-checkbox-item input[type="checkbox"] {
+                width: 14px;
+                height: 14px;
+            }
+
+            .bin-color-indicator {
+                width: 8px;
+                height: 8px;
+            }
+
+            .timeline-filter-label {
+                width: 100%;
+                margin-bottom: 6px;
+            }
+
+            /* Show mobile time buttons, hide dropdown */
+            #timelineFilter {
+                display: none !important;
+            }
+
+            .mobile-time-buttons {
+                display: flex !important;
+                flex-wrap: wrap;
+                gap: 6px;
+                width: 100%;
+            }
+
+            .mobile-time-buttons .filter-btn {
+                flex: 1 1 calc(50% - 3px);
+                min-width: 0;
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            .granularity-btn {
+                flex: 1;
+                min-width: 0;
+                font-size: 0.75em;
+                padding: 6px 8px;
+            }
+
+            .chart-wrapper {
+                height: 250px;
+            }
+
+            .chart-stats {
+                font-size: 0.85em;
+                gap: 12px;
+            }
+
+            .chart-stat-item {
+                min-width: 100px;
+                flex: 1 1 auto;
+            }
+
+            .chart-stat-label {
+                font-size: 0.75em;
+            }
+
+            .chart-stat-value {
+                font-size: 1em;
+            }
+
+            .timeline-chart-header {
+                font-size: 1.1em;
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .selected-bins-display {
+                font-size: 0.85em;
+            }
+
+            .bin-tag {
+                font-size: 0.75em;
+                padding: 4px 8px;
+            }
+
+            /* Make controls row more mobile friendly */
+            .controls-row {
+                flex-direction: column;
+                align-items: stretch;
+                gap: 8px;
+            }
+
+            .view-toggle {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .view-btn {
+                flex: 1;
+                font-size: 0.85em;
+                padding: 8px 12px;
+            }
+
+            /* Stats cards on mobile */
+            .stats {
+                gap: 10px;
+                grid-template-columns: repeat(auto-fit, minmax(100px, 1fr));
+            }
+
+            .stat-card {
+                padding: 14px 12px;
+            }
+
+            .stat-number {
+                font-size: 1.8em;
+            }
+
+            .stat-label {
+                font-size: 0.8em;
+            }
+
+            /* Bin cards on mobile */
+            .bin-card {
+                padding: 12px;
+            }
+
+            .bin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .bin-name {
+                font-size: 1em;
+            }
+
+            .visit-count,
+            .detection-count {
+                font-size: 0.8em;
             }
         }
     </style>
@@ -1018,6 +1209,12 @@
                                 <option value="week" selected>This Week</option>
                                 <option value="month">This Month</option>
                             </select>
+                            <div class="mobile-time-buttons" style="display: none;">
+                                <button class="filter-btn" data-time-filter="all">All Time</button>
+                                <button class="filter-btn" data-time-filter="today">Today</button>
+                                <button class="filter-btn active" data-time-filter="week">This Week</button>
+                                <button class="filter-btn" data-time-filter="month">This Month</button>
+                            </div>
                         </div>
                         
                         <div class="timeline-filter-group">
@@ -1068,7 +1265,7 @@
 </div>
 
 <footer>
-    2026 | Wasted by Shrunk | All Rights Reserved
+    2025 | Wasted by Shrunk | All Rights Reserved
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/4.4.1/chart.umd.min.js"></script>
@@ -1687,13 +1884,13 @@
         const weekVisits = aggregatedVisits.filter(v => v.endTime >= monday).length;
 
         document.getElementById('stats').innerHTML = `
-            <div class="stat-card detections">
-                <div class="stat-number">${weekVisits.toLocaleString()}</div>
-                <div class="stat-label">This Week</div>
-            </div>
             <div class="stat-card bins">
                 <div class="stat-number">${uniqueBins}</div>
                 <div class="stat-label">Unique Bins</div>
+            </div>
+            <div class="stat-card detections">
+                <div class="stat-number">${weekVisits.toLocaleString()}</div>
+                <div class="stat-label">Visits this Week</div>
             </div>
             <div class="stat-card today">
                 <div class="stat-number">${todayVisits.toLocaleString()}</div>
@@ -2362,6 +2559,24 @@
         document.getElementById('timelineFilter').addEventListener('change', (e) => {
             timelineFilter = e.target.value;
             displayTimeline();
+        });
+
+        // Mobile time range buttons event listener
+        document.querySelectorAll('.mobile-time-buttons .filter-btn').forEach(btn => {
+            btn.addEventListener('click', (e) => {
+                const timeValue = e.target.dataset.timeFilter;
+                
+                // Update button states
+                document.querySelectorAll('.mobile-time-buttons .filter-btn').forEach(b => b.classList.remove('active'));
+                e.target.classList.add('active');
+                
+                // Update dropdown (for when switching back to desktop)
+                document.getElementById('timelineFilter').value = timeValue;
+                
+                // Update filter and refresh
+                timelineFilter = timeValue;
+                displayTimeline();
+            });
         });
 
         // Granularity buttons event listener
