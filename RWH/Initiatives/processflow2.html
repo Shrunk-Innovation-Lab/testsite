@@ -347,6 +347,17 @@
             box-shadow: 0 0 0 4px #cbd5e1;
         }
 
+        /* ✅ NEW: Inactive (not progressed yet) step */
+        .step-indicator.inactive {
+            background-color: #e5e7eb; /* light grey */
+            color: #ffffff;           /* white icon */
+            box-shadow: 0 2px 4px rgba(0,0,0,0.08);
+        }
+
+        .step-indicator.inactive:hover {
+            background-color: #d1d5db;
+        }
+
         /* Progress bar */
         .progress-bar {
             height: 0.25rem;
@@ -453,25 +464,13 @@
 
         /* Animations */
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         @keyframes fadeInUp {
-            from {
-                opacity: 0;
-                transform: translateY(20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(20px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         @keyframes flowPulse {
@@ -479,18 +478,9 @@
             50% { opacity: 0.6; }
         }
 
-        .slide-in {
-            animation: slideIn 0.5s ease-out;
-        }
-
-        .fade-in-up {
-            animation: fadeInUp 0.6s ease-out forwards;
-            opacity: 0;
-        }
-
-        .connection-line {
-            animation: flowPulse 2s ease-in-out infinite;
-        }
+        .slide-in { animation: slideIn 0.5s ease-out; }
+        .fade-in-up { animation: fadeInUp 0.6s ease-out forwards; opacity: 0; }
+        .connection-line { animation: flowPulse 2s ease-in-out infinite; }
 
         /* Process nodes */
         .process-node {
@@ -573,9 +563,7 @@
             margin-top: 1rem;
         }
 
-        .form-group {
-            margin-bottom: 1rem;
-        }
+        .form-group { margin-bottom: 1rem; }
 
         .form-label {
             display: block;
@@ -603,10 +591,7 @@
             box-shadow: 0 0 0 3px rgba(15, 23, 42, 0.1);
         }
 
-        .form-textarea {
-            min-height: 80px;
-            resize: vertical;
-        }
+        .form-textarea { min-height: 80px; resize: vertical; }
 
         .form-actions {
             display: flex;
@@ -679,13 +664,67 @@
             max-width: 1152px;
             margin: 0 auto;
         }
+
+        /* -------------------------------------------------------
+           ✅ NEW: Mobile optimisation (activated via body.mobile)
+        -------------------------------------------------------- */
+        body.mobile .container-md {
+            padding-left: 1rem;
+            padding-right: 1rem;
+        }
+
+        body.mobile .p-8 { padding: 1.25rem; }
+        body.mobile .p-6 { padding: 1rem; }
+        body.mobile .card-header { padding: 1.25rem; }
+
+        body.mobile .text-5xl { font-size: 2rem; line-height: 1.1; }
+        body.mobile .text-4xl { font-size: 1.5rem; line-height: 1.15; }
+        body.mobile .text-xl  { font-size: 1rem; }
+        body.mobile .text-lg  { font-size: 0.95rem; }
+
+        body.mobile .step-indicator {
+            width: 2.5rem;
+            height: 2.5rem;
+        }
+
+        body.mobile .step-indicator svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        body.mobile .progress-bar {
+            min-width: 0.75rem;
+            max-width: 1.5rem;
+            height: 0.2rem;
+        }
+
+        body.mobile .option-card {
+            padding: 1rem;
+        }
+
+        /* stack nav buttons on mobile */
+        body.mobile .navigation-buttons {
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        body.mobile .navigation-buttons button {
+            width: 100%;
+        }
+
+        /* reduce hover effects on touch/mobile */
+        body.mobile button:not(:disabled):hover,
+        body.mobile .option-card:hover {
+            transform: none;
+            box-shadow: none;
+        }
     </style>
 </head>
 <body>
     <div id="root"></div>
 
     <script type="text/babel">
-        const { useState } = React;
+        const { useState, useEffect } = React;
         
         // Icon components (same as before)
         const ChevronLeft = ({ size = 24 }) => (
@@ -837,7 +876,7 @@
             </svg>
         );
 
-        // Main workshop component - keeping the same logic, just updating class names
+        // Main workshop component
         const SustainabilityWorkshop = () => {
           const [currentStep, setCurrentStep] = useState(0);
           const [selections, setSelections] = useState({});
@@ -851,6 +890,24 @@
             resources: '',
             risks: ''
           });
+
+          /* ✅ NEW: Mobile detect -> toggle body.mobile */
+          useEffect(() => {
+            const mq = window.matchMedia("(max-width: 768px), (pointer: coarse)");
+            const apply = () => {
+              document.body.classList.toggle("mobile", mq.matches);
+            };
+            apply();
+
+            if (mq.addEventListener) mq.addEventListener("change", apply);
+            else mq.addListener(apply);
+
+            return () => {
+              if (mq.removeEventListener) mq.removeEventListener("change", apply);
+              else mq.removeListener(apply);
+              document.body.classList.remove("mobile");
+            };
+          }, []);
 
           const steps = [
             {
@@ -1512,11 +1569,9 @@
             const step = steps.find(s => s.id === stepId);
             const selectedValue = selections[stepId];
             
-            // Check base options first
             const baseOption = step?.options.find(opt => opt.value === selectedValue);
             if (baseOption) return baseOption;
             
-            // Check custom options
             const customOpts = customOptions[stepId] || [];
             return customOpts.find(opt => opt.value === selectedValue);
           };
@@ -1947,7 +2002,10 @@
                           <React.Fragment key={step.id}>
                             <div
                               onClick={() => handleStepClick(index)}
-                              className={`step-indicator ${isStepComplete(step.id) ? 'complete' : ''} ${currentStep === index ? 'active' : ''}`}
+                              className={`step-indicator
+                                ${isStepComplete(step.id) ? 'complete' : 'inactive'}
+                                ${currentStep === index ? 'active' : ''}
+                              `}
                               title={step.title}
                             >
                               {isStepComplete(step.id) ? (
@@ -2181,8 +2239,8 @@
                   </div>
                 </div>
 
-                {/* Navigation */}
-                <div className="flex items-center justify-between gap-4">
+                {/* ✅ Navigation (unchanged, only added navigation-buttons class for mobile stacking) */}
+                <div className="flex items-center justify-between gap-4 navigation-buttons">
                   <button
                     onClick={handleBack}
                     disabled={currentStep === 0}
