@@ -10,9 +10,6 @@
   <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@700;800&display=swap" rel="stylesheet" />
 
   <style>
-    /* =========================
-       GREEN PALETTE
-       ========================= */
     :root{
       --primary:#1B8F4B;
       --primary-dark:#136B38;
@@ -54,12 +51,7 @@
       -webkit-font-smoothing:antialiased;
       -moz-osx-font-smoothing:grayscale;
     }
-
-    .heading-primary{
-      font-family:'Sora',sans-serif;
-      font-weight:800;
-      letter-spacing:-.02em;
-    }
+    .heading-primary{font-family:'Sora',sans-serif;font-weight:800;letter-spacing:-.02em;}
 
     /* =========================
        SUBTLY ANIMATED BACKGROUND
@@ -78,28 +70,22 @@
       background-size: 140% 140%, 140% 140%, 200% 200%;
       animation: bgShift 18s ease-in-out infinite;
     }
-
     @keyframes bgShift{
       0%,100%{background-position: 0% 0%, 100% 0%, 0% 50%;}
       50%{background-position: 30% 20%, 70% 30%, 100% 50%;}
     }
-
     .presentation-wrapper::before,
     .presentation-wrapper::after{
       content:'';
       position:absolute;
       border-radius:50%;
       background:rgba(255,255,255,.10);
-      filter: blur(1px);
       animation: float 20s ease-in-out infinite;
       pointer-events:none;
+      filter: blur(1px);
     }
-    .presentation-wrapper::before{
-      width:420px;height:420px;top:-220px;right:-220px;animation-delay:-4s;
-    }
-    .presentation-wrapper::after{
-      width:320px;height:320px;bottom:-160px;left:-160px;
-    }
+    .presentation-wrapper::before{width:420px;height:420px;top:-220px;right:-220px;animation-delay:-4s;}
+    .presentation-wrapper::after{width:320px;height:320px;bottom:-160px;left:-160px;}
     @keyframes float{
       0%,100%{transform:translate(0,0) scale(1);}
       50%{transform:translate(60px,50px) scale(1.08);}
@@ -117,12 +103,10 @@
       flex-direction:column;
       position:relative;
       backdrop-filter:blur(16px);
-
-      /* IMPORTANT: fixes flex/overflow bugs on mobile */
-      min-height:0;
+      min-height:0; /* IMPORTANT */
     }
 
-    /* Viewport is the stage; slides are absolutely positioned and swapped */
+    /* Stage */
     .slide-viewport{
       flex:1;
       min-height:0;
@@ -131,8 +115,7 @@
       isolation:isolate;
     }
 
-    /* ===== SLIDE SWITCHING (ROBUST) =====
-       Avoid display:none bugs on mobile by using opacity/pointer-events. */
+    /* Slides swap via opacity (robust on mobile) */
     .slide{
       position:absolute;
       inset:0;
@@ -146,19 +129,17 @@
       transition: opacity .28s ease, transform .35s cubic-bezier(.16,1,.3,1);
       background: var(--bg-primary);
     }
-
     .slide.active{
       opacity:1;
       pointer-events:auto;
       transform:none;
     }
-
     .slide::-webkit-scrollbar{width:8px;}
     .slide::-webkit-scrollbar-track{background:var(--bg-tertiary);}
     .slide::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px;}
     .slide::-webkit-scrollbar-thumb:hover{background:var(--primary-dark);}
 
-    /* Navigation Footer */
+    /* Nav footer */
     .nav-footer{
       background:linear-gradient(to top, rgba(255,255,255,.98) 0%, rgba(255,255,255,.94) 100%);
       backdrop-filter:blur(14px);
@@ -173,54 +154,34 @@
       position:relative;
       z-index:20;
     }
-
-    .progress-indicator{flex:1;max-width:420px;}
+    .progress-indicator{flex:1;max-width:460px;}
     .progress-bar-outer{
-      height:6px;
-      background:var(--bg-tertiary);
-      border-radius:999px;
-      overflow:hidden;
-      margin-bottom:.6rem;
-      position:relative;
+      height:6px;background:var(--bg-tertiary);
+      border-radius:999px;overflow:hidden;margin-bottom:.6rem;
     }
     .progress-bar-inner{
-      height:100%;
-      width:0%;
+      height:100%;width:0%;
       background:linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
       border-radius:999px;
       transition: width .45s cubic-bezier(.16,1,.3,1);
     }
     .slide-counter{
-      font-size:.8125rem;
-      color:var(--text-light);
-      font-weight:600;
-      text-align:center;
-      letter-spacing:.5px;
+      font-size:.8125rem;color:var(--text-light);
+      font-weight:700;text-align:center;letter-spacing:.5px;
     }
 
     /* Buttons */
     button{
-      display:inline-flex;
-      align-items:center;
-      justify-content:center;
-      gap:.5rem;
-      padding:.875rem 1.25rem;
-      border:none;
-      border-radius:var(--radius-md);
-      font-weight:700;
-      font-size:.9375rem;
-      cursor:pointer;
-      transition:var(--transition);
-      position:relative;
-      overflow:hidden;
-      font-family:inherit;
-      user-select:none;
+      display:inline-flex;align-items:center;justify-content:center;gap:.5rem;
+      padding:.875rem 1.25rem;border:none;border-radius:var(--radius-md);
+      font-weight:800;font-size:.9375rem;cursor:pointer;
+      transition:var(--transition);position:relative;overflow:hidden;
+      font-family:inherit;user-select:none;
       -webkit-tap-highlight-color: transparent;
       min-height:44px;
     }
     button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
     button:not(:disabled):hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
-
     .btn-primary{
       background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
       color:#fff;
@@ -229,108 +190,60 @@
       background:linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
     }
     .btn-secondary{
-      background:#fff;
-      border:2px solid var(--bg-tertiary);
-      color:var(--text-medium);
+      background:#fff;border:2px solid var(--bg-tertiary);color:var(--text-medium);
     }
     .btn-secondary:not(:disabled):hover{
-      border-color:var(--primary);
-      color:var(--primary);
-      background:var(--bg-secondary);
+      border-color:var(--primary);color:var(--primary);background:var(--bg-secondary);
     }
 
-    /* Fullscreen button */
+    /* Fullscreen */
     .fullscreen-btn{
-      position:absolute;
-      top:1.1rem;
-      left:1.1rem;
+      position:absolute;top:1.1rem;left:1.1rem;
       background:rgba(255,255,255,.95);
       border:1px solid rgba(27,143,75,.18);
-      padding:.55rem .75rem;
-      border-radius:var(--radius-md);
-      cursor:pointer;
-      font-size:1.05rem;
-      z-index:50;
-      transition:var(--transition);
-      box-shadow:var(--shadow-sm);
+      padding:.55rem .75rem;border-radius:var(--radius-md);
+      cursor:pointer;font-size:1.05rem;z-index:50;
+      transition:var(--transition);box-shadow:var(--shadow-sm);
       line-height:1;
     }
     .fullscreen-btn:hover{
-      background:#fff;
-      transform:scale(1.05);
-      box-shadow:var(--shadow-md);
+      background:#fff;transform:scale(1.05);box-shadow:var(--shadow-md);
       border-color:var(--primary);
     }
 
     /* Title slide */
     .title-slide{
       background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      align-items:center;
-      text-align:center;
-      overflow:hidden;
+      color:#fff;display:flex;flex-direction:column;justify-content:center;align-items:center;
+      text-align:center;overflow:hidden;
     }
     .title-slide::before{
-      content:'';
-      position:absolute;
-      top:-50%;
-      right:-50%;
-      width:100%;
-      height:100%;
+      content:'';position:absolute;top:-50%;right:-50%;width:100%;height:100%;
       background:radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 70%);
-      animation: rotate 30s linear infinite;
-      pointer-events:none;
+      animation: rotate 30s linear infinite;pointer-events:none;
     }
     @keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
-    .title-slide h1{
-      position:relative;
-      z-index:1;
-      color:#fff;
-      font-size:clamp(2.3rem,6vw,4.5rem);
-      margin-bottom:1.1rem;
-    }
-    .title-slide h2{
-      position:relative;
-      z-index:1;
-      color:rgba(255,255,255,.95);
-      font-size:clamp(1.15rem,3vw,2rem);
-      font-weight:600;
-      margin-bottom:2rem;
-    }
-    .title-slide p{
-      position:relative;
-      z-index:1;
-      color:rgba(255,255,255,.92);
-    }
+    .title-slide h1{position:relative;z-index:1;color:#fff;font-size:clamp(2.3rem,6vw,4.5rem);margin-bottom:1.1rem;}
+    .title-slide h2{position:relative;z-index:1;color:rgba(255,255,255,.95);font-size:clamp(1.15rem,3vw,2rem);font-weight:700;margin-bottom:2rem;}
+    .title-slide p{position:relative;z-index:1;color:rgba(255,255,255,.92);}
 
     /* Content headings */
     .slide-header{
-      margin-bottom:2rem;
-      padding-bottom:1rem;
-      border-bottom:3px solid;
+      margin-bottom:2rem;padding-bottom:1rem;border-bottom:3px solid;
       border-image:linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%) 1;
     }
     .slide-header h1{
-      font-size:clamp(1.8rem,4vw,3rem);
-      font-weight:900;
-      margin-bottom:.35rem;
+      font-size:clamp(1.8rem,4vw,3rem);font-weight:900;margin-bottom:.35rem;
       background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      -webkit-background-clip:text;
-      -webkit-text-fill-color:transparent;
-      background-clip:text;
+      -webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;
     }
-
     .slide-content{display:flex;flex-direction:column;gap:1.5rem;}
 
+    /* Blocks */
     .info-box{
       background:linear-gradient(135deg, rgba(163,230,53,.18) 0%, rgba(163,230,53,.06) 100%);
-      padding:1.15rem 1.35rem;
-      border-radius:var(--radius-md);
-      border-left:4px solid var(--accent);
-      box-shadow:var(--shadow-sm);
+      padding:1.15rem 1.35rem;border-radius:var(--radius-md);
+      border-left:4px solid var(--accent);box-shadow:var(--shadow-sm);
     }
     .info-box.success{
       background:linear-gradient(135deg, rgba(124,203,92,.20) 0%, rgba(124,203,92,.06) 100%);
@@ -340,136 +253,72 @@
       background:linear-gradient(135deg, rgba(27,143,75,.18) 0%, rgba(27,143,75,.05) 100%);
       border-left-color:var(--primary);
     }
-    .info-box h3{font-size:1.05rem;margin-bottom:.5rem;font-weight:800;}
+    .info-box h3{font-size:1.05rem;margin-bottom:.5rem;font-weight:900;}
     .info-box p{color:var(--text-medium);font-size:.95rem;}
 
     .target-box{
       background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      padding:1.8rem 2.1rem;
-      border-radius:var(--radius-lg);
-      color:#fff;
-      text-align:center;
-      box-shadow:0 8px 32px rgba(27,143,75,.22);
-      position:relative;
-      overflow:hidden;
+      padding:1.8rem 2.1rem;border-radius:var(--radius-lg);
+      color:#fff;text-align:center;box-shadow:0 8px 32px rgba(27,143,75,.22);
+      position:relative;overflow:hidden;
     }
     .target-box::before{
-      content:'';
-      position:absolute;
-      inset:-50%;
+      content:'';position:absolute;inset:-50%;
       background:radial-gradient(circle, rgba(255,255,255,.16) 0%, transparent 70%);
-      animation:pulse 3s ease-in-out infinite;
-      pointer-events:none;
+      animation:pulse 3s ease-in-out infinite;pointer-events:none;
     }
     @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
     .target-box h2,.target-box p{position:relative;z-index:1;}
 
-    .three-col{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
-      gap:1.2rem;
-    }
-    .two-col{
-      display:grid;
-      grid-template-columns:380px 1fr;
-      gap:1.6rem;
-    }
+    .three-col{display:grid;grid-template-columns:repeat(auto-fit,minmax(280px,1fr));gap:1.2rem;}
+    .two-col{display:grid;grid-template-columns:380px 1fr;gap:1.6rem;}
 
     .icon-box{
       background:linear-gradient(135deg, rgba(248,249,250,1) 0%, rgba(255,255,255,1) 100%);
-      padding:1.25rem;
-      border-radius:var(--radius-lg);
-      text-align:center;
-      border:2px solid transparent;
-      box-shadow:var(--shadow-sm);
-      transition:var(--transition);
+      padding:1.25rem;border-radius:var(--radius-lg);text-align:center;
+      border:2px solid transparent;box-shadow:var(--shadow-sm);transition:var(--transition);
+      position:relative;overflow:hidden;
     }
     .icon-box:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);border-color:rgba(27,143,75,.35);}
     .icon-box .icon{font-size:3rem;margin-bottom:.85rem;}
     .icon-box h3{font-weight:900;margin-bottom:.4rem;}
     .icon-box p{color:var(--text-light);font-size:.95rem;margin:0;}
 
+    /* Matrix */
     .matrix-container{
       background:linear-gradient(135deg, rgba(255,255,255,.92) 0%, rgba(248,249,250,.92) 100%);
-      border:2px solid rgba(27,143,75,.10);
-      border-radius:var(--radius-lg);
-      padding:1.4rem;
-      box-shadow:var(--shadow-sm);
+      border:2px solid rgba(27,143,75,.10);border-radius:var(--radius-lg);
+      padding:1.4rem;box-shadow:var(--shadow-sm);
     }
-    .matrix-container > p:first-child{
-      text-align:center;font-weight:900;font-size:1.1rem;margin-bottom:1rem;
-    }
+    .matrix-container > p:first-child{text-align:center;font-weight:900;font-size:1.1rem;margin-bottom:1rem;}
     .matrix-grid{
-      display:grid;
-      grid-template-columns:90px 1fr 1fr;
-      grid-template-rows:auto 1fr 1fr;
-      gap:.8rem;
-      min-height:320px;
+      display:grid;grid-template-columns:90px 1fr 1fr;grid-template-rows:auto 1fr 1fr;
+      gap:.8rem;min-height:320px;
     }
-    .matrix-header{
-      text-align:center;
-      font-size:.8rem;
-      font-weight:900;
-      color:var(--primary);
-      padding:.55rem;
-      text-transform:uppercase;
-      letter-spacing:.08em;
-    }
+    .matrix-header{text-align:center;font-size:.8rem;font-weight:900;color:var(--primary);padding:.55rem;text-transform:uppercase;letter-spacing:.08em;}
     .matrix-label{
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-size:.68rem;
-      font-weight:900;
-      color:var(--text-light);
-      writing-mode:vertical-rl;
-      transform:rotate(180deg);
-      text-transform:uppercase;
-      letter-spacing:.08em;
+      display:flex;align-items:center;justify-content:center;font-size:.68rem;font-weight:900;color:var(--text-light);
+      writing-mode:vertical-rl;transform:rotate(180deg);text-transform:uppercase;letter-spacing:.08em;
     }
     .matrix-quadrant{
-      border-radius:var(--radius-md);
-      padding:1.2rem 1rem;
-      text-align:center;
-      color:#fff;
-      display:flex;
-      flex-direction:column;
-      align-items:center;
-      justify-content:center;
-      cursor:pointer;
-      transition:var(--transition);
-      box-shadow:var(--shadow-sm);
-      position:relative;
-      overflow:hidden;
+      border-radius:var(--radius-md);padding:1.2rem 1rem;text-align:center;color:#fff;
+      display:flex;flex-direction:column;align-items:center;justify-content:center;cursor:pointer;
+      transition:var(--transition);box-shadow:var(--shadow-sm);
+      position:relative;overflow:hidden;
     }
     .matrix-quadrant:hover{transform:scale(1.05);z-index:2;box-shadow:var(--shadow-md);}
     .matrix-quadrant .emoji{font-size:2.2rem;margin-bottom:.5rem;}
     .matrix-quadrant h3{font-size:1.02rem;font-weight:900;margin-bottom:.4rem;}
     .matrix-quadrant p{font-size:.82rem;opacity:.95;margin:0;line-height:1.35;}
-
     .matrix-quadrant.quick-wins{background:linear-gradient(135deg,#16a34a 0%,#4ade80 100%);}
     .matrix-quadrant.major-projects{background:linear-gradient(135deg,#84cc16 0%,#bef264 100%);color:#1f2937;}
     .matrix-quadrant.fill-ins{background:linear-gradient(135deg,#22c55e 0%,#86efac 100%);color:#064e3b;}
     .matrix-quadrant.reconsider{background:linear-gradient(135deg,#E0E0E0 0%,#EEEEEE 100%);color:#616161;}
 
-    .badge{
-      background:rgba(255,255,255,.25);
-      border:1px solid rgba(255,255,255,.2);
-      padding:.45rem .75rem;
-      border-radius:var(--radius-sm);
-      font-size:.8rem;
-      font-weight:900;
-      margin-top:.6rem;
-    }
-
+    /* Question boxes */
     .question-box{
-      padding:1.1rem 1.35rem;
-      border-radius:var(--radius-md);
-      border-left:4px solid;
-      margin-bottom:.9rem;
-      background:var(--bg-primary);
-      box-shadow:var(--shadow-sm);
-      transition:var(--transition);
+      padding:1.1rem 1.35rem;border-radius:var(--radius-md);border-left:4px solid;
+      margin-bottom:.9rem;background:var(--bg-primary);box-shadow:var(--shadow-sm);transition:var(--transition);
     }
     .question-box:hover{transform:translateX(6px);box-shadow:var(--shadow-md);}
     .question-box h3{font-weight:900;margin-bottom:.4rem;}
@@ -490,6 +339,225 @@
     }
     .question-box.cost h3{color:var(--primary-dark);}
 
+    /* Small components */
+    .pill{
+      display:inline-flex;align-items:center;gap:.5rem;
+      padding:.45rem .75rem;border-radius:999px;
+      font-weight:900;font-size:.78rem;
+      background:rgba(27,143,75,.10);
+      color:var(--primary-dark);
+      border:1px solid rgba(27,143,75,.18);
+      white-space:nowrap;
+    }
+    .pill .dot{width:.55rem;height:.55rem;border-radius:50%;background:var(--primary);}
+
+    .mini-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(240px,1fr));
+      gap:1rem;
+    }
+
+    /* Scoring table */
+    .score-table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-sm);
+      border:1px solid rgba(27,143,75,.12);
+      background:#fff;
+    }
+    .score-table th, .score-table td{
+      padding:.9rem .9rem;
+      font-size:.92rem;
+      vertical-align:top;
+      border-bottom:1px solid rgba(15,23,42,.06);
+    }
+    .score-table th{
+      text-align:left;
+      background:linear-gradient(135deg, rgba(27,143,75,.12) 0%, rgba(124,203,92,.10) 100%);
+      color:var(--text-dark);
+      font-weight:900;
+      width:22%;
+    }
+    .score-table tr:last-child th, .score-table tr:last-child td{border-bottom:none;}
+
+    /* Worksheet */
+    .worksheet{
+      background:linear-gradient(135deg, rgba(255,255,255,.96) 0%, rgba(246,251,247,.96) 100%);
+      border:2px solid rgba(27,143,75,.12);
+      border-radius:var(--radius-xl);
+      padding:1.2rem;
+      box-shadow:var(--shadow-sm);
+    }
+    .worksheet h3{font-weight:900;margin-bottom:.75rem;}
+    .worksheet-grid{
+      display:grid;
+      grid-template-columns:1.2fr 1fr;
+      gap:1rem;
+    }
+    .field{
+      background:#fff;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:var(--radius-md);
+      padding:.85rem;
+    }
+    .field label{
+      display:block;
+      font-size:.78rem;
+      font-weight:900;
+      color:var(--text-light);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+      margin-bottom:.4rem;
+    }
+    .field .line{
+      height:38px;
+      border-radius:10px;
+      background:linear-gradient(90deg, rgba(15,23,42,.06), rgba(15,23,42,.03));
+    }
+    .score-chips{
+      display:grid;
+      grid-template-columns:repeat(2,1fr);
+      gap:.75rem;
+      margin-top:.6rem;
+    }
+    .chip{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:.75rem;
+      padding:.75rem .85rem;
+      border-radius:var(--radius-md);
+      border:1px solid rgba(27,143,75,.14);
+      background:rgba(27,143,75,.06);
+      font-weight:900;
+      font-size:.9rem;
+    }
+    .chip span:last-child{
+      background:#fff;
+      border:1px solid rgba(15,23,42,.08);
+      border-radius:999px;
+      padding:.2rem .55rem;
+      font-size:.8rem;
+      color:var(--text-medium);
+      font-weight:900;
+    }
+    .hint{
+      font-size:.82rem;
+      color:var(--text-light);
+      margin-top:.65rem;
+      font-weight:600;
+    }
+
+    /* Timer chip */
+    .timer{
+      display:inline-flex;
+      align-items:center;
+      gap:.55rem;
+      padding:.55rem .85rem;
+      border-radius:999px;
+      font-weight:900;
+      background:rgba(255,255,255,.18);
+      border:1px solid rgba(255,255,255,.25);
+      color:#fff;
+    }
+    .timer .ring{
+      width:10px;height:10px;border-radius:50%;
+      background:#fff;opacity:.85;
+      box-shadow:0 0 0 6px rgba(255,255,255,.18);
+    }
+
+    /* =========================
+       MODAL (instead of alert)
+       ========================= */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      background:rgba(0,0,0,.45);
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:1.25rem;
+      z-index:999;
+    }
+    .modal-overlay.show{display:flex;}
+    .modal{
+      width:min(720px, 100%);
+      background:#fff;
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-lg);
+      border:1px solid rgba(27,143,75,.18);
+      overflow:hidden;
+    }
+    .modal-header{
+      padding:1.1rem 1.25rem;
+      background:linear-gradient(135deg, rgba(27,143,75,.12) 0%, rgba(124,203,92,.10) 100%);
+      display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;
+    }
+    .modal-header h3{
+      margin:0;
+      font-weight:900;
+      color:var(--text-dark);
+      font-size:1.05rem;
+      line-height:1.3;
+    }
+    .modal-body{padding:1.1rem 1.25rem;color:var(--text-medium);font-weight:600;}
+    .modal-actions{
+      padding:1rem 1.25rem;
+      display:flex;
+      justify-content:flex-end;
+      border-top:1px solid rgba(15,23,42,.06);
+      background:#fff;
+    }
+    .close-btn{
+      background:#fff;
+      border:2px solid rgba(27,143,75,.14);
+      color:var(--primary-dark);
+      padding:.55rem .85rem;
+      border-radius:var(--radius-md);
+      font-weight:900;
+      cursor:pointer;
+    }
+    .close-btn:hover{border-color:var(--primary);transform:none;box-shadow:var(--shadow-sm);}
+
+    /* Reveal interaction */
+    .reveal{
+      border-radius:var(--radius-lg);
+      border:1px solid rgba(27,143,75,.14);
+      background:rgba(27,143,75,.06);
+      overflow:hidden;
+      box-shadow:var(--shadow-sm);
+    }
+    .reveal button{
+      width:100%;
+      justify-content:space-between;
+      background:transparent;
+      border:none;
+      padding:1rem 1.1rem;
+      border-radius:0;
+      box-shadow:none;
+      transform:none;
+    }
+    .reveal button:hover{transform:none;box-shadow:none;}
+    .reveal-content{
+      display:none;
+      padding:0 1.1rem 1rem;
+      color:var(--text-medium);
+      font-weight:600;
+    }
+    .reveal.open .reveal-content{display:block;}
+    .reveal .chev{
+      width:10px;height:10px;
+      border-right:2px solid var(--primary-dark);
+      border-bottom:2px solid var(--primary-dark);
+      transform:rotate(45deg);
+      transition:transform .2s ease;
+      margin-left:.5rem;
+    }
+    .reveal.open .chev{transform:rotate(-135deg);}
+
     /* Mobile */
     @media (max-width:1024px){.two-col{grid-template-columns:1fr;}}
     @media (max-width:768px){
@@ -501,6 +569,7 @@
       .matrix-grid{grid-template-columns:70px 1fr 1fr;min-height:280px;}
       .fullscreen-btn{display:none;}
       .progress-indicator > div:last-child{display:none;}
+      .worksheet-grid{grid-template-columns:1fr;}
     }
 
     @media (prefers-reduced-motion: reduce){
@@ -528,8 +597,41 @@
           <p style="margin-top: .75rem; font-size: 1rem; opacity: .9;">A 15-minute interactive training session</p>
         </div>
 
-        <!-- Slide 2: Emissions Target -->
-        <div class="slide" data-slide="2">
+        <!-- Slide 2: What success looks like (Option 1) -->
+        <div class="slide title-slide" data-slide="2" style="background:linear-gradient(135deg,#136B38 0%,#2CCB74 100%);">
+          <div class="target-box" style="max-width:860px;background:rgba(255,255,255,.12);box-shadow:none;border:1px solid rgba(255,255,255,.18);">
+            <div class="timer" style="margin-bottom:1rem;"><span class="ring"></span> 15 minutes total</div>
+            <h2 style="font-size:2.1rem;margin:0 0 .75rem;">What success looks like today</h2>
+            <p style="font-size:1.05rem;opacity:.95;">By the end, you’ll be able to:</p>
+          </div>
+
+          <div class="mini-grid" style="width:min(980px,100%);margin-top:1.25rem;">
+            <div class="icon-box" style="background:rgba(255,255,255,.92);">
+              <div class="icon">🧮</div>
+              <h3>Score any idea</h3>
+              <p>Use the 4 questions consistently with a simple scale.</p>
+            </div>
+            <div class="icon-box" style="background:rgba(255,255,255,.92);">
+              <div class="icon">🧭</div>
+              <h3>Place it on the matrix</h3>
+              <p>See quickly if it’s a Quick Win, Major Project, Fill-In, or Reconsider.</p>
+            </div>
+            <div class="icon-box" style="background:rgba(255,255,255,.92);">
+              <div class="icon">🗣️</div>
+              <h3>Explain your recommendation</h3>
+              <p>Share “why” in 30 seconds, including risks and stakeholders.</p>
+            </div>
+          </div>
+
+          <p style="margin-top:1.25rem;font-weight:800;opacity:.92;">
+            <span class="pill" style="background:rgba(255,255,255,.14);border-color:rgba(255,255,255,.22);color:#fff;">
+              <span class="dot" style="background:#fff;"></span> No wrong answers — we’re building shared judgement
+            </span>
+          </p>
+        </div>
+
+        <!-- Slide 3: Why this matters (original slide 2) -->
+        <div class="slide" data-slide="3">
           <div class="slide-header">
             <h1 class="heading-primary">Why This Matters</h1>
           </div>
@@ -570,17 +672,71 @@
               <p>Learn how to evaluate which initiatives will best help RWH reduce emissions</p>
             </div>
 
-            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:700;">
               Healthcare is ~7% of Australia's emissions | Every department plays a part
             </p>
           </div>
         </div>
 
-        <!-- Slide 3: Matrix Framework -->
-        <div class="slide" data-slide="3">
+        <!-- Slide 4: Scoring cheat sheet (Option 2) -->
+        <div class="slide" data-slide="4">
+          <div class="slide-header">
+            <h1 class="heading-primary">How to Score (Cheat Sheet)</h1>
+            <p style="font-size:.95rem;color:var(--text-light);font-weight:700;margin-top:.45rem;">
+              Use this as your shared reference so groups score consistently.
+            </p>
+          </div>
+
+          <div class="slide-content">
+            <table class="score-table" aria-label="Scoring cheat sheet">
+              <tr>
+                <th>⏱ Time</th>
+                <td>
+                  <strong>Short:</strong> 0–6 months &nbsp;|&nbsp;
+                  <strong>Medium:</strong> 6–12 months &nbsp;|&nbsp;
+                  <strong>Long:</strong> 12–24 months
+                  <div class="hint">Think: approvals + procurement + training + downtime.</div>
+                </td>
+              </tr>
+              <tr>
+                <th>💰 Cost</th>
+                <td>
+                  <strong>0–1:</strong> minimal (existing budget / small purchases)<br/>
+                  <strong>2–3:</strong> moderate (some new equipment / software / contractor time)<br/>
+                  <strong>4–5:</strong> major investment (capex, large rollout, infrastructure)
+                </td>
+              </tr>
+              <tr>
+                <th>🛠 Effort</th>
+                <td>
+                  <strong>Low:</strong> simple change, little training<br/>
+                  <strong>Medium:</strong> some workflow change + training<br/>
+                  <strong>High:</strong> multi-team coordination, policy change, complex rollout
+                </td>
+              </tr>
+              <tr>
+                <th>🌿 Impact</th>
+                <td>
+                  <strong>High:</strong> meaningful emissions reduction (energy, waste, or major spend category)<br/>
+                  <strong>Medium:</strong> noticeable improvement<br/>
+                  <strong>Low:</strong> small but helpful (often worth doing if easy)
+                  <div class="hint">If unsure: focus on the biggest “drivers” — energy, waste streams, high-spend supplies.</div>
+                </td>
+              </tr>
+            </table>
+
+            <div class="info-box info">
+              <h3>Tip for consistency</h3>
+              <p>When groups disagree, write down the assumption causing the difference (e.g., “we assumed IT support is required”). That’s valuable output!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 5: Matrix framework (original slide 3) -->
+        <div class="slide" data-slide="5">
           <div class="slide-header">
             <h1 class="heading-primary">The Evaluation Matrix: 4 Key Questions</h1>
-            <p style="font-size:.9375rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
+            <p style="font-size:.9375rem;color:var(--text-light);margin-top:.5rem;font-weight:700;">
               Plus any other factors relevant to your department
             </p>
           </div>
@@ -632,27 +788,27 @@
                   <div class="matrix-header">Long Time</div>
 
                   <div class="matrix-label">High Impact</div>
-                  <div class="matrix-quadrant quick-wins" onclick="showMatrixInfo('quickWins')">
+                  <div class="matrix-quadrant quick-wins" onclick="openModal('quickWins')">
                     <div class="emoji">⭐</div>
                     <h3>QUICK WINS</h3>
-                    <p>High emissions reduction<br/>Fast to implement<br/>Low investment</p>
+                    <p>High reduction<br/>Fast to implement<br/>Low investment</p>
                     <div class="badge">START HERE! 🚀</div>
                   </div>
 
-                  <div class="matrix-quadrant major-projects" onclick="showMatrixInfo('majorProjects')">
+                  <div class="matrix-quadrant major-projects" onclick="openModal('majorProjects')">
                     <div class="emoji">🎯</div>
                     <h3>MAJOR PROJECTS</h3>
                     <p>Big impact<br/>Needs planning<br/>Higher cost</p>
                   </div>
 
                   <div class="matrix-label">Low Impact</div>
-                  <div class="matrix-quadrant fill-ins" onclick="showMatrixInfo('fillIns')">
+                  <div class="matrix-quadrant fill-ins" onclick="openModal('fillIns')">
                     <div class="emoji">✓</div>
                     <h3>FILL-INS</h3>
                     <p>Quick and easy<br/>Small gains</p>
                   </div>
 
-                  <div class="matrix-quadrant reconsider" onclick="showMatrixInfo('reconsider')">
+                  <div class="matrix-quadrant reconsider" onclick="openModal('reconsider')">
                     <div class="emoji">❓</div>
                     <h3>RECONSIDER</h3>
                     <p>Low benefit<br/>Takes time<br/>Costs more</p>
@@ -668,72 +824,238 @@
           </div>
         </div>
 
-        <!-- Slide 4: Example -->
-        <div class="slide" data-slide="4">
+        <!-- Slide 6: Example + reveal (Option 8 part: reveal interaction) -->
+        <div class="slide" data-slide="6">
           <div class="slide-header">
             <h1 class="heading-primary">Let's Try an Example Together</h1>
           </div>
 
           <div class="slide-content">
             <div class="target-box">
+              <div class="timer" style="position:relative;z-index:2;margin:0 auto .9rem;width:max-content;">
+                <span class="ring"></span> 2 minutes
+              </div>
               <h2 style="font-size:1.875rem;">Digital Notice Boards</h2>
               <p style="font-size:1.0625rem;">Replace printed posters and notices with digital screens that can be updated remotely across departments</p>
             </div>
 
             <div class="info-box">
-              <h3>💭 Let's think through this...</h3>
-              <p>How long to install screens? How much paper waste prevented? What's the cost and effort to implement?</p>
+              <h3>💭 Think it through</h3>
+              <p>How long to install? What’s the paper waste avoided? What’s the effort and who needs to be involved?</p>
             </div>
 
             <div class="three-col" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
               <div class="question-box timeline">
-                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Time</p>
+                <p style="font-size:.8125rem;font-weight:900;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Time</p>
                 <h3 style="font-size:2.1rem;margin:.5rem 0;">Short</h3>
                 <p style="font-size:.875rem;">3-6 months</p>
-                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Install + train staff</p>
               </div>
 
               <div class="question-box cost">
-                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Cost</p>
+                <p style="font-size:.8125rem;font-weight:900;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Cost</p>
                 <h3 style="font-size:2.1rem;margin:.5rem 0;">2</h3>
                 <p style="font-size:.875rem;">Moderate</p>
-                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Screens + software</p>
               </div>
 
               <div class="question-box cost">
-                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Effort</p>
+                <p style="font-size:.8125rem;font-weight:900;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Effort</p>
                 <h3 style="font-size:2.1rem;margin:.5rem 0;">Low</h3>
                 <p style="font-size:.875rem;">Easy change</p>
-                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Simple training</p>
               </div>
 
               <div class="question-box impact">
-                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Impact</p>
+                <p style="font-size:.8125rem;font-weight:900;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Impact</p>
                 <h3 style="font-size:2.1rem;margin:.5rem 0;">Low</h3>
                 <p style="font-size:.875rem;">Small reduction</p>
-                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Saves paper waste</p>
+              </div>
+            </div>
+
+            <!-- Reveal (Option 8) -->
+            <div class="reveal" id="revealExample">
+              <button type="button" onclick="toggleReveal('revealExample')">
+                <span style="font-weight:900;color:var(--primary-dark);">Tap to reveal: why we scored it this way</span>
+                <span class="chev" aria-hidden="true"></span>
+              </button>
+              <div class="reveal-content">
+                <ul style="margin:.3rem 0 0 1.2rem;line-height:1.7;">
+                  <li><strong>Time short</strong> — small procurement + install + quick staff briefing.</li>
+                  <li><strong>Cost moderate</strong> — screens + software/licences.</li>
+                  <li><strong>Effort low</strong> — minimal workflow disruption.</li>
+                  <li><strong>Impact low</strong> — reduces paper/printing; good “add-on” benefit.</li>
+                </ul>
               </div>
             </div>
 
             <div class="info-box info">
               <h3>✓ This is a FILL-IN</h3>
-              <p>Quick to implement with low effort, modest cost for equipment. Small emissions impact (reduces paper waste and printing energy) but provides additional benefits like easier updates and better communication!</p>
+              <p>Quick to implement with low effort, modest cost. Small emissions impact but often worthwhile due to better communication and fewer reprints.</p>
             </div>
-
-            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
-              📍 Fill-Ins are worthwhile when they're easy to implement and provide multiple benefits beyond emissions
-            </p>
           </div>
         </div>
 
-        <!-- Slide 5: Group Activity -->
-        <div class="slide" data-slide="5">
+        <!-- Slide 7: What else to consider (Option 4) -->
+        <div class="slide" data-slide="7">
+          <div class="slide-header">
+            <h1 class="heading-primary">What Else Should We Consider?</h1>
+            <p style="font-size:.95rem;color:var(--text-light);font-weight:700;margin-top:.45rem;">
+              Beyond Time / Cost / Effort / Impact — these factors often decide “go/no-go”.
+            </p>
+          </div>
+
+          <div class="slide-content">
+            <div class="mini-grid">
+              <div class="icon-box">
+                <div class="icon">🧑‍⚕️</div>
+                <h3>Patient safety / clinical risk</h3>
+                <p>Any infection control, clinical outcomes, or safety concerns?</p>
+              </div>
+              <div class="icon-box">
+                <div class="icon">📜</div>
+                <h3>Compliance & policy</h3>
+                <p>Are there regulations, standards, or approvals required?</p>
+              </div>
+              <div class="icon-box">
+                <div class="icon">🧩</div>
+                <h3>Operational disruption</h3>
+                <p>Downtime, workflow interruptions, or change fatigue?</p>
+              </div>
+              <div class="icon-box">
+                <div class="icon">🧑‍🤝‍🧑</div>
+                <h3>Stakeholders needed</h3>
+                <p>Who must be involved: IT, Facilities, Procurement, Clinical leads?</p>
+              </div>
+              <div class="icon-box">
+                <div class="icon">🧰</div>
+                <h3>Maintenance burden</h3>
+                <p>Ongoing support, consumables, servicing, training refresh?</p>
+              </div>
+              <div class="icon-box">
+                <div class="icon">🌏</div>
+                <h3>Equity & access</h3>
+                <p>Does it improve access, inclusion, or staff workload fairness?</p>
+              </div>
+            </div>
+
+            <div class="info-box success">
+              <h3>Practical prompt</h3>
+              <p>When groups disagree, capture <strong>the factor</strong> that changed the score (e.g., “we assumed infection control approval”). Those assumptions become your action list.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 8: Decision rules (Option 5) -->
+        <div class="slide" data-slide="8">
+          <div class="slide-header">
+            <h1 class="heading-primary">Decision Rules (Make It Actionable)</h1>
+            <p style="font-size:.95rem;color:var(--text-light);font-weight:700;margin-top:.45rem;">
+              Use these rules to move from discussion to a clear outcome.
+            </p>
+          </div>
+
+          <div class="slide-content">
+            <div class="mini-grid">
+              <div class="info-box success">
+                <h3>⭐ Quick Wins</h3>
+                <p><strong>Do now.</strong> Pick an owner. Pilot in <strong>30–60 days</strong>. Track a simple metric.</p>
+              </div>
+
+              <div class="info-box">
+                <h3>🎯 Major Projects</h3>
+                <p><strong>Roadmap.</strong> Define scope + stakeholders. Build a brief business case and timeline.</p>
+              </div>
+
+              <div class="info-box info">
+                <h3>✓ Fill-Ins</h3>
+                <p><strong>Bundle.</strong> Group together and implement during routine upgrades / maintenance windows.</p>
+              </div>
+
+              <div class="info-box">
+                <h3>❓ Reconsider</h3>
+                <p><strong>Park.</strong> Only revisit if compliance requires it or assumptions change.</p>
+              </div>
+            </div>
+
+            <div class="reveal" id="revealRule">
+              <button type="button" onclick="toggleReveal('revealRule')">
+                <span style="font-weight:900;color:var(--primary-dark);">Tap to reveal: a simple “recommendation sentence”</span>
+                <span class="chev" aria-hidden="true"></span>
+              </button>
+              <div class="reveal-content">
+                <p style="margin:.35rem 0 0;">
+                  “We recommend <strong>[Do / Pilot / Defer / Stop]</strong> because it is <strong>[time]</strong>, requires <strong>[cost/effort]</strong>,
+                  delivers <strong>[impact]</strong>, and the key risk/assumption is <strong>[X]</strong>.”
+                </p>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 9: Worksheet (Option 6) -->
+        <div class="slide" data-slide="9">
+          <div class="slide-header">
+            <h1 class="heading-primary">Worksheet (Photograph This)</h1>
+            <p style="font-size:.95rem;color:var(--text-light);font-weight:700;margin-top:.45rem;">
+              Use this template for any initiative — keep your notes and assumptions.
+            </p>
+          </div>
+
+          <div class="slide-content">
+            <div class="worksheet">
+              <h3>Initiative scoring template</h3>
+              <div class="worksheet-grid">
+                <div class="field">
+                  <label>Initiative</label>
+                  <div class="line"></div>
+                  <div class="hint">What’s the change? Where will it happen?</div>
+                </div>
+
+                <div class="field">
+                  <label>Recommendation</label>
+                  <div class="line"></div>
+                  <div class="hint">Do / Pilot / Defer / Stop</div>
+                </div>
+              </div>
+
+              <div class="score-chips" aria-label="Score chips">
+                <div class="chip">⏱ Time <span>Short / Med / Long</span></div>
+                <div class="chip">💰 Cost <span>0–5</span></div>
+                <div class="chip">🛠 Effort <span>Low / Med / High</span></div>
+                <div class="chip">🌿 Impact <span>Low / Med / High</span></div>
+              </div>
+
+              <div class="worksheet-grid" style="margin-top:1rem;">
+                <div class="field">
+                  <label>Other factors</label>
+                  <div class="line"></div>
+                  <div class="hint">Safety, compliance, disruption, equity, maintenance, suppliers, stakeholders…</div>
+                </div>
+
+                <div class="field">
+                  <label>Key assumptions / unknowns</label>
+                  <div class="line"></div>
+                  <div class="hint">What would change the score? What do we need to check?</div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-box info">
+              <h3>Usefully “imperfect” is okay</h3>
+              <p>Your goal is not perfect accuracy — it’s to surface assumptions and prioritise what to test first.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 10: Activity (original group activity, updated) -->
+        <div class="slide" data-slide="10">
           <div class="slide-header">
             <h1 class="heading-primary">Now Your Turn! (8 minutes)</h1>
           </div>
 
           <div class="slide-content">
             <div class="target-box" style="background:linear-gradient(135deg,#22c55e 0%,#86efac 100%);">
+              <div class="timer" style="position:relative;z-index:2;margin:0 auto .9rem;width:max-content;">
+                <span class="ring"></span> 8 minutes
+              </div>
               <h2 style="font-size:1.875rem;">Your Worksheet Has 3 Ideas</h2>
               <p style="font-size:1.0625rem;">Work together to score each one. There are no wrong answers!</p>
             </div>
@@ -747,102 +1069,109 @@
 
               <div class="info-box impact">
                 <div style="background:var(--secondary);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">2</div>
-                <h3>Answer the 4 questions</h3>
-                <p>Time? Cost? Effort? Emissions impact? Score each dimension.</p>
+                <h3>Score it</h3>
+                <p>Time? Cost? Effort? Emissions impact? Note any key assumptions.</p>
               </div>
 
               <div class="info-box cost">
                 <div style="background:var(--mint);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">3</div>
-                <h3>Decide together</h3>
-                <p>Should we do this? Why or why not?</p>
+                <h3>Recommend</h3>
+                <p>Do / Pilot / Defer / Stop — and one sentence why.</p>
               </div>
             </div>
 
             <div class="info-box info">
               <h3>🤝 Remember:</h3>
-              <p>Everyone's opinion matters! Clinical staff, admin, facilities – you all see different parts of the hospital.</p>
+              <p>Everyone's perspective matters! Clinical staff, admin, facilities – you all see different constraints and opportunities.</p>
             </div>
-
-            <div class="info-box">
-              <h3>💭 Questions to Ask Each Other:</h3>
-              <p>Which departments would be involved? Do we already have what we need? Have we tried something like this before?</p>
-            </div>
-
-            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
-              The facilitator will help if you get stuck – just ask!
-            </p>
           </div>
         </div>
 
-        <!-- Slide 6: Group Presentations -->
-        <div class="slide" data-slide="6">
+        <!-- Slide 11: Presentations (original share thinking, updated timer) -->
+        <div class="slide" data-slide="11">
           <div class="slide-header">
             <h1 class="heading-primary">Share Your Thinking (5 minutes)</h1>
           </div>
 
           <div class="slide-content">
             <div class="target-box">
+              <div class="timer" style="position:relative;z-index:2;margin:0 auto .9rem;width:max-content;">
+                <span class="ring"></span> 5 minutes
+              </div>
               <h2 style="font-size:1.875rem;">Let's Hear From Each Group</h2>
-              <p style="font-size:1.0625rem;">Each group shares their scores and reasoning for one initiative</p>
+              <p style="font-size:1.0625rem;">Each group shares one initiative: scores + reasoning + recommendation</p>
             </div>
 
             <div class="info-box info">
-              <h3>📊 Presentation Format</h3>
-              <p>Pick ONE initiative from your worksheet to present. Share your scores across all 4 dimensions and explain your reasoning.</p>
+              <h3>📊 What to include</h3>
+              <p>Scores across 4 dimensions, key assumption/risk, and your recommendation (Do / Pilot / Defer / Stop).</p>
             </div>
 
             <div class="two-col" style="grid-template-columns:1fr 1fr;">
               <div class="icon-box" style="text-align:left;padding:1.8rem;">
-                <h3 style="color:var(--primary);font-size:1.2rem;margin-bottom:1rem;">What to Share</h3>
+                <h3 style="color:var(--primary);font-size:1.2rem;margin-bottom:1rem;">Quick format</h3>
                 <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
-                  <li>Your scores for each dimension</li>
-                  <li>Why you scored it that way</li>
-                  <li>Where it plots on the matrix</li>
-                  <li>Would you recommend doing it?</li>
+                  <li>Initiative name</li>
+                  <li>4 scores (plus “other factors”)</li>
+                  <li>Where it sits on the matrix</li>
+                  <li>Recommendation + 1 sentence why</li>
                 </ul>
               </div>
 
               <div class="icon-box" style="text-align:left;padding:1.8rem;">
-                <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Discussion Points</h3>
+                <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Listen for</h3>
                 <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
-                  <li>Did groups score the same initiative differently?</li>
-                  <li>What factors influenced your thinking?</li>
-                  <li>Did you consider factors beyond the 4 main dimensions?</li>
+                  <li>Different assumptions between groups</li>
+                  <li>Stakeholders needed</li>
+                  <li>Safety/compliance constraints</li>
                 </ul>
               </div>
             </div>
 
-            <div class="info-box">
-              <h3>💡 Remember</h3>
-              <p>There's no single "right" answer – different departments may score initiatives differently based on their knowledge and perspective. That's valuable!</p>
-            </div>
-
-            <div class="three-col">
-              <div class="question-box timeline">
-                <h3>Group 1</h3>
-                <p>~1 minute to present your chosen initiative and scores</p>
-              </div>
-
-              <div class="question-box impact">
-                <h3>Group 2</h3>
-                <p>~1 minute to present your chosen initiative and scores</p>
-              </div>
-
-              <div class="question-box cost">
-                <h3>Group 3+</h3>
-                <p>~1 minute each for remaining groups to present</p>
-              </div>
-            </div>
-
             <div class="info-box success">
-              <h3>🎯 Learning Objectives</h3>
-              <p>By hearing different perspectives, you'll see how the matrix helps structure discussions and reveals different priorities across departments. This is how we build consensus!</p>
+              <h3>🎯 Output we want</h3>
+              <p>A shortlist of Quick Wins to pilot, plus a list of assumptions to validate for bigger projects.</p>
             </div>
           </div>
         </div>
 
-        <!-- Slide 7: Wrap Up -->
-        <div class="slide" data-slide="7">
+        <!-- Slide 12: Next steps (Option 7) -->
+        <div class="slide" data-slide="12">
+          <div class="slide-header">
+            <h1 class="heading-primary">Next Steps + Owners</h1>
+            <p style="font-size:.95rem;color:var(--text-light);font-weight:700;margin-top:.45rem;">
+              This is how we turn workshop outputs into real progress.
+            </p>
+          </div>
+
+          <div class="slide-content">
+            <div class="mini-grid">
+              <div class="worksheet">
+                <h3>Top 3 Quick Wins to pilot</h3>
+                <div class="field"><label>Quick Win #1</label><div class="line"></div></div>
+                <div class="field" style="margin-top:.75rem;"><label>Quick Win #2</label><div class="line"></div></div>
+                <div class="field" style="margin-top:.75rem;"><label>Quick Win #3</label><div class="line"></div></div>
+                <p class="hint">Make each pilot small enough to run in 30–60 days.</p>
+              </div>
+
+              <div class="worksheet">
+                <h3>Owners + follow-up</h3>
+                <div class="field"><label>Owner for each pilot</label><div class="line"></div></div>
+                <div class="field" style="margin-top:.75rem;"><label>What we’ll measure</label><div class="line"></div></div>
+                <div class="field" style="margin-top:.75rem;"><label>Review date</label><div class="line"></div></div>
+                <p class="hint">Aim: confirm feasibility + benefits, then scale.</p>
+              </div>
+            </div>
+
+            <div class="info-box info">
+              <h3>What to track (simple)</h3>
+              <p>Energy (kWh), waste (kg), purchasing changes, staff time saved, or qualitative “workflow improved”. Keep it lightweight.</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 13: Wrap up (original wrap up) -->
+        <div class="slide" data-slide="13">
           <div class="slide-header">
             <h1 class="heading-primary">You've Got The Basics!</h1>
           </div>
@@ -869,8 +1198,8 @@
                 <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Tips to Remember</h3>
                 <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
                   <li>Ask people from different departments</li>
-                  <li>It's okay to change scores as you learn</li>
-                  <li>Quick + cheap + helpful = great place to start!</li>
+                  <li>It’s okay to update scores as you learn</li>
+                  <li>Quick + cheap + helpful = great place to start</li>
                 </ul>
               </div>
             </div>
@@ -882,7 +1211,7 @@
               </p>
             </div>
 
-            <p style="text-align:center;font-size:1.05rem;font-style:italic;color:var(--text-light);margin-top:1rem;font-weight:600;">
+            <p style="text-align:center;font-size:1.05rem;font-style:italic;color:var(--text-light);margin-top:1rem;font-weight:700;">
               What did you notice during your group discussion? Any questions?
             </p>
           </div>
@@ -901,7 +1230,7 @@
           <div class="progress-bar-outer">
             <div class="progress-bar-inner" id="progressBar"></div>
           </div>
-          <div class="slide-counter" id="slideCounter">1 / 7</div>
+          <div class="slide-counter" id="slideCounter">1 / 13</div>
           <div style="margin-top:.45rem;font-size:.6875rem;color:var(--text-light);opacity:.75;">
             2026 · Shrunk Innovation Group · All Rights Reserved
           </div>
@@ -917,20 +1246,50 @@
     </div>
   </div>
 
+  <!-- Modal -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal">
+      <div class="modal-header">
+        <h3 id="modalTitle">Title</h3>
+        <button class="close-btn" onclick="closeModal()" aria-label="Close dialog">Close</button>
+      </div>
+      <div class="modal-body" id="modalBody">Body</div>
+      <div class="modal-actions">
+        <button class="btn-primary" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+  </div>
+
   <script>
     let currentSlide = 1;
-    const totalSlides = 7;
+    const totalSlides = 13;
 
     const matrixInfo = {
-      quickWins: '⭐ QUICK WINS are your best opportunities! These initiatives deliver high emissions reductions quickly and cost-effectively. Always start here to build momentum.',
-      majorProjects: '🎯 MAJOR PROJECTS require significant planning and investment but deliver substantial emissions reductions. These form your long-term strategy.',
-      fillIns: '✓ FILL-INS are easy additions that you can implement when you have spare capacity. While the impact is small, every bit helps!',
-      reconsider: '❓ RECONSIDER these initiatives carefully. They take time and resources but deliver minimal emissions benefits. Usually better to focus elsewhere.'
+      quickWins: {
+        title: "⭐ Quick Wins",
+        body:
+          "Best opportunities to start with: high emissions reduction relative to effort/cost. " +
+          "Action: pick an owner, run a 30–60 day pilot, and track one simple metric."
+      },
+      majorProjects: {
+        title: "🎯 Major Projects",
+        body:
+          "High impact but needs planning and investment. " +
+          "Action: define scope + stakeholders, write a brief business case, and put it on a roadmap."
+      },
+      fillIns: {
+        title: "✓ Fill-Ins",
+        body:
+          "Easy additions with smaller emissions gains. " +
+          "Action: bundle them and implement during routine upgrades or maintenance windows."
+      },
+      reconsider: {
+        title: "❓ Reconsider",
+        body:
+          "Low benefit relative to time/cost/effort. " +
+          "Action: park it unless compliance requires it or assumptions change."
+      }
     };
-
-    function showMatrixInfo(type){
-      if (matrixInfo[type]) alert(matrixInfo[type]);
-    }
 
     function getSlides(){
       return Array.from(document.querySelectorAll('.slide-viewport .slide'));
@@ -940,7 +1299,6 @@
       const slides = getSlides();
       slides.forEach(s => s.classList.remove('active'));
 
-      // Robust lookup (avoid selector quirks)
       const next = slides.find(s => Number(s.dataset.slide) === Number(currentSlide));
       if (!next) return;
 
@@ -990,16 +1348,53 @@
       }
     }
 
-    // Keyboard nav
+    // Modal
+    function openModal(type){
+      const data = matrixInfo[type];
+      if (!data) return;
+
+      document.getElementById('modalTitle').textContent = data.title;
+      document.getElementById('modalBody').textContent = data.body;
+      document.getElementById('modalOverlay').classList.add('show');
+
+      // focus close for accessibility
+      setTimeout(() => {
+        const closeBtn = document.querySelector('#modalOverlay .close-btn');
+        if (closeBtn) closeBtn.focus();
+      }, 0);
+    }
+
+    function closeModal(){
+      document.getElementById('modalOverlay').classList.remove('show');
+    }
+
+    // Close modal on overlay click or Escape
+    document.getElementById('modalOverlay').addEventListener('click', (e) => {
+      if (e.target.id === 'modalOverlay') closeModal();
+    });
+
     document.addEventListener('keydown', (e) => {
+      // modal escape
+      if (e.key === 'Escape'){
+        const overlay = document.getElementById('modalOverlay');
+        if (overlay.classList.contains('show')) closeModal();
+      }
+
+      // slide nav
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); previousSlide(); }
       if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
     });
 
-    // Touch swipe (ignore if user is scrolling vertically inside a slide)
-    let startX = 0, startY = 0, endX = 0, endY = 0;
+    // Reveal
+    function toggleReveal(id){
+      const el = document.getElementById(id);
+      if (!el) return;
+      el.classList.toggle('open');
+    }
 
+    // Touch swipe (ignore vertical scroll)
+    let startX = 0, startY = 0, endX = 0, endY = 0;
     document.addEventListener('touchstart', (e) => {
       const t = e.changedTouches[0];
       startX = t.screenX;
@@ -1014,7 +1409,6 @@
       const dx = endX - startX;
       const dy = endY - startY;
 
-      // Only treat as swipe if mostly horizontal
       if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3){
         if (dx < 0) nextSlide();
         else previousSlide();
