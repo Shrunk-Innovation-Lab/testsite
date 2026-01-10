@@ -664,6 +664,21 @@
             letter-spacing: 0.05em;
             margin-left: 0.5rem;
         }
+
+        /* Footer */
+        .footer {
+            background-color: #0f172a;
+            color: #94a3b8;
+            text-align: center;
+            padding: 2rem 1.5rem;
+            margin-top: 4rem;
+            font-size: 0.875rem;
+        }
+
+        .footer-content {
+            max-width: 1152px;
+            margin: 0 auto;
+        }
     </style>
 </head>
 <body>
@@ -809,6 +824,16 @@
             <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
                 <line x1="18" y1="6" x2="6" y2="18"></line>
                 <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+        );
+
+        const Scale = ({ size = 24 }) => (
+            <svg width={size} height={size} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
+                <path d="m16 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="m2 16 3-8 3 8c-.87.65-1.92 1-3 1s-2.13-.35-3-1Z"></path>
+                <path d="M7 21h10"></path>
+                <path d="M12 3v18"></path>
+                <path d="M3 7h2c2 0 5-1 7-2 2 1 5 2 7 2h2"></path>
             </svg>
         );
 
@@ -1045,6 +1070,70 @@
                   resources: 'Comprehensive data systems',
                   risks: 'Complexity, conflicting priorities',
                   kpis: ['Scorecard balance', 'Multi-dimensional performance', 'Integrated outcomes']
+                }
+              ]
+            },
+            {
+              id: 'prioritisation',
+              title: 'Initiative Prioritisation',
+              icon: Scale,
+              phase: 'Planning',
+              description: 'Define the approach for evaluating and prioritising sustainability initiatives',
+              strategicQuestion: 'How will we systematically assess and rank competing sustainability opportunities?',
+              options: [
+                { 
+                  value: 'weighted_matrix', 
+                  label: 'Comprehensive Weighted Matrix',
+                  detail: 'Multi-criteria assessment including emissions impact, cost, effort, and time to implement with customisable weightings',
+                  timeline: '2-4 weeks to establish',
+                  resources: 'Analysis team, decision framework',
+                  risks: 'Subjectivity in weighting, analysis paralysis',
+                  kpis: ['Emissions impact score', 'Cost-benefit ratio', 'Implementation feasibility', 'Prioritisation consensus']
+                },
+                { 
+                  value: 'emissions_first', 
+                  label: 'Emissions Impact Priority',
+                  detail: 'Prioritise initiatives primarily by their contribution to RWH emissions reduction goals, with secondary consideration of feasibility',
+                  timeline: '1-2 weeks to establish',
+                  resources: 'Emissions baseline data, impact modelling',
+                  risks: 'High-cost initiatives prioritised, quick wins missed',
+                  kpis: ['Tonnes CO2e reduction', 'Pathway to net-zero', 'Target contribution %']
+                },
+                { 
+                  value: 'roi_optimisation', 
+                  label: 'ROI Optimisation',
+                  detail: 'Balance emissions impact against investment required, prioritising initiatives with best return per dollar spent',
+                  timeline: '2-3 weeks to establish',
+                  resources: 'Financial modelling, cost-benefit analysis',
+                  risks: 'Low-cost bias, transformational projects deprioritised',
+                  kpis: ['Cost per tonne CO2e', 'Payback period', 'Net present value']
+                },
+                { 
+                  value: 'quick_wins', 
+                  label: 'Quick Wins Strategy',
+                  detail: 'Prioritise low-effort, short-timeframe initiatives to build momentum and demonstrate early success',
+                  timeline: '1 week to establish',
+                  resources: 'Rapid assessment, agile decision-making',
+                  risks: 'Limited impact, missing strategic opportunities',
+                  kpis: ['Time to implementation', 'Initiative completion rate', 'Momentum indicators']
+                },
+                { 
+                  value: 'balanced_scorecard', 
+                  label: 'Balanced Scorecard Approach',
+                  detail: 'Evaluate across emissions impact, cost, effort, time, plus strategic alignment, stakeholder support, and co-benefits',
+                  timeline: '3-4 weeks to establish',
+                  resources: 'Multi-stakeholder input, scorecard framework',
+                  risks: 'Complexity, slower decision-making',
+                  kpis: ['Balanced score', 'Stakeholder alignment', 'Portfolio diversity', 'Strategic fit']
+                },
+                { 
+                  value: 'staged_portfolio', 
+                  label: 'Staged Portfolio',
+                  detail: 'Create a balanced portfolio: quick wins for momentum, medium-term projects for impact, long-term transformational initiatives',
+                  timeline: '2-3 weeks to establish',
+                  resources: 'Portfolio management, staging framework',
+                  risks: 'Resource spreading, coordination complexity',
+                  kpis: ['Portfolio balance', 'Stage progression', 'Cumulative impact', 'Resource allocation']
                 }
               ]
             },
@@ -1335,24 +1424,28 @@
           const handleNext = () => {
             if (currentStep < steps.length - 1) {
               setCurrentStep(currentStep + 1);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
             } else {
               setShowDiagram(true);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
             }
           };
 
           const handleBack = () => {
             if (currentStep > 0) {
               setCurrentStep(currentStep - 1);
-              window.scrollTo({ top: 0, behavior: 'smooth' });
+              document.documentElement.scrollTop = 0;
+              document.body.scrollTop = 0;
             }
           };
 
           const handleStepClick = (index) => {
             setCurrentStep(index);
             setShowDiagram(false);
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
           };
 
           const resetWorkshop = () => {
@@ -1360,7 +1453,8 @@
             setSelections({});
             setShowDiagram(false);
             setCustomOptions({});
-            window.scrollTo({ top: 0, behavior: 'smooth' });
+            document.documentElement.scrollTop = 0;
+            document.body.scrollTop = 0;
           };
 
           const handleAddCustomOption = () => {
@@ -1437,7 +1531,7 @@
 
           const phases = [
             { name: 'Foundation', color: '#2563eb', steps: ['scope', 'stakeholders'] },
-            { name: 'Planning', color: '#7c3aed', steps: ['assessment', 'goals', 'resources'] },
+            { name: 'Planning', color: '#7c3aed', steps: ['assessment', 'goals', 'prioritisation', 'resources'] },
             { name: 'Delivery', color: '#059669', steps: ['implementation', 'monitoring', 'communication'] },
             { name: 'Evolution', color: '#dc2626', steps: ['review'] }
           ];
@@ -1816,6 +1910,13 @@
                     </div>
                   </div>
                 </div>
+
+                {/* Footer */}
+                <div className="footer">
+                  <div className="footer-content">
+                    2026 · Shrunk Innovation Group · All Rights Reserved
+                  </div>
+                </div>
               </div>
             );
           }
@@ -2126,6 +2227,13 @@
                     </div>
                   </div>
                 )}
+              </div>
+            </div>
+
+            {/* Footer */}
+            <div className="footer">
+              <div className="footer-content">
+                2026 · Shrunk Innovation Group · All Rights Reserved
               </div>
             </div>
           );
