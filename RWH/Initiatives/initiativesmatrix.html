@@ -103,7 +103,7 @@
       flex-direction:column;
       position:relative;
       backdrop-filter:blur(16px);
-      min-height:0; /* IMPORTANT */
+      min-height:0;
     }
 
     /* Stage */
@@ -115,7 +115,7 @@
       isolation:isolate;
     }
 
-    /* Slides swap via opacity (robust on mobile) */
+    /* Slides swap via opacity */
     .slide{
       position:absolute;
       inset:0;
@@ -558,8 +558,101 @@
     }
     .reveal.open .chev{transform:rotate(-135deg);}
 
-    /* Mobile */
-    @media (max-width:1024px){.two-col{grid-template-columns:1fr;}}
+    /* Initiative scorer + ranking */
+    .scorer{
+      background:linear-gradient(135deg, rgba(255,255,255,.96) 0%, rgba(246,251,247,.96) 100%);
+      border:2px solid rgba(27,143,75,.12);
+      border-radius:var(--radius-xl);
+      padding:1.2rem;
+      box-shadow:var(--shadow-sm);
+    }
+    .scorer h3{font-weight:900;margin-bottom:.75rem;}
+    .scorer p{color:var(--text-medium);font-weight:600;margin-bottom:.9rem;}
+    .scorer-grid{
+      display:grid;
+      grid-template-columns:1.3fr 1fr 1fr 1fr 1fr;
+      gap:.75rem;
+      align-items:end;
+    }
+    .scorer-grid .hdr{
+      font-size:.78rem;
+      font-weight:900;
+      color:var(--text-light);
+      text-transform:uppercase;
+      letter-spacing:.06em;
+    }
+    .input, select.input{
+      width:100%;
+      border:1px solid rgba(15,23,42,.12);
+      border-radius:12px;
+      padding:.65rem .7rem;
+      font-weight:800;
+      font-size:.9rem;
+      background:#fff;
+      color:var(--text-dark);
+      outline:none;
+      transition:var(--transition);
+      min-height:44px;
+    }
+    .input:focus, select.input:focus{
+      border-color:rgba(27,143,75,.55);
+      box-shadow:0 0 0 4px rgba(27,143,75,.12);
+    }
+    .rank-actions{
+      margin-top:1rem;
+      display:flex;
+      gap:.75rem;
+      flex-wrap:wrap;
+      align-items:center;
+      justify-content:flex-start;
+    }
+    .rank-table{
+      width:100%;
+      border-collapse:separate;
+      border-spacing:0;
+      overflow:hidden;
+      border-radius:var(--radius-lg);
+      box-shadow:var(--shadow-sm);
+      border:1px solid rgba(27,143,75,.12);
+      background:#fff;
+      margin-top:1rem;
+    }
+    .rank-table th, .rank-table td{
+      padding:.85rem .9rem;
+      font-size:.92rem;
+      vertical-align:middle;
+      border-bottom:1px solid rgba(15,23,42,.06);
+    }
+    .rank-table th{
+      text-align:left;
+      background:linear-gradient(135deg, rgba(27,143,75,.12) 0%, rgba(124,203,92,.10) 100%);
+      color:var(--text-dark);
+      font-weight:900;
+    }
+    .rank-table tr:last-child td{border-bottom:none;}
+    .score-pill{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      padding:.25rem .55rem;
+      border-radius:999px;
+      border:1px solid rgba(27,143,75,.18);
+      background:rgba(27,143,75,.08);
+      font-weight:900;
+      min-width:60px;
+    }
+    .subtle{
+      font-size:.86rem;
+      color:var(--text-light);
+      font-weight:700;
+    }
+
+    /* Mobile tweaks */
+    @media (max-width:1024px){
+      .two-col{grid-template-columns:1fr;}
+      .scorer-grid{grid-template-columns:1fr 1fr; gap:.75rem;}
+      .scorer-grid .hdr{display:none;}
+    }
     @media (max-width:768px){
       .presentation-wrapper{padding:0;}
       .presentation-container{border-radius:0;height:100dvh;}
@@ -597,7 +690,7 @@
           <p style="margin-top: .75rem; font-size: 1rem; opacity: .9;">A 15-minute interactive training session</p>
         </div>
 
-        <!-- Slide 2: What success looks like (Option 1) -->
+        <!-- Slide 2 -->
         <div class="slide title-slide" data-slide="2" style="background:linear-gradient(135deg,#136B38 0%,#2CCB74 100%);">
           <div class="target-box" style="max-width:860px;background:rgba(255,255,255,.12);box-shadow:none;border:1px solid rgba(255,255,255,.18);">
             <div class="timer" style="margin-bottom:1rem;"><span class="ring"></span> 15 minutes total</div>
@@ -609,17 +702,17 @@
             <div class="icon-box" style="background:rgba(255,255,255,.92);">
               <div class="icon">🧮</div>
               <h3 style="color:#000;">Score any idea</h3>
-              <p>Use the 4 questions consistently with a simple scale.</p>
+              <p style="color:#000;">Use the 4 questions consistently with a simple scale.</p>
             </div>
             <div class="icon-box" style="background:rgba(255,255,255,.92);">
               <div class="icon">🧭</div>
               <h3 style="color:#000;">Place it on the matrix</h3>
-              <p>See quickly if it’s a Quick Win, Major Project, Fill-In, or Reconsider.</p>
+              <p style="color:#000;">See quickly if it’s a Quick Win, Major Project, Fill-In, or Reconsider.</p>
             </div>
             <div class="icon-box" style="background:rgba(255,255,255,.92);">
               <div class="icon">🗣️</div>
               <h3 style="color:#000;">Explain your recommendation</h3>
-              <p>Share “why” in 30 seconds, including risks and stakeholders.</p>
+              <p style="color:#000;">Share “why” in 30 seconds, including risks and stakeholders.</p>
             </div>
           </div>
 
@@ -630,7 +723,7 @@
           </p>
         </div>
 
-        <!-- Slide 3: Why this matters (original slide 2) -->
+        <!-- Slide 3 -->
         <div class="slide" data-slide="3">
           <div class="slide-header">
             <h1 class="heading-primary">Why This Matters</h1>
@@ -678,7 +771,7 @@
           </div>
         </div>
 
-        <!-- Slide 4: Scoring cheat sheet (Option 2) -->
+        <!-- Slide 4 -->
         <div class="slide" data-slide="4">
           <div class="slide-header">
             <h1 class="heading-primary">How to Score (Cheat Sheet)</h1>
@@ -699,11 +792,15 @@
                 </td>
               </tr>
               <tr>
-                <th>💰 Cost</th>
+                <th>💰 Cost (organisational complexity)</th>
                 <td>
-                  <strong>0–1:</strong> minimal (existing budget / small purchases)<br/>
-                  <strong>2–3:</strong> moderate (some new equipment / software / contractor time)<br/>
-                  <strong>4–5:</strong> major investment (capex, large rollout, infrastructure)
+                  <strong>0 – Negligible</strong><br/>
+                  <strong>5 – Minimal</strong><br/>
+                  <strong>4 – Departmental</strong><br/>
+                  <strong>3 – Cross-department</strong><br/>
+                  <strong>2 – Large Infrastructure</strong><br/>
+                  <strong>1 – Major Transformation</strong>
+                  <div class="hint">Cost is judged by organisational impact, not dollars.</div>
                 </td>
               </tr>
               <tr>
@@ -732,7 +829,7 @@
           </div>
         </div>
 
-        <!-- Slide 5: Matrix framework (original slide 3) -->
+        <!-- Slide 5 -->
         <div class="slide" data-slide="5">
           <div class="slide-header">
             <h1 class="heading-primary">The Evaluation Matrix: 4 Key Questions</h1>
@@ -755,8 +852,8 @@
                 </div>
 
                 <div class="question-box cost">
-                  <h3>2️⃣ Cost Required</h3>
-                  <p>0-1: Minimal | 2-3: Moderate | 4-5: Major investment</p>
+                  <h3>2️⃣ Cost (complexity)</h3>
+                  <p>Use the workshop scale: Negligible → Major transformation</p>
                 </div>
 
                 <div class="question-box cost">
@@ -772,7 +869,7 @@
 
                 <div class="info-box success" style="margin-top:1rem;">
                   <h3>✨ The Power of the Matrix</h3>
-                  <p>By scoring initiatives across these 4 dimensions (and others relevant to your area), we can identify Quick Wins and prioritise strategically!</p>
+                  <p>We score initiatives across dimensions, then calculate a final score so we can rank and prioritise across a list.</p>
                 </div>
               </div>
 
@@ -819,12 +916,12 @@
 
             <div class="info-box info">
               <h3>🎯 Key Insight</h3>
-              <p>RWH has 82 initiatives scored across these dimensions. The matrix helps us visualize where to focus first – Quick Wins that are fast, low effort, low cost, with meaningful emissions impact!</p>
+              <p>RWH has 82 initiatives scored across these dimensions. The matrix helps visualise where to focus — and the final score helps rank initiatives in a list.</p>
             </div>
           </div>
         </div>
 
-        <!-- Slide 6: Example + reveal (Option 8 part: reveal interaction) -->
+        <!-- Slide 6 -->
         <div class="slide" data-slide="6">
           <div class="slide-header">
             <h1 class="heading-primary">Let's Try an Example Together</h1>
@@ -852,9 +949,9 @@
               </div>
 
               <div class="question-box cost">
-                <p style="font-size:.8125rem;font-weight:900;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Cost</p>
-                <h3 style="font-size:2.1rem;margin:.5rem 0;">2</h3>
-                <p style="font-size:.875rem;">Moderate</p>
+                <p style="font-size:.8125rem;font-weight:900;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Cost (complexity)</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">4</h3>
+                <p style="font-size:.875rem;">Departmental</p>
               </div>
 
               <div class="question-box cost">
@@ -870,7 +967,18 @@
               </div>
             </div>
 
-            <!-- Reveal (Option 8) -->
+            <div class="info-box info">
+              <h3>📌 Priority score (for ranking)</h3>
+              <p>
+                Using our scoring formula, this initiative scores:
+                <strong><span id="examplePriorityScore" class="score-pill">—</span></strong>
+                out of 100.
+              </p>
+              <p style="margin-top:.5rem;font-size:.9rem;">
+                We weight <strong>Impact</strong> higher, and subtract <strong>Time</strong>, <strong>Effort</strong>, and <strong>Cost complexity</strong>.
+              </p>
+            </div>
+
             <div class="reveal" id="revealExample">
               <button type="button" onclick="toggleReveal('revealExample')">
                 <span style="font-weight:900;color:var(--primary-dark);">Tap to reveal: why we scored it this way</span>
@@ -879,7 +987,7 @@
               <div class="reveal-content">
                 <ul style="margin:.3rem 0 0 1.2rem;line-height:1.7;">
                   <li><strong>Time short</strong> — small procurement + install + quick staff briefing.</li>
-                  <li><strong>Cost moderate</strong> — screens + software/licences.</li>
+                  <li><strong>Cost departmental</strong> — screens + software/licences within one area.</li>
                   <li><strong>Effort low</strong> — minimal workflow disruption.</li>
                   <li><strong>Impact low</strong> — reduces paper/printing; good “add-on” benefit.</li>
                 </ul>
@@ -888,12 +996,12 @@
 
             <div class="info-box info">
               <h3>✓ This is a FILL-IN</h3>
-              <p>Quick to implement with low effort, modest cost. Small emissions impact but often worthwhile due to better communication and fewer reprints.</p>
+              <p>Quick to implement with low effort, modest complexity. Small emissions impact but often worthwhile due to better communication and fewer reprints.</p>
             </div>
           </div>
         </div>
 
-        <!-- Slide 7: What else to consider (Option 4) -->
+        <!-- Slide 7 -->
         <div class="slide" data-slide="7">
           <div class="slide-header">
             <h1 class="heading-primary">What Else Should We Consider?</h1>
@@ -943,7 +1051,7 @@
           </div>
         </div>
 
-        <!-- Slide 8: Decision rules (Option 5) -->
+        <!-- Slide 8 -->
         <div class="slide" data-slide="8">
           <div class="slide-header">
             <h1 class="heading-primary">Decision Rules (Make It Actionable)</h1>
@@ -990,7 +1098,7 @@
           </div>
         </div>
 
-        <!-- Slide 9: Worksheet (Option 6) -->
+        <!-- Slide 9 -->
         <div class="slide" data-slide="9">
           <div class="slide-header">
             <h1 class="heading-primary">Worksheet (Photograph This)</h1>
@@ -1018,7 +1126,7 @@
 
               <div class="score-chips" aria-label="Score chips">
                 <div class="chip">⏱ Time <span>Short / Med / Long</span></div>
-                <div class="chip">💰 Cost <span>0–5</span></div>
+                <div class="chip">💰 Cost <span>Scale</span></div>
                 <div class="chip">🛠 Effort <span>Low / Med / High</span></div>
                 <div class="chip">🌿 Impact <span>Low / Med / High</span></div>
               </div>
@@ -1045,7 +1153,7 @@
           </div>
         </div>
 
-        <!-- Slide 10: Activity (original group activity, updated) -->
+        <!-- Slide 10 -->
         <div class="slide" data-slide="10">
           <div class="slide-header">
             <h1 class="heading-primary">Now Your Turn! (8 minutes)</h1>
@@ -1070,7 +1178,7 @@
               <div class="info-box impact">
                 <div style="background:var(--secondary);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">2</div>
                 <h3>Score it</h3>
-                <p>Time? Cost? Effort? Emissions impact? Note any key assumptions.</p>
+                <p>Time? Cost complexity? Effort? Emissions impact? Note any key assumptions.</p>
               </div>
 
               <div class="info-box cost">
@@ -1087,7 +1195,7 @@
           </div>
         </div>
 
-        <!-- Slide 11: Presentations (original share thinking, updated timer) -->
+        <!-- Slide 11 -->
         <div class="slide" data-slide="11">
           <div class="slide-header">
             <h1 class="heading-primary">Share Your Thinking (5 minutes)</h1>
@@ -1132,10 +1240,192 @@
               <h3>🎯 Output we want</h3>
               <p>A shortlist of Quick Wins to pilot, plus a list of assumptions to validate for bigger projects.</p>
             </div>
+
+            <div class="scorer" aria-label="Initiative priority scorer and ranked list">
+              <h3>Rank initiatives (final score)</h3>
+              <p>
+                Enter Time, Cost (complexity), Effort, and Impact for each initiative. Click <strong>Calculate &amp; Rank</strong> to generate a score out of 100 and sort.
+                <span class="subtle">Then click “Save as a Turn” to add these scores into the ongoing ranked list.</span>
+              </p>
+
+              <!-- Turn label + save -->
+              <div style="display:grid;grid-template-columns:1.2fr 1fr;gap:.75rem;align-items:end;">
+                <div>
+                  <div class="subtle" style="margin-bottom:.35rem;">Turn / Group label (optional)</div>
+                  <input class="input" id="turnLabel" placeholder="e.g., Group A, Ward 3B, Turn 1" />
+                </div>
+                <div style="display:flex;gap:.75rem;flex-wrap:wrap;justify-content:flex-end;">
+                  <button class="btn-secondary" type="button" onclick="clearAllTurns()">Clear saved turns</button>
+                </div>
+              </div>
+
+              <div style="margin-top:.6rem;" class="subtle">
+                Saved turns are stored in this browser (localStorage) so you can refresh without losing the list.
+              </div>
+
+              <div class="scorer-grid" style="margin-top:1rem;">
+                <div class="hdr">Initiative</div>
+                <div class="hdr">Time</div>
+                <div class="hdr">Cost</div>
+                <div class="hdr">Effort</div>
+                <div class="hdr">Impact</div>
+
+                <div><input class="input" id="initName1" value="Idea 1" aria-label="Initiative 1 name" /></div>
+                <div>
+                  <select class="input" id="initTime1" aria-label="Initiative 1 time">
+                    <option value="short">Short</option>
+                    <option value="medium">Medium</option>
+                    <option value="long">Long</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initCost1" aria-label="Initiative 1 cost">
+                    <option value="0">0 – Negligible</option>
+                    <option value="5" selected>5 – Minimal</option>
+                    <option value="4">4 – Departmental</option>
+                    <option value="3">3 – Cross-department</option>
+                    <option value="2">2 – Large Infrastructure</option>
+                    <option value="1">1 – Major Transformation</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initEffort1" aria-label="Initiative 1 effort">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initImpact1" aria-label="Initiative 1 impact">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+
+                <div><input class="input" id="initName2" value="Idea 2" aria-label="Initiative 2 name" /></div>
+                <div>
+                  <select class="input" id="initTime2" aria-label="Initiative 2 time">
+                    <option value="short">Short</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="long">Long</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initCost2" aria-label="Initiative 2 cost">
+                    <option value="0">0 – Negligible</option>
+                    <option value="5">5 – Minimal</option>
+                    <option value="4" selected>4 – Departmental</option>
+                    <option value="3">3 – Cross-department</option>
+                    <option value="2">2 – Large Infrastructure</option>
+                    <option value="1">1 – Major Transformation</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initEffort2" aria-label="Initiative 2 effort">
+                    <option value="low">Low</option>
+                    <option value="medium" selected>Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initImpact2" aria-label="Initiative 2 impact">
+                    <option value="low">Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high" selected>High</option>
+                  </select>
+                </div>
+
+                <div><input class="input" id="initName3" value="Idea 3" aria-label="Initiative 3 name" /></div>
+                <div>
+                  <select class="input" id="initTime3" aria-label="Initiative 3 time">
+                    <option value="short" selected>Short</option>
+                    <option value="medium">Medium</option>
+                    <option value="long">Long</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initCost3" aria-label="Initiative 3 cost">
+                    <option value="0">0 – Negligible</option>
+                    <option value="5">5 – Minimal</option>
+                    <option value="4">4 – Departmental</option>
+                    <option value="3" selected>3 – Cross-department</option>
+                    <option value="2">2 – Large Infrastructure</option>
+                    <option value="1">1 – Major Transformation</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initEffort3" aria-label="Initiative 3 effort">
+                    <option value="low" selected>Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+                <div>
+                  <select class="input" id="initImpact3" aria-label="Initiative 3 impact">
+                    <option value="low" selected>Low</option>
+                    <option value="medium">Medium</option>
+                    <option value="high">High</option>
+                  </select>
+                </div>
+              </div>
+
+              <div class="rank-actions">
+                <button class="btn-primary" type="button" onclick="calculateAndRank()">Calculate &amp; Rank</button>
+                <button class="btn-secondary" type="button" onclick="resetRanker()">Reset</button>
+                <button class="btn-primary" type="button" onclick="saveCurrentTurn()">Save as a Turn</button>
+              </div>
+
+              <table class="rank-table" aria-label="Ranked initiatives table (current inputs)">
+                <thead>
+                  <tr>
+                    <th style="width:52px;">#</th>
+                    <th>Initiative</th>
+                    <th style="width:120px;">Score</th>
+                    <th style="width:120px;">Matrix</th>
+                  </tr>
+                </thead>
+                <tbody id="rankBody">
+                  <tr>
+                    <td colspan="4" style="color:var(--text-light);font-weight:700;">Click “Calculate &amp; Rank” to generate the list.</td>
+                  </tr>
+                </tbody>
+              </table>
+
+              <div class="info-box info" style="margin-top:1rem;">
+                <h3>Previous Turn Scores (ranked list)</h3>
+                <p style="margin-bottom:.5rem;">
+                  This list combines all saved turns and ranks initiatives using the <strong>updated cost ranking</strong> (0–5 scale). Higher score = higher priority.
+                </p>
+                <table class="rank-table" aria-label="All saved turns ranked initiatives table">
+                  <thead>
+                    <tr>
+                      <th style="width:52px;">#</th>
+                      <th>Initiative</th>
+                      <th style="width:120px;">Score</th>
+                      <th style="width:120px;">Matrix</th>
+                      <th style="width:170px;">Turn / Group</th>
+                    </tr>
+                  </thead>
+                  <tbody id="allTurnsBody">
+                    <tr>
+                      <td colspan="5" style="color:var(--text-light);font-weight:700;">No saved turns yet. Use “Save as a Turn”.</td>
+                    </tr>
+                  </tbody>
+                </table>
+                <p class="hint" style="margin-top:.75rem;">
+                  Tip: If you change the cost/effort assumptions, save a new turn (don’t overwrite) — it preserves the discussion trail.
+                </p>
+              </div>
+
+              <p class="hint" style="margin-top:.9rem;">
+                <strong>How scoring works:</strong> Impact is weighted higher; we subtract Time, Effort, and Cost complexity (inverted so “minimal” helps your score).
+              </p>
+            </div>
           </div>
         </div>
 
-        <!-- Slide 12: Next steps (Option 7) -->
+        <!-- Slide 12 -->
         <div class="slide" data-slide="12">
           <div class="slide-header">
             <h1 class="heading-primary">Next Steps + Owners</h1>
@@ -1170,7 +1460,7 @@
           </div>
         </div>
 
-        <!-- Slide 13: Wrap up (original wrap up) -->
+        <!-- Slide 13 -->
         <div class="slide" data-slide="13">
           <div class="slide-header">
             <h1 class="heading-primary">You've Got The Basics!</h1>
@@ -1180,7 +1470,7 @@
             <div class="info-box success" style="padding:1.8rem;">
               <h3 style="font-size:1.35rem;margin-bottom:.75rem;">What You Just Learnt</h3>
               <p style="font-size:1.05rem;">
-                How to evaluate any sustainability idea by asking 4 key questions: Time to implement? Cost required? Effort needed? Emissions impact towards RWH's goals?
+                How to evaluate any sustainability idea by asking 4 key questions: Time to implement? Cost complexity? Effort needed? Emissions impact towards RWH's goals?
               </p>
             </div>
 
@@ -1357,7 +1647,6 @@
       document.getElementById('modalBody').textContent = data.body;
       document.getElementById('modalOverlay').classList.add('show');
 
-      // focus close for accessibility
       setTimeout(() => {
         const closeBtn = document.querySelector('#modalOverlay .close-btn');
         if (closeBtn) closeBtn.focus();
@@ -1368,19 +1657,15 @@
       document.getElementById('modalOverlay').classList.remove('show');
     }
 
-    // Close modal on overlay click or Escape
     document.getElementById('modalOverlay').addEventListener('click', (e) => {
       if (e.target.id === 'modalOverlay') closeModal();
     });
 
     document.addEventListener('keydown', (e) => {
-      // modal escape
       if (e.key === 'Escape'){
         const overlay = document.getElementById('modalOverlay');
         if (overlay.classList.contains('show')) closeModal();
       }
-
-      // slide nav
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
       if (e.key === 'ArrowLeft') { e.preventDefault(); previousSlide(); }
       if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
@@ -1391,6 +1676,219 @@
       const el = document.getElementById(id);
       if (!el) return;
       el.classList.toggle('open');
+    }
+
+    // Scoring helpers
+    const mapTime = { short: 1, medium: 3, long: 5 };
+    const mapEffort = { low: 1, medium: 3, high: 5 };
+    const mapImpact = { low: 1, medium: 3, high: 5 };
+
+    function computePriorityScore({ timeKey, costValue, effortKey, impactKey }){
+      const time = mapTime[timeKey] ?? 3;
+      const effort = mapEffort[effortKey] ?? 3;
+      const impact = mapImpact[impactKey] ?? 3;
+
+      // Cost scale provided by you:
+      // 0=Negligible, 5=Minimal, 4=Departmental, 3=Cross-department, 2=Large Infrastructure, 1=Major Transformation
+      // Convert to penalty so "Minimal" helps and "Transformation" hurts.
+      const costNum = Number(costValue);
+      const costPenalty = 5 - (Number.isFinite(costNum) ? costNum : 3); // 0 best, 5 worst
+
+      // Raw: Impact weighted higher, subtract burdens
+      const raw = (impact * 3) - (time + effort + costPenalty);
+
+      // Normalize raw (-12..+13) to 0..100
+      const score = ((raw + 12) / 25) * 100;
+      return Math.round(Math.max(0, Math.min(100, score)));
+    }
+
+    function classifyMatrix({ timeKey, impactKey }){
+      const timeIsLong = timeKey === 'long';
+      const impactIsHigh = impactKey === 'high';
+
+      if (!timeIsLong && impactIsHigh) return "Quick Win";
+      if (timeIsLong && impactIsHigh) return "Major Project";
+      if (!timeIsLong && !impactIsHigh) return "Fill-In";
+      return "Reconsider";
+    }
+
+    function escapeHtml(str){
+      return String(str)
+        .replaceAll('&','&amp;')
+        .replaceAll('<','&lt;')
+        .replaceAll('>','&gt;')
+        .replaceAll('"','&quot;')
+        .replaceAll("'","&#039;");
+    }
+
+    function readInitiative(i){
+      const name = (document.getElementById(`initName${i}`)?.value || `Idea ${i}`).trim();
+      const timeKey = document.getElementById(`initTime${i}`)?.value || 'medium';
+      const costValue = document.getElementById(`initCost${i}`)?.value || '3';
+      const effortKey = document.getElementById(`initEffort${i}`)?.value || 'medium';
+      const impactKey = document.getElementById(`initImpact${i}`)?.value || 'medium';
+
+      const score = computePriorityScore({ timeKey, costValue, effortKey, impactKey });
+      const matrix = classifyMatrix({ timeKey, impactKey });
+
+      return { name, score, matrix, timeKey, costValue, effortKey, impactKey };
+    }
+
+    function calculateAndRank(){
+      const initiatives = [1,2,3].map(readInitiative);
+
+      // Sort by score desc, then by impact desc, then by time asc
+      const impactOrder = { low: 1, medium: 2, high: 3 };
+      const timeOrder = { short: 1, medium: 2, long: 3 };
+
+      initiatives.sort((a,b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (impactOrder[b.impactKey] !== impactOrder[a.impactKey]) return impactOrder[b.impactKey] - impactOrder[a.impactKey];
+        return timeOrder[a.timeKey] - timeOrder[b.timeKey];
+      });
+
+      const tbody = document.getElementById('rankBody');
+      if (!tbody) return;
+
+      tbody.innerHTML = initiatives.map((it, idx) => {
+        return `
+          <tr>
+            <td style="font-weight:900;color:var(--text-light);">${idx + 1}</td>
+            <td style="font-weight:900;">${escapeHtml(it.name)}</td>
+            <td><span class="score-pill">${it.score}</span></td>
+            <td style="font-weight:800;color:var(--text-medium);">${it.matrix}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function resetRanker(){
+      const tbody = document.getElementById('rankBody');
+      if (tbody){
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="4" style="color:var(--text-light);font-weight:700;">Click “Calculate &amp; Rank” to generate the list.</td>
+          </tr>
+        `;
+      }
+    }
+
+    // =========================
+    // Previous Turn Scores (Saved turns)
+    // =========================
+    const TURN_STORAGE_KEY = 'rwh_sustainability_turn_scores_v1';
+
+    function getSavedTurns(){
+      try{
+        const raw = localStorage.getItem(TURN_STORAGE_KEY);
+        if (!raw) return [];
+        const parsed = JSON.parse(raw);
+        return Array.isArray(parsed) ? parsed : [];
+      } catch (e){
+        return [];
+      }
+    }
+
+    function setSavedTurns(turns){
+      try{
+        localStorage.setItem(TURN_STORAGE_KEY, JSON.stringify(turns));
+      } catch (e){
+        // ignore storage failures
+      }
+    }
+
+    function saveCurrentTurn(){
+      const label = (document.getElementById('turnLabel')?.value || '').trim();
+      const turnLabel = label || `Turn ${new Date().toLocaleString('en-AU')}`;
+
+      // Capture current 3 initiatives exactly as-scored (using the updated cost ranking)
+      const initiatives = [1,2,3].map(readInitiative);
+
+      // Add metadata
+      const batchId = `${Date.now()}_${Math.random().toString(16).slice(2)}`;
+      const stamped = initiatives.map(it => ({
+        id: `${batchId}_${Math.random().toString(16).slice(2)}`,
+        turnLabel,
+        name: it.name,
+        timeKey: it.timeKey,
+        costValue: it.costValue,
+        effortKey: it.effortKey,
+        impactKey: it.impactKey,
+        score: it.score,
+        matrix: it.matrix,
+        createdAt: Date.now()
+      }));
+
+      const existing = getSavedTurns();
+      const next = existing.concat(stamped);
+      setSavedTurns(next);
+      renderAllTurnsRanked();
+    }
+
+    function clearAllTurns(){
+      setSavedTurns([]);
+      renderAllTurnsRanked();
+    }
+
+    function renderAllTurnsRanked(){
+      const rows = getSavedTurns();
+
+      const tbody = document.getElementById('allTurnsBody');
+      if (!tbody) return;
+
+      if (!rows.length){
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="5" style="color:var(--text-light);font-weight:700;">No saved turns yet. Use “Save as a Turn”.</td>
+          </tr>
+        `;
+        return;
+      }
+
+      // Recompute score on render (so any future formula change updates all rows),
+      // and ensures the cost ranking is applied consistently.
+      const recomputed = rows.map(r => {
+        const score = computePriorityScore({
+          timeKey: r.timeKey,
+          costValue: r.costValue,
+          effortKey: r.effortKey,
+          impactKey: r.impactKey
+        });
+        const matrix = classifyMatrix({ timeKey: r.timeKey, impactKey: r.impactKey });
+        return { ...r, score, matrix };
+      });
+
+      const impactOrder = { low: 1, medium: 2, high: 3 };
+      const timeOrder = { short: 1, medium: 2, long: 3 };
+
+      recomputed.sort((a,b) => {
+        if (b.score !== a.score) return b.score - a.score;
+        if (impactOrder[b.impactKey] !== impactOrder[a.impactKey]) return impactOrder[b.impactKey] - impactOrder[a.impactKey];
+        return timeOrder[a.timeKey] - timeOrder[b.timeKey];
+      });
+
+      tbody.innerHTML = recomputed.map((r, idx) => {
+        return `
+          <tr>
+            <td style="font-weight:900;color:var(--text-light);">${idx + 1}</td>
+            <td style="font-weight:900;">${escapeHtml(r.name)}</td>
+            <td><span class="score-pill">${r.score}</span></td>
+            <td style="font-weight:800;color:var(--text-medium);">${r.matrix}</td>
+            <td style="font-weight:800;color:var(--text-medium);">${escapeHtml(r.turnLabel)}</td>
+          </tr>
+        `;
+      }).join('');
+    }
+
+    function setExampleScore(){
+      const score = computePriorityScore({
+        timeKey: 'short',
+        costValue: '4',   // Departmental
+        effortKey: 'low',
+        impactKey: 'low'
+      });
+      const el = document.getElementById('examplePriorityScore');
+      if (el) el.textContent = String(score);
     }
 
     // Touch swipe (ignore vertical scroll)
@@ -1417,6 +1915,8 @@
 
     // Init
     updateSlide();
+    setExampleScore();
+    renderAllTurnsRanked();
   </script>
 </body>
 </html>
