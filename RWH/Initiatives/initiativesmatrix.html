@@ -11,790 +11,505 @@
 
   <style>
     /* =========================
-       GREEN PALETTE (UPDATED)
+       GREEN PALETTE
        ========================= */
-    :root {
-      --primary: #1B8F4B;        /* deep leaf */
-      --primary-dark: #136B38;   /* darker leaf */
-      --primary-light: #2CCB74;  /* fresh green */
-      --secondary: #7CCB5C;      /* soft lime */
-      --accent: #A3E635;         /* lime accent */
-      --accent-orange: #34D399;  /* mint accent (kept var name to avoid refactor) */
-      --warning: #FBBF24;        /* amber */
-      --info: #60A5FA;           /* blue */
-      --grey: #E0E0E0;
+    :root{
+      --primary:#1B8F4B;
+      --primary-dark:#136B38;
+      --primary-light:#2CCB74;
+      --secondary:#7CCB5C;
+      --accent:#A3E635;
+      --mint:#34D399;
 
-      --text-dark: #0f172a;
-      --text-medium: #334155;
-      --text-light: #64748b;
+      --warning:#FBBF24;
+      --info:#60A5FA;
+      --grey:#E0E0E0;
 
-      --bg-primary: #ffffff;
-      --bg-secondary: #f6fbf7;
-      --bg-tertiary: #eaf6ee;
+      --text-dark:#0f172a;
+      --text-medium:#334155;
+      --text-light:#64748b;
 
-      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.08);
-      --shadow-md: 0 8px 24px rgba(0, 0, 0, 0.12);
-      --shadow-lg: 0 20px 60px rgba(0, 0, 0, 0.15);
+      --bg-primary:#ffffff;
+      --bg-secondary:#f6fbf7;
+      --bg-tertiary:#eaf6ee;
 
-      --radius-sm: 0.5rem;
-      --radius-md: 0.75rem;
-      --radius-lg: 1rem;
-      --radius-xl: 1.5rem;
+      --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+      --shadow-md:0 8px 24px rgba(0,0,0,.12);
+      --shadow-lg:0 20px 60px rgba(0,0,0,.15);
 
-      --transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
-      --transition-slow: all 0.5s cubic-bezier(0.4, 0, 0.2, 1);
+      --radius-sm:.5rem;
+      --radius-md:.75rem;
+      --radius-lg:1rem;
+      --radius-xl:1.5rem;
+
+      --transition:all .3s cubic-bezier(.4,0,.2,1);
     }
 
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    body {
-      font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif;
-      background: var(--bg-secondary);
-      color: var(--text-dark);
-      line-height: 1.6;
-      -webkit-font-smoothing: antialiased;
-      -moz-osx-font-smoothing: grayscale;
+    *{margin:0;padding:0;box-sizing:border-box;}
+    body{
+      font-family:'Inter',system-ui,-apple-system,Segoe UI,sans-serif;
+      background:var(--bg-secondary);
+      color:var(--text-dark);
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
 
-    .heading-primary {
-      font-family: 'Sora', sans-serif;
-      font-weight: 800;
-      letter-spacing: -0.02em;
+    .heading-primary{
+      font-family:'Sora',sans-serif;
+      font-weight:800;
+      letter-spacing:-.02em;
     }
 
-    .presentation-wrapper {
-      min-height: 100vh;
-      display: flex;
-      padding: clamp(1rem, 3vw, 2rem);
-      background: linear-gradient(135deg, #14532d 0%, #16a34a 45%, #86efac 100%);
-      position: relative;
-      overflow: hidden;
+    /* =========================
+       SUBTLY ANIMATED BACKGROUND
+       ========================= */
+    .presentation-wrapper{
+      min-height:100vh;
+      display:flex;
+      padding:clamp(1rem,3vw,2rem);
+      position:relative;
+      overflow:hidden;
+
+      background:
+        radial-gradient(1200px 800px at 20% 20%, rgba(134,239,172,.25), transparent 60%),
+        radial-gradient(1000px 700px at 80% 30%, rgba(163,230,53,.20), transparent 55%),
+        linear-gradient(135deg, #0b3d21 0%, #16a34a 40%, #86efac 100%);
+      background-size: 140% 140%, 140% 140%, 200% 200%;
+      animation: bgShift 18s ease-in-out infinite;
+    }
+
+    @keyframes bgShift{
+      0%,100%{background-position: 0% 0%, 100% 0%, 0% 50%;}
+      50%{background-position: 30% 20%, 70% 30%, 100% 50%;}
     }
 
     .presentation-wrapper::before,
-    .presentation-wrapper::after {
-      content: '';
-      position: absolute;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.12);
+    .presentation-wrapper::after{
+      content:'';
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,.10);
+      filter: blur(1px);
       animation: float 20s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .presentation-wrapper::before{
+      width:420px;height:420px;top:-220px;right:-220px;animation-delay:-4s;
+    }
+    .presentation-wrapper::after{
+      width:320px;height:320px;bottom:-160px;left:-160px;
+    }
+    @keyframes float{
+      0%,100%{transform:translate(0,0) scale(1);}
+      50%{transform:translate(60px,50px) scale(1.08);}
     }
 
-    .presentation-wrapper::before {
-      width: 400px;
-      height: 400px;
-      top: -200px;
-      right: -200px;
-      animation-delay: -5s;
+    .presentation-container{
+      flex:1;
+      max-width:1400px;
+      margin:0 auto;
+      background:var(--bg-primary);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-lg);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      position:relative;
+      backdrop-filter:blur(16px);
+
+      /* IMPORTANT: fixes flex/overflow bugs on mobile */
+      min-height:0;
     }
 
-    .presentation-wrapper::after {
-      width: 300px;
-      height: 300px;
-      bottom: -150px;
-      left: -150px;
+    /* Viewport is the stage; slides are absolutely positioned and swapped */
+    .slide-viewport{
+      flex:1;
+      min-height:0;
+      position:relative;
+      overflow:hidden;
+      isolation:isolate;
     }
 
-    @keyframes float {
-      0%, 100% { transform: translate(0, 0) scale(1); }
-      50% { transform: translate(50px, 50px) scale(1.1); }
-    }
+    /* ===== SLIDE SWITCHING (ROBUST) =====
+       Avoid display:none bugs on mobile by using opacity/pointer-events. */
+    .slide{
+      position:absolute;
+      inset:0;
+      padding:clamp(2rem,5vw,4rem) clamp(2rem,5vw,5rem);
+      overflow:auto;
+      -webkit-overflow-scrolling:touch;
 
-    .presentation-container {
-      flex: 1;
-      max-width: 1400px;
-      margin: 0 auto;
+      opacity:0;
+      pointer-events:none;
+      transform: translateX(18px) scale(.995);
+      transition: opacity .28s ease, transform .35s cubic-bezier(.16,1,.3,1);
       background: var(--bg-primary);
-      border-radius: var(--radius-xl);
-      box-shadow: var(--shadow-lg);
-      overflow: hidden;
-      display: flex;
-      flex-direction: column;
-      position: relative;
-      backdrop-filter: blur(20px);
-
-      /* IMPORTANT: allow flex children to shrink (fixes "only header shows") */
-      min-height: 0;
     }
 
-    /* Viewport does NOT scroll; slides scroll internally */
-    .slide-viewport {
-      flex: 1;
-      min-height: 0;     /* KEY FIX */
-      overflow: hidden;
-      overflow-x: hidden;
-      position: relative;
-      scroll-behavior: auto;
+    .slide.active{
+      opacity:1;
+      pointer-events:auto;
+      transform:none;
     }
 
-    /* Slides scroll internally only when needed */
-    .slide {
-      height: 100%;
-      min-height: 0;     /* KEY FIX */
-      padding: clamp(2rem, 5vw, 4rem) clamp(2rem, 5vw, 5rem);
-      display: none;
-      overflow: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .slide::-webkit-scrollbar { width: 8px; }
-    .slide::-webkit-scrollbar-track { background: var(--bg-tertiary); }
-    .slide::-webkit-scrollbar-thumb { background: var(--primary); border-radius: 10px; }
-    .slide::-webkit-scrollbar-thumb:hover { background: var(--primary-dark); }
-
-    .slide.active {
-      display: block;
-      animation: slideIn 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-    }
+    .slide::-webkit-scrollbar{width:8px;}
+    .slide::-webkit-scrollbar-track{background:var(--bg-tertiary);}
+    .slide::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px;}
+    .slide::-webkit-scrollbar-thumb:hover{background:var(--primary-dark);}
 
     /* Navigation Footer */
-    .nav-footer {
-      background: linear-gradient(to top, rgba(255, 255, 255, 0.98) 0%, rgba(255, 255, 255, 0.95) 100%);
-      backdrop-filter: blur(20px);
-      border-top: 1px solid rgba(27, 143, 75, 0.12);
-      padding: 1.25rem 2rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      gap: 1.5rem;
-      flex-shrink: 0;
-      box-shadow: 0 -4px 12px rgba(0, 0, 0, 0.05);
-      position: relative;
-      z-index: 30;
+    .nav-footer{
+      background:linear-gradient(to top, rgba(255,255,255,.98) 0%, rgba(255,255,255,.94) 100%);
+      backdrop-filter:blur(14px);
+      border-top:1px solid rgba(27,143,75,.12);
+      padding:1.1rem 1.6rem;
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      gap:1rem;
+      flex-shrink:0;
+      box-shadow:0 -4px 12px rgba(0,0,0,.05);
+      position:relative;
+      z-index:20;
     }
 
-    .progress-indicator { flex: 1; max-width: 400px; }
-
-    .progress-bar-outer {
-      height: 6px;
-      background: var(--bg-tertiary);
-      border-radius: 10px;
-      overflow: hidden;
-      margin-bottom: 0.625rem;
-      position: relative;
+    .progress-indicator{flex:1;max-width:420px;}
+    .progress-bar-outer{
+      height:6px;
+      background:var(--bg-tertiary);
+      border-radius:999px;
+      overflow:hidden;
+      margin-bottom:.6rem;
+      position:relative;
     }
-
-    .progress-bar-outer::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.3) 50%, transparent 100%);
-      animation: shimmer 2s infinite;
+    .progress-bar-inner{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius:999px;
+      transition: width .45s cubic-bezier(.16,1,.3,1);
     }
-
-    @keyframes shimmer { 0% { transform: translateX(-100%); } 100% { transform: translateX(100%); } }
-
-    .progress-bar-inner {
-      height: 100%;
-      background: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
-      border-radius: 10px;
-      transition: width 0.6s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .progress-bar-inner::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(90deg, transparent 0%, rgba(255, 255, 255, 0.4) 50%, transparent 100%);
-      animation: progressShine 2s ease-in-out infinite;
-    }
-
-    @keyframes progressShine { 0% { transform: translateX(-100%); } 100% { transform: translateX(200%); } }
-
-    .slide-counter {
-      font-size: 0.8125rem;
-      color: var(--text-light);
-      font-weight: 600;
-      text-align: center;
-      letter-spacing: 0.5px;
+    .slide-counter{
+      font-size:.8125rem;
+      color:var(--text-light);
+      font-weight:600;
+      text-align:center;
+      letter-spacing:.5px;
     }
 
     /* Buttons */
-    button {
-      display: inline-flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.5rem;
-      padding: 0.875rem 1.75rem;
-      border: none;
-      border-radius: var(--radius-md);
-      font-weight: 600;
-      font-size: 0.9375rem;
-      cursor: pointer;
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-      font-family: inherit;
+    button{
+      display:inline-flex;
+      align-items:center;
+      justify-content:center;
+      gap:.5rem;
+      padding:.875rem 1.25rem;
+      border:none;
+      border-radius:var(--radius-md);
+      font-weight:700;
+      font-size:.9375rem;
+      cursor:pointer;
+      transition:var(--transition);
+      position:relative;
+      overflow:hidden;
+      font-family:inherit;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      min-height:44px;
     }
+    button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+    button:not(:disabled):hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
 
-    button::before {
-      content: '';
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      width: 0;
-      height: 0;
-      border-radius: 50%;
-      background: rgba(255, 255, 255, 0.2);
-      transform: translate(-50%, -50%);
-      transition: width 0.6s, height 0.6s;
+    .btn-primary{
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color:#fff;
     }
-
-    button:active::before { width: 300px; height: 300px; }
-
-    button:disabled { opacity: 0.5; cursor: not-allowed; transform: none !important; }
-    button:not(:disabled):hover { transform: translateY(-2px); box-shadow: var(--shadow-md); }
-
-    .btn-primary {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color: white;
+    .btn-primary:not(:disabled):hover{
+      background:linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
     }
-    .btn-primary:not(:disabled):hover {
-      background: linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
+    .btn-secondary{
+      background:#fff;
+      border:2px solid var(--bg-tertiary);
+      color:var(--text-medium);
     }
-
-    .btn-secondary {
-      background: white;
-      border: 2px solid var(--bg-tertiary);
-      color: var(--text-medium);
-    }
-    .btn-secondary:not(:disabled):hover {
-      border-color: var(--primary);
-      color: var(--primary);
-      background: var(--bg-secondary);
+    .btn-secondary:not(:disabled):hover{
+      border-color:var(--primary);
+      color:var(--primary);
+      background:var(--bg-secondary);
     }
 
     /* Fullscreen button */
-    .fullscreen-btn {
-      position: absolute;
-      top: 1.25rem;
-      left: 1.25rem;
-      background: rgba(255, 255, 255, 0.95);
-      backdrop-filter: blur(10px);
-      border: 1px solid rgba(27, 143, 75, 0.18);
-      padding: 0.625rem 0.875rem;
-      border-radius: var(--radius-md);
-      cursor: pointer;
-      font-size: 1.125rem;
-      z-index: 100;
-      transition: var(--transition);
-      box-shadow: var(--shadow-sm);
-      line-height: 1;
+    .fullscreen-btn{
+      position:absolute;
+      top:1.1rem;
+      left:1.1rem;
+      background:rgba(255,255,255,.95);
+      border:1px solid rgba(27,143,75,.18);
+      padding:.55rem .75rem;
+      border-radius:var(--radius-md);
+      cursor:pointer;
+      font-size:1.05rem;
+      z-index:50;
+      transition:var(--transition);
+      box-shadow:var(--shadow-sm);
+      line-height:1;
+    }
+    .fullscreen-btn:hover{
+      background:#fff;
+      transform:scale(1.05);
+      box-shadow:var(--shadow-md);
+      border-color:var(--primary);
     }
 
-    .fullscreen-btn:hover {
-      background: white;
-      transform: scale(1.05);
-      box-shadow: var(--shadow-md);
-      border-color: var(--primary);
+    /* Title slide */
+    .title-slide{
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      overflow:hidden;
     }
-
-    /* Optional mobile tap zones */
-    .tap-zones { display: none; }
-    @media (max-width: 768px) {
-      .tap-zones {
-        display: block;
-        position: absolute;
-        inset: 0;
-        pointer-events: none;
-        z-index: 20;
-      }
-      .tap-zone {
-        position: absolute;
-        top: 0;
-        bottom: 72px;
-        width: 30%;
-        pointer-events: auto;
-      }
-      .tap-zone.left { left: 0; }
-      .tap-zone.right { right: 0; }
-    }
-
-    /* Title Slide */
-    .title-slide {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      color: white;
-      display: flex;
-      flex-direction: column;
-      justify-content: center;
-      align-items: center;
-      text-align: center;
-      padding: 4rem 3rem;
-      position: relative;
-      overflow: hidden;
-    }
-
-    .title-slide::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      right: -50%;
-      width: 100%;
-      height: 100%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.12) 0%, transparent 70%);
+    .title-slide::before{
+      content:'';
+      position:absolute;
+      top:-50%;
+      right:-50%;
+      width:100%;
+      height:100%;
+      background:radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 70%);
       animation: rotate 30s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    .title-slide h1{
+      position:relative;
+      z-index:1;
+      color:#fff;
+      font-size:clamp(2.3rem,6vw,4.5rem);
+      margin-bottom:1.1rem;
+    }
+    .title-slide h2{
+      position:relative;
+      z-index:1;
+      color:rgba(255,255,255,.95);
+      font-size:clamp(1.15rem,3vw,2rem);
+      font-weight:600;
+      margin-bottom:2rem;
+    }
+    .title-slide p{
+      position:relative;
+      z-index:1;
+      color:rgba(255,255,255,.92);
     }
 
-    @keyframes rotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    .title-slide h1 {
-      color: white;
-      font-size: clamp(2.5rem, 6vw, 4.5rem);
-      margin-bottom: 1.5rem;
-      animation: fadeInUp 0.8s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      z-index: 1;
+    /* Content headings */
+    .slide-header{
+      margin-bottom:2rem;
+      padding-bottom:1rem;
+      border-bottom:3px solid;
+      border-image:linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%) 1;
+    }
+    .slide-header h1{
+      font-size:clamp(1.8rem,4vw,3rem);
+      font-weight:900;
+      margin-bottom:.35rem;
+      background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
     }
 
-    .title-slide h2 {
-      color: rgba(255, 255, 255, 0.95);
-      font-size: clamp(1.25rem, 3vw, 2rem);
-      font-weight: 500;
-      margin-bottom: 2.5rem;
-      animation: fadeInUp 1s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      z-index: 1;
+    .slide-content{display:flex;flex-direction:column;gap:1.5rem;}
+
+    .info-box{
+      background:linear-gradient(135deg, rgba(163,230,53,.18) 0%, rgba(163,230,53,.06) 100%);
+      padding:1.15rem 1.35rem;
+      border-radius:var(--radius-md);
+      border-left:4px solid var(--accent);
+      box-shadow:var(--shadow-sm);
+    }
+    .info-box.success{
+      background:linear-gradient(135deg, rgba(124,203,92,.20) 0%, rgba(124,203,92,.06) 100%);
+      border-left-color:var(--secondary);
+    }
+    .info-box.info{
+      background:linear-gradient(135deg, rgba(27,143,75,.18) 0%, rgba(27,143,75,.05) 100%);
+      border-left-color:var(--primary);
+    }
+    .info-box h3{font-size:1.05rem;margin-bottom:.5rem;font-weight:800;}
+    .info-box p{color:var(--text-medium);font-size:.95rem;}
+
+    .target-box{
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      padding:1.8rem 2.1rem;
+      border-radius:var(--radius-lg);
+      color:#fff;
+      text-align:center;
+      box-shadow:0 8px 32px rgba(27,143,75,.22);
+      position:relative;
+      overflow:hidden;
+    }
+    .target-box::before{
+      content:'';
+      position:absolute;
+      inset:-50%;
+      background:radial-gradient(circle, rgba(255,255,255,.16) 0%, transparent 70%);
+      animation:pulse 3s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+    .target-box h2,.target-box p{position:relative;z-index:1;}
+
+    .three-col{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:1.2rem;
+    }
+    .two-col{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:1.6rem;
     }
 
-    .title-slide p {
-      color: rgba(255, 255, 255, 0.92);
-      font-size: clamp(1rem, 2vw, 1.25rem);
-      animation: fadeInUp 1.2s cubic-bezier(0.16, 1, 0.3, 1);
-      position: relative;
-      z-index: 1;
+    .icon-box{
+      background:linear-gradient(135deg, rgba(248,249,250,1) 0%, rgba(255,255,255,1) 100%);
+      padding:1.25rem;
+      border-radius:var(--radius-lg);
+      text-align:center;
+      border:2px solid transparent;
+      box-shadow:var(--shadow-sm);
+      transition:var(--transition);
+    }
+    .icon-box:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);border-color:rgba(27,143,75,.35);}
+    .icon-box .icon{font-size:3rem;margin-bottom:.85rem;}
+    .icon-box h3{font-weight:900;margin-bottom:.4rem;}
+    .icon-box p{color:var(--text-light);font-size:.95rem;margin:0;}
+
+    .matrix-container{
+      background:linear-gradient(135deg, rgba(255,255,255,.92) 0%, rgba(248,249,250,.92) 100%);
+      border:2px solid rgba(27,143,75,.10);
+      border-radius:var(--radius-lg);
+      padding:1.4rem;
+      box-shadow:var(--shadow-sm);
+    }
+    .matrix-container > p:first-child{
+      text-align:center;font-weight:900;font-size:1.1rem;margin-bottom:1rem;
+    }
+    .matrix-grid{
+      display:grid;
+      grid-template-columns:90px 1fr 1fr;
+      grid-template-rows:auto 1fr 1fr;
+      gap:.8rem;
+      min-height:320px;
+    }
+    .matrix-header{
+      text-align:center;
+      font-size:.8rem;
+      font-weight:900;
+      color:var(--primary);
+      padding:.55rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .matrix-label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.68rem;
+      font-weight:900;
+      color:var(--text-light);
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .matrix-quadrant{
+      border-radius:var(--radius-md);
+      padding:1.2rem 1rem;
+      text-align:center;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:var(--transition);
+      box-shadow:var(--shadow-sm);
+      position:relative;
+      overflow:hidden;
+    }
+    .matrix-quadrant:hover{transform:scale(1.05);z-index:2;box-shadow:var(--shadow-md);}
+    .matrix-quadrant .emoji{font-size:2.2rem;margin-bottom:.5rem;}
+    .matrix-quadrant h3{font-size:1.02rem;font-weight:900;margin-bottom:.4rem;}
+    .matrix-quadrant p{font-size:.82rem;opacity:.95;margin:0;line-height:1.35;}
+
+    .matrix-quadrant.quick-wins{background:linear-gradient(135deg,#16a34a 0%,#4ade80 100%);}
+    .matrix-quadrant.major-projects{background:linear-gradient(135deg,#84cc16 0%,#bef264 100%);color:#1f2937;}
+    .matrix-quadrant.fill-ins{background:linear-gradient(135deg,#22c55e 0%,#86efac 100%);color:#064e3b;}
+    .matrix-quadrant.reconsider{background:linear-gradient(135deg,#E0E0E0 0%,#EEEEEE 100%);color:#616161;}
+
+    .badge{
+      background:rgba(255,255,255,.25);
+      border:1px solid rgba(255,255,255,.2);
+      padding:.45rem .75rem;
+      border-radius:var(--radius-sm);
+      font-size:.8rem;
+      font-weight:900;
+      margin-top:.6rem;
     }
 
-    /* Content Slides */
-    .slide-header {
-      margin-bottom: 2.5rem;
-      padding-bottom: 1.25rem;
-      border-bottom: 3px solid;
-      border-image: linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%) 1;
+    .question-box{
+      padding:1.1rem 1.35rem;
+      border-radius:var(--radius-md);
+      border-left:4px solid;
+      margin-bottom:.9rem;
+      background:var(--bg-primary);
+      box-shadow:var(--shadow-sm);
+      transition:var(--transition);
+    }
+    .question-box:hover{transform:translateX(6px);box-shadow:var(--shadow-md);}
+    .question-box h3{font-weight:900;margin-bottom:.4rem;}
+    .question-box p{margin:0;color:var(--text-medium);font-size:.95rem;}
+    .question-box.timeline{
+      background:linear-gradient(135deg, rgba(27,143,75,.10) 0%, rgba(27,143,75,.03) 100%);
+      border-left-color:var(--primary);
+    }
+    .question-box.timeline h3{color:var(--primary);}
+    .question-box.impact{
+      background:linear-gradient(135deg, rgba(124,203,92,.12) 0%, rgba(124,203,92,.03) 100%);
+      border-left-color:var(--secondary);
+    }
+    .question-box.impact h3{color:var(--secondary);}
+    .question-box.cost{
+      background:linear-gradient(135deg, rgba(52,211,153,.14) 0%, rgba(52,211,153,.03) 100%);
+      border-left-color:var(--mint);
+    }
+    .question-box.cost h3{color:var(--primary-dark);}
+
+    /* Mobile */
+    @media (max-width:1024px){.two-col{grid-template-columns:1fr;}}
+    @media (max-width:768px){
+      .presentation-wrapper{padding:0;}
+      .presentation-container{border-radius:0;height:100dvh;}
+      .slide{padding:1.6rem 1.1rem;}
+      .nav-footer{padding:.8rem .8rem;}
+      .progress-indicator{max-width:220px;}
+      .matrix-grid{grid-template-columns:70px 1fr 1fr;min-height:280px;}
+      .fullscreen-btn{display:none;}
+      .progress-indicator > div:last-child{display:none;}
     }
 
-    .slide-header h1 {
-      color: var(--text-dark);
-      font-size: clamp(1.875rem, 4vw, 3rem);
-      font-weight: 800;
-      margin-bottom: 0.5rem;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
-      background-clip: text;
-    }
-
-    .slide-content { display: flex; flex-direction: column; gap: 1.75rem; }
-
-    .info-box {
-      background: linear-gradient(135deg, rgba(163, 230, 53, 0.18) 0%, rgba(163, 230, 53, 0.06) 100%);
-      backdrop-filter: blur(10px);
-      padding: 1.25rem 1.5rem;
-      border-radius: var(--radius-md);
-      border-left: 4px solid var(--accent);
-      transition: var(--transition);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .info-box::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.45) 0%, transparent 100%);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .info-box:hover::before { opacity: 1; }
-
-    .info-box.success {
-      background: linear-gradient(135deg, rgba(124, 203, 92, 0.20) 0%, rgba(124, 203, 92, 0.06) 100%);
-      border-left-color: var(--secondary);
-    }
-
-    .info-box.info {
-      background: linear-gradient(135deg, rgba(27, 143, 75, 0.18) 0%, rgba(27, 143, 75, 0.05) 100%);
-      border-left-color: var(--primary);
-    }
-
-    .info-box h3 {
-      font-size: 1.0625rem;
-      margin-bottom: 0.625rem;
-      color: var(--text-dark);
-      font-weight: 700;
-      position: relative;
-      z-index: 1;
-    }
-
-    .info-box p {
-      font-size: 0.9375rem;
-      line-height: 1.65;
-      color: var(--text-medium);
-      position: relative;
-      z-index: 1;
-    }
-
-    .target-box {
-      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
-      padding: 2rem 2.5rem;
-      border-radius: var(--radius-lg);
-      color: white;
-      text-align: center;
-      box-shadow: 0 8px 32px rgba(27, 143, 75, 0.25);
-      position: relative;
-      overflow: hidden;
-      transition: var(--transition);
-    }
-
-    .target-box::before {
-      content: '';
-      position: absolute;
-      top: -50%;
-      left: -50%;
-      width: 200%;
-      height: 200%;
-      background: radial-gradient(circle, rgba(255, 255, 255, 0.16) 0%, transparent 70%);
-      animation: pulse 3s ease-in-out infinite;
-    }
-
-    .target-box:hover {
-      transform: translateY(-4px);
-      box-shadow: 0 12px 40px rgba(27, 143, 75, 0.35);
-    }
-
-    .target-box h2 {
-      color: white;
-      font-size: clamp(1.5rem, 3vw, 2.25rem);
-      margin: 0.75rem 0;
-      font-weight: 700;
-      position: relative;
-      z-index: 1;
-    }
-
-    .target-box p { margin: 0; position: relative; z-index: 1; font-weight: 500; }
-
-    /* Layout helpers used in slides */
-    .three-col {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 1.5rem;
-      margin: 1.25rem 0;
-    }
-
-    .two-col {
-      display: grid;
-      grid-template-columns: 380px 1fr;
-      gap: 2rem;
-    }
-
-    .icon-box {
-      background: linear-gradient(135deg, rgba(248, 249, 250, 1) 0%, rgba(255, 255, 255, 1) 100%);
-      padding: 1.5rem;
-      border-radius: var(--radius-lg);
-      text-align: center;
-      transition: var(--transition);
-      cursor: pointer;
-      border: 2px solid transparent;
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .icon-box::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .icon-box:hover { transform: translateY(-8px); box-shadow: var(--shadow-md); border-color: var(--primary); }
-    .icon-box:hover::before { opacity: 0.03; }
-
-    .icon-box .icon {
-      font-size: 3rem;
-      margin-bottom: 1rem;
-      filter: grayscale(0.2);
-      transition: var(--transition);
-    }
-
-    .icon-box:hover .icon { transform: scale(1.1); filter: grayscale(0); }
-
-    .icon-box h3 {
-      font-size: 1.0625rem;
-      margin-bottom: 0.625rem;
-      color: var(--text-dark);
-      font-weight: 700;
-      position: relative;
-      z-index: 1;
-    }
-
-    .icon-box p {
-      font-size: 0.9375rem;
-      color: var(--text-light);
-      line-height: 1.5;
-      margin: 0;
-      position: relative;
-      z-index: 1;
-    }
-
-    /* Matrix */
-    .matrix-container {
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.9) 0%, rgba(248, 249, 250, 0.9) 100%);
-      backdrop-filter: blur(20px);
-      border: 2px solid rgba(27, 143, 75, 0.10);
-      border-radius: var(--radius-lg);
-      padding: 1.75rem;
-      box-shadow: var(--shadow-sm);
-    }
-
-    .matrix-container > p:first-child {
-      text-align: center;
-      font-weight: 700;
-      font-size: 1.125rem;
-      color: var(--text-dark);
-      margin-bottom: 1.25rem;
-    }
-
-    .matrix-grid {
-      display: grid;
-      grid-template-columns: 90px 1fr 1fr;
-      grid-template-rows: auto 1fr 1fr;
-      gap: 0.875rem;
-      min-height: 320px;
-    }
-
-    .matrix-header {
-      text-align: center;
-      font-size: 0.8125rem;
-      font-weight: 700;
-      color: var(--primary);
-      padding: 0.625rem;
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .matrix-label {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-size: 0.6875rem;
-      font-weight: 700;
-      color: var(--text-light);
-      writing-mode: vertical-rl;
-      transform: rotate(180deg);
-      text-transform: uppercase;
-      letter-spacing: 0.08em;
-    }
-
-    .matrix-quadrant {
-      border-radius: var(--radius-md);
-      padding: 1.5rem 1.25rem;
-      text-align: center;
-      color: white;
-      display: flex;
-      flex-direction: column;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: var(--transition);
-      position: relative;
-      box-shadow: var(--shadow-sm);
-      overflow: hidden;
-    }
-
-    .matrix-quadrant::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: radial-gradient(circle at center, rgba(255, 255, 255, 0.2) 0%, transparent 70%);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .matrix-quadrant:hover {
-      transform: scale(1.08);
-      z-index: 10;
-      box-shadow: var(--shadow-md);
-    }
-
-    .matrix-quadrant:hover::before { opacity: 1; }
-
-    .matrix-quadrant .emoji {
-      font-size: 2.25rem;
-      margin-bottom: 0.625rem;
-      filter: drop-shadow(0 2px 4px rgba(0, 0, 0, 0.1));
-    }
-
-    .matrix-quadrant h3 {
-      font-size: 1.0625rem;
-      margin-bottom: 0.625rem;
-      color: white;
-      font-weight: 700;
-      letter-spacing: 0.02em;
-    }
-
-    .matrix-quadrant p { font-size: 0.8125rem; opacity: 0.95; line-height: 1.4; margin: 0; }
-
-    /* Green-toned quadrants */
-    .matrix-quadrant.quick-wins {
-      background: linear-gradient(135deg, #16a34a 0%, #4ade80 100%);
-    }
-    .matrix-quadrant.major-projects {
-      background: linear-gradient(135deg, #84cc16 0%, #bef264 100%);
-      color: #1f2937;
-    }
-    .matrix-quadrant.fill-ins {
-      background: linear-gradient(135deg, #22c55e 0%, #86efac 100%);
-      color: #064e3b;
-    }
-    .matrix-quadrant.reconsider {
-      background: linear-gradient(135deg, #E0E0E0 0%, #EEEEEE 100%);
-      color: #616161;
-    }
-
-    .matrix-quadrant .badge {
-      background: rgba(255, 255, 255, 0.25);
-      backdrop-filter: blur(10px);
-      padding: 0.5rem 0.875rem;
-      border-radius: var(--radius-sm);
-      font-size: 0.8125rem;
-      font-weight: 700;
-      margin-top: 0.625rem;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-    }
-
-    .matrix-quadrant.quick-wins .badge {
-      animation: badgePulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
-    }
-
-    @keyframes badgePulse {
-      0%, 100% { transform: scale(1); box-shadow: 0 0 0 0 rgba(255, 255, 255, 0.4); }
-      50% { transform: scale(1.05); box-shadow: 0 0 0 8px rgba(255, 255, 255, 0); }
-    }
-
-    /* Question Boxes */
-    .question-box {
-      padding: 1.25rem 1.5rem;
-      border-radius: var(--radius-md);
-      border-left: 4px solid;
-      margin-bottom: 1rem;
-      transition: var(--transition);
-      background: var(--bg-primary);
-      box-shadow: var(--shadow-sm);
-      position: relative;
-      overflow: hidden;
-    }
-
-    .question-box::before {
-      content: '';
-      position: absolute;
-      inset: 0;
-      background: linear-gradient(135deg, rgba(255, 255, 255, 0.5) 0%, transparent 100%);
-      opacity: 0;
-      transition: var(--transition);
-    }
-
-    .question-box:hover { transform: translateX(8px); box-shadow: var(--shadow-md); }
-    .question-box:hover::before { opacity: 1; }
-
-    .question-box h3 {
-      font-size: 1.0625rem;
-      margin-bottom: 0.625rem;
-      font-weight: 700;
-      position: relative;
-      z-index: 1;
-    }
-
-    .question-box p {
-      font-size: 0.9375rem;
-      line-height: 1.6;
-      margin: 0;
-      color: var(--text-medium);
-      position: relative;
-      z-index: 1;
-    }
-
-    .question-box.timeline {
-      background: linear-gradient(135deg, rgba(27, 143, 75, 0.10) 0%, rgba(27, 143, 75, 0.03) 100%);
-      border-left-color: var(--primary);
-    }
-    .question-box.timeline h3 { color: var(--primary); }
-
-    .question-box.impact {
-      background: linear-gradient(135deg, rgba(124, 203, 92, 0.12) 0%, rgba(124, 203, 92, 0.03) 100%);
-      border-left-color: var(--secondary);
-    }
-    .question-box.impact h3 { color: var(--secondary); }
-
-    .question-box.cost {
-      background: linear-gradient(135deg, rgba(52, 211, 153, 0.14) 0%, rgba(52, 211, 153, 0.03) 100%);
-      border-left-color: var(--accent-orange);
-    }
-    .question-box.cost h3 { color: var(--primary-dark); }
-
-    /* Animations */
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(40px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-
-    @keyframes slideIn {
-      from { opacity: 0; transform: translateX(30px) scale(0.98); }
-      to { opacity: 1; transform: translateX(0) scale(1); }
-    }
-
-    @keyframes pulse { 0%, 100% { transform: scale(1); } 50% { transform: scale(1.05); } }
-
-    /* Responsive */
-    @media (max-width: 1024px) {
-      .two-col { grid-template-columns: 1fr; }
-    }
-
-    @media (max-width: 768px) {
-      .presentation-wrapper { padding: 0; }
-      .presentation-container { border-radius: 0; height: 100dvh; }
-
-      .slide { padding: 2rem 1.25rem; }
-      .slide-header h1 { font-size: 2rem; }
-      .three-col { grid-template-columns: 1fr; }
-
-      .nav-footer { padding: 0.75rem 0.75rem; gap: 0.75rem; }
-      .progress-indicator { max-width: 220px; }
-
-      button { padding: 0.85rem 1rem; font-size: 0.875rem; min-height: 44px; }
-
-      .title-slide h1 { font-size: 2.5rem; }
-      .title-slide h2 { font-size: 1.5rem; }
-
-      .matrix-grid { grid-template-columns: 70px 1fr 1fr; min-height: 280px; }
-
-      .progress-indicator > div:last-child { display: none; }
-    }
-
-    @media (hover: none) {
-      button:not(:disabled):hover,
-      .icon-box:hover,
-      .matrix-quadrant:hover,
-      .question-box:hover {
-        transform: none;
-        box-shadow: var(--shadow-sm);
-      }
-    }
-
-    @media (prefers-reduced-motion: reduce) {
-      *, *::before, *::after {
-        animation-duration: 0.01ms !important;
-        animation-iteration-count: 1 !important;
-        transition-duration: 0.01ms !important;
-      }
-    }
-
-    @media (prefers-color-scheme: dark) {
-      .slide::-webkit-scrollbar-track { background: #1a1a1a; }
+    @media (prefers-reduced-motion: reduce){
+      .presentation-wrapper{animation:none;}
+      .presentation-wrapper::before,.presentation-wrapper::after{animation:none;}
+      .title-slide::before{animation:none;}
+      .target-box::before{animation:none;}
+      .slide{transition:none;}
+      button{transition:none;}
     }
   </style>
 </head>
@@ -804,31 +519,25 @@
     <div class="presentation-container">
       <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen" aria-label="Toggle fullscreen mode">⛶</button>
 
-      <!-- Optional mobile tap zones -->
-      <div class="tap-zones" aria-hidden="true">
-        <div class="tap-zone left" onclick="previousSlide()"></div>
-        <div class="tap-zone right" onclick="nextSlide()"></div>
-      </div>
-
       <div class="slide-viewport" id="slideViewport">
-        <!-- Slide 1 -->
+        <!-- Slide 1: Title -->
         <div class="slide title-slide active" data-slide="1">
           <h1 class="heading-primary">Sustainability Evaluation Workshop</h1>
           <h2>Making Smart Choices for RWH's Future</h2>
-          <p style="margin-top: 3rem;">Royal Women's Hospital Melbourne</p>
-          <p style="margin-top: 0.75rem; font-size: 1rem; opacity: 0.85;">A 15-minute interactive training session</p>
+          <p style="margin-top: 2.6rem;">Royal Women's Hospital Melbourne</p>
+          <p style="margin-top: .75rem; font-size: 1rem; opacity: .9;">A 15-minute interactive training session</p>
         </div>
 
-        <!-- Slide 2 -->
+        <!-- Slide 2: Emissions Target -->
         <div class="slide" data-slide="2">
           <div class="slide-header">
             <h1 class="heading-primary">Why This Matters</h1>
           </div>
           <div class="slide-content">
             <div class="target-box">
-              <p style="font-size: 1.125rem; opacity: 0.9;">RWH is committed to</p>
+              <p style="font-size:1.125rem;opacity:.92;">RWH is committed to</p>
               <h2>Reducing Our Emissions</h2>
-              <p style="font-size: 1.25rem; opacity: 0.95;">Working towards Net Zero in healthcare</p>
+              <p style="font-size:1.25rem;opacity:.96;">Working towards Net Zero in healthcare</p>
             </div>
 
             <div class="info-box">
@@ -861,17 +570,17 @@
               <p>Learn how to evaluate which initiatives will best help RWH reduce emissions</p>
             </div>
 
-            <p style="text-align: center; font-size: 0.8125rem; color: var(--text-light); margin-top: 0.75rem; font-weight: 500;">
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
               Healthcare is ~7% of Australia's emissions | Every department plays a part
             </p>
           </div>
         </div>
 
-        <!-- Slide 3 -->
+        <!-- Slide 3: Matrix Framework -->
         <div class="slide" data-slide="3">
           <div class="slide-header">
             <h1 class="heading-primary">The Evaluation Matrix: 4 Key Questions</h1>
-            <p style="font-size: 0.9375rem; color: var(--text-light); margin-top: 0.5rem; font-weight: 500;">
+            <p style="font-size:.9375rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
               Plus any other factors relevant to your department
             </p>
           </div>
@@ -902,10 +611,10 @@
                 <div class="question-box impact">
                   <h3>4️⃣ Emissions Impact</h3>
                   <p>High: Major reduction | Medium: Noticeable | Low: Small but helpful</p>
-                  <p style="margin-top: 0.5rem; font-size: 0.8125rem; font-style: italic;">🎯 Towards RWH's Net Zero goals</p>
+                  <p style="margin-top:.5rem;font-size:.8125rem;font-style:italic;">🎯 Towards RWH's Net Zero goals</p>
                 </div>
 
-                <div class="info-box success" style="margin-top: 1rem;">
+                <div class="info-box success" style="margin-top:1rem;">
                   <h3>✨ The Power of the Matrix</h3>
                   <p>By scoring initiatives across these 4 dimensions (and others relevant to your area), we can identify Quick Wins and prioritise strategically!</p>
                 </div>
@@ -913,7 +622,7 @@
 
               <div class="matrix-container">
                 <p>Where Should We Focus?</p>
-                <p style="font-size: 0.75rem; color: var(--text-light); text-align: center; margin-bottom: 0.75rem; font-style: italic;">
+                <p style="font-size:.75rem;color:var(--text-light);text-align:center;margin-bottom:.75rem;font-style:italic;">
                   Simplified view: Time vs Impact (Cost & Effort inform priority too)
                 </p>
 
@@ -926,27 +635,27 @@
                   <div class="matrix-quadrant quick-wins" onclick="showMatrixInfo('quickWins')">
                     <div class="emoji">⭐</div>
                     <h3>QUICK WINS</h3>
-                    <p>High emissions reduction<br>Fast to implement<br>Low investment</p>
+                    <p>High emissions reduction<br/>Fast to implement<br/>Low investment</p>
                     <div class="badge">START HERE! 🚀</div>
                   </div>
 
                   <div class="matrix-quadrant major-projects" onclick="showMatrixInfo('majorProjects')">
                     <div class="emoji">🎯</div>
                     <h3>MAJOR PROJECTS</h3>
-                    <p>Big impact<br>Needs planning<br>Higher cost</p>
+                    <p>Big impact<br/>Needs planning<br/>Higher cost</p>
                   </div>
 
                   <div class="matrix-label">Low Impact</div>
                   <div class="matrix-quadrant fill-ins" onclick="showMatrixInfo('fillIns')">
                     <div class="emoji">✓</div>
                     <h3>FILL-INS</h3>
-                    <p>Quick and easy<br>Small gains</p>
+                    <p>Quick and easy<br/>Small gains</p>
                   </div>
 
                   <div class="matrix-quadrant reconsider" onclick="showMatrixInfo('reconsider')">
                     <div class="emoji">❓</div>
                     <h3>RECONSIDER</h3>
-                    <p>Low benefit<br>Takes time<br>Costs more</p>
+                    <p>Low benefit<br/>Takes time<br/>Costs more</p>
                   </div>
                 </div>
               </div>
@@ -959,7 +668,7 @@
           </div>
         </div>
 
-        <!-- Slide 4 -->
+        <!-- Slide 4: Example -->
         <div class="slide" data-slide="4">
           <div class="slide-header">
             <h1 class="heading-primary">Let's Try an Example Together</h1>
@@ -967,8 +676,8 @@
 
           <div class="slide-content">
             <div class="target-box">
-              <h2 style="font-size: 1.875rem;">Digital Notice Boards</h2>
-              <p style="font-size: 1.0625rem;">Replace printed posters and notices with digital screens that can be updated remotely across departments</p>
+              <h2 style="font-size:1.875rem;">Digital Notice Boards</h2>
+              <p style="font-size:1.0625rem;">Replace printed posters and notices with digital screens that can be updated remotely across departments</p>
             </div>
 
             <div class="info-box">
@@ -978,31 +687,31 @@
 
             <div class="three-col" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
               <div class="question-box timeline">
-                <p style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Time</p>
-                <h3 style="font-size: 2.25rem; margin: 0.625rem 0;">Short</h3>
-                <p style="font-size: 0.875rem;">3-6 months</p>
-                <p style="font-size: 0.75rem; margin-top: 0.5rem; font-style: italic; opacity: 0.8;">Install + train staff</p>
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Time</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">Short</h3>
+                <p style="font-size:.875rem;">3-6 months</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Install + train staff</p>
               </div>
 
               <div class="question-box cost">
-                <p style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Cost</p>
-                <h3 style="font-size: 2.25rem; margin: 0.625rem 0;">2</h3>
-                <p style="font-size: 0.875rem;">Moderate</p>
-                <p style="font-size: 0.75rem; margin-top: 0.5rem; font-style: italic; opacity: 0.8;">Screens + software</p>
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Cost</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">2</h3>
+                <p style="font-size:.875rem;">Moderate</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Screens + software</p>
               </div>
 
               <div class="question-box cost">
-                <p style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Effort</p>
-                <h3 style="font-size: 2.25rem; margin: 0.625rem 0;">Low</h3>
-                <p style="font-size: 0.875rem;">Easy change</p>
-                <p style="font-size: 0.75rem; margin-top: 0.5rem; font-style: italic; opacity: 0.8;">Simple training</p>
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Effort</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">Low</h3>
+                <p style="font-size:.875rem;">Easy change</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Simple training</p>
               </div>
 
               <div class="question-box impact">
-                <p style="font-size: 0.8125rem; font-weight: 600; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em;">Impact</p>
-                <h3 style="font-size: 2.25rem; margin: 0.625rem 0;">Low</h3>
-                <p style="font-size: 0.875rem;">Small reduction</p>
-                <p style="font-size: 0.75rem; margin-top: 0.5rem; font-style: italic; opacity: 0.8;">Saves paper waste</p>
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Impact</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">Low</h3>
+                <p style="font-size:.875rem;">Small reduction</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Saves paper waste</p>
               </div>
             </div>
 
@@ -1011,39 +720,39 @@
               <p>Quick to implement with low effort, modest cost for equipment. Small emissions impact (reduces paper waste and printing energy) but provides additional benefits like easier updates and better communication!</p>
             </div>
 
-            <p style="text-align: center; font-size: 0.8125rem; color: var(--text-light); margin-top: 0.75rem; font-weight: 500;">
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
               📍 Fill-Ins are worthwhile when they're easy to implement and provide multiple benefits beyond emissions
             </p>
           </div>
         </div>
 
-        <!-- Slide 5 -->
+        <!-- Slide 5: Group Activity -->
         <div class="slide" data-slide="5">
           <div class="slide-header">
             <h1 class="heading-primary">Now Your Turn! (8 minutes)</h1>
           </div>
 
           <div class="slide-content">
-            <div class="target-box" style="background: linear-gradient(135deg, #22c55e 0%, #86efac 100%);">
-              <h2 style="font-size: 1.875rem;">Your Worksheet Has 3 Ideas</h2>
-              <p style="font-size: 1.0625rem;">Work together to score each one. There are no wrong answers!</p>
+            <div class="target-box" style="background:linear-gradient(135deg,#22c55e 0%,#86efac 100%);">
+              <h2 style="font-size:1.875rem;">Your Worksheet Has 3 Ideas</h2>
+              <p style="font-size:1.0625rem;">Work together to score each one. There are no wrong answers!</p>
             </div>
 
             <div class="three-col">
               <div class="info-box timeline">
-                <div style="background: var(--primary); color: white; width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.375rem; font-weight: 700; margin-bottom: 1rem;">1</div>
+                <div style="background:var(--primary);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">1</div>
                 <h3>Read the idea</h3>
                 <p>What is it asking us to do? Does everyone understand it?</p>
               </div>
 
               <div class="info-box impact">
-                <div style="background: var(--secondary); color: white; width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.375rem; font-weight: 700; margin-bottom: 1rem;">2</div>
+                <div style="background:var(--secondary);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">2</div>
                 <h3>Answer the 4 questions</h3>
                 <p>Time? Cost? Effort? Emissions impact? Score each dimension.</p>
               </div>
 
               <div class="info-box cost">
-                <div style="background: var(--accent-orange); color: white; width: 2.75rem; height: 2.75rem; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 1.375rem; font-weight: 700; margin-bottom: 1rem;">3</div>
+                <div style="background:var(--mint);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">3</div>
                 <h3>Decide together</h3>
                 <p>Should we do this? Why or why not?</p>
               </div>
@@ -1059,13 +768,13 @@
               <p>Which departments would be involved? Do we already have what we need? Have we tried something like this before?</p>
             </div>
 
-            <p style="text-align: center; font-size: 0.8125rem; color: var(--text-light); margin-top: 0.75rem; font-weight: 500;">
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
               The facilitator will help if you get stuck – just ask!
             </p>
           </div>
         </div>
 
-        <!-- Slide 6 -->
+        <!-- Slide 6: Group Presentations -->
         <div class="slide" data-slide="6">
           <div class="slide-header">
             <h1 class="heading-primary">Share Your Thinking (5 minutes)</h1>
@@ -1073,8 +782,8 @@
 
           <div class="slide-content">
             <div class="target-box">
-              <h2 style="font-size: 1.875rem;">Let's Hear From Each Group</h2>
-              <p style="font-size: 1.0625rem;">Each group shares their scores and reasoning for one initiative</p>
+              <h2 style="font-size:1.875rem;">Let's Hear From Each Group</h2>
+              <p style="font-size:1.0625rem;">Each group shares their scores and reasoning for one initiative</p>
             </div>
 
             <div class="info-box info">
@@ -1082,10 +791,10 @@
               <p>Pick ONE initiative from your worksheet to present. Share your scores across all 4 dimensions and explain your reasoning.</p>
             </div>
 
-            <div class="two-col" style="grid-template-columns: 1fr 1fr;">
-              <div class="icon-box" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 1.25rem;">What to Share</h3>
-                <ul style="font-size: 0.9375rem; line-height: 1.8; color: var(--text-dark); padding-left: 1.5rem; margin: 0;">
+            <div class="two-col" style="grid-template-columns:1fr 1fr;">
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--primary);font-size:1.2rem;margin-bottom:1rem;">What to Share</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
                   <li>Your scores for each dimension</li>
                   <li>Why you scored it that way</li>
                   <li>Where it plots on the matrix</li>
@@ -1093,9 +802,9 @@
                 </ul>
               </div>
 
-              <div class="icon-box" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--secondary); font-size: 1.25rem; margin-bottom: 1.25rem;">Discussion Points</h3>
-                <ul style="font-size: 0.9375rem; line-height: 1.8; color: var(--text-dark); padding-left: 1.5rem; margin: 0;">
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Discussion Points</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
                   <li>Did groups score the same initiative differently?</li>
                   <li>What factors influenced your thinking?</li>
                   <li>Did you consider factors beyond the 4 main dimensions?</li>
@@ -1132,33 +841,33 @@
           </div>
         </div>
 
-        <!-- Slide 7 -->
+        <!-- Slide 7: Wrap Up -->
         <div class="slide" data-slide="7">
           <div class="slide-header">
             <h1 class="heading-primary">You've Got The Basics!</h1>
           </div>
 
           <div class="slide-content">
-            <div class="info-box success" style="padding: 2rem;">
-              <h3 style="font-size: 1.375rem; margin-bottom: 1rem;">What You Just Learnt</h3>
-              <p style="font-size: 1.0625rem;">
+            <div class="info-box success" style="padding:1.8rem;">
+              <h3 style="font-size:1.35rem;margin-bottom:.75rem;">What You Just Learnt</h3>
+              <p style="font-size:1.05rem;">
                 How to evaluate any sustainability idea by asking 4 key questions: Time to implement? Cost required? Effort needed? Emissions impact towards RWH's goals?
               </p>
             </div>
 
-            <div class="two-col" style="grid-template-columns: 1fr 1fr;">
-              <div class="icon-box" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--primary); font-size: 1.25rem; margin-bottom: 1.25rem;">When to Use This</h3>
-                <ul style="font-size: 0.9375rem; line-height: 1.8; color: var(--text-dark); padding-left: 1.5rem; margin: 0;">
+            <div class="two-col" style="grid-template-columns:1fr 1fr;">
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--primary);font-size:1.2rem;margin-bottom:1rem;">When to Use This</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
                   <li>Someone suggests a new idea</li>
                   <li>You're planning your department's goals</li>
                   <li>You need to explain priorities to leadership</li>
                 </ul>
               </div>
 
-              <div class="icon-box" style="text-align: left; padding: 2rem;">
-                <h3 style="color: var(--secondary); font-size: 1.25rem; margin-bottom: 1.25rem;">Tips to Remember</h3>
-                <ul style="font-size: 0.9375rem; line-height: 1.8; color: var(--text-dark); padding-left: 1.5rem; margin: 0;">
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Tips to Remember</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
                   <li>Ask people from different departments</li>
                   <li>It's okay to change scores as you learn</li>
                   <li>Quick + cheap + helpful = great place to start!</li>
@@ -1167,20 +876,19 @@
             </div>
 
             <div class="target-box">
-              <h2 style="font-size: 1.75rem;">You're Now Part of the Team</h2>
-              <p style="font-size: 1.0625rem;">
+              <h2 style="font-size:1.7rem;">You're Now Part of the Team</h2>
+              <p style="font-size:1.05rem;">
                 Everyone at RWH can help us reach our sustainability goals. This simple framework helps us all work together.
               </p>
             </div>
 
-            <p style="text-align: center; font-size: 1.0625rem; font-style: italic; color: var(--text-light); margin-top: 1.5rem; font-weight: 500;">
+            <p style="text-align:center;font-size:1.05rem;font-style:italic;color:var(--text-light);margin-top:1rem;font-weight:600;">
               What did you notice during your group discussion? Any questions?
             </p>
           </div>
         </div>
       </div>
 
-      <!-- Navigation Footer -->
       <div class="nav-footer">
         <button class="btn-secondary" id="prevBtn" onclick="previousSlide()" aria-label="Previous slide">
           <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
@@ -1194,7 +902,7 @@
             <div class="progress-bar-inner" id="progressBar"></div>
           </div>
           <div class="slide-counter" id="slideCounter">1 / 7</div>
-          <div style="margin-top: 0.5rem; font-size: 0.6875rem; color: var(--text-light); opacity: 0.7;">
+          <div style="margin-top:.45rem;font-size:.6875rem;color:var(--text-light);opacity:.75;">
             2026 · Shrunk Innovation Group · All Rights Reserved
           </div>
         </div>
@@ -1220,100 +928,98 @@
       reconsider: '❓ RECONSIDER these initiatives carefully. They take time and resources but deliver minimal emissions benefits. Usually better to focus elsewhere.'
     };
 
-    function isMobile() {
-      return window.matchMedia("(max-width: 768px)").matches;
-    }
-
-    function showMatrixInfo(type) {
+    function showMatrixInfo(type){
       if (matrixInfo[type]) alert(matrixInfo[type]);
     }
 
-    function updateSlide() {
-      // Hide all slides
-      document.querySelectorAll('.slide').forEach(slide => slide.classList.remove('active'));
+    function getSlides(){
+      return Array.from(document.querySelectorAll('.slide-viewport .slide'));
+    }
 
-      // Show current slide
-      const current = document.querySelector(`[data-slide="${currentSlide}"]`);
-      current.classList.add('active');
+    function updateSlide(){
+      const slides = getSlides();
+      slides.forEach(s => s.classList.remove('active'));
 
-      // IMPORTANT: do not scroll viewport; scroll slide content
-      current.scrollTop = 0;
+      // Robust lookup (avoid selector quirks)
+      const next = slides.find(s => Number(s.dataset.slide) === Number(currentSlide));
+      if (!next) return;
 
-      // Update progress bar
+      next.classList.add('active');
+      next.scrollTop = 0;
+
       const progress = (currentSlide / totalSlides) * 100;
       document.getElementById('progressBar').style.width = progress + '%';
-
-      // Update slide counter
       document.getElementById('slideCounter').textContent = `${currentSlide} / ${totalSlides}`;
 
-      // Update button states
       document.getElementById('prevBtn').disabled = currentSlide === 1;
       document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
 
-      // Change last button text
       const nextBtn = document.getElementById('nextBtn');
-      if (currentSlide === totalSlides) {
+      if (currentSlide === totalSlides){
         nextBtn.innerHTML =
-          '✓ Finish<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"></polyline></svg>';
+          '✓ Finish' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="20 6 9 17 4 12"></polyline></svg>';
       } else {
         nextBtn.innerHTML =
-          'Next<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"></polyline></svg>';
+          'Next' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="9 18 15 12 9 6"></polyline></svg>';
       }
-
-      // Optional: hide fullscreen on mobile
-      const fsBtn = document.querySelector('.fullscreen-btn');
-      if (fsBtn) fsBtn.style.display = isMobile() ? 'none' : 'inline-flex';
     }
 
-    function nextSlide() {
-      if (currentSlide < totalSlides) {
-        currentSlide++;
+    function nextSlide(){
+      if (currentSlide < totalSlides){
+        currentSlide += 1;
         updateSlide();
       }
     }
 
-    function previousSlide() {
-      if (currentSlide > 1) {
-        currentSlide--;
+    function previousSlide(){
+      if (currentSlide > 1){
+        currentSlide -= 1;
         updateSlide();
       }
     }
 
-    function toggleFullscreen() {
-      if (!document.fullscreenElement) {
+    function toggleFullscreen(){
+      if (!document.fullscreenElement){
         document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
       } else {
         document.exitFullscreen();
       }
     }
 
+    // Keyboard nav
     document.addEventListener('keydown', (e) => {
       if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
-      else if (e.key === 'ArrowLeft') { e.preventDefault(); previousSlide(); }
-      else if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); previousSlide(); }
+      if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
     });
 
-    // Touch swipe
-    let touchStartX = 0;
-    let touchEndX = 0;
+    // Touch swipe (ignore if user is scrolling vertically inside a slide)
+    let startX = 0, startY = 0, endX = 0, endY = 0;
 
     document.addEventListener('touchstart', (e) => {
-      touchStartX = e.changedTouches[0].screenX;
+      const t = e.changedTouches[0];
+      startX = t.screenX;
+      startY = t.screenY;
     }, { passive: true });
 
     document.addEventListener('touchend', (e) => {
-      touchEndX = e.changedTouches[0].screenX;
-      handleSwipe();
+      const t = e.changedTouches[0];
+      endX = t.screenX;
+      endY = t.screenY;
+
+      const dx = endX - startX;
+      const dy = endY - startY;
+
+      // Only treat as swipe if mostly horizontal
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3){
+        if (dx < 0) nextSlide();
+        else previousSlide();
+      }
     }, { passive: true });
-
-    function handleSwipe() {
-      const swipeThreshold = 50;
-      if (touchEndX < touchStartX - swipeThreshold) nextSlide();
-      if (touchEndX > touchStartX + swipeThreshold) previousSlide();
-    }
-
-    // Re-evaluate layout on resize/orientation changes
-    window.addEventListener('resize', () => updateSlide(), { passive: true });
 
     // Init
     updateSlide();
