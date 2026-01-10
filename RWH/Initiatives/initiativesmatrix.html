@@ -3,17 +3,27 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Sustainability Evaluation Workshop</title>
+  <title>Sustainability Evaluation Workshop - Royal Women's Hospital Melbourne</title>
 
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&family=Sora:wght@700;800&display=swap" rel="stylesheet" />
 
   <style>
+    /* =========================
+       GREEN PALETTE
+       ========================= */
     :root{
       --primary:#1B8F4B;
       --primary-dark:#136B38;
       --primary-light:#2CCB74;
       --secondary:#7CCB5C;
       --accent:#A3E635;
+      --mint:#34D399;
+
+      --warning:#FBBF24;
+      --info:#60A5FA;
+      --grey:#E0E0E0;
 
       --text-dark:#0f172a;
       --text-medium:#334155;
@@ -23,346 +33,483 @@
       --bg-secondary:#f6fbf7;
       --bg-tertiary:#eaf6ee;
 
-      --radius:16px;
-      --radius-lg:22px;
-      --shadow:0 10px 30px rgba(0,0,0,.15);
-      --shadow-sm:0 6px 18px rgba(0,0,0,.12);
+      --shadow-sm:0 2px 8px rgba(0,0,0,.08);
+      --shadow-md:0 8px 24px rgba(0,0,0,.12);
+      --shadow-lg:0 20px 60px rgba(0,0,0,.15);
+
+      --radius-sm:.5rem;
+      --radius-md:.75rem;
+      --radius-lg:1rem;
+      --radius-xl:1.5rem;
+
+      --transition:all .3s cubic-bezier(.4,0,.2,1);
     }
 
-    *{box-sizing:border-box;margin:0;padding:0}
+    *{margin:0;padding:0;box-sizing:border-box;}
     body{
-      font-family:Inter,system-ui,sans-serif;
+      font-family:'Inter',system-ui,-apple-system,Segoe UI,sans-serif;
+      background:var(--bg-secondary);
       color:var(--text-dark);
-      background:#0f3d2a;
+      line-height:1.6;
+      -webkit-font-smoothing:antialiased;
+      -moz-osx-font-smoothing:grayscale;
     }
 
-    /* Subtle animated background */
+    .heading-primary{
+      font-family:'Sora',sans-serif;
+      font-weight:800;
+      letter-spacing:-.02em;
+    }
+
+    /* =========================
+       SUBTLY ANIMATED BACKGROUND
+       ========================= */
     .presentation-wrapper{
       min-height:100vh;
-      padding:1.5rem;
       display:flex;
+      padding:clamp(1rem,3vw,2rem);
+      position:relative;
+      overflow:hidden;
+
       background:
-        radial-gradient(circle at 15% 20%, rgba(44,203,116,.55), transparent 45%),
-        radial-gradient(circle at 85% 80%, rgba(124,203,92,.45), transparent 45%),
-        linear-gradient(135deg,#0f5132,#22c55e);
-      background-size: 120% 120%, 120% 120%, 100% 100%;
-      animation:bgMove 26s ease-in-out infinite alternate;
+        radial-gradient(1200px 800px at 20% 20%, rgba(134,239,172,.25), transparent 60%),
+        radial-gradient(1000px 700px at 80% 30%, rgba(163,230,53,.20), transparent 55%),
+        linear-gradient(135deg, #0b3d21 0%, #16a34a 40%, #86efac 100%);
+      background-size: 140% 140%, 140% 140%, 200% 200%;
+      animation: bgShift 18s ease-in-out infinite;
     }
-    @keyframes bgMove{
-      from{background-position:0% 0%,100% 100%,0% 0%}
-      to{background-position:18% 28%,82% 72%,100% 100%}
+
+    @keyframes bgShift{
+      0%,100%{background-position: 0% 0%, 100% 0%, 0% 50%;}
+      50%{background-position: 30% 20%, 70% 30%, 100% 50%;}
+    }
+
+    .presentation-wrapper::before,
+    .presentation-wrapper::after{
+      content:'';
+      position:absolute;
+      border-radius:50%;
+      background:rgba(255,255,255,.10);
+      filter: blur(1px);
+      animation: float 20s ease-in-out infinite;
+      pointer-events:none;
+    }
+    .presentation-wrapper::before{
+      width:420px;height:420px;top:-220px;right:-220px;animation-delay:-4s;
+    }
+    .presentation-wrapper::after{
+      width:320px;height:320px;bottom:-160px;left:-160px;
+    }
+    @keyframes float{
+      0%,100%{transform:translate(0,0) scale(1);}
+      50%{transform:translate(60px,50px) scale(1.08);}
     }
 
     .presentation-container{
-      width:100%;
-      max-width:1200px;
-      margin:auto;
+      flex:1;
+      max-width:1400px;
+      margin:0 auto;
       background:var(--bg-primary);
-      border-radius:24px;
-      box-shadow:var(--shadow);
+      border-radius:var(--radius-xl);
+      box-shadow:var(--shadow-lg);
       overflow:hidden;
       display:flex;
       flex-direction:column;
-      min-height:0;
       position:relative;
+      backdrop-filter:blur(16px);
+
+      /* IMPORTANT: fixes flex/overflow bugs on mobile */
+      min-height:0;
     }
 
-    /* Viewport must constrain slides */
+    /* Viewport is the stage; slides are absolutely positioned and swapped */
     .slide-viewport{
       flex:1;
       min-height:0;
+      position:relative;
       overflow:hidden;
+      isolation:isolate;
     }
 
-    /* Slides */
+    /* ===== SLIDE SWITCHING (ROBUST) =====
+       Avoid display:none bugs on mobile by using opacity/pointer-events. */
     .slide{
-      display:none;
-      height:100%;
+      position:absolute;
+      inset:0;
+      padding:clamp(2rem,5vw,4rem) clamp(2rem,5vw,5rem);
       overflow:auto;
-      padding:3rem;
       -webkit-overflow-scrolling:touch;
-    }
-    .slide.active{display:block;}
-    /* Title slides need flex when active */
-    .slide.title-slide.active{display:flex;}
 
-    h1,h2{font-family:Sora}
-    h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.08}
-    h2{font-size:clamp(1.2rem,3vw,2rem)}
-    p{color:var(--text-medium);font-weight:700}
-
-    /* Timer chips */
-    .timer-chip{
-      width:max-content;
-      margin:0 auto 1rem;
-      display:inline-flex;
-      align-items:center;
-      gap:.6rem;
-      padding:.55rem .9rem;
-      border-radius:999px;
-      font-weight:900;
-      font-size:.9rem;
-      color:#fff;
-      background:rgba(255,255,255,.14);
-      border:1px solid rgba(255,255,255,.22);
-      backdrop-filter: blur(10px);
-    }
-    .timer-dot{
-      width:10px;height:10px;border-radius:50%;
-      background:#fff;
-      opacity:.95;
-      box-shadow:0 0 0 6px rgba(255,255,255,.13);
+      opacity:0;
+      pointer-events:none;
+      transform: translateX(18px) scale(.995);
+      transition: opacity .28s ease, transform .35s cubic-bezier(.16,1,.3,1);
+      background: var(--bg-primary);
     }
 
-    /* Title slide layout */
-    .title-slide{
-      color:#fff;
-      text-align:center;
-      flex-direction:column;
-      justify-content:center;
-      gap:1rem;
-    }
-    .title-slide p{color:rgba(255,255,255,.88)}
-
-    /* Cards */
-    .icon-grid{
-      display:grid;
-      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-      gap:1.25rem;
-      margin-top:1.5rem;
-    }
-    .icon-box{
-      background:#fff;
-      padding:1.5rem;
-      border-radius:var(--radius);
-      box-shadow:var(--shadow-sm);
-      border:1px solid rgba(15,23,42,.06);
-      text-align:center;
-    }
-    .icon{font-size:2.4rem;margin-bottom:.7rem}
-    .icon-box h3{font-weight:900;font-size:1.08rem;margin-bottom:.35rem;color:var(--text-dark)}
-    .icon-box p{margin:0;color:var(--text-medium);font-weight:700}
-
-    /* Slide 2: ensure readability ONLY here (even though parent is white text) */
-    .slide-2 .icon-box h3{color:var(--text-dark)}
-    .slide-2 .icon-box p{color:var(--text-medium)}
-
-    /* Matrix */
-    .matrix-card{
-      margin-top:1.25rem;
-      background:linear-gradient(135deg, rgba(27,143,75,.10), rgba(124,203,92,.08));
-      border:1px solid rgba(27,143,75,.14);
-      border-radius:var(--radius-lg);
-      padding:1.25rem;
-      box-shadow:var(--shadow-sm);
-    }
-    .matrix-top{
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:1rem;
-      flex-wrap:wrap;
-    }
-    .help-link{
-      background:rgba(27,143,75,.10);
-      border:1px solid rgba(27,143,75,.18);
-      color:var(--primary-dark);
-      font-weight:900;
-      padding:.55rem .85rem;
-      border-radius:999px;
-      cursor:pointer;
-      min-height:44px;
+    .slide.active{
+      opacity:1;
+      pointer-events:auto;
+      transform:none;
     }
 
-    .matrix-grid{
-      margin-top:1rem;
-      display:grid;
-      grid-template-columns:90px 1fr 1fr;
-      grid-template-rows:auto 1fr 1fr;
-      gap:.8rem;
-      min-height:340px;
-    }
-    .matrix-header{
-      text-align:center;
-      padding:.5rem;
-      font-weight:900;
-      font-size:.8rem;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:var(--primary-dark);
-      background:rgba(255,255,255,.55);
-      border:1px solid rgba(15,23,42,.06);
-      border-radius:12px;
-    }
-    .matrix-label{
-      writing-mode:vertical-rl;
-      transform:rotate(180deg);
-      display:flex;
-      align-items:center;
-      justify-content:center;
-      font-weight:900;
-      font-size:.72rem;
-      letter-spacing:.08em;
-      text-transform:uppercase;
-      color:var(--text-light);
-    }
+    .slide::-webkit-scrollbar{width:8px;}
+    .slide::-webkit-scrollbar-track{background:var(--bg-tertiary);}
+    .slide::-webkit-scrollbar-thumb{background:var(--primary);border-radius:10px;}
+    .slide::-webkit-scrollbar-thumb:hover{background:var(--primary-dark);}
 
-    .matrix-cell{
-      border-radius:16px;
-      padding:1.15rem 1rem;
-      cursor:pointer;
-      border:1px solid rgba(15,23,42,.08);
-      box-shadow:0 10px 20px rgba(0,0,0,.10);
-      transition:transform .18s ease, box-shadow .18s ease;
-      display:flex;
-      flex-direction:column;
-      justify-content:center;
-      gap:.35rem;
-      user-select:none;
-      outline:none;
-    }
-    .matrix-cell:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(0,0,0,.14)}
-    .matrix-cell:focus-visible{box-shadow:0 0 0 4px rgba(27,143,75,.35), 0 14px 28px rgba(0,0,0,.14)}
-
-    .matrix-cell .emoji{font-size:2rem}
-    .matrix-cell .title{font-weight:900;font-size:1.05rem}
-    .matrix-cell .desc{font-weight:800;font-size:.9rem;line-height:1.35;opacity:.95}
-
-    .qw{background:linear-gradient(135deg,#16a34a,#4ade80);color:#fff}
-    .mp{background:linear-gradient(135deg,#84cc16,#bef264);color:#1f2937}
-    .fi{background:linear-gradient(135deg,#22c55e,#86efac);color:#064e3b}
-    .rc{background:linear-gradient(135deg,#e5e7eb,#f3f4f6);color:#111827}
-
-    .badge{
-      width:max-content;
-      margin-top:.35rem;
-      padding:.3rem .6rem;
-      border-radius:999px;
-      font-size:.78rem;
-      font-weight:900;
-      background:rgba(255,255,255,.22);
-      border:1px solid rgba(255,255,255,.28);
-    }
-    .mp .badge,.fi .badge,.rc .badge{
-      background:rgba(255,255,255,.55);
-      border-color:rgba(15,23,42,.08);
-    }
-
-    /* Footer nav */
+    /* Navigation Footer */
     .nav-footer{
+      background:linear-gradient(to top, rgba(255,255,255,.98) 0%, rgba(255,255,255,.94) 100%);
+      backdrop-filter:blur(14px);
+      border-top:1px solid rgba(27,143,75,.12);
+      padding:1.1rem 1.6rem;
       display:flex;
       align-items:center;
       justify-content:space-between;
-      padding:1rem 1.5rem;
-      border-top:1px solid rgba(0,0,0,.1);
-      background:rgba(255,255,255,.96);
       gap:1rem;
+      flex-shrink:0;
+      box-shadow:0 -4px 12px rgba(0,0,0,.05);
+      position:relative;
+      z-index:20;
     }
-    button{
-      background:var(--primary);
-      color:#fff;
-      border:none;
-      border-radius:999px;
-      padding:.7rem 1.4rem;
-      font-weight:900;
-      cursor:pointer;
-      min-height:44px;
-    }
-    button:disabled{opacity:.4;cursor:not-allowed}
 
-    .progress{
-      flex:1;
-      min-width:140px;
-    }
-    .progress-bar{
+    .progress-indicator{flex:1;max-width:420px;}
+    .progress-bar-outer{
       height:6px;
       background:var(--bg-tertiary);
       border-radius:999px;
       overflow:hidden;
+      margin-bottom:.6rem;
+      position:relative;
     }
-    .progress-inner{
+    .progress-bar-inner{
       height:100%;
       width:0%;
-      background:linear-gradient(90deg,var(--primary),var(--secondary));
-      transition:.4s;
+      background:linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%);
+      border-radius:999px;
+      transition: width .45s cubic-bezier(.16,1,.3,1);
     }
-    .counter{
-      margin-top:.45rem;
-      text-align:center;
+    .slide-counter{
+      font-size:.8125rem;
       color:var(--text-light);
-      font-weight:900;
-      font-size:.85rem;
+      font-weight:600;
+      text-align:center;
+      letter-spacing:.5px;
     }
 
-    /* Modal */
-    .modal-overlay{
-      position:fixed;
-      inset:0;
-      display:none;
+    /* Buttons */
+    button{
+      display:inline-flex;
       align-items:center;
       justify-content:center;
-      padding:1.2rem;
-      background:rgba(0,0,0,.45);
-      z-index:9999;
-    }
-    .modal-overlay.show{display:flex}
-    .modal{
-      width:min(760px,100%);
-      background:#fff;
-      border-radius:22px;
-      box-shadow:0 30px 90px rgba(0,0,0,.35);
+      gap:.5rem;
+      padding:.875rem 1.25rem;
+      border:none;
+      border-radius:var(--radius-md);
+      font-weight:700;
+      font-size:.9375rem;
+      cursor:pointer;
+      transition:var(--transition);
+      position:relative;
       overflow:hidden;
-      border:1px solid rgba(15,23,42,.08);
+      font-family:inherit;
+      user-select:none;
+      -webkit-tap-highlight-color: transparent;
+      min-height:44px;
     }
-    .modal-header{
-      padding:1rem 1.2rem;
-      display:flex;
-      justify-content:space-between;
-      align-items:flex-start;
-      gap:1rem;
-      background:linear-gradient(135deg, rgba(27,143,75,.12), rgba(124,203,92,.10));
-      border-bottom:1px solid rgba(15,23,42,.06);
+    button:disabled{opacity:.5;cursor:not-allowed;transform:none!important;}
+    button:not(:disabled):hover{transform:translateY(-2px);box-shadow:var(--shadow-md);}
+
+    .btn-primary{
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color:#fff;
     }
-    .modal-header h3{
-      font-family:Sora;
-      font-size:1.1rem;
-      margin:0;
-      color:var(--text-dark);
+    .btn-primary:not(:disabled):hover{
+      background:linear-gradient(135deg, var(--primary-dark) 0%, var(--primary) 100%);
     }
-    .modal-body{
-      padding:1.1rem 1.2rem 1.2rem;
-      color:var(--text-medium);
-      font-weight:800;
-    }
-    .modal-body ul{margin:.75rem 0 0 1.1rem;line-height:1.7}
-    .modal-actions{
-      padding:1rem 1.2rem;
-      border-top:1px solid rgba(15,23,42,.06);
-      display:flex;
-      justify-content:flex-end;
-      gap:.75rem;
-    }
-    .btn-outline{
+    .btn-secondary{
       background:#fff;
-      color:var(--primary-dark);
-      border:1px solid rgba(27,143,75,.25);
+      border:2px solid var(--bg-tertiary);
+      color:var(--text-medium);
+    }
+    .btn-secondary:not(:disabled):hover{
+      border-color:var(--primary);
+      color:var(--primary);
+      background:var(--bg-secondary);
     }
 
-    @media(max-width:900px){
-      .matrix-grid{grid-template-columns:70px 1fr 1fr;min-height:320px;}
+    /* Fullscreen button */
+    .fullscreen-btn{
+      position:absolute;
+      top:1.1rem;
+      left:1.1rem;
+      background:rgba(255,255,255,.95);
+      border:1px solid rgba(27,143,75,.18);
+      padding:.55rem .75rem;
+      border-radius:var(--radius-md);
+      cursor:pointer;
+      font-size:1.05rem;
+      z-index:50;
+      transition:var(--transition);
+      box-shadow:var(--shadow-sm);
+      line-height:1;
     }
-    @media(max-width:768px){
-      .presentation-wrapper{padding:0}
-      .presentation-container{border-radius:0;min-height:100dvh}
-      .slide{padding:2rem 1.25rem}
-      .matrix-top{flex-direction:column;align-items:flex-start}
-      .help-link{width:100%;text-align:center}
+    .fullscreen-btn:hover{
+      background:#fff;
+      transform:scale(1.05);
+      box-shadow:var(--shadow-md);
+      border-color:var(--primary);
+    }
+
+    /* Title slide */
+    .title-slide{
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      align-items:center;
+      text-align:center;
+      overflow:hidden;
+    }
+    .title-slide::before{
+      content:'';
+      position:absolute;
+      top:-50%;
+      right:-50%;
+      width:100%;
+      height:100%;
+      background:radial-gradient(circle, rgba(255,255,255,.12) 0%, transparent 70%);
+      animation: rotate 30s linear infinite;
+      pointer-events:none;
+    }
+    @keyframes rotate{from{transform:rotate(0deg);}to{transform:rotate(360deg);}}
+    .title-slide h1{
+      position:relative;
+      z-index:1;
+      color:#fff;
+      font-size:clamp(2.3rem,6vw,4.5rem);
+      margin-bottom:1.1rem;
+    }
+    .title-slide h2{
+      position:relative;
+      z-index:1;
+      color:rgba(255,255,255,.95);
+      font-size:clamp(1.15rem,3vw,2rem);
+      font-weight:600;
+      margin-bottom:2rem;
+    }
+    .title-slide p{
+      position:relative;
+      z-index:1;
+      color:rgba(255,255,255,.92);
+    }
+
+    /* Content headings */
+    .slide-header{
+      margin-bottom:2rem;
+      padding-bottom:1rem;
+      border-bottom:3px solid;
+      border-image:linear-gradient(90deg, var(--primary) 0%, var(--secondary) 100%) 1;
+    }
+    .slide-header h1{
+      font-size:clamp(1.8rem,4vw,3rem);
+      font-weight:900;
+      margin-bottom:.35rem;
+      background:linear-gradient(135deg, var(--primary) 0%, var(--secondary) 100%);
+      -webkit-background-clip:text;
+      -webkit-text-fill-color:transparent;
+      background-clip:text;
+    }
+
+    .slide-content{display:flex;flex-direction:column;gap:1.5rem;}
+
+    .info-box{
+      background:linear-gradient(135deg, rgba(163,230,53,.18) 0%, rgba(163,230,53,.06) 100%);
+      padding:1.15rem 1.35rem;
+      border-radius:var(--radius-md);
+      border-left:4px solid var(--accent);
+      box-shadow:var(--shadow-sm);
+    }
+    .info-box.success{
+      background:linear-gradient(135deg, rgba(124,203,92,.20) 0%, rgba(124,203,92,.06) 100%);
+      border-left-color:var(--secondary);
+    }
+    .info-box.info{
+      background:linear-gradient(135deg, rgba(27,143,75,.18) 0%, rgba(27,143,75,.05) 100%);
+      border-left-color:var(--primary);
+    }
+    .info-box h3{font-size:1.05rem;margin-bottom:.5rem;font-weight:800;}
+    .info-box p{color:var(--text-medium);font-size:.95rem;}
+
+    .target-box{
+      background:linear-gradient(135deg, var(--primary) 0%, var(--primary-light) 100%);
+      padding:1.8rem 2.1rem;
+      border-radius:var(--radius-lg);
+      color:#fff;
+      text-align:center;
+      box-shadow:0 8px 32px rgba(27,143,75,.22);
+      position:relative;
+      overflow:hidden;
+    }
+    .target-box::before{
+      content:'';
+      position:absolute;
+      inset:-50%;
+      background:radial-gradient(circle, rgba(255,255,255,.16) 0%, transparent 70%);
+      animation:pulse 3s ease-in-out infinite;
+      pointer-events:none;
+    }
+    @keyframes pulse{0%,100%{transform:scale(1);}50%{transform:scale(1.05);}}
+    .target-box h2,.target-box p{position:relative;z-index:1;}
+
+    .three-col{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(280px,1fr));
+      gap:1.2rem;
+    }
+    .two-col{
+      display:grid;
+      grid-template-columns:380px 1fr;
+      gap:1.6rem;
+    }
+
+    .icon-box{
+      background:linear-gradient(135deg, rgba(248,249,250,1) 0%, rgba(255,255,255,1) 100%);
+      padding:1.25rem;
+      border-radius:var(--radius-lg);
+      text-align:center;
+      border:2px solid transparent;
+      box-shadow:var(--shadow-sm);
+      transition:var(--transition);
+    }
+    .icon-box:hover{transform:translateY(-6px);box-shadow:var(--shadow-md);border-color:rgba(27,143,75,.35);}
+    .icon-box .icon{font-size:3rem;margin-bottom:.85rem;}
+    .icon-box h3{font-weight:900;margin-bottom:.4rem;}
+    .icon-box p{color:var(--text-light);font-size:.95rem;margin:0;}
+
+    .matrix-container{
+      background:linear-gradient(135deg, rgba(255,255,255,.92) 0%, rgba(248,249,250,.92) 100%);
+      border:2px solid rgba(27,143,75,.10);
+      border-radius:var(--radius-lg);
+      padding:1.4rem;
+      box-shadow:var(--shadow-sm);
+    }
+    .matrix-container > p:first-child{
+      text-align:center;font-weight:900;font-size:1.1rem;margin-bottom:1rem;
+    }
+    .matrix-grid{
+      display:grid;
+      grid-template-columns:90px 1fr 1fr;
+      grid-template-rows:auto 1fr 1fr;
+      gap:.8rem;
+      min-height:320px;
+    }
+    .matrix-header{
+      text-align:center;
+      font-size:.8rem;
+      font-weight:900;
+      color:var(--primary);
+      padding:.55rem;
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .matrix-label{
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-size:.68rem;
+      font-weight:900;
+      color:var(--text-light);
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      text-transform:uppercase;
+      letter-spacing:.08em;
+    }
+    .matrix-quadrant{
+      border-radius:var(--radius-md);
+      padding:1.2rem 1rem;
+      text-align:center;
+      color:#fff;
+      display:flex;
+      flex-direction:column;
+      align-items:center;
+      justify-content:center;
+      cursor:pointer;
+      transition:var(--transition);
+      box-shadow:var(--shadow-sm);
+      position:relative;
+      overflow:hidden;
+    }
+    .matrix-quadrant:hover{transform:scale(1.05);z-index:2;box-shadow:var(--shadow-md);}
+    .matrix-quadrant .emoji{font-size:2.2rem;margin-bottom:.5rem;}
+    .matrix-quadrant h3{font-size:1.02rem;font-weight:900;margin-bottom:.4rem;}
+    .matrix-quadrant p{font-size:.82rem;opacity:.95;margin:0;line-height:1.35;}
+
+    .matrix-quadrant.quick-wins{background:linear-gradient(135deg,#16a34a 0%,#4ade80 100%);}
+    .matrix-quadrant.major-projects{background:linear-gradient(135deg,#84cc16 0%,#bef264 100%);color:#1f2937;}
+    .matrix-quadrant.fill-ins{background:linear-gradient(135deg,#22c55e 0%,#86efac 100%);color:#064e3b;}
+    .matrix-quadrant.reconsider{background:linear-gradient(135deg,#E0E0E0 0%,#EEEEEE 100%);color:#616161;}
+
+    .badge{
+      background:rgba(255,255,255,.25);
+      border:1px solid rgba(255,255,255,.2);
+      padding:.45rem .75rem;
+      border-radius:var(--radius-sm);
+      font-size:.8rem;
+      font-weight:900;
+      margin-top:.6rem;
+    }
+
+    .question-box{
+      padding:1.1rem 1.35rem;
+      border-radius:var(--radius-md);
+      border-left:4px solid;
+      margin-bottom:.9rem;
+      background:var(--bg-primary);
+      box-shadow:var(--shadow-sm);
+      transition:var(--transition);
+    }
+    .question-box:hover{transform:translateX(6px);box-shadow:var(--shadow-md);}
+    .question-box h3{font-weight:900;margin-bottom:.4rem;}
+    .question-box p{margin:0;color:var(--text-medium);font-size:.95rem;}
+    .question-box.timeline{
+      background:linear-gradient(135deg, rgba(27,143,75,.10) 0%, rgba(27,143,75,.03) 100%);
+      border-left-color:var(--primary);
+    }
+    .question-box.timeline h3{color:var(--primary);}
+    .question-box.impact{
+      background:linear-gradient(135deg, rgba(124,203,92,.12) 0%, rgba(124,203,92,.03) 100%);
+      border-left-color:var(--secondary);
+    }
+    .question-box.impact h3{color:var(--secondary);}
+    .question-box.cost{
+      background:linear-gradient(135deg, rgba(52,211,153,.14) 0%, rgba(52,211,153,.03) 100%);
+      border-left-color:var(--mint);
+    }
+    .question-box.cost h3{color:var(--primary-dark);}
+
+    /* Mobile */
+    @media (max-width:1024px){.two-col{grid-template-columns:1fr;}}
+    @media (max-width:768px){
+      .presentation-wrapper{padding:0;}
+      .presentation-container{border-radius:0;height:100dvh;}
+      .slide{padding:1.6rem 1.1rem;}
+      .nav-footer{padding:.8rem .8rem;}
+      .progress-indicator{max-width:220px;}
+      .matrix-grid{grid-template-columns:70px 1fr 1fr;min-height:280px;}
+      .fullscreen-btn{display:none;}
+      .progress-indicator > div:last-child{display:none;}
     }
 
     @media (prefers-reduced-motion: reduce){
-      .presentation-wrapper{animation:none}
-      .matrix-cell{transition:none}
-      .progress-inner{transition:none}
+      .presentation-wrapper{animation:none;}
+      .presentation-wrapper::before,.presentation-wrapper::after{animation:none;}
+      .title-slide::before{animation:none;}
+      .target-box::before{animation:none;}
+      .slide{transition:none;}
+      button{transition:none;}
     }
   </style>
 </head>
@@ -370,386 +517,512 @@
 <body>
   <div class="presentation-wrapper">
     <div class="presentation-container">
+      <button class="fullscreen-btn" onclick="toggleFullscreen()" title="Toggle Fullscreen" aria-label="Toggle fullscreen mode">⛶</button>
 
-      <div class="slide-viewport">
-
-        <!-- SLIDE 1 -->
-        <section class="slide title-slide active" data-slide="1" style="background:linear-gradient(135deg,#136B38,#2CCB74)">
-          <div class="timer-chip"><span class="timer-dot"></span> 15 minutes total</div>
-          <h1>Sustainability Evaluation Workshop</h1>
-          <h2>Making Smart Choices for RWH’s Future</h2>
-          <p>Royal Women’s Hospital Melbourne</p>
-          <p style="opacity:.92">15-minute interactive session</p>
-        </section>
-
-        <!-- SLIDE 2 -->
-        <section class="slide title-slide slide-2" data-slide="2" style="background:linear-gradient(135deg,#136B38,#2CCB74)">
-          <div class="timer-chip"><span class="timer-dot"></span> 1 minute</div>
-          <h1>What success looks like today</h1>
-          <p>By the end, you’ll be able to:</p>
-
-          <div class="icon-grid">
-            <div class="icon-box">
-              <div class="icon">🧮</div>
-              <h3>Score any idea</h3>
-              <p>Use the 4 questions consistently.</p>
-            </div>
-            <div class="icon-box">
-              <div class="icon">🧭</div>
-              <h3>Place it on the matrix</h3>
-              <p>Quick Win, Major Project, Fill-In, or Reconsider.</p>
-            </div>
-            <div class="icon-box">
-              <div class="icon">🗣️</div>
-              <h3>Explain your recommendation</h3>
-              <p>Share the “why” in 30 seconds.</p>
-            </div>
-          </div>
-        </section>
-
-        <!-- SLIDE 3 -->
-        <section class="slide" data-slide="3">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-            <div>
-              <h1>The Evaluation Matrix</h1>
-              <p style="margin-top:.6rem;">Tap a quadrant to see what it means and what to do next.</p>
-            </div>
-            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-              <span class="timer-dot" style="background:var(--primary)"></span> 2 minutes
-            </div>
-          </div>
-
-          <div class="matrix-card">
-            <div class="matrix-top">
-              <h2 style="margin:0;color:var(--text-dark)">Where should we focus?</h2>
-              <button class="help-link" type="button" onclick="openModal('howToUse')">How to use this</button>
-            </div>
-
-            <div class="matrix-grid" role="group" aria-label="Evaluation matrix">
-              <div></div>
-              <div class="matrix-header">Short Time</div>
-              <div class="matrix-header">Long Time</div>
-
-              <div class="matrix-label">High Impact</div>
-              <div class="matrix-cell qw" tabindex="0" role="button" aria-label="Quick Wins" data-modal="quickWins">
-                <div class="emoji">⭐</div>
-                <div class="title">QUICK WINS</div>
-                <div class="desc">High impact + fast to implement</div>
-                <div class="badge">Start here</div>
-              </div>
-              <div class="matrix-cell mp" tabindex="0" role="button" aria-label="Major Projects" data-modal="majorProjects">
-                <div class="emoji">🎯</div>
-                <div class="title">MAJOR PROJECTS</div>
-                <div class="desc">Big impact + needs planning</div>
-                <div class="badge">Roadmap</div>
-              </div>
-
-              <div class="matrix-label">Low Impact</div>
-              <div class="matrix-cell fi" tabindex="0" role="button" aria-label="Fill-Ins" data-modal="fillIns">
-                <div class="emoji">✓</div>
-                <div class="title">FILL-INS</div>
-                <div class="desc">Easy improvements + smaller gains</div>
-                <div class="badge">Bundle</div>
-              </div>
-              <div class="matrix-cell rc" tabindex="0" role="button" aria-label="Reconsider" data-modal="reconsider">
-                <div class="emoji">❓</div>
-                <div class="title">RECONSIDER</div>
-                <div class="desc">Low value for time/cost/effort</div>
-                <div class="badge">Park</div>
-              </div>
-            </div>
-
-            <p style="margin-top:1rem;color:var(--text-light);font-weight:900;">
-              Tip: Cost & effort still matter — they help you prioritise within each quadrant.
-            </p>
-          </div>
-        </section>
-
-        <!-- SLIDE 4 -->
-        <section class="slide" data-slide="4">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-            <div>
-              <h1>Decision Rules</h1>
-              <p style="margin-top:.6rem;">Turn scores into action: Do / Pilot / Defer / Stop.</p>
-            </div>
-            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-              <span class="timer-dot" style="background:var(--primary)"></span> 1 minute
-            </div>
-          </div>
-
-          <div class="icon-grid" style="margin-top:1.25rem;">
-            <div class="icon-box" style="text-align:left">
-              <div class="icon">⭐</div>
-              <h3>Quick Wins</h3>
-              <p><strong>Do now:</strong> pilot in 30–60 days, track one metric.</p>
-              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('quickWins')">See details</button></p>
-            </div>
-
-            <div class="icon-box" style="text-align:left">
-              <div class="icon">🎯</div>
-              <h3>Major Projects</h3>
-              <p><strong>Plan:</strong> scope + stakeholders + business case.</p>
-              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('majorProjects')">See details</button></p>
-            </div>
-
-            <div class="icon-box" style="text-align:left">
-              <div class="icon">✓</div>
-              <h3>Fill-Ins</h3>
-              <p><strong>Bundle:</strong> implement during upgrades and maintenance.</p>
-              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('fillIns')">See details</button></p>
-            </div>
-
-            <div class="icon-box" style="text-align:left">
-              <div class="icon">❓</div>
-              <h3>Reconsider</h3>
-              <p><strong>Park:</strong> revisit only if assumptions change.</p>
-              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('reconsider')">See details</button></p>
-            </div>
-          </div>
-        </section>
-
-        <!-- SLIDE 5 -->
-        <section class="slide" data-slide="5">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-            <div>
-              <h1>Worksheet</h1>
-              <p style="margin-top:.6rem;">Use this template for any initiative.</p>
-            </div>
-            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-              <span class="timer-dot" style="background:var(--primary)"></span> 8 minutes activity
-            </div>
-          </div>
-
-          <div class="icon-box" style="text-align:left;margin-top:1.25rem;">
-            <h3 style="margin-bottom:.6rem;">Template</h3>
-            <ul style="margin-left:1.1rem;line-height:1.8;color:var(--text-medium);font-weight:800;">
-              <li><strong>Initiative:</strong> what is changing, where, who is affected?</li>
-              <li><strong>Scores:</strong> Time / Cost / Effort / Impact (+ notes)</li>
-              <li><strong>Other factors:</strong> safety, compliance, disruption, stakeholders</li>
-              <li><strong>Assumptions:</strong> what would change the score?</li>
-              <li><strong>Recommendation:</strong> Do / Pilot / Defer / Stop</li>
-            </ul>
-          </div>
-
-          <p style="margin-top:1rem;color:var(--text-light);font-weight:900;">
-            If groups disagree, write the assumption causing the difference — that’s the key output.
-          </p>
-        </section>
-
-        <!-- SLIDE 6 -->
-        <section class="slide" data-slide="6">
-          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-            <div>
-              <h1>Next Steps</h1>
-              <p style="margin-top:.6rem;">Turn the shortlist into pilots with owners and a review date.</p>
-            </div>
-            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-              <span class="timer-dot" style="background:var(--primary)"></span> 2 minutes
-            </div>
-          </div>
-
-          <div class="icon-grid" style="margin-top:1.25rem;">
-            <div class="icon-box" style="text-align:left">
-              <h3>Top 3 quick wins</h3>
-              <p>Choose 3 feasible, high-value items.</p>
-            </div>
-            <div class="icon-box" style="text-align:left">
-              <h3>Assign owners</h3>
-              <p>Who runs the pilot and coordinates stakeholders?</p>
-            </div>
-            <div class="icon-box" style="text-align:left">
-              <h3>Set a review date</h3>
-              <p>Decide whether to scale after learning.</p>
-            </div>
-          </div>
-        </section>
-
-      </div><!-- /slide-viewport -->
-
-      <!-- FOOTER -->
-      <div class="nav-footer">
-        <button id="prev" type="button">Previous</button>
-
-        <div class="progress" aria-label="Slide progress">
-          <div class="progress-bar"><div class="progress-inner" id="bar"></div></div>
-          <div class="counter" id="counter">1 / 6</div>
+      <div class="slide-viewport" id="slideViewport">
+        <!-- Slide 1: Title -->
+        <div class="slide title-slide active" data-slide="1">
+          <h1 class="heading-primary">Sustainability Evaluation Workshop</h1>
+          <h2>Making Smart Choices for RWH's Future</h2>
+          <p style="margin-top: 2.6rem;">Royal Women's Hospital Melbourne</p>
+          <p style="margin-top: .75rem; font-size: 1rem; opacity: .9;">A 15-minute interactive training session</p>
         </div>
 
-        <button id="next" type="button">Next</button>
+        <!-- Slide 2: Emissions Target -->
+        <div class="slide" data-slide="2">
+          <div class="slide-header">
+            <h1 class="heading-primary">Why This Matters</h1>
+          </div>
+          <div class="slide-content">
+            <div class="target-box">
+              <p style="font-size:1.125rem;opacity:.92;">RWH is committed to</p>
+              <h2>Reducing Our Emissions</h2>
+              <p style="font-size:1.25rem;opacity:.96;">Working towards Net Zero in healthcare</p>
+            </div>
+
+            <div class="info-box">
+              <h3>💡 What are emissions?</h3>
+              <p>Greenhouse gases from our energy, waste, and supplies that contribute to climate change</p>
+            </div>
+
+            <div class="three-col">
+              <div class="icon-box">
+                <div class="icon">⚡</div>
+                <h3>Energy</h3>
+                <p>Electricity, heating, cooling</p>
+              </div>
+
+              <div class="icon-box">
+                <div class="icon">🗑️</div>
+                <h3>Waste</h3>
+                <p>What we throw away</p>
+              </div>
+
+              <div class="icon-box">
+                <div class="icon">📦</div>
+                <h3>Supplies</h3>
+                <p>Everything we purchase</p>
+              </div>
+            </div>
+
+            <div class="info-box success">
+              <h3>Your Role Today</h3>
+              <p>Learn how to evaluate which initiatives will best help RWH reduce emissions</p>
+            </div>
+
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
+              Healthcare is ~7% of Australia's emissions | Every department plays a part
+            </p>
+          </div>
+        </div>
+
+        <!-- Slide 3: Matrix Framework -->
+        <div class="slide" data-slide="3">
+          <div class="slide-header">
+            <h1 class="heading-primary">The Evaluation Matrix: 4 Key Questions</h1>
+            <p style="font-size:.9375rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
+              Plus any other factors relevant to your department
+            </p>
+          </div>
+
+          <div class="slide-content">
+            <div class="two-col">
+              <div>
+                <div class="info-box">
+                  <h3>💡 Why use a matrix?</h3>
+                  <p>Compare ALL initiatives across multiple dimensions to find the best opportunities for RWH's emissions reduction goals</p>
+                </div>
+
+                <div class="question-box timeline">
+                  <h3>1️⃣ Time to Implement</h3>
+                  <p>Short: 0-6mo | Medium: 6-12mo | Long: 12-24mo</p>
+                </div>
+
+                <div class="question-box cost">
+                  <h3>2️⃣ Cost Required</h3>
+                  <p>0-1: Minimal | 2-3: Moderate | 4-5: Major investment</p>
+                </div>
+
+                <div class="question-box cost">
+                  <h3>3️⃣ Effort to Implement</h3>
+                  <p>Low: Easy change | Medium: Some training | High: Significant coordination</p>
+                </div>
+
+                <div class="question-box impact">
+                  <h3>4️⃣ Emissions Impact</h3>
+                  <p>High: Major reduction | Medium: Noticeable | Low: Small but helpful</p>
+                  <p style="margin-top:.5rem;font-size:.8125rem;font-style:italic;">🎯 Towards RWH's Net Zero goals</p>
+                </div>
+
+                <div class="info-box success" style="margin-top:1rem;">
+                  <h3>✨ The Power of the Matrix</h3>
+                  <p>By scoring initiatives across these 4 dimensions (and others relevant to your area), we can identify Quick Wins and prioritise strategically!</p>
+                </div>
+              </div>
+
+              <div class="matrix-container">
+                <p>Where Should We Focus?</p>
+                <p style="font-size:.75rem;color:var(--text-light);text-align:center;margin-bottom:.75rem;font-style:italic;">
+                  Simplified view: Time vs Impact (Cost & Effort inform priority too)
+                </p>
+
+                <div class="matrix-grid">
+                  <div></div>
+                  <div class="matrix-header">Short Time</div>
+                  <div class="matrix-header">Long Time</div>
+
+                  <div class="matrix-label">High Impact</div>
+                  <div class="matrix-quadrant quick-wins" onclick="showMatrixInfo('quickWins')">
+                    <div class="emoji">⭐</div>
+                    <h3>QUICK WINS</h3>
+                    <p>High emissions reduction<br/>Fast to implement<br/>Low investment</p>
+                    <div class="badge">START HERE! 🚀</div>
+                  </div>
+
+                  <div class="matrix-quadrant major-projects" onclick="showMatrixInfo('majorProjects')">
+                    <div class="emoji">🎯</div>
+                    <h3>MAJOR PROJECTS</h3>
+                    <p>Big impact<br/>Needs planning<br/>Higher cost</p>
+                  </div>
+
+                  <div class="matrix-label">Low Impact</div>
+                  <div class="matrix-quadrant fill-ins" onclick="showMatrixInfo('fillIns')">
+                    <div class="emoji">✓</div>
+                    <h3>FILL-INS</h3>
+                    <p>Quick and easy<br/>Small gains</p>
+                  </div>
+
+                  <div class="matrix-quadrant reconsider" onclick="showMatrixInfo('reconsider')">
+                    <div class="emoji">❓</div>
+                    <h3>RECONSIDER</h3>
+                    <p>Low benefit<br/>Takes time<br/>Costs more</p>
+                  </div>
+                </div>
+              </div>
+            </div>
+
+            <div class="info-box info">
+              <h3>🎯 Key Insight</h3>
+              <p>RWH has 82 initiatives scored across these dimensions. The matrix helps us visualize where to focus first – Quick Wins that are fast, low effort, low cost, with meaningful emissions impact!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 4: Example -->
+        <div class="slide" data-slide="4">
+          <div class="slide-header">
+            <h1 class="heading-primary">Let's Try an Example Together</h1>
+          </div>
+
+          <div class="slide-content">
+            <div class="target-box">
+              <h2 style="font-size:1.875rem;">Digital Notice Boards</h2>
+              <p style="font-size:1.0625rem;">Replace printed posters and notices with digital screens that can be updated remotely across departments</p>
+            </div>
+
+            <div class="info-box">
+              <h3>💭 Let's think through this...</h3>
+              <p>How long to install screens? How much paper waste prevented? What's the cost and effort to implement?</p>
+            </div>
+
+            <div class="three-col" style="grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));">
+              <div class="question-box timeline">
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Time</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">Short</h3>
+                <p style="font-size:.875rem;">3-6 months</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Install + train staff</p>
+              </div>
+
+              <div class="question-box cost">
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Cost</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">2</h3>
+                <p style="font-size:.875rem;">Moderate</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Screens + software</p>
+              </div>
+
+              <div class="question-box cost">
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Effort</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">Low</h3>
+                <p style="font-size:.875rem;">Easy change</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Simple training</p>
+              </div>
+
+              <div class="question-box impact">
+                <p style="font-size:.8125rem;font-weight:800;margin-bottom:.5rem;text-transform:uppercase;letter-spacing:.05em;">Impact</p>
+                <h3 style="font-size:2.1rem;margin:.5rem 0;">Low</h3>
+                <p style="font-size:.875rem;">Small reduction</p>
+                <p style="font-size:.75rem;margin-top:.5rem;font-style:italic;opacity:.85;">Saves paper waste</p>
+              </div>
+            </div>
+
+            <div class="info-box info">
+              <h3>✓ This is a FILL-IN</h3>
+              <p>Quick to implement with low effort, modest cost for equipment. Small emissions impact (reduces paper waste and printing energy) but provides additional benefits like easier updates and better communication!</p>
+            </div>
+
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
+              📍 Fill-Ins are worthwhile when they're easy to implement and provide multiple benefits beyond emissions
+            </p>
+          </div>
+        </div>
+
+        <!-- Slide 5: Group Activity -->
+        <div class="slide" data-slide="5">
+          <div class="slide-header">
+            <h1 class="heading-primary">Now Your Turn! (8 minutes)</h1>
+          </div>
+
+          <div class="slide-content">
+            <div class="target-box" style="background:linear-gradient(135deg,#22c55e 0%,#86efac 100%);">
+              <h2 style="font-size:1.875rem;">Your Worksheet Has 3 Ideas</h2>
+              <p style="font-size:1.0625rem;">Work together to score each one. There are no wrong answers!</p>
+            </div>
+
+            <div class="three-col">
+              <div class="info-box timeline">
+                <div style="background:var(--primary);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">1</div>
+                <h3>Read the idea</h3>
+                <p>What is it asking us to do? Does everyone understand it?</p>
+              </div>
+
+              <div class="info-box impact">
+                <div style="background:var(--secondary);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">2</div>
+                <h3>Answer the 4 questions</h3>
+                <p>Time? Cost? Effort? Emissions impact? Score each dimension.</p>
+              </div>
+
+              <div class="info-box cost">
+                <div style="background:var(--mint);color:#fff;width:2.75rem;height:2.75rem;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:1.375rem;font-weight:900;margin-bottom:1rem;">3</div>
+                <h3>Decide together</h3>
+                <p>Should we do this? Why or why not?</p>
+              </div>
+            </div>
+
+            <div class="info-box info">
+              <h3>🤝 Remember:</h3>
+              <p>Everyone's opinion matters! Clinical staff, admin, facilities – you all see different parts of the hospital.</p>
+            </div>
+
+            <div class="info-box">
+              <h3>💭 Questions to Ask Each Other:</h3>
+              <p>Which departments would be involved? Do we already have what we need? Have we tried something like this before?</p>
+            </div>
+
+            <p style="text-align:center;font-size:.8125rem;color:var(--text-light);margin-top:.5rem;font-weight:600;">
+              The facilitator will help if you get stuck – just ask!
+            </p>
+          </div>
+        </div>
+
+        <!-- Slide 6: Group Presentations -->
+        <div class="slide" data-slide="6">
+          <div class="slide-header">
+            <h1 class="heading-primary">Share Your Thinking (5 minutes)</h1>
+          </div>
+
+          <div class="slide-content">
+            <div class="target-box">
+              <h2 style="font-size:1.875rem;">Let's Hear From Each Group</h2>
+              <p style="font-size:1.0625rem;">Each group shares their scores and reasoning for one initiative</p>
+            </div>
+
+            <div class="info-box info">
+              <h3>📊 Presentation Format</h3>
+              <p>Pick ONE initiative from your worksheet to present. Share your scores across all 4 dimensions and explain your reasoning.</p>
+            </div>
+
+            <div class="two-col" style="grid-template-columns:1fr 1fr;">
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--primary);font-size:1.2rem;margin-bottom:1rem;">What to Share</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
+                  <li>Your scores for each dimension</li>
+                  <li>Why you scored it that way</li>
+                  <li>Where it plots on the matrix</li>
+                  <li>Would you recommend doing it?</li>
+                </ul>
+              </div>
+
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Discussion Points</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
+                  <li>Did groups score the same initiative differently?</li>
+                  <li>What factors influenced your thinking?</li>
+                  <li>Did you consider factors beyond the 4 main dimensions?</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="info-box">
+              <h3>💡 Remember</h3>
+              <p>There's no single "right" answer – different departments may score initiatives differently based on their knowledge and perspective. That's valuable!</p>
+            </div>
+
+            <div class="three-col">
+              <div class="question-box timeline">
+                <h3>Group 1</h3>
+                <p>~1 minute to present your chosen initiative and scores</p>
+              </div>
+
+              <div class="question-box impact">
+                <h3>Group 2</h3>
+                <p>~1 minute to present your chosen initiative and scores</p>
+              </div>
+
+              <div class="question-box cost">
+                <h3>Group 3+</h3>
+                <p>~1 minute each for remaining groups to present</p>
+              </div>
+            </div>
+
+            <div class="info-box success">
+              <h3>🎯 Learning Objectives</h3>
+              <p>By hearing different perspectives, you'll see how the matrix helps structure discussions and reveals different priorities across departments. This is how we build consensus!</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slide 7: Wrap Up -->
+        <div class="slide" data-slide="7">
+          <div class="slide-header">
+            <h1 class="heading-primary">You've Got The Basics!</h1>
+          </div>
+
+          <div class="slide-content">
+            <div class="info-box success" style="padding:1.8rem;">
+              <h3 style="font-size:1.35rem;margin-bottom:.75rem;">What You Just Learnt</h3>
+              <p style="font-size:1.05rem;">
+                How to evaluate any sustainability idea by asking 4 key questions: Time to implement? Cost required? Effort needed? Emissions impact towards RWH's goals?
+              </p>
+            </div>
+
+            <div class="two-col" style="grid-template-columns:1fr 1fr;">
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--primary);font-size:1.2rem;margin-bottom:1rem;">When to Use This</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
+                  <li>Someone suggests a new idea</li>
+                  <li>You're planning your department's goals</li>
+                  <li>You need to explain priorities to leadership</li>
+                </ul>
+              </div>
+
+              <div class="icon-box" style="text-align:left;padding:1.8rem;">
+                <h3 style="color:var(--secondary);font-size:1.2rem;margin-bottom:1rem;">Tips to Remember</h3>
+                <ul style="font-size:.95rem;line-height:1.8;color:var(--text-dark);padding-left:1.2rem;margin:0;">
+                  <li>Ask people from different departments</li>
+                  <li>It's okay to change scores as you learn</li>
+                  <li>Quick + cheap + helpful = great place to start!</li>
+                </ul>
+              </div>
+            </div>
+
+            <div class="target-box">
+              <h2 style="font-size:1.7rem;">You're Now Part of the Team</h2>
+              <p style="font-size:1.05rem;">
+                Everyone at RWH can help us reach our sustainability goals. This simple framework helps us all work together.
+              </p>
+            </div>
+
+            <p style="text-align:center;font-size:1.05rem;font-style:italic;color:var(--text-light);margin-top:1rem;font-weight:600;">
+              What did you notice during your group discussion? Any questions?
+            </p>
+          </div>
+        </div>
       </div>
 
-    </div>
-  </div>
+      <div class="nav-footer">
+        <button class="btn-secondary" id="prevBtn" onclick="previousSlide()" aria-label="Previous slide">
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+          Previous
+        </button>
 
-  <!-- MODAL -->
-  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-    <div class="modal" role="document">
-      <div class="modal-header">
-        <h3 id="modalTitle">Title</h3>
-        <button class="btn-outline" id="modalCloseTop" type="button" onclick="closeModal()">Close</button>
-      </div>
-      <div class="modal-body" id="modalBody"></div>
-      <div class="modal-actions">
-        <button class="btn-outline" type="button" onclick="closeModal()">Close</button>
-        <button type="button" onclick="closeModal()">Done</button>
+        <div class="progress-indicator">
+          <div class="progress-bar-outer">
+            <div class="progress-bar-inner" id="progressBar"></div>
+          </div>
+          <div class="slide-counter" id="slideCounter">1 / 7</div>
+          <div style="margin-top:.45rem;font-size:.6875rem;color:var(--text-light);opacity:.75;">
+            2026 · Shrunk Innovation Group · All Rights Reserved
+          </div>
+        </div>
+
+        <button class="btn-primary" id="nextBtn" onclick="nextSlide()" aria-label="Next slide">
+          Next
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <polyline points="9 18 15 12 9 6"></polyline>
+          </svg>
+        </button>
       </div>
     </div>
   </div>
 
   <script>
-    /* =========================
-       SLIDES (strong hide/show)
-    ========================= */
-    let current = 1;
-    const total = 6;
-    const slides = Array.from(document.querySelectorAll(".slide"));
-    const bar = document.getElementById("bar");
-    const counter = document.getElementById("counter");
+    let currentSlide = 1;
+    const totalSlides = 7;
 
-    function updateSlides(){
-      slides.forEach((s, idx) => {
-        const isActive = (idx === current - 1);
-        s.classList.toggle("active", isActive);
-
-        // Force hide/show to avoid any CSS edge cases
-        s.style.display = isActive ? "" : "none";
-        s.setAttribute("aria-hidden", isActive ? "false" : "true");
-
-        // Reset scroll on slide change
-        if (isActive) s.scrollTop = 0;
-      });
-
-      bar.style.width = (current / total * 100) + "%";
-      counter.textContent = `${current} / ${total}`;
-
-      document.getElementById("prev").disabled = current === 1;
-      document.getElementById("next").disabled = current === total;
-    }
-
-    document.getElementById("next").addEventListener("click", () => {
-      if (current < total){ current++; updateSlides(); }
-    });
-    document.getElementById("prev").addEventListener("click", () => {
-      if (current > 1){ current--; updateSlides(); }
-    });
-
-    /* Keyboard nav */
-    document.addEventListener("keydown", (e) => {
-      const modalOpen = document.getElementById("modalOverlay").classList.contains("show");
-      if (modalOpen) {
-        if (e.key === "Escape") closeModal();
-        return;
-      }
-      if (e.key === "ArrowRight" || e.key === " ") {
-        e.preventDefault();
-        if (current < total){ current++; updateSlides(); }
-      }
-      if (e.key === "ArrowLeft") {
-        e.preventDefault();
-        if (current > 1){ current--; updateSlides(); }
-      }
-    });
-
-    /* =========================
-       MODAL CONTENT + MATRIX
-    ========================= */
-    const modalOverlay = document.getElementById("modalOverlay");
-    const modalTitle = document.getElementById("modalTitle");
-    const modalBody  = document.getElementById("modalBody");
-    let lastFocusEl = null;
-
-    const modalContent = {
-      howToUse: {
-        title: "How to use the matrix",
-        body: `
-          <p>This is a quick way to turn scoring into a sensible priority.</p>
-          <ul>
-            <li><strong>Impact vs Time</strong> shows where to focus first.</li>
-            <li><strong>Cost + Effort</strong> help you rank options within a quadrant.</li>
-            <li>If groups disagree, write the <strong>assumption</strong> causing the difference.</li>
-          </ul>
-          <p style="margin-top:.75rem;"><strong>Tip:</strong> Start with Quick Wins to build momentum, then plan Major Projects.</p>
-        `
-      },
-      quickWins: {
-        title: "⭐ Quick Wins",
-        body: `
-          <p><strong>Meaning:</strong> High impact and fast to implement.</p>
-          <ul>
-            <li>Pick an owner and a small pilot (30–60 days).</li>
-            <li>Track one metric (kWh, waste kg, purchasing change, staff time).</li>
-            <li>Scale after proving feasibility.</li>
-          </ul>
-        `
-      },
-      majorProjects: {
-        title: "🎯 Major Projects",
-        body: `
-          <p><strong>Meaning:</strong> Big emissions reduction but needs planning/investment.</p>
-          <ul>
-            <li>Define scope and stakeholders (Facilities, IT, Procurement, Clinical leads).</li>
-            <li>Create a short business case (cost, timeline, disruption, benefits).</li>
-            <li>Add to the roadmap and stage delivery (pilot → rollout).</li>
-          </ul>
-        `
-      },
-      fillIns: {
-        title: "✓ Fill-Ins",
-        body: `
-          <p><strong>Meaning:</strong> Smaller gains, easy to do.</p>
-          <ul>
-            <li>Bundle into a “small improvements” program.</li>
-            <li>Implement during routine upgrades or maintenance windows.</li>
-            <li>Prioritise those with extra benefits (workflow, safety, cost savings).</li>
-          </ul>
-        `
-      },
-      reconsider: {
-        title: "❓ Reconsider",
-        body: `
-          <p><strong>Meaning:</strong> Low value relative to time/cost/effort.</p>
-          <ul>
-            <li>Park it unless compliance requires it.</li>
-            <li>List what evidence would change the score.</li>
-            <li>Revisit only if constraints change (funding, tech, supplier, policy).</li>
-          </ul>
-        `
-      }
+    const matrixInfo = {
+      quickWins: '⭐ QUICK WINS are your best opportunities! These initiatives deliver high emissions reductions quickly and cost-effectively. Always start here to build momentum.',
+      majorProjects: '🎯 MAJOR PROJECTS require significant planning and investment but deliver substantial emissions reductions. These form your long-term strategy.',
+      fillIns: '✓ FILL-INS are easy additions that you can implement when you have spare capacity. While the impact is small, every bit helps!',
+      reconsider: '❓ RECONSIDER these initiatives carefully. They take time and resources but deliver minimal emissions benefits. Usually better to focus elsewhere.'
     };
 
-    function openModal(key){
-      const data = modalContent[key];
-      if (!data) return;
-
-      lastFocusEl = document.activeElement;
-      modalTitle.textContent = data.title;
-      modalBody.innerHTML = data.body;
-
-      modalOverlay.classList.add("show");
-      setTimeout(() => document.getElementById("modalCloseTop").focus(), 0);
+    function showMatrixInfo(type){
+      if (matrixInfo[type]) alert(matrixInfo[type]);
     }
 
-    function closeModal(){
-      modalOverlay.classList.remove("show");
-      if (lastFocusEl && typeof lastFocusEl.focus === "function") lastFocusEl.focus();
+    function getSlides(){
+      return Array.from(document.querySelectorAll('.slide-viewport .slide'));
     }
 
-    modalOverlay.addEventListener("click", (e) => {
-      if (e.target === modalOverlay) closeModal();
+    function updateSlide(){
+      const slides = getSlides();
+      slides.forEach(s => s.classList.remove('active'));
+
+      // Robust lookup (avoid selector quirks)
+      const next = slides.find(s => Number(s.dataset.slide) === Number(currentSlide));
+      if (!next) return;
+
+      next.classList.add('active');
+      next.scrollTop = 0;
+
+      const progress = (currentSlide / totalSlides) * 100;
+      document.getElementById('progressBar').style.width = progress + '%';
+      document.getElementById('slideCounter').textContent = `${currentSlide} / ${totalSlides}`;
+
+      document.getElementById('prevBtn').disabled = currentSlide === 1;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+
+      const nextBtn = document.getElementById('nextBtn');
+      if (currentSlide === totalSlides){
+        nextBtn.innerHTML =
+          '✓ Finish' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="20 6 9 17 4 12"></polyline></svg>';
+      } else {
+        nextBtn.innerHTML =
+          'Next' +
+          '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">' +
+          '<polyline points="9 18 15 12 9 6"></polyline></svg>';
+      }
+    }
+
+    function nextSlide(){
+      if (currentSlide < totalSlides){
+        currentSlide += 1;
+        updateSlide();
+      }
+    }
+
+    function previousSlide(){
+      if (currentSlide > 1){
+        currentSlide -= 1;
+        updateSlide();
+      }
+    }
+
+    function toggleFullscreen(){
+      if (!document.fullscreenElement){
+        document.documentElement.requestFullscreen().catch(err => console.log('Fullscreen error:', err));
+      } else {
+        document.exitFullscreen();
+      }
+    }
+
+    // Keyboard nav
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'ArrowRight' || e.key === ' ') { e.preventDefault(); nextSlide(); }
+      if (e.key === 'ArrowLeft') { e.preventDefault(); previousSlide(); }
+      if (e.key === 'f' || e.key === 'F') { toggleFullscreen(); }
     });
 
-    document.querySelectorAll(".matrix-cell").forEach(cell => {
-      cell.addEventListener("click", () => openModal(cell.dataset.modal));
-      cell.addEventListener("keydown", (e) => {
-        if (e.key === "Enter" || e.key === " ") {
-          e.preventDefault();
-          openModal(cell.dataset.modal);
-        }
-      });
-    });
+    // Touch swipe (ignore if user is scrolling vertically inside a slide)
+    let startX = 0, startY = 0, endX = 0, endY = 0;
 
-    /* Init */
-    updateSlides();
+    document.addEventListener('touchstart', (e) => {
+      const t = e.changedTouches[0];
+      startX = t.screenX;
+      startY = t.screenY;
+    }, { passive: true });
+
+    document.addEventListener('touchend', (e) => {
+      const t = e.changedTouches[0];
+      endX = t.screenX;
+      endY = t.screenY;
+
+      const dx = endX - startX;
+      const dy = endY - startY;
+
+      // Only treat as swipe if mostly horizontal
+      if (Math.abs(dx) > 60 && Math.abs(dx) > Math.abs(dy) * 1.3){
+        if (dx < 0) nextSlide();
+        else previousSlide();
+      }
+    }, { passive: true });
+
+    // Init
+    updateSlide();
   </script>
 </body>
 </html>
