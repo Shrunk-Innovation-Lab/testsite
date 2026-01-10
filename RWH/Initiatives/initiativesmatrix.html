@@ -1,485 +1,427 @@
 <!DOCTYPE html>
 <html lang="en-AU">
 <head>
-<meta charset="UTF-8" />
-<meta name="viewport" content="width=device-width, initial-scale=1.0" />
-<title>Sustainability Evaluation Workshop</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Sustainability Evaluation Workshop</title>
 
-<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700;800&family=Sora:wght@700;800&display=swap" rel="stylesheet">
 
-<style>
-/* ======================================================
-   GREEN PALETTE
-====================================================== */
-:root{
-  --primary:#1B8F4B;
-  --primary-dark:#136B38;
-  --primary-light:#2CCB74;
-  --secondary:#7CCB5C;
-  --accent:#A3E635;
+  <style>
+    :root{
+      --primary:#1B8F4B;
+      --primary-dark:#136B38;
+      --primary-light:#2CCB74;
+      --secondary:#7CCB5C;
+      --accent:#A3E635;
 
-  --text-dark:#0f172a;
-  --text-medium:#334155;
-  --text-light:#64748b;
+      --text-dark:#0f172a;
+      --text-medium:#334155;
+      --text-light:#64748b;
 
-  --bg-primary:#ffffff;
-  --bg-secondary:#f6fbf7;
-  --bg-tertiary:#eaf6ee;
+      --bg-primary:#ffffff;
+      --bg-secondary:#f6fbf7;
+      --bg-tertiary:#eaf6ee;
 
-  --radius:16px;
-  --radius-lg:22px;
-  --shadow:0 10px 30px rgba(0,0,0,.15);
-  --shadow-sm:0 6px 18px rgba(0,0,0,.12);
-}
+      --radius:16px;
+      --radius-lg:22px;
+      --shadow:0 10px 30px rgba(0,0,0,.15);
+      --shadow-sm:0 6px 18px rgba(0,0,0,.12);
+    }
 
-/* ======================================================
-   BASE
-====================================================== */
-*{box-sizing:border-box;margin:0;padding:0}
-body{
-  font-family:Inter,system-ui,sans-serif;
-  background:#0f3d2a;
-  color:var(--text-dark);
-}
+    *{box-sizing:border-box;margin:0;padding:0}
+    body{
+      font-family:Inter,system-ui,sans-serif;
+      color:var(--text-dark);
+      background:#0f3d2a;
+    }
 
-/* ======================================================
-   SUBTLE ANIMATED BACKGROUND
-====================================================== */
-.presentation-wrapper{
-  min-height:100vh;
-  padding:1.5rem;
-  display:flex;
-  background:
-    radial-gradient(circle at 20% 20%, rgba(44,203,116,.55), transparent 40%),
-    radial-gradient(circle at 80% 80%, rgba(124,203,92,.45), transparent 40%),
-    linear-gradient(135deg,#0f5132,#22c55e);
-  animation:bgMove 25s ease-in-out infinite alternate;
-}
+    /* Subtle animated background */
+    .presentation-wrapper{
+      min-height:100vh;
+      padding:1.5rem;
+      display:flex;
+      background:
+        radial-gradient(circle at 15% 20%, rgba(44,203,116,.55), transparent 45%),
+        radial-gradient(circle at 85% 80%, rgba(124,203,92,.45), transparent 45%),
+        linear-gradient(135deg,#0f5132,#22c55e);
+      background-size: 120% 120%, 120% 120%, 100% 100%;
+      animation:bgMove 26s ease-in-out infinite alternate;
+    }
+    @keyframes bgMove{
+      from{background-position:0% 0%,100% 100%,0% 0%}
+      to{background-position:18% 28%,82% 72%,100% 100%}
+    }
 
-@keyframes bgMove{
-  from{background-position:0% 0%,100% 100%,0% 0%}
-  to{background-position:20% 30%,80% 70%,100% 100%}
-}
+    .presentation-container{
+      width:100%;
+      max-width:1200px;
+      margin:auto;
+      background:var(--bg-primary);
+      border-radius:24px;
+      box-shadow:var(--shadow);
+      overflow:hidden;
+      display:flex;
+      flex-direction:column;
+      min-height:0;
+      position:relative;
+    }
 
-/* ======================================================
-   PRESENTATION CONTAINER
-====================================================== */
-.presentation-container{
-  background:var(--bg-primary);
-  border-radius:24px;
-  max-width:1200px;
-  width:100%;
-  margin:auto;
-  display:flex;
-  flex-direction:column;
-  box-shadow:var(--shadow);
-  min-height:0;
-  overflow:hidden;
-  position:relative;
-}
+    /* Viewport must constrain slides */
+    .slide-viewport{
+      flex:1;
+      min-height:0;
+      overflow:hidden;
+    }
 
-/* ======================================================
-   SLIDE VIEWPORT (IMPORTANT FIX)
-====================================================== */
-.slide-viewport{
-  flex:1;
-  min-height:0;
-  overflow:hidden;
-}
+    /* Slides */
+    .slide{
+      display:none;
+      height:100%;
+      overflow:auto;
+      padding:3rem;
+      -webkit-overflow-scrolling:touch;
+    }
+    .slide.active{display:block;}
+    /* Title slides need flex when active */
+    .slide.title-slide.active{display:flex;}
 
-/* ======================================================
-   SLIDES
-====================================================== */
-.slide{
-  height:100%;
-  padding:3rem;
-  display:none;
-  overflow:auto;
-  -webkit-overflow-scrolling: touch;
-}
+    h1,h2{font-family:Sora}
+    h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.08}
+    h2{font-size:clamp(1.2rem,3vw,2rem)}
+    p{color:var(--text-medium);font-weight:700}
 
-.slide.active{display:block}
+    /* Timer chips */
+    .timer-chip{
+      width:max-content;
+      margin:0 auto 1rem;
+      display:inline-flex;
+      align-items:center;
+      gap:.6rem;
+      padding:.55rem .9rem;
+      border-radius:999px;
+      font-weight:900;
+      font-size:.9rem;
+      color:#fff;
+      background:rgba(255,255,255,.14);
+      border:1px solid rgba(255,255,255,.22);
+      backdrop-filter: blur(10px);
+    }
+    .timer-dot{
+      width:10px;height:10px;border-radius:50%;
+      background:#fff;
+      opacity:.95;
+      box-shadow:0 0 0 6px rgba(255,255,255,.13);
+    }
 
-/* ======================================================
-   TYPOGRAPHY
-====================================================== */
-h1,h2{font-family:Sora}
-h1{font-size:clamp(2rem,5vw,3.2rem);line-height:1.1}
-h2{font-size:clamp(1.2rem,3vw,2rem)}
-p{color:var(--text-medium)}
+    /* Title slide layout */
+    .title-slide{
+      color:#fff;
+      text-align:center;
+      flex-direction:column;
+      justify-content:center;
+      gap:1rem;
+    }
+    .title-slide p{color:rgba(255,255,255,.88)}
 
-/* ======================================================
-   TITLE SLIDES
-====================================================== */
-.title-slide{
-  color:white;
-  text-align:center;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:1.25rem;
-}
+    /* Cards */
+    .icon-grid{
+      display:grid;
+      grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
+      gap:1.25rem;
+      margin-top:1.5rem;
+    }
+    .icon-box{
+      background:#fff;
+      padding:1.5rem;
+      border-radius:var(--radius);
+      box-shadow:var(--shadow-sm);
+      border:1px solid rgba(15,23,42,.06);
+      text-align:center;
+    }
+    .icon{font-size:2.4rem;margin-bottom:.7rem}
+    .icon-box h3{font-weight:900;font-size:1.08rem;margin-bottom:.35rem;color:var(--text-dark)}
+    .icon-box p{margin:0;color:var(--text-medium);font-weight:700}
 
-/* ======================================================
-   TIMER CHIPS
-====================================================== */
-.timer-chip{
-  width:max-content;
-  margin:0 auto;
-  display:inline-flex;
-  align-items:center;
-  gap:.6rem;
-  padding:.55rem .9rem;
-  border-radius:999px;
-  font-weight:800;
-  font-size:.9rem;
-  color:#fff;
-  background:rgba(255,255,255,.15);
-  border:1px solid rgba(255,255,255,.22);
-  backdrop-filter: blur(10px);
-}
-.timer-dot{
-  width:10px;height:10px;border-radius:50%;
-  background:#fff;
-  opacity:.9;
-  box-shadow:0 0 0 6px rgba(255,255,255,.14);
-}
+    /* Slide 2: ensure readability ONLY here (even though parent is white text) */
+    .slide-2 .icon-box h3{color:var(--text-dark)}
+    .slide-2 .icon-box p{color:var(--text-medium)}
 
-/* ======================================================
-   COMPONENTS
-====================================================== */
-.icon-grid{
-  display:grid;
-  grid-template-columns:repeat(auto-fit,minmax(220px,1fr));
-  gap:1.5rem;
-  margin-top:2rem;
-}
+    /* Matrix */
+    .matrix-card{
+      margin-top:1.25rem;
+      background:linear-gradient(135deg, rgba(27,143,75,.10), rgba(124,203,92,.08));
+      border:1px solid rgba(27,143,75,.14);
+      border-radius:var(--radius-lg);
+      padding:1.25rem;
+      box-shadow:var(--shadow-sm);
+    }
+    .matrix-top{
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:1rem;
+      flex-wrap:wrap;
+    }
+    .help-link{
+      background:rgba(27,143,75,.10);
+      border:1px solid rgba(27,143,75,.18);
+      color:var(--primary-dark);
+      font-weight:900;
+      padding:.55rem .85rem;
+      border-radius:999px;
+      cursor:pointer;
+      min-height:44px;
+    }
 
-.icon-box{
-  background:white;
-  padding:1.5rem;
-  border-radius:var(--radius);
-  text-align:center;
-  box-shadow:var(--shadow-sm);
-  border:1px solid rgba(15,23,42,.06);
-}
+    .matrix-grid{
+      margin-top:1rem;
+      display:grid;
+      grid-template-columns:90px 1fr 1fr;
+      grid-template-rows:auto 1fr 1fr;
+      gap:.8rem;
+      min-height:340px;
+    }
+    .matrix-header{
+      text-align:center;
+      padding:.5rem;
+      font-weight:900;
+      font-size:.8rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--primary-dark);
+      background:rgba(255,255,255,.55);
+      border:1px solid rgba(15,23,42,.06);
+      border-radius:12px;
+    }
+    .matrix-label{
+      writing-mode:vertical-rl;
+      transform:rotate(180deg);
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      font-weight:900;
+      font-size:.72rem;
+      letter-spacing:.08em;
+      text-transform:uppercase;
+      color:var(--text-light);
+    }
 
-.icon{font-size:2.5rem;margin-bottom:.75rem}
-.icon-box h3{font-weight:900;margin-bottom:.4rem;font-size:1.08rem;}
-.icon-box p{margin:0;color:var(--text-medium);}
+    .matrix-cell{
+      border-radius:16px;
+      padding:1.15rem 1rem;
+      cursor:pointer;
+      border:1px solid rgba(15,23,42,.08);
+      box-shadow:0 10px 20px rgba(0,0,0,.10);
+      transition:transform .18s ease, box-shadow .18s ease;
+      display:flex;
+      flex-direction:column;
+      justify-content:center;
+      gap:.35rem;
+      user-select:none;
+      outline:none;
+    }
+    .matrix-cell:hover{transform:translateY(-4px);box-shadow:0 14px 28px rgba(0,0,0,.14)}
+    .matrix-cell:focus-visible{box-shadow:0 0 0 4px rgba(27,143,75,.35), 0 14px 28px rgba(0,0,0,.14)}
 
-/* ======================================================
-   SLIDE 2 SPECIFIC FIX (ONLY)
-====================================================== */
-.slide-2 .icon-box h3{color:var(--text-dark)}
-.slide-2 .icon-box p{color:var(--text-medium)}
+    .matrix-cell .emoji{font-size:2rem}
+    .matrix-cell .title{font-weight:900;font-size:1.05rem}
+    .matrix-cell .desc{font-weight:800;font-size:.9rem;line-height:1.35;opacity:.95}
 
-/* ======================================================
-   MATRIX
-====================================================== */
-.matrix-wrap{
-  margin-top:1.2rem;
-  display:grid;
-  grid-template-columns: 1fr;
-  gap:1rem;
-}
+    .qw{background:linear-gradient(135deg,#16a34a,#4ade80);color:#fff}
+    .mp{background:linear-gradient(135deg,#84cc16,#bef264);color:#1f2937}
+    .fi{background:linear-gradient(135deg,#22c55e,#86efac);color:#064e3b}
+    .rc{background:linear-gradient(135deg,#e5e7eb,#f3f4f6);color:#111827}
 
-.matrix-card{
-  background:linear-gradient(135deg, rgba(27,143,75,.10), rgba(124,203,92,.08));
-  border:1px solid rgba(27,143,75,.14);
-  border-radius:var(--radius-lg);
-  padding:1.25rem;
-  box-shadow:var(--shadow-sm);
-}
+    .badge{
+      width:max-content;
+      margin-top:.35rem;
+      padding:.3rem .6rem;
+      border-radius:999px;
+      font-size:.78rem;
+      font-weight:900;
+      background:rgba(255,255,255,.22);
+      border:1px solid rgba(255,255,255,.28);
+    }
+    .mp .badge,.fi .badge,.rc .badge{
+      background:rgba(255,255,255,.55);
+      border-color:rgba(15,23,42,.08);
+    }
 
-.matrix-top{
-  display:flex;
-  align-items:flex-start;
-  justify-content:space-between;
-  gap:1rem;
-  margin-bottom:1rem;
-}
-.matrix-top h2{
-  margin:0;
-  color:var(--text-dark);
-}
-.help-link{
-  background:rgba(27,143,75,.10);
-  border:1px solid rgba(27,143,75,.18);
-  color:var(--primary-dark);
-  font-weight:900;
-  padding:.55rem .85rem;
-  border-radius:999px;
-  cursor:pointer;
-}
-.help-link:hover{filter:brightness(.98)}
+    /* Footer nav */
+    .nav-footer{
+      display:flex;
+      align-items:center;
+      justify-content:space-between;
+      padding:1rem 1.5rem;
+      border-top:1px solid rgba(0,0,0,.1);
+      background:rgba(255,255,255,.96);
+      gap:1rem;
+    }
+    button{
+      background:var(--primary);
+      color:#fff;
+      border:none;
+      border-radius:999px;
+      padding:.7rem 1.4rem;
+      font-weight:900;
+      cursor:pointer;
+      min-height:44px;
+    }
+    button:disabled{opacity:.4;cursor:not-allowed}
 
-.matrix-grid{
-  display:grid;
-  grid-template-columns: 90px 1fr 1fr;
-  grid-template-rows: auto 1fr 1fr;
-  gap:.8rem;
-  min-height:340px;
-}
+    .progress{
+      flex:1;
+      min-width:140px;
+    }
+    .progress-bar{
+      height:6px;
+      background:var(--bg-tertiary);
+      border-radius:999px;
+      overflow:hidden;
+    }
+    .progress-inner{
+      height:100%;
+      width:0%;
+      background:linear-gradient(90deg,var(--primary),var(--secondary));
+      transition:.4s;
+    }
+    .counter{
+      margin-top:.45rem;
+      text-align:center;
+      color:var(--text-light);
+      font-weight:900;
+      font-size:.85rem;
+    }
 
-.matrix-header{
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  font-weight:900;
-  font-size:.8rem;
-  color:var(--primary-dark);
-  text-align:center;
-  padding:.5rem;
-  background:rgba(255,255,255,.55);
-  border:1px solid rgba(15,23,42,.06);
-  border-radius:12px;
-}
+    /* Modal */
+    .modal-overlay{
+      position:fixed;
+      inset:0;
+      display:none;
+      align-items:center;
+      justify-content:center;
+      padding:1.2rem;
+      background:rgba(0,0,0,.45);
+      z-index:9999;
+    }
+    .modal-overlay.show{display:flex}
+    .modal{
+      width:min(760px,100%);
+      background:#fff;
+      border-radius:22px;
+      box-shadow:0 30px 90px rgba(0,0,0,.35);
+      overflow:hidden;
+      border:1px solid rgba(15,23,42,.08);
+    }
+    .modal-header{
+      padding:1rem 1.2rem;
+      display:flex;
+      justify-content:space-between;
+      align-items:flex-start;
+      gap:1rem;
+      background:linear-gradient(135deg, rgba(27,143,75,.12), rgba(124,203,92,.10));
+      border-bottom:1px solid rgba(15,23,42,.06);
+    }
+    .modal-header h3{
+      font-family:Sora;
+      font-size:1.1rem;
+      margin:0;
+      color:var(--text-dark);
+    }
+    .modal-body{
+      padding:1.1rem 1.2rem 1.2rem;
+      color:var(--text-medium);
+      font-weight:800;
+    }
+    .modal-body ul{margin:.75rem 0 0 1.1rem;line-height:1.7}
+    .modal-actions{
+      padding:1rem 1.2rem;
+      border-top:1px solid rgba(15,23,42,.06);
+      display:flex;
+      justify-content:flex-end;
+      gap:.75rem;
+    }
+    .btn-outline{
+      background:#fff;
+      color:var(--primary-dark);
+      border:1px solid rgba(27,143,75,.25);
+    }
 
-.matrix-label{
-  writing-mode:vertical-rl;
-  transform:rotate(180deg);
-  text-transform:uppercase;
-  letter-spacing:.08em;
-  font-weight:900;
-  font-size:.72rem;
-  color:var(--text-light);
-  display:flex;
-  align-items:center;
-  justify-content:center;
-}
+    @media(max-width:900px){
+      .matrix-grid{grid-template-columns:70px 1fr 1fr;min-height:320px;}
+    }
+    @media(max-width:768px){
+      .presentation-wrapper{padding:0}
+      .presentation-container{border-radius:0;min-height:100dvh}
+      .slide{padding:2rem 1.25rem}
+      .matrix-top{flex-direction:column;align-items:flex-start}
+      .help-link{width:100%;text-align:center}
+    }
 
-.matrix-cell{
-  border-radius:16px;
-  padding:1.15rem 1rem;
-  cursor:pointer;
-  border:1px solid rgba(15,23,42,.08);
-  box-shadow:0 10px 20px rgba(0,0,0,.10);
-  transition:transform .18s ease, box-shadow .18s ease;
-  display:flex;
-  flex-direction:column;
-  justify-content:center;
-  gap:.35rem;
-  user-select:none;
-}
-.matrix-cell:hover{
-  transform:translateY(-4px);
-  box-shadow:0 14px 28px rgba(0,0,0,.14);
-}
-.matrix-cell .emoji{font-size:2rem}
-.matrix-cell .title{font-weight:900;font-size:1.05rem}
-.matrix-cell .desc{font-weight:700;font-size:.9rem;opacity:.95;line-height:1.35}
-
-.qw{background:linear-gradient(135deg,#16a34a,#4ade80);color:#fff}
-.mp{background:linear-gradient(135deg,#84cc16,#bef264);color:#1f2937}
-.fi{background:linear-gradient(135deg,#22c55e,#86efac);color:#064e3b}
-.rc{background:linear-gradient(135deg,#e5e7eb,#f3f4f6);color:#111827}
-
-.badge{
-  width:max-content;
-  margin-top:.35rem;
-  padding:.3rem .6rem;
-  border-radius:999px;
-  font-size:.78rem;
-  font-weight:900;
-  background:rgba(255,255,255,.22);
-  border:1px solid rgba(255,255,255,.28);
-}
-.mp .badge,.fi .badge,.rc .badge{
-  background:rgba(255,255,255,.55);
-  border-color:rgba(15,23,42,.08);
-}
-
-/* ======================================================
-   FOOTER NAV
-====================================================== */
-.nav-footer{
-  display:flex;
-  align-items:center;
-  justify-content:space-between;
-  padding:1rem 1.5rem;
-  border-top:1px solid rgba(0,0,0,.1);
-  background:rgba(255,255,255,.96);
-}
-
-button{
-  background:var(--primary);
-  color:white;
-  border:none;
-  border-radius:999px;
-  padding:.7rem 1.4rem;
-  font-weight:800;
-  cursor:pointer;
-  min-height:44px;
-}
-
-button:disabled{opacity:.4;cursor:not-allowed}
-
-.progress{
-  flex:1;
-  margin:0 1rem;
-}
-
-.progress-bar{
-  height:6px;
-  background:var(--bg-tertiary);
-  border-radius:999px;
-  overflow:hidden;
-}
-
-.progress-inner{
-  height:100%;
-  width:0%;
-  background:linear-gradient(90deg,var(--primary),var(--secondary));
-  transition:.4s;
-}
-
-.counter{
-  font-size:.85rem;
-  text-align:center;
-  color:var(--text-light);
-  margin-top:.45rem;
-  font-weight:800;
-}
-
-/* ======================================================
-   MODAL (EXPLANATIONS)
-====================================================== */
-.modal-overlay{
-  position:fixed;
-  inset:0;
-  display:none;
-  align-items:center;
-  justify-content:center;
-  padding:1.2rem;
-  background:rgba(0,0,0,.45);
-  z-index:9999;
-}
-
-.modal-overlay.show{display:flex}
-
-.modal{
-  width:min(760px, 100%);
-  background:#fff;
-  border-radius:22px;
-  box-shadow:0 30px 90px rgba(0,0,0,.35);
-  overflow:hidden;
-  border:1px solid rgba(15,23,42,.08);
-}
-
-.modal-header{
-  padding:1rem 1.2rem;
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap:1rem;
-  background:linear-gradient(135deg, rgba(27,143,75,.12), rgba(124,203,92,.10));
-  border-bottom:1px solid rgba(15,23,42,.06);
-}
-.modal-header h3{
-  font-family:Sora;
-  font-size:1.1rem;
-  margin:0;
-}
-.modal-body{
-  padding:1.1rem 1.2rem 1.2rem;
-  color:var(--text-medium);
-  font-weight:700;
-}
-.modal-body ul{
-  margin:.75rem 0 0 1.1rem;
-  line-height:1.7;
-}
-.modal-actions{
-  padding:1rem 1.2rem;
-  border-top:1px solid rgba(15,23,42,.06);
-  display:flex;
-  justify-content:flex-end;
-  gap:.75rem;
-}
-.btn-outline{
-  background:#fff;
-  color:var(--primary-dark);
-  border:1px solid rgba(27,143,75,.25);
-}
-.btn-outline:hover{filter:brightness(.98)}
-
-/* ======================================================
-   MOBILE
-====================================================== */
-@media(max-width:900px){
-  .matrix-grid{grid-template-columns:70px 1fr 1fr;min-height:320px;}
-}
-
-@media(max-width:768px){
-  .presentation-wrapper{padding:0}
-  .presentation-container{border-radius:0;min-height:100dvh}
-  .slide{padding:2rem 1.25rem}
-  .progress{margin:0 .7rem}
-  .counter{font-size:.8rem}
-  .matrix-top{flex-direction:column;align-items:flex-start}
-  .help-link{width:100%;text-align:center}
-}
-</style>
+    @media (prefers-reduced-motion: reduce){
+      .presentation-wrapper{animation:none}
+      .matrix-cell{transition:none}
+      .progress-inner{transition:none}
+    }
+  </style>
 </head>
 
 <body>
-<div class="presentation-wrapper">
-  <div class="presentation-container">
+  <div class="presentation-wrapper">
+    <div class="presentation-container">
 
-    <div class="slide-viewport">
+      <div class="slide-viewport">
 
-      <!-- SLIDE 1 -->
-      <div class="slide title-slide active" data-slide="1" style="background:linear-gradient(135deg,#136B38,#2CCB74)">
-        <div class="timer-chip"><span class="timer-dot"></span> 15 minutes total</div>
-        <h1>Sustainability Evaluation Workshop</h1>
-        <h2>Making Smart Choices for RWH’s Future</h2>
-        <p style="color:rgba(255,255,255,.9)">Royal Women’s Hospital Melbourne</p>
-        <p style="color:rgba(255,255,255,.82)">15-minute interactive session</p>
-      </div>
+        <!-- SLIDE 1 -->
+        <section class="slide title-slide active" data-slide="1" style="background:linear-gradient(135deg,#136B38,#2CCB74)">
+          <div class="timer-chip"><span class="timer-dot"></span> 15 minutes total</div>
+          <h1>Sustainability Evaluation Workshop</h1>
+          <h2>Making Smart Choices for RWH’s Future</h2>
+          <p>Royal Women’s Hospital Melbourne</p>
+          <p style="opacity:.92">15-minute interactive session</p>
+        </section>
 
-      <!-- SLIDE 2 (READABILITY FIXED ONLY HERE) -->
-      <div class="slide title-slide slide-2" data-slide="2" style="background:linear-gradient(135deg,#136B38,#2CCB74)">
-        <div class="timer-chip"><span class="timer-dot"></span> 1 minute</div>
-        <h1>What success looks like today</h1>
-        <p style="color:rgba(255,255,255,.9)">By the end, you’ll be able to:</p>
+        <!-- SLIDE 2 -->
+        <section class="slide title-slide slide-2" data-slide="2" style="background:linear-gradient(135deg,#136B38,#2CCB74)">
+          <div class="timer-chip"><span class="timer-dot"></span> 1 minute</div>
+          <h1>What success looks like today</h1>
+          <p>By the end, you’ll be able to:</p>
 
-        <div class="icon-grid">
-          <div class="icon-box">
-            <div class="icon">🧮</div>
-            <h3>Score any idea</h3>
-            <p>Use the 4 questions consistently.</p>
+          <div class="icon-grid">
+            <div class="icon-box">
+              <div class="icon">🧮</div>
+              <h3>Score any idea</h3>
+              <p>Use the 4 questions consistently.</p>
+            </div>
+            <div class="icon-box">
+              <div class="icon">🧭</div>
+              <h3>Place it on the matrix</h3>
+              <p>Quick Win, Major Project, Fill-In, or Reconsider.</p>
+            </div>
+            <div class="icon-box">
+              <div class="icon">🗣️</div>
+              <h3>Explain your recommendation</h3>
+              <p>Share the “why” in 30 seconds.</p>
+            </div>
           </div>
-          <div class="icon-box">
-            <div class="icon">🧭</div>
-            <h3>Place it on the matrix</h3>
-            <p>Quick Win, Major Project, Fill-In, or Reconsider.</p>
-          </div>
-          <div class="icon-box">
-            <div class="icon">🗣️</div>
-            <h3>Explain your recommendation</h3>
-            <p>Share the “why” in 30 seconds.</p>
-          </div>
-        </div>
-      </div>
+        </section>
 
-      <!-- SLIDE 3: MATRIX + INTERACTIVITY + MODAL -->
-      <div class="slide" data-slide="3">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-          <div>
-            <h1>The Evaluation Matrix</h1>
-            <p style="margin-top:.6rem;">
-              Tap a quadrant to see what it means and what to do next.
-            </p>
+        <!-- SLIDE 3 -->
+        <section class="slide" data-slide="3">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <h1>The Evaluation Matrix</h1>
+              <p style="margin-top:.6rem;">Tap a quadrant to see what it means and what to do next.</p>
+            </div>
+            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
+              <span class="timer-dot" style="background:var(--primary)"></span> 2 minutes
+            </div>
           </div>
-          <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-            <span class="timer-dot" style="background:var(--primary)"></span> 2 minutes
-          </div>
-        </div>
 
-        <div class="matrix-wrap">
           <div class="matrix-card">
             <div class="matrix-top">
-              <h2 style="margin:0;">Where should we focus?</h2>
+              <h2 style="margin:0;color:var(--text-dark)">Where should we focus?</h2>
               <button class="help-link" type="button" onclick="openModal('howToUse')">How to use this</button>
             </div>
 
@@ -517,299 +459,297 @@ button:disabled{opacity:.4;cursor:not-allowed}
               </div>
             </div>
 
-            <p style="margin-top:1rem;color:var(--text-light);font-weight:800;">
+            <p style="margin-top:1rem;color:var(--text-light);font-weight:900;">
               Tip: Cost & effort still matter — they help you prioritise within each quadrant.
             </p>
           </div>
+        </section>
+
+        <!-- SLIDE 4 -->
+        <section class="slide" data-slide="4">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <h1>Decision Rules</h1>
+              <p style="margin-top:.6rem;">Turn scores into action: Do / Pilot / Defer / Stop.</p>
+            </div>
+            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
+              <span class="timer-dot" style="background:var(--primary)"></span> 1 minute
+            </div>
+          </div>
+
+          <div class="icon-grid" style="margin-top:1.25rem;">
+            <div class="icon-box" style="text-align:left">
+              <div class="icon">⭐</div>
+              <h3>Quick Wins</h3>
+              <p><strong>Do now:</strong> pilot in 30–60 days, track one metric.</p>
+              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('quickWins')">See details</button></p>
+            </div>
+
+            <div class="icon-box" style="text-align:left">
+              <div class="icon">🎯</div>
+              <h3>Major Projects</h3>
+              <p><strong>Plan:</strong> scope + stakeholders + business case.</p>
+              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('majorProjects')">See details</button></p>
+            </div>
+
+            <div class="icon-box" style="text-align:left">
+              <div class="icon">✓</div>
+              <h3>Fill-Ins</h3>
+              <p><strong>Bundle:</strong> implement during upgrades and maintenance.</p>
+              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('fillIns')">See details</button></p>
+            </div>
+
+            <div class="icon-box" style="text-align:left">
+              <div class="icon">❓</div>
+              <h3>Reconsider</h3>
+              <p><strong>Park:</strong> revisit only if assumptions change.</p>
+              <p style="margin-top:.8rem;"><button class="btn-outline" type="button" onclick="openModal('reconsider')">See details</button></p>
+            </div>
+          </div>
+        </section>
+
+        <!-- SLIDE 5 -->
+        <section class="slide" data-slide="5">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <h1>Worksheet</h1>
+              <p style="margin-top:.6rem;">Use this template for any initiative.</p>
+            </div>
+            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
+              <span class="timer-dot" style="background:var(--primary)"></span> 8 minutes activity
+            </div>
+          </div>
+
+          <div class="icon-box" style="text-align:left;margin-top:1.25rem;">
+            <h3 style="margin-bottom:.6rem;">Template</h3>
+            <ul style="margin-left:1.1rem;line-height:1.8;color:var(--text-medium);font-weight:800;">
+              <li><strong>Initiative:</strong> what is changing, where, who is affected?</li>
+              <li><strong>Scores:</strong> Time / Cost / Effort / Impact (+ notes)</li>
+              <li><strong>Other factors:</strong> safety, compliance, disruption, stakeholders</li>
+              <li><strong>Assumptions:</strong> what would change the score?</li>
+              <li><strong>Recommendation:</strong> Do / Pilot / Defer / Stop</li>
+            </ul>
+          </div>
+
+          <p style="margin-top:1rem;color:var(--text-light);font-weight:900;">
+            If groups disagree, write the assumption causing the difference — that’s the key output.
+          </p>
+        </section>
+
+        <!-- SLIDE 6 -->
+        <section class="slide" data-slide="6">
+          <div style="display:flex;align-items:flex-start;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
+            <div>
+              <h1>Next Steps</h1>
+              <p style="margin-top:.6rem;">Turn the shortlist into pilots with owners and a review date.</p>
+            </div>
+            <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
+              <span class="timer-dot" style="background:var(--primary)"></span> 2 minutes
+            </div>
+          </div>
+
+          <div class="icon-grid" style="margin-top:1.25rem;">
+            <div class="icon-box" style="text-align:left">
+              <h3>Top 3 quick wins</h3>
+              <p>Choose 3 feasible, high-value items.</p>
+            </div>
+            <div class="icon-box" style="text-align:left">
+              <h3>Assign owners</h3>
+              <p>Who runs the pilot and coordinates stakeholders?</p>
+            </div>
+            <div class="icon-box" style="text-align:left">
+              <h3>Set a review date</h3>
+              <p>Decide whether to scale after learning.</p>
+            </div>
+          </div>
+        </section>
+
+      </div><!-- /slide-viewport -->
+
+      <!-- FOOTER -->
+      <div class="nav-footer">
+        <button id="prev" type="button">Previous</button>
+
+        <div class="progress" aria-label="Slide progress">
+          <div class="progress-bar"><div class="progress-inner" id="bar"></div></div>
+          <div class="counter" id="counter">1 / 6</div>
         </div>
+
+        <button id="next" type="button">Next</button>
       </div>
 
-      <!-- SLIDE 4: DECISION RULES (MODAL ALSO AVAILABLE) -->
-      <div class="slide" data-slide="4">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-          <div>
-            <h1>Decision Rules</h1>
-            <p style="margin-top:.6rem;">Turn scores into an action: Do / Pilot / Defer / Stop.</p>
-          </div>
-          <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-            <span class="timer-dot" style="background:var(--primary)"></span> 1 minute
-          </div>
-        </div>
-
-        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;margin-top:1.2rem;">
-          <div class="icon-box" style="text-align:left">
-            <div class="icon">⭐</div>
-            <h3>Quick Wins</h3>
-            <p><strong>Do now:</strong> pick an owner, pilot in 30–60 days, track one metric.</p>
-            <p style="margin-top:.8rem;">
-              <button class="btn-outline" type="button" onclick="openModal('quickWins')">See details</button>
-            </p>
-          </div>
-
-          <div class="icon-box" style="text-align:left">
-            <div class="icon">🎯</div>
-            <h3>Major Projects</h3>
-            <p><strong>Plan:</strong> scope + stakeholders + business case. Add to roadmap.</p>
-            <p style="margin-top:.8rem;">
-              <button class="btn-outline" type="button" onclick="openModal('majorProjects')">See details</button>
-            </p>
-          </div>
-
-          <div class="icon-box" style="text-align:left">
-            <div class="icon">✓</div>
-            <h3>Fill-Ins</h3>
-            <p><strong>Bundle:</strong> combine into a small program and implement during upgrades.</p>
-            <p style="margin-top:.8rem;">
-              <button class="btn-outline" type="button" onclick="openModal('fillIns')">See details</button>
-            </p>
-          </div>
-
-          <div class="icon-box" style="text-align:left">
-            <div class="icon">❓</div>
-            <h3>Reconsider</h3>
-            <p><strong>Park:</strong> only revisit if compliance requires it or assumptions change.</p>
-            <p style="margin-top:.8rem;">
-              <button class="btn-outline" type="button" onclick="openModal('reconsider')">See details</button>
-            </p>
-          </div>
-        </div>
-      </div>
-
-      <!-- SLIDE 5: WORKSHEET -->
-      <div class="slide" data-slide="5">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-          <div>
-            <h1>Worksheet</h1>
-            <p style="margin-top:.6rem;">Photograph this format — it works for any initiative.</p>
-          </div>
-          <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-            <span class="timer-dot" style="background:var(--primary)"></span> 8 minutes activity
-          </div>
-        </div>
-
-        <div class="icon-box" style="text-align:left;margin-top:1.2rem;">
-          <h3 style="margin-bottom:.6rem;">Template</h3>
-          <ul style="margin-left:1.1rem;line-height:1.8;color:var(--text-medium);font-weight:700;">
-            <li><strong>Initiative:</strong> what is changing, where, who is affected?</li>
-            <li><strong>Scores:</strong> Time / Cost / Effort / Impact (plus notes)</li>
-            <li><strong>Other factors:</strong> safety, compliance, disruption, stakeholders</li>
-            <li><strong>Assumptions:</strong> what would change the score?</li>
-            <li><strong>Recommendation:</strong> Do / Pilot / Defer / Stop</li>
-          </ul>
-        </div>
-
-        <p style="margin-top:1rem;color:var(--text-light);font-weight:800;">
-          If groups disagree — write the assumption causing the difference. That’s the real output.
-        </p>
-      </div>
-
-      <!-- SLIDE 6: NEXT STEPS -->
-      <div class="slide" data-slide="6">
-        <div style="display:flex;align-items:center;justify-content:space-between;gap:1rem;flex-wrap:wrap;">
-          <div>
-            <h1>Next Steps</h1>
-            <p style="margin-top:.6rem;">Turn the shortlist into pilots with owners and a review date.</p>
-          </div>
-          <div class="timer-chip" style="margin:0;background:rgba(27,143,75,.10);color:var(--primary-dark);border-color:rgba(27,143,75,.18)">
-            <span class="timer-dot" style="background:var(--primary)"></span> 2 minutes
-          </div>
-        </div>
-
-        <div class="icon-grid" style="margin-top:1.2rem;">
-          <div class="icon-box" style="text-align:left">
-            <h3>Top 3 quick wins</h3>
-            <p>Choose 3 that are feasible and high-value.</p>
-          </div>
-          <div class="icon-box" style="text-align:left">
-            <h3>Assign owners</h3>
-            <p>Who will run each pilot and coordinate stakeholders?</p>
-          </div>
-          <div class="icon-box" style="text-align:left">
-            <h3>Set a review date</h3>
-            <p>Check progress + learnings and decide whether to scale.</p>
-          </div>
-        </div>
-
-        <p style="margin-top:1rem;color:var(--text-light);font-weight:800;">
-          Keep measurement simple: one metric per pilot (energy, waste, purchasing, staff time, etc.).
-        </p>
-      </div>
-
-    </div>
-
-    <!-- FOOTER -->
-    <div class="nav-footer">
-      <button id="prev" type="button">Previous</button>
-
-      <div class="progress" aria-label="Slide progress">
-        <div class="progress-bar"><div class="progress-inner" id="bar"></div></div>
-        <div class="counter" id="counter">1 / 6</div>
-      </div>
-
-      <button id="next" type="button">Next</button>
-    </div>
-
-  </div>
-</div>
-
-<!-- MODAL -->
-<div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
-  <div class="modal" role="document">
-    <div class="modal-header">
-      <h3 id="modalTitle">Title</h3>
-      <button class="btn-outline" type="button" id="modalCloseTop" onclick="closeModal()">Close</button>
-    </div>
-    <div class="modal-body" id="modalBody"></div>
-    <div class="modal-actions">
-      <button class="btn-outline" type="button" onclick="closeModal()">Close</button>
-      <button type="button" onclick="closeModal()">Done</button>
     </div>
   </div>
-</div>
 
-<script>
-/* =========================
-   SLIDES
-========================= */
-let current = 1;
-const total = 6;
-const slides = [...document.querySelectorAll(".slide")];
-const bar = document.getElementById("bar");
-const counter = document.getElementById("counter");
+  <!-- MODAL -->
+  <div class="modal-overlay" id="modalOverlay" role="dialog" aria-modal="true" aria-labelledby="modalTitle">
+    <div class="modal" role="document">
+      <div class="modal-header">
+        <h3 id="modalTitle">Title</h3>
+        <button class="btn-outline" id="modalCloseTop" type="button" onclick="closeModal()">Close</button>
+      </div>
+      <div class="modal-body" id="modalBody"></div>
+      <div class="modal-actions">
+        <button class="btn-outline" type="button" onclick="closeModal()">Close</button>
+        <button type="button" onclick="closeModal()">Done</button>
+      </div>
+    </div>
+  </div>
 
-function update(){
-  slides.forEach(s => s.classList.remove("active"));
-  slides[current - 1].classList.add("active");
+  <script>
+    /* =========================
+       SLIDES (strong hide/show)
+    ========================= */
+    let current = 1;
+    const total = 6;
+    const slides = Array.from(document.querySelectorAll(".slide"));
+    const bar = document.getElementById("bar");
+    const counter = document.getElementById("counter");
 
-  bar.style.width = (current / total * 100) + "%";
-  counter.textContent = `${current} / ${total}`;
+    function updateSlides(){
+      slides.forEach((s, idx) => {
+        const isActive = (idx === current - 1);
+        s.classList.toggle("active", isActive);
 
-  document.getElementById("prev").disabled = current === 1;
-  document.getElementById("next").disabled = current === total;
-}
+        // Force hide/show to avoid any CSS edge cases
+        s.style.display = isActive ? "" : "none";
+        s.setAttribute("aria-hidden", isActive ? "false" : "true");
 
-document.getElementById("next").onclick = () => { if(current < total){ current++; update(); } };
-document.getElementById("prev").onclick = () => { if(current > 1){ current--; update(); } };
+        // Reset scroll on slide change
+        if (isActive) s.scrollTop = 0;
+      });
 
-/* Keyboard nav */
-document.addEventListener("keydown", (e) => {
-  if (document.getElementById("modalOverlay").classList.contains("show")) {
-    if (e.key === "Escape") closeModal();
-    return;
-  }
-  if (e.key === "ArrowRight" || e.key === " ") { e.preventDefault(); if(current < total){ current++; update(); } }
-  if (e.key === "ArrowLeft") { e.preventDefault(); if(current > 1){ current--; update(); } }
-});
+      bar.style.width = (current / total * 100) + "%";
+      counter.textContent = `${current} / ${total}`;
 
-/* =========================
-   MATRIX + MODAL
-========================= */
-const modalOverlay = document.getElementById("modalOverlay");
-const modalTitle = document.getElementById("modalTitle");
-const modalBody  = document.getElementById("modalBody");
-
-let lastFocusEl = null;
-
-const modalContent = {
-  howToUse: {
-    title: "How to use the matrix",
-    body: `
-      <p>This is a quick way to turn scoring into a sensible priority.</p>
-      <ul>
-        <li><strong>Impact vs Time</strong> shows where to focus first.</li>
-        <li><strong>Cost + Effort</strong> help you rank options within a quadrant.</li>
-        <li>If groups disagree, write the <strong>assumption</strong> causing the difference.</li>
-      </ul>
-      <p style="margin-top:.75rem;"><strong>Tip:</strong> Start with Quick Wins to build momentum, then plan Major Projects.</p>
-    `
-  },
-  quickWins: {
-    title: "⭐ Quick Wins",
-    body: `
-      <p><strong>Meaning:</strong> High impact and relatively fast to implement.</p>
-      <ul>
-        <li>Pick an owner and a small pilot (30–60 days).</li>
-        <li>Track one simple metric (kWh, waste kg, purchasing change, staff time).</li>
-        <li>Scale once you’ve proven feasibility.</li>
-      </ul>
-      <p style="margin-top:.75rem;"><strong>Good for:</strong> building momentum and staff confidence.</p>
-    `
-  },
-  majorProjects: {
-    title: "🎯 Major Projects",
-    body: `
-      <p><strong>Meaning:</strong> Big emissions reduction but needs planning, approvals, or investment.</p>
-      <ul>
-        <li>Define scope and stakeholders (Facilities, IT, Procurement, Clinical leads).</li>
-        <li>Write a short business case: cost, timeline, disruption, benefits.</li>
-        <li>Add to the roadmap and stage delivery (pilot → rollout).</li>
-      </ul>
-      <p style="margin-top:.75rem;"><strong>Good for:</strong> long-term structural improvements.</p>
-    `
-  },
-  fillIns: {
-    title: "✓ Fill-Ins",
-    body: `
-      <p><strong>Meaning:</strong> Smaller emissions gains but easy to do.</p>
-      <ul>
-        <li>Bundle into a “small improvements” program.</li>
-        <li>Implement during routine upgrades or maintenance windows.</li>
-        <li>Prioritise those with extra benefits (safety, workflow, cost savings).</li>
-      </ul>
-      <p style="margin-top:.75rem;"><strong>Good for:</strong> quick improvements with low friction.</p>
-    `
-  },
-  reconsider: {
-    title: "❓ Reconsider",
-    body: `
-      <p><strong>Meaning:</strong> Low value relative to time/cost/effort (or unclear benefits).</p>
-      <ul>
-        <li>Park it unless compliance requires it.</li>
-        <li>List what evidence would change the score (assumptions to validate).</li>
-        <li>Revisit only if constraints change (funding, tech, supplier, policy).</li>
-      </ul>
-      <p style="margin-top:.75rem;"><strong>Good for:</strong> avoiding wasted effort.</p>
-    `
-  }
-};
-
-function openModal(key){
-  const data = modalContent[key];
-  if (!data) return;
-
-  lastFocusEl = document.activeElement;
-
-  modalTitle.textContent = data.title;
-  modalBody.innerHTML = data.body;
-  modalOverlay.classList.add("show");
-
-  // focus for accessibility
-  setTimeout(() => document.getElementById("modalCloseTop").focus(), 0);
-}
-
-function closeModal(){
-  modalOverlay.classList.remove("show");
-  if (lastFocusEl && typeof lastFocusEl.focus === "function") lastFocusEl.focus();
-}
-
-/* Overlay click closes */
-modalOverlay.addEventListener("click", (e) => {
-  if (e.target === modalOverlay) closeModal();
-});
-
-/* Wire matrix cells */
-document.querySelectorAll(".matrix-cell").forEach(cell => {
-  cell.addEventListener("click", () => openModal(cell.dataset.modal));
-  cell.addEventListener("keydown", (e) => {
-    if (e.key === "Enter" || e.key === " ") {
-      e.preventDefault();
-      openModal(cell.dataset.modal);
+      document.getElementById("prev").disabled = current === 1;
+      document.getElementById("next").disabled = current === total;
     }
-  });
-});
 
-/* Init */
-update();
-</script>
+    document.getElementById("next").addEventListener("click", () => {
+      if (current < total){ current++; updateSlides(); }
+    });
+    document.getElementById("prev").addEventListener("click", () => {
+      if (current > 1){ current--; updateSlides(); }
+    });
+
+    /* Keyboard nav */
+    document.addEventListener("keydown", (e) => {
+      const modalOpen = document.getElementById("modalOverlay").classList.contains("show");
+      if (modalOpen) {
+        if (e.key === "Escape") closeModal();
+        return;
+      }
+      if (e.key === "ArrowRight" || e.key === " ") {
+        e.preventDefault();
+        if (current < total){ current++; updateSlides(); }
+      }
+      if (e.key === "ArrowLeft") {
+        e.preventDefault();
+        if (current > 1){ current--; updateSlides(); }
+      }
+    });
+
+    /* =========================
+       MODAL CONTENT + MATRIX
+    ========================= */
+    const modalOverlay = document.getElementById("modalOverlay");
+    const modalTitle = document.getElementById("modalTitle");
+    const modalBody  = document.getElementById("modalBody");
+    let lastFocusEl = null;
+
+    const modalContent = {
+      howToUse: {
+        title: "How to use the matrix",
+        body: `
+          <p>This is a quick way to turn scoring into a sensible priority.</p>
+          <ul>
+            <li><strong>Impact vs Time</strong> shows where to focus first.</li>
+            <li><strong>Cost + Effort</strong> help you rank options within a quadrant.</li>
+            <li>If groups disagree, write the <strong>assumption</strong> causing the difference.</li>
+          </ul>
+          <p style="margin-top:.75rem;"><strong>Tip:</strong> Start with Quick Wins to build momentum, then plan Major Projects.</p>
+        `
+      },
+      quickWins: {
+        title: "⭐ Quick Wins",
+        body: `
+          <p><strong>Meaning:</strong> High impact and fast to implement.</p>
+          <ul>
+            <li>Pick an owner and a small pilot (30–60 days).</li>
+            <li>Track one metric (kWh, waste kg, purchasing change, staff time).</li>
+            <li>Scale after proving feasibility.</li>
+          </ul>
+        `
+      },
+      majorProjects: {
+        title: "🎯 Major Projects",
+        body: `
+          <p><strong>Meaning:</strong> Big emissions reduction but needs planning/investment.</p>
+          <ul>
+            <li>Define scope and stakeholders (Facilities, IT, Procurement, Clinical leads).</li>
+            <li>Create a short business case (cost, timeline, disruption, benefits).</li>
+            <li>Add to the roadmap and stage delivery (pilot → rollout).</li>
+          </ul>
+        `
+      },
+      fillIns: {
+        title: "✓ Fill-Ins",
+        body: `
+          <p><strong>Meaning:</strong> Smaller gains, easy to do.</p>
+          <ul>
+            <li>Bundle into a “small improvements” program.</li>
+            <li>Implement during routine upgrades or maintenance windows.</li>
+            <li>Prioritise those with extra benefits (workflow, safety, cost savings).</li>
+          </ul>
+        `
+      },
+      reconsider: {
+        title: "❓ Reconsider",
+        body: `
+          <p><strong>Meaning:</strong> Low value relative to time/cost/effort.</p>
+          <ul>
+            <li>Park it unless compliance requires it.</li>
+            <li>List what evidence would change the score.</li>
+            <li>Revisit only if constraints change (funding, tech, supplier, policy).</li>
+          </ul>
+        `
+      }
+    };
+
+    function openModal(key){
+      const data = modalContent[key];
+      if (!data) return;
+
+      lastFocusEl = document.activeElement;
+      modalTitle.textContent = data.title;
+      modalBody.innerHTML = data.body;
+
+      modalOverlay.classList.add("show");
+      setTimeout(() => document.getElementById("modalCloseTop").focus(), 0);
+    }
+
+    function closeModal(){
+      modalOverlay.classList.remove("show");
+      if (lastFocusEl && typeof lastFocusEl.focus === "function") lastFocusEl.focus();
+    }
+
+    modalOverlay.addEventListener("click", (e) => {
+      if (e.target === modalOverlay) closeModal();
+    });
+
+    document.querySelectorAll(".matrix-cell").forEach(cell => {
+      cell.addEventListener("click", () => openModal(cell.dataset.modal));
+      cell.addEventListener("keydown", (e) => {
+        if (e.key === "Enter" || e.key === " ") {
+          e.preventDefault();
+          openModal(cell.dataset.modal);
+        }
+      });
+    });
+
+    /* Init */
+    updateSlides();
+  </script>
 </body>
 </html>
