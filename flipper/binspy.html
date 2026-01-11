@@ -222,6 +222,18 @@
             color: #007aff;
         }
 
+        .stat-card.match .stat-number {
+            color: #34c759;
+        }
+
+        .stat-card.mismatch .stat-number {
+            color: #ff9500;
+        }
+
+        .stat-card.missing .stat-number {
+            color: #ff3b30;
+        }
+
         .bins-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
@@ -248,6 +260,18 @@
         }
 
         .bin-card.out {
+            border-left-color: #ff3b30;
+        }
+
+        .bin-card.match {
+            border-left-color: #34c759;
+        }
+
+        .bin-card.mismatch {
+            border-left-color: #ff9500;
+        }
+
+        .bin-card.missing {
             border-left-color: #ff3b30;
         }
 
@@ -283,6 +307,21 @@
         }
 
         .bin-status.out {
+            background-color: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .bin-status.match {
+            background-color: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .bin-status.mismatch {
+            background-color: #fff4e5;
+            color: #cc7a00;
+        }
+
+        .bin-status.missing {
             background-color: #ffe5e5;
             color: #c41e3a;
         }
@@ -696,6 +735,375 @@
             margin-top: 2px;
         }
 
+        /* Invoice View Styles */
+        .invoice-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            margin-bottom: 20px;
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 50px 30px;
+            border: 3px dashed #d2d2d7;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-section:hover {
+            border-color: #007aff;
+            background: #f5f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
+        }
+
+        .upload-section.dragover {
+            border-color: #007aff;
+            background: #e5f2ff;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.25);
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #007aff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .upload-label:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+        }
+
+        .upload-label:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        #pdfFileInput {
+            display: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .comparison-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.3s ease backwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .comparison-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #007aff;
+            transition: width 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: #d2d2d7;
+        }
+
+        .comparison-card:hover::before {
+            width: 6px;
+        }
+
+        .comparison-card.card-match::before {
+            background: #34c759;
+        }
+
+        .comparison-card.card-mismatch-under::before {
+            background: #ff9500;
+        }
+
+        .comparison-card.card-mismatch-over::before {
+            background: #ff3b30;
+        }
+
+        .comparison-card.card-missing::before {
+            background: #ff3b30;
+        }
+
+        /* Stagger animation for cards */
+        .comparison-card:nth-child(1) { animation-delay: 0.05s; }
+        .comparison-card:nth-child(2) { animation-delay: 0.1s; }
+        .comparison-card:nth-child(3) { animation-delay: 0.15s; }
+        .comparison-card:nth-child(4) { animation-delay: 0.2s; }
+        .comparison-card:nth-child(5) { animation-delay: 0.25s; }
+        .comparison-card:nth-child(6) { animation-delay: 0.3s; }
+
+        .comparison-date {
+            font-weight: 600;
+            font-size: 1.05em;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-status-badge.badge-match {
+            background: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .comparison-status-badge.badge-mismatch-under {
+            background: #ffe5d0;
+            color: #cc7a00;
+        }
+
+        .comparison-status-badge.badge-mismatch-over {
+            background: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .comparison-status-badge.badge-missing {
+            background: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .comparison-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f7;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-item:hover {
+            padding-left: 4px;
+        }
+
+        .comparison-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .comparison-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .comparison-values {
+            display: contents;
+        }
+
+        .invoice-value {
+            color: #007aff;
+            background: #e5f2ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .invoice-value:hover {
+            background: #cce5ff;
+        }
+
+        .actual-value {
+            color: #34c759;
+            background: #d1f4e0;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .actual-value:hover {
+            background: #b8f0d0;
+        }
+
+        .difference {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .difference:hover {
+            transform: scale(1.05);
+        }
+
+        .difference.over-invoiced {
+            background: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .difference.under-invoiced {
+            background: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .difference.zero {
+            background: #e5e5e7;
+            color: #666;
+        }
+
+        /* Enhanced stat cards for invoice */
+        #invoiceStats {
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceStats .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #invoiceStats .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #007aff;
+            transition: height 0.3s ease;
+        }
+
+        #invoiceStats .stat-card.match::before {
+            background: #34c759;
+        }
+
+        #invoiceStats .stat-card.mismatch::before {
+            background: #ff9500;
+        }
+
+        #invoiceStats .stat-card.missing::before {
+            background: #ff3b30;
+        }
+
+        #invoiceStats .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        #invoiceStats .stat-card:hover::before {
+            height: 6px;
+        }
+
+        #invoiceFilters {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceActions {
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceActions .refresh-btn {
+            transition: all 0.2s ease;
+        }
+
+        #invoiceActions .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+
+        .invoice-export-btn {
+            background-color: #34c759 !important;
+        }
+
+        .invoice-export-btn:hover {
+            background-color: #28a745 !important;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3) !important;
+        }
+
+        #invoiceFilters .filter-btn {
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #invoiceFilters .filter-btn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        #invoiceFilters .filter-btn.active {
+            background: #007aff;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
         footer {
             margin-top: auto;
             text-align: center;
@@ -800,9 +1208,9 @@
 
             .view-btn {
                 flex: 1;
-                min-width: 70px;
-                padding: 9px 10px;
-                font-size: 14px;
+                min-width: 60px;
+                padding: 9px 8px;
+                font-size: 13px;
             }
 
             .filters {
@@ -902,6 +1310,33 @@
             .bin-name {
                 font-size: 0.96em;
             }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-section {
+                padding: 40px 20px;
+            }
+
+            .upload-icon svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            .comparison-card {
+                padding: 16px;
+            }
+
+            .comparison-date {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .comparison-status-badge {
+                align-self: flex-end;
+            }
         }
 
         @media screen and (max-width: 480px) {
@@ -910,6 +1345,29 @@
             }
             .bins-grid {
                 grid-template-columns: 1fr;
+            }
+
+            .upload-section {
+                padding: 30px 15px;
+            }
+
+            .comparison-card > div:first-of-type + div {
+                display: none;
+            }
+
+            .comparison-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .comparison-label {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            .comparison-values > * {
+                display: block;
+                margin-bottom: 4px;
             }
         }
     </style>
@@ -947,6 +1405,7 @@
                     <button class="view-btn" data-view="month">Monthly</button>
                     <button class="view-btn" data-view="week">Weekly</button>
                     <button class="view-btn" data-view="day">Daily</button>
+                    <button class="view-btn" data-view="invoice">Invoice Check</button>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 0 1 auto;">
                     <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
@@ -994,6 +1453,50 @@
                     <div id="calendarContent"></div>
                 </div>
             </div>
+
+            <!-- Invoice View -->
+            <div id="invoiceView" class="hidden">
+                <div class="invoice-container">
+                    <h2 style="margin-bottom: 20px; color: #1d1d1f;">Invoice Comparison</h2>
+                    
+                    <div class="upload-section" id="uploadSection">
+                        <div style="margin-bottom: 20px;">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11V17M12 11L9 14M12 11L15 14" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <p style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Upload Invoice PDF</p>
+                        <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Drag and drop your REMONDIS invoice here or click to browse</p>
+                        <input type="file" id="pdfFileInput" accept="application/pdf">
+                        <label for="pdfFileInput" class="upload-label">
+                            Choose PDF File
+                        </label>
+                        <p id="fileName" style="margin-top: 20px; font-size: 0.95em; color: #666; font-weight: 500;"></p>
+                    </div>
+
+                    <div id="invoiceStats" class="stats hidden"></div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;" id="invoiceActions" class="hidden">
+                        <button onclick="exportInvoiceCSV()" class="refresh-btn invoice-export-btn" style="flex: 1; min-width: 150px;">
+                            Export to CSV
+                        </button>
+                        <button onclick="clearInvoiceData()" class="refresh-btn" style="flex: 1; min-width: 150px;">
+                            Clear Results
+                        </button>
+                    </div>
+                    
+                    <div id="invoiceFilters" class="filters hidden">
+                        <button class="filter-btn active" data-invoice-filter="all">All</button>
+                        <button class="filter-btn" data-invoice-filter="match">Matches</button>
+                        <button class="filter-btn" data-invoice-filter="mismatch">Mismatches</button>
+                        <button class="filter-btn" data-invoice-filter="missing">Missing Data</button>
+                    </div>
+                    
+                    <div id="comparisonResults" class="hidden"></div>
+                </div>
+            </div>
         </div>
     </div>
 </div>
@@ -1003,7 +1506,11 @@
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
+    // Set the worker source for PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=0&single=true&output=csv';
 
     let allReadings = [];
@@ -1013,19 +1520,32 @@
     let searchTerm = '';
     let currentDate = new Date();
     let selectedBin = 'all';
+    let invoiceData = null;
+    let comparisonData = null;
+    let currentInvoiceFilter = 'all';
 
     function parseTimestamp(timestamp) {
+        if (!timestamp) return new Date();
+        
+        // Handle format: DD/MM/YYYY HH:MM:SS
         const parts = timestamp.split(' ');
+        if (parts.length < 2) return new Date();
+        
         const dateParts = parts[0].split('/');
         const timeParts = parts[1].split(':');
 
+        if (dateParts.length !== 3 || timeParts.length !== 3) {
+            console.warn('Invalid timestamp format:', timestamp);
+            return new Date();
+        }
+
         return new Date(
-            parseInt(dateParts[2]),
-            parseInt(dateParts[1]) - 1,
-            parseInt(dateParts[0]),
-            parseInt(timeParts[0]),
-            parseInt(timeParts[1]),
-            parseInt(timeParts[2])
+            parseInt(dateParts[2]),      // year (2025 or 2026)
+            parseInt(dateParts[1]) - 1,  // month (0-indexed)
+            parseInt(dateParts[0]),      // day
+            parseInt(timeParts[0]),      // hour
+            parseInt(timeParts[1]),      // minute
+            parseInt(timeParts[2])       // second
         );
     }
 
@@ -1075,14 +1595,41 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    allReadings = results.data.map(row => ({
-                        ...row,
-                        timestamp: parseTimestamp(row.Timestamp || row.timestamp)
-                    }));
+                    allReadings = results.data.map(row => {
+                        // CSV columns: Timestamp, mac, alias, state, rssi
+                        const mapped = {
+                            timestamp: parseTimestamp(row.Timestamp || row.timestamp),
+                            alias: row.alias || row.Alias || row.Name || row.name || '',
+                            mac: row.mac || row.MAC || '',
+                            rssi: row.rssi || row.RSSI || '',
+                            state: (row.state || row.State || '').trim().toUpperCase()
+                        };
+                        return mapped;
+                    });
+
+                    console.log(`Loaded ${allReadings.length} total readings`);
+                    
+                    // Check for December 2025 data
+                    const dec2025 = allReadings.filter(r => 
+                        r.timestamp.getFullYear() === 2025 && r.timestamp.getMonth() === 11 // Month is 0-indexed
+                    );
+                    console.log(`Found ${dec2025.length} readings in December 2025`);
+                    if (dec2025.length > 0) {
+                        console.log('Sample December reading:', dec2025[0]);
+                        const dec2025IN = dec2025.filter(r => r.state === 'IN');
+                        console.log(`December 2025 readings with state="IN": ${dec2025IN.length}`);
+                    }
 
                     latestBins = getLatestBinStatus(results.data);
                     populateBinSelector();
-                    displayCurrentView();
+                    
+                    // Only update display if not on invoice view or if it's the initial load
+                    if (currentView !== 'invoice' || !isAutoRefresh) {
+                        displayCurrentView();
+                    } else {
+                        // Just update the data in background, keep invoice view intact
+                        updateLastUpdated();
+                    }
 
                     document.getElementById('loading').style.display = 'none';
                     document.getElementById('content').style.display = 'block';
@@ -1126,8 +1673,21 @@
     }
 
     function displayCurrentView() {
+        // Hide all views first
+        document.getElementById('dashboardView').classList.add('hidden');
+        document.getElementById('calendarView').classList.add('hidden');
+        document.getElementById('invoiceView').classList.add('hidden');
+
+        // Hide/show main export button based on view
+        const exportBtn = document.querySelector('.refresh-btn[onclick="exportToCSV()"]');
+        if (exportBtn) {
+            exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
+        }
+
         if (currentView === 'dashboard') {
             displayDashboard();
+        } else if (currentView === 'invoice') {
+            displayInvoiceView();
         } else {
             displayCalendar();
         }
@@ -1136,7 +1696,6 @@
 
     function displayDashboard() {
         document.getElementById('dashboardView').classList.remove('hidden');
-        document.getElementById('calendarView').classList.add('hidden');
         displayStats();
         displayBins();
     }
@@ -1253,7 +1812,6 @@
     }
 
     function displayCalendar() {
-        document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('calendarView').classList.remove('hidden');
 
         const existingBtn = document.getElementById('expandAllBtn');
@@ -1647,6 +2205,568 @@
         document.body.removeChild(link);
     }
 
+    // Invoice View Functions
+    function displayInvoiceView() {
+        document.getElementById('invoiceView').classList.remove('hidden');
+        
+        // Setup file input listener (remove any existing listeners first)
+        const fileInput = document.getElementById('pdfFileInput');
+        const newFileInput = fileInput.cloneNode(true);
+        fileInput.parentNode.replaceChild(newFileInput, fileInput);
+        
+        newFileInput.addEventListener('change', handleFileUpload);
+
+        // Setup drag and drop
+        const uploadSection = document.getElementById('uploadSection');
+        
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                newFileInput.files = e.dataTransfer.files;
+                handleFileUpload({ target: newFileInput });
+            }
+        });
+        
+        console.log('Invoice view initialized');
+    }
+
+    async function handleFileUpload(e) {
+        const fileInput = e?.target || document.getElementById('pdfFileInput');
+        const file = fileInput.files[0];
+        
+        console.log('File selected:', file?.name, file?.type);
+        
+        if (!file) {
+            alert('No file selected');
+            return;
+        }
+        
+        if (file.type !== 'application/pdf') {
+            alert('Please select a valid PDF file. Selected file type: ' + file.type);
+            return;
+        }
+
+        // Auto-clear previous invoice data
+        if (invoiceData || comparisonData) {
+            console.log('Clearing previous invoice data...');
+            invoiceData = null;
+            comparisonData = null;
+            currentInvoiceFilter = 'all';
+            document.getElementById('invoiceStats').classList.add('hidden');
+            document.getElementById('invoiceActions').classList.add('hidden');
+            document.getElementById('invoiceFilters').classList.add('hidden');
+            document.getElementById('comparisonResults').classList.add('hidden');
+            
+            // Reset filter buttons
+            document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
+            });
+        }
+
+        const fileNameEl = document.getElementById('fileName');
+        fileNameEl.innerHTML = `
+            <div style="display: inline-flex; align-items: center; gap: 10px; background: #e5f2ff; padding: 12px 20px; border-radius: 8px; border: 1px solid #99ccff;">
+                <div style="text-align: left;">
+                    <div style="font-weight: 600; color: #007aff;">Processing PDF</div>
+                    <div style="font-size: 0.9em; color: #0056b3;">${file.name}</div>
+                </div>
+            </div>
+        `;
+        fileNameEl.style.color = '';
+
+        try {
+            console.log('Reading file...');
+            const arrayBuffer = await file.arrayBuffer();
+            console.log('File read, size:', arrayBuffer.byteLength);
+            
+            console.log('Loading PDF...');
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdf = await loadingTask.promise;
+            console.log('PDF loaded, pages:', pdf.numPages);
+            
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                console.log('Processing page', i);
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n';
+            }
+
+            console.log('Extracted text length:', fullText.length);
+            console.log('First 500 chars:', fullText.substring(0, 500));
+
+            invoiceData = parseInvoiceData(fullText);
+            console.log('Parsed invoice data:', invoiceData);
+            
+            if (Object.keys(invoiceData.general).length === 0 && Object.keys(invoiceData.commingle).length === 0) {
+                fileNameEl.innerHTML = `
+                    <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; color: #c41e3a;">No Invoice Data Found</div>
+                            <div style="font-size: 0.9em; color: #dc2626;">Please check the file format</div>
+                        </div>
+                    </div>
+                `;
+                fileNameEl.style.color = '';
+                alert('Could not find any service records in the PDF. Please make sure this is a REMONDIS invoice.');
+                return;
+            }
+            
+            displayInvoiceComparison();
+            
+        } catch (error) {
+            console.error('Error processing PDF:', error);
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #c41e3a;">Error Processing PDF</div>
+                        <div style="font-size: 0.9em; color: #dc2626;">${error.message}</div>
+                    </div>
+                </div>
+            `;
+            fileNameEl.style.color = '';
+            alert('Error processing PDF: ' + error.message);
+        }
+    }
+
+    function parseInvoiceData(text) {
+        const parsed = {
+            general: {},  // Putrescible on invoice = General Waste
+            commingle: {}
+        };
+
+        console.log('Parsing invoice text...');
+        console.log('Text length:', text.length);
+
+        // Parse the ACTUAL format from the PDF:
+        // DD/MM/YY   REFNO   QTY   $PRICE   $TOTAL Service Rear Lift 1100L (Co-Mingled|Putrescible)
+        // Example: 01/12/25   15776115.1   1   $26.69   $26.69 Service Rear Lift 1100L Co-Mingled
+        
+        const pattern = /(\d{2})\/(\d{2})\/(\d{2})\s+[\d.]+\s+(\d+)\s+\$[\d.]+\s+\$[\d.]+\s+Service\s+Rear\s+Lift\s+1100L\s+(Co-Mingled|Putrescible)/gi;
+
+        let match;
+        let matchCount = 0;
+        
+        while ((match = pattern.exec(text)) !== null) {
+            matchCount++;
+            const day = match[1];
+            const month = match[2];
+            const year = '20' + match[3];
+            const dateKey = `${year}-${month}-${day}`;
+            const qty = parseInt(match[4]);
+            const invoiceType = match[5];
+            // Map invoice types to our waste types
+            // Putrescible (invoice) → general (our system)
+            // Co-Mingled (invoice) → commingle (our system)
+            const type = invoiceType === 'Co-Mingled' ? 'commingle' : 'general';
+
+            console.log(`Match ${matchCount}: Date=${dateKey}, InvoiceType=${invoiceType}, MappedType=${type}, Qty=${qty}`);
+
+            if (!parsed[type][dateKey]) {
+                parsed[type][dateKey] = 0;
+            }
+            parsed[type][dateKey] += qty;
+        }
+        
+        console.log(`Total matches found: ${matchCount}`);
+        console.log('Final parsed data:', parsed);
+        console.log('General Waste (Putrescible) dates:', Object.keys(parsed.general).length);
+        console.log('Commingle (Co-Mingled) dates:', Object.keys(parsed.commingle).length);
+
+        return parsed;
+    }
+
+    function displayInvoiceComparison() {
+        if (!invoiceData) return;
+
+        // Count comparison stats
+        let totalMatches = 0;
+        let totalMismatches = 0;
+        let totalMissing = 0;
+        let totalDaysWithData = 0;
+
+        const allDates = new Set([
+            ...Object.keys(invoiceData.general),
+            ...Object.keys(invoiceData.commingle)
+        ]);
+
+        console.log('Comparing', allDates.size, 'unique dates');
+
+        const comparisonsByDate = new Map();
+
+        allDates.forEach(invoiceDate => {
+            // Offset by -1 day for actual data (actual is day BEFORE invoice date)
+            const actualDate = new Date(invoiceDate);
+            actualDate.setDate(actualDate.getDate() - 1);
+            const actualDateStr = actualDate.toISOString().split('T')[0];
+
+            const generalInvoice = invoiceData.general[invoiceDate] || 0;
+            const commingeInvoice = invoiceData.commingle[invoiceDate] || 0;
+
+            // Get readings for the day where state="IN" (collection)
+            const dayReadings = allReadings.filter(r => {
+                const readingDate = r.timestamp.toISOString().split('T')[0];
+                return readingDate === actualDateStr && r.state === 'IN';
+            });
+
+            console.log(`Date ${actualDateStr}: Found ${dayReadings.length} readings with state="IN"`);
+
+            // Count UNIQUE bins per waste type (not all readings)
+            const generalBins = new Set();
+            const commingeBins = new Set();
+
+            dayReadings.forEach(reading => {
+                const alias = reading.alias || '';
+                const mac = reading.mac || '';
+                const binNumber = getBinNumberFromName(alias);
+                const wasteType = wasteTypeByNumber[binNumber];
+                
+                console.log(`  Reading: alias="${alias}", binNumber=${binNumber}, wasteType=${wasteType}, MAC=${mac.substring(0, 15)}...`);
+                
+                if (wasteType === 'general') {
+                    generalBins.add(mac);
+                } else if (wasteType === 'commingle') {
+                    commingeBins.add(mac);
+                } else {
+                    console.log(`  ⚠️ Unknown waste type for bin ${binNumber} (${alias})`);
+                }
+            });
+
+            const generalActual = generalBins.size;
+            const commingeActual = commingeBins.size;
+
+            if (generalActual > 0 || commingeActual > 0) {
+                totalDaysWithData++;
+            }
+
+            console.log(`${actualDateStr}: Invoice(G:${generalInvoice}, C:${commingeInvoice}) vs Actual(G:${generalActual}, C:${commingeActual})`);
+
+            const generalMatch = generalInvoice === generalActual;
+            const commingeMatch = commingeInvoice === commingeActual;
+
+            if (generalMatch && commingeMatch) {
+                totalMatches++;
+            } else if (generalInvoice === 0 && commingeInvoice === 0 && generalActual === 0 && commingeActual === 0) {
+                // Skip days with no activity
+            } else if (generalActual === 0 && commingeActual === 0 && (generalInvoice > 0 || commingeInvoice > 0)) {
+                totalMissing++;
+            } else {
+                totalMismatches++;
+            }
+
+            comparisonsByDate.set(invoiceDate, {
+                actualDate: actualDateStr,
+                general: {
+                    invoice: generalInvoice,
+                    actual: generalActual,
+                    diff: generalInvoice - generalActual  // Reversed: positive = over invoiced, negative = under invoiced
+                },
+                commingle: {
+                    invoice: commingeInvoice,
+                    actual: commingeActual,
+                    diff: commingeInvoice - commingeActual  // Reversed: positive = over invoiced, negative = under invoiced
+                }
+            });
+        });
+
+        console.log('Results: Matches=', totalMatches, 'Mismatches=', totalMismatches, 'Missing=', totalMissing);
+
+        // Store comparison data globally for filtering
+        comparisonData = {
+            byDate: comparisonsByDate,
+            stats: {
+                matches: totalMatches,
+                mismatches: totalMismatches,
+                missing: totalMissing,
+                totalDaysWithData: totalDaysWithData
+            }
+        };
+
+        // Check if we have any actual data for comparison
+        if (totalDaysWithData === 0) {
+            const fileNameEl = document.getElementById('fileName');
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #fff4e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffcc99; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #cc7a00; margin-bottom: 4px;">No Collection Data Found</div>
+                        <div style="font-size: 0.9em; color: #996600;">The CSV may not contain data for this invoice period</div>
+                    </div>
+                </div>
+            `;
+            fileNameEl.style.color = '';
+        }
+
+        // Display stats
+        const statsHtml = `
+            <div class="stat-card match">
+                <div class="stat-number">${totalMatches}</div>
+                <div class="stat-label">Matches</div>
+            </div>
+            <div class="stat-card mismatch">
+                <div class="stat-number">${totalMismatches}</div>
+                <div class="stat-label">Mismatches</div>
+            </div>
+            <div class="stat-card missing">
+                <div class="stat-number">${totalMissing}</div>
+                <div class="stat-label">Missing Data</div>
+            </div>
+        `;
+        
+        document.getElementById('invoiceStats').innerHTML = statsHtml;
+        document.getElementById('invoiceStats').classList.remove('hidden');
+        
+        // Show action buttons
+        document.getElementById('invoiceActions').classList.remove('hidden');
+        
+        // Show filters
+        document.getElementById('invoiceFilters').classList.remove('hidden');
+
+        // Display filtered comparisons
+        displayFilteredComparisons();
+        
+        // Only show success message if we have data
+        if (totalDaysWithData > 0) {
+            const fileNameEl = document.getElementById('fileName');
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #d1f4e0; padding: 12px 20px; border-radius: 8px; border: 1px solid #99e6b8; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #1e7c3c;">Analysis Complete</div>
+                        <div style="font-size: 0.9em; color: #28a745;">Found ${totalDaysWithData} days with collection data</div>
+                    </div>
+                </div>
+            `;
+            fileNameEl.style.color = '';
+        }
+    }
+
+    function displayFilteredComparisons() {
+        if (!comparisonData) return;
+
+        const comparisonsByDate = comparisonData.byDate;
+        
+        // Display comparison cards with filtering
+        let comparisonHtml = '<div class="comparison-grid">';
+        
+        const sortedDates = Array.from(comparisonsByDate.keys()).sort().reverse();
+        let displayedCount = 0;
+        
+        sortedDates.forEach(invoiceDate => {
+            const data = comparisonsByDate.get(invoiceDate);
+            const date = new Date(invoiceDate);
+            const actualDate = new Date(data.actualDate);
+            
+            const generalMatch = data.general.diff === 0;
+            const commingeMatch = data.commingle.diff === 0;
+            const overallMatch = generalMatch && commingeMatch;
+            
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
+                data.general.actual === 0 && data.commingle.actual === 0) {
+                return; // Skip days with no activity
+            }
+
+            // Determine the category based on total difference
+            // diff = invoice - actual
+            // positive = over invoiced (red mismatch)
+            // negative = under invoiced (orange mismatch)
+            // zero = match
+            const totalDiff = data.general.diff + data.commingle.diff;
+            let category;
+            let statusText;
+            
+            if (overallMatch) {
+                category = 'match';
+                statusText = 'Match';
+            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
+                category = 'missing';
+                statusText = 'Missing';
+            } else if (totalDiff > 0) {
+                // Over invoiced = red mismatch
+                category = 'mismatch-over';
+                statusText = 'Mismatch';
+            } else {
+                // Under invoiced or mixed = orange mismatch
+                category = 'mismatch-under';
+                statusText = 'Mismatch';
+            }
+
+            // Apply filter - map both mismatch types to 'mismatch' filter
+            const filterCategory = category.startsWith('mismatch') ? 'mismatch' : category;
+            if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) {
+                return;
+            }
+
+            displayedCount++;
+
+            comparisonHtml += `
+                <div class="comparison-card card-${category}">
+                    <div class="comparison-date">
+                        <div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 500;">Invoice: ${date.toLocaleDateString('en-AU')}</div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 500;">Actual: ${actualDate.toLocaleDateString('en-AU')}</div>
+                        </div>
+                        <span class="comparison-status-badge badge-${category}">${statusText}</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; padding: 10px 0; border-bottom: 2px solid #f0f0f0; font-size: 0.85em; font-weight: 600; color: #666;">
+                        <div></div>
+                        <div style="text-align: center;">Presented</div>
+                        <div style="text-align: center;">Invoiced</div>
+                        <div style="text-align: center;">Diff</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-label">General Waste</div>
+                        <div class="comparison-values">
+                            <span class="actual-value">${data.general.actual}</span>
+                            <span class="invoice-value">${data.general.invoice}</span>
+                            ${data.general.diff !== 0 ? `<span class="difference ${data.general.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.general.diff > 0 ? '+' : ''}${data.general.diff}</span>` : '<span class="difference zero">0</span>'}
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-label">Co-Mingled</div>
+                        <div class="comparison-values">
+                            <span class="actual-value">${data.commingle.actual}</span>
+                            <span class="invoice-value">${data.commingle.invoice}</span>
+                            ${data.commingle.diff !== 0 ? `<span class="difference ${data.commingle.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.commingle.diff > 0 ? '+' : ''}${data.commingle.diff}</span>` : '<span class="difference zero">0</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (displayedCount === 0) {
+            comparisonHtml += `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 1.2em; font-weight: 600; color: #1d1d1f; margin-bottom: 8px;">No Results Found</div>
+                    <div style="color: #666; font-size: 0.95em;">Try changing the filter or upload a different invoice</div>
+                </div>
+            `;
+        }
+        
+        comparisonHtml += '</div>';
+        
+        document.getElementById('comparisonResults').innerHTML = comparisonHtml;
+        document.getElementById('comparisonResults').classList.remove('hidden');
+    }
+
+    function clearInvoiceData() {
+        invoiceData = null;
+        comparisonData = null;
+        currentInvoiceFilter = 'all';
+        document.getElementById('pdfFileInput').value = '';
+        document.getElementById('fileName').textContent = '';
+        document.getElementById('invoiceStats').classList.add('hidden');
+        document.getElementById('invoiceActions').classList.add('hidden');
+        document.getElementById('invoiceFilters').classList.add('hidden');
+        document.getElementById('comparisonResults').classList.add('hidden');
+        
+        // Reset filter buttons
+        document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
+        });
+        
+        console.log('Invoice data cleared');
+    }
+
+    function exportInvoiceCSV() {
+        if (!comparisonData || !comparisonData.byDate) {
+            alert('No comparison data available to export');
+            return;
+        }
+
+        // CSV header
+        const headers = [
+            'Invoice Date',
+            'Actual Date',
+            'Status',
+            'General Waste (Presented)',
+            'General Waste (Invoiced)',
+            'General Waste (Difference)',
+            'Commingle (Presented)',
+            'Commingle (Invoiced)',
+            'Commingle (Difference)'
+        ];
+
+        const rows = [headers];
+
+        // Sort dates
+        const sortedDates = Array.from(comparisonData.byDate.keys()).sort();
+
+        sortedDates.forEach(invoiceDate => {
+            const data = comparisonData.byDate.get(invoiceDate);
+            const date = new Date(invoiceDate);
+            const actualDate = new Date(data.actualDate);
+
+            // Determine status based on total difference
+            const generalMatch = data.general.diff === 0;
+            const commingeMatch = data.commingle.diff === 0;
+            const totalDiff = data.general.diff + data.commingle.diff;
+            
+            let status;
+            if (generalMatch && commingeMatch) {
+                status = 'Match';
+            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
+                status = 'Missing';
+            } else if (totalDiff > 0) {
+                status = 'Over Invoiced';
+            } else {
+                status = 'Under Invoiced';
+            }
+
+            // Skip days with no activity
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
+                data.general.actual === 0 && data.commingle.actual === 0) {
+                return;
+            }
+
+            const row = [
+                date.toLocaleDateString('en-AU'),
+                actualDate.toLocaleDateString('en-AU'),
+                status,
+                data.general.actual,
+                data.general.invoice,
+                data.general.diff,
+                data.commingle.actual,
+                data.commingle.invoice,
+                data.commingle.diff
+            ];
+
+            rows.push(row);
+        });
+
+        // Convert to CSV
+        const csvContent = rows.map(row => row.join(',')).join('\n');
+
+        // Create download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('href', url);
+        link.setAttribute('download', `invoice-comparison-${timestamp}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+
+        console.log(`Exported ${rows.length - 1} rows to CSV`);
+    }
+
+    // Event Listeners
     document.addEventListener('DOMContentLoaded', () => {
         loadData(false);
 
@@ -1707,6 +2827,16 @@
             selectedBin = e.target.value;
             displayCalendar();
         });
+
+        // Invoice filter buttons
+        document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-invoice-filter]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentInvoiceFilter = btn.dataset.invoiceFilter;
+                displayFilteredComparisons();
+            });
+        });
     });
 
     // Auto-refresh every 60 seconds
@@ -1714,4 +2844,3 @@
 </script>
 </body>
 </html>
-
