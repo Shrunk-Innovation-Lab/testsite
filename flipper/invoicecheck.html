@@ -865,8 +865,12 @@
             background: #34c759;
         }
 
-        .comparison-card.card-mismatch::before {
+        .comparison-card.card-mismatch-under::before {
             background: #ff9500;
+        }
+
+        .comparison-card.card-mismatch-over::before {
+            background: #ff3b30;
         }
 
         .comparison-card.card-missing::before {
@@ -911,9 +915,14 @@
             color: #1e7c3c;
         }
 
-        .comparison-status-badge.badge-mismatch {
+        .comparison-status-badge.badge-mismatch-under {
             background: #ffe5d0;
             color: #cc7a00;
+        }
+
+        .comparison-status-badge.badge-mismatch-over {
+            background: #ffe5e5;
+            color: #c41e3a;
         }
 
         .comparison-status-badge.badge-missing {
@@ -922,8 +931,9 @@
         }
 
         .comparison-item {
-            display: flex;
-            justify-content: space-between;
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 8px;
             align-items: center;
             padding: 14px 0;
             border-bottom: 1px solid #f5f5f7;
@@ -946,11 +956,7 @@
         }
 
         .comparison-values {
-            display: flex;
-            gap: 12px;
-            align-items: center;
-            font-weight: 600;
-            font-size: 1.05em;
+            display: contents;
         }
 
         .invoice-value {
@@ -958,7 +964,6 @@
             background: #e5f2ff;
             padding: 4px 10px;
             border-radius: 6px;
-            min-width: 30px;
             text-align: center;
             transition: all 0.2s ease;
         }
@@ -972,7 +977,6 @@
             background: #d1f4e0;
             padding: 4px 10px;
             border-radius: 6px;
-            min-width: 30px;
             text-align: center;
             transition: all 0.2s ease;
         }
@@ -988,20 +992,21 @@
             white-space: nowrap;
             font-weight: 700;
             transition: all 0.2s ease;
+            text-align: center;
         }
 
         .difference:hover {
             transform: scale(1.05);
         }
 
-        .difference.positive {
-            background: #d1f4e0;
-            color: #1e7c3c;
-        }
-
-        .difference.negative {
+        .difference.over-invoiced {
             background: #ffe5e5;
             color: #c41e3a;
+        }
+
+        .difference.under-invoiced {
+            background: #d1f4e0;
+            color: #1e7c3c;
         }
 
         .difference.zero {
@@ -1346,10 +1351,23 @@
                 padding: 30px 15px;
             }
 
-            .comparison-values {
-                flex-direction: column;
-                gap: 6px;
-                align-items: flex-start;
+            .comparison-card > div:first-of-type + div {
+                display: none;
+            }
+
+            .comparison-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .comparison-label {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            .comparison-values > * {
+                display: block;
+                margin-bottom: 4px;
             }
         }
     </style>
@@ -2452,12 +2470,12 @@
                 general: {
                     invoice: generalInvoice,
                     actual: generalActual,
-                    diff: generalActual - generalInvoice
+                    diff: generalInvoice - generalActual  // Reversed: positive = over invoiced, negative = under invoiced
                 },
                 commingle: {
                     invoice: commingeInvoice,
                     actual: commingeActual,
-                    diff: commingeActual - commingeInvoice
+                    diff: commingeInvoice - commingeActual  // Reversed: positive = over invoiced, negative = under invoiced
                 }
             });
         });
@@ -2557,22 +2575,34 @@
                 return; // Skip days with no activity
             }
 
-            // Determine the category
+            // Determine the category based on total difference
+            // diff = invoice - actual
+            // positive = over invoiced (red mismatch)
+            // negative = under invoiced (orange mismatch)
+            // zero = match
+            const totalDiff = data.general.diff + data.commingle.diff;
             let category;
             let statusText;
+            
             if (overallMatch) {
                 category = 'match';
                 statusText = 'Match';
             } else if (data.general.actual === 0 && data.commingle.actual === 0) {
                 category = 'missing';
                 statusText = 'Missing';
+            } else if (totalDiff > 0) {
+                // Over invoiced = red mismatch
+                category = 'mismatch-over';
+                statusText = 'Mismatch';
             } else {
-                category = 'mismatch';
+                // Under invoiced or mixed = orange mismatch
+                category = 'mismatch-under';
                 statusText = 'Mismatch';
             }
 
-            // Apply filter
-            if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== category) {
+            // Apply filter - map both mismatch types to 'mismatch' filter
+            const filterCategory = category.startsWith('mismatch') ? 'mismatch' : category;
+            if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) {
                 return;
             }
 
@@ -2588,23 +2618,28 @@
                         <span class="comparison-status-badge badge-${category}">${statusText}</span>
                     </div>
                     
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; padding: 10px 0; border-bottom: 2px solid #f0f0f0; font-size: 0.85em; font-weight: 600; color: #666;">
+                        <div></div>
+                        <div style="text-align: center;">Presented</div>
+                        <div style="text-align: center;">Invoiced</div>
+                        <div style="text-align: center;">Diff</div>
+                    </div>
+                    
                     <div class="comparison-item">
-                        <div class="comparison-label">General Waste (Putrescible)</div>
+                        <div class="comparison-label">General Waste</div>
                         <div class="comparison-values">
-                            <span class="invoice-value">${data.general.invoice}</span>
-                            <span>vs</span>
                             <span class="actual-value">${data.general.actual}</span>
-                            ${data.general.diff !== 0 ? `<span class="difference ${data.general.diff > 0 ? 'positive' : 'negative'}">${data.general.diff > 0 ? '+' : ''}${data.general.diff}</span>` : ''}
+                            <span class="invoice-value">${data.general.invoice}</span>
+                            ${data.general.diff !== 0 ? `<span class="difference ${data.general.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.general.diff > 0 ? '+' : ''}${data.general.diff}</span>` : '<span class="difference zero">0</span>'}
                         </div>
                     </div>
                     
                     <div class="comparison-item">
-                        <div class="comparison-label">Co-Mingled (Recycling)</div>
+                        <div class="comparison-label">Co-Mingled</div>
                         <div class="comparison-values">
-                            <span class="invoice-value">${data.commingle.invoice}</span>
-                            <span>vs</span>
                             <span class="actual-value">${data.commingle.actual}</span>
-                            ${data.commingle.diff !== 0 ? `<span class="difference ${data.commingle.diff > 0 ? 'positive' : 'negative'}">${data.commingle.diff > 0 ? '+' : ''}${data.commingle.diff}</span>` : ''}
+                            <span class="invoice-value">${data.commingle.invoice}</span>
+                            ${data.commingle.diff !== 0 ? `<span class="difference ${data.commingle.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.commingle.diff > 0 ? '+' : ''}${data.commingle.diff}</span>` : '<span class="difference zero">0</span>'}
                         </div>
                     </div>
                 </div>
@@ -2656,11 +2691,11 @@
             'Invoice Date',
             'Actual Date',
             'Status',
-            'General Waste (Invoice)',
-            'General Waste (Actual)',
+            'General Waste (Presented)',
+            'General Waste (Invoiced)',
             'General Waste (Difference)',
-            'Commingle (Invoice)',
-            'Commingle (Actual)',
+            'Commingle (Presented)',
+            'Commingle (Invoiced)',
             'Commingle (Difference)'
         ];
 
@@ -2674,16 +2709,20 @@
             const date = new Date(invoiceDate);
             const actualDate = new Date(data.actualDate);
 
-            // Determine status
+            // Determine status based on total difference
             const generalMatch = data.general.diff === 0;
             const commingeMatch = data.commingle.diff === 0;
+            const totalDiff = data.general.diff + data.commingle.diff;
+            
             let status;
             if (generalMatch && commingeMatch) {
                 status = 'Match';
             } else if (data.general.actual === 0 && data.commingle.actual === 0) {
                 status = 'Missing';
+            } else if (totalDiff > 0) {
+                status = 'Over Invoiced';
             } else {
-                status = 'Mismatch';
+                status = 'Under Invoiced';
             }
 
             // Skip days with no activity
@@ -2696,11 +2735,11 @@
                 date.toLocaleDateString('en-AU'),
                 actualDate.toLocaleDateString('en-AU'),
                 status,
-                data.general.invoice,
                 data.general.actual,
+                data.general.invoice,
                 data.general.diff,
-                data.commingle.invoice,
                 data.commingle.actual,
+                data.commingle.invoice,
                 data.commingle.diff
             ];
 
