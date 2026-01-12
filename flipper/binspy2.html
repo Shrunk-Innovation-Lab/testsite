@@ -9,18 +9,8 @@
     <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
     <link rel="apple-touch-icon" href="https://i.imgur.com/dZR7M8C.png">
     <style>
-        html, body {
-            width: 100%;
-            max-width: 100%;
-            overflow-x: hidden;
-        }
-
-        * {
-            margin: 0;
-            padding: 0;
-            box-sizing: border-box;
-            -webkit-tap-highlight-color: transparent;
-        }
+        html, body { width: 100%; max-width: 100%; overflow-x: hidden; }
+        * { margin: 0; padding: 0; box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
 
         body {
             font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
@@ -33,11 +23,7 @@
             -webkit-font-smoothing: antialiased;
         }
 
-        .page {
-            max-width: 1400px;
-            width: 100%;
-            margin: 0 auto;
-        }
+        .page { max-width: 1400px; width: 100%; margin: 0 auto; }
 
         header {
             display: flex;
@@ -49,18 +35,8 @@
             flex-wrap: wrap;
         }
 
-        .header-left {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            flex: 1;
-            min-width: 0;
-        }
-
-        .logo {
-            height: 38px;
-            flex-shrink: 0;
-        }
+        .header-left { display: flex; align-items: center; gap: 12px; flex: 1; min-width: 0; }
+        .logo { height: 38px; flex-shrink: 0; }
 
         .header-title {
             font-size: 1.25em;
@@ -94,19 +70,14 @@
             transition: background-color 0.18s, box-shadow 0.18s, transform 0.08s;
         }
 
-        .home-link svg {
-            width: 18px;
-            height: 18px;
-        }
+        .home-link svg { width: 18px; height: 18px; }
 
         .home-link:active {
             transform: scale(0.96);
             box-shadow: 0 1px 4px rgba(0,0,0,0.18);
         }
 
-        .container {
-            width: 100%;
-        }
+        .container { width: 100%; }
 
         .controls-row {
             background-color: #ffffff;
@@ -122,11 +93,7 @@
             align-items: center;
         }
 
-        .view-toggle {
-            display: flex;
-            gap: 8px;
-            flex-wrap: wrap;
-        }
+        .view-toggle { display: flex; gap: 8px; flex-wrap: wrap; }
 
         .view-btn, .export-btn, .nav-btn, .filter-btn, .refresh-btn {
             padding: 10px 18px;
@@ -149,37 +116,15 @@
             white-space: nowrap;
         }
 
-        .view-btn:active, .filter-btn:active {
-            transform: scale(0.97);
-        }
+        .view-btn:active, .filter-btn:active { transform: scale(0.97); }
 
-        .view-btn.active {
-            background-color: #007aff;
-            color: white;
-            border-color: #007aff;
-        }
+        .view-btn.active { background-color: #007aff; color: white; border-color: #007aff; }
 
-        .export-btn {
-            background-color: #34c759;
-            color: white;
-            border-color: #34c759;
-        }
+        .export-btn { background-color: #34c759; color: white; border-color: #34c759; }
+        .export-btn:active { background-color: #2fb350; transform: scale(0.97); }
 
-        .export-btn:active {
-            background-color: #2fb350;
-            transform: scale(0.97);
-        }
-
-        .refresh-btn {
-            background-color: #007aff;
-            color: white;
-            border-color: #007aff;
-        }
-
-        .refresh-btn:active {
-            background-color: #0056b3;
-            transform: scale(0.97);
-        }
+        .refresh-btn { background-color: #007aff; color: white; border-color: #007aff; }
+        .refresh-btn:active { background-color: #0056b3; transform: scale(0.97); }
 
         .stats {
             display: grid;
@@ -197,49 +142,17 @@
             text-align: center;
         }
 
-        .stat-number {
-            font-size: 2.2em;
-            font-weight: bold;
-            margin-bottom: 6px;
-        }
+        .stat-number { font-size: 2.2em; font-weight: bold; margin-bottom: 6px; }
+        .stat-label { color: #666; font-size: 0.9em; text-transform: uppercase; letter-spacing: 0.5px; }
 
-        .stat-label {
-            color: #666;
-            font-size: 0.9em;
-            text-transform: uppercase;
-            letter-spacing: 0.5px;
-        }
+        .stat-card.in .stat-number { color: #34c759; }
+        .stat-card.out .stat-number { color: #ff3b30; }
+        .stat-card.total .stat-number { color: #007aff; }
+        .stat-card.match .stat-number { color: #34c759; }
+        .stat-card.mismatch .stat-number { color: #ff9500; }
+        .stat-card.missing .stat-number { color: #ff3b30; }
 
-        .stat-card.in .stat-number {
-            color: #34c759;
-        }
-
-        .stat-card.out .stat-number {
-            color: #ff3b30;
-        }
-
-        .stat-card.total .stat-number {
-            color: #007aff;
-        }
-
-        .stat-card.match .stat-number {
-            color: #34c759;
-        }
-
-        .stat-card.mismatch .stat-number {
-            color: #ff9500;
-        }
-
-        .stat-card.missing .stat-number {
-            color: #ff3b30;
-        }
-
-        .bins-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
-            gap: 12px;
-            margin-bottom: 20px;
-        }
+        .bins-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(190px, 1fr)); gap: 12px; margin-bottom: 20px; }
 
         .bin-card {
             background-color: #ffffff;
@@ -251,45 +164,16 @@
             border-left: 4px solid;
         }
 
-        .bin-card:active {
-            transform: scale(0.98);
-        }
+        .bin-card:active { transform: scale(0.98); }
+        .bin-card.in { border-left-color: #34c759; }
+        .bin-card.out { border-left-color: #ff3b30; }
 
-        .bin-card.in {
-            border-left-color: #34c759;
-        }
+        .bin-card.match { border-left-color: #34c759; }
+        .bin-card.mismatch { border-left-color: #ff9500; }
+        .bin-card.missing { border-left-color: #ff3b30; }
 
-        .bin-card.out {
-            border-left-color: #ff3b30;
-        }
-
-        .bin-card.match {
-            border-left-color: #34c759;
-        }
-
-        .bin-card.mismatch {
-            border-left-color: #ff9500;
-        }
-
-        .bin-card.missing {
-            border-left-color: #ff3b30;
-        }
-
-        /* Header row: name + waste pill */
-        .bin-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 6px;
-            margin-bottom: 6px;
-        }
-
-        .bin-name {
-            font-size: 1.02em;
-            font-weight: 600;
-            margin-bottom: 0;
-            color: #1d1d1f;
-        }
+        .bin-header { display: flex; align-items: center; justify-content: space-between; gap: 6px; margin-bottom: 6px; }
+        .bin-name { font-size: 1.02em; font-weight: 600; margin-bottom: 0; color: #1d1d1f; }
 
         .bin-status {
             display: inline-block;
@@ -301,42 +185,15 @@
             letter-spacing: 0.5px;
         }
 
-        .bin-status.in {
-            background-color: #d1f4e0;
-            color: #1e7c3c;
-        }
+        .bin-status.in { background-color: #d1f4e0; color: #1e7c3c; }
+        .bin-status.out { background-color: #ffe5e5; color: #c41e3a; }
+        .bin-status.match { background-color: #d1f4e0; color: #1e7c3c; }
+        .bin-status.mismatch { background-color: #fff4e5; color: #cc7a00; }
+        .bin-status.missing { background-color: #ffe5e5; color: #c41e3a; }
 
-        .bin-status.out {
-            background-color: #ffe5e5;
-            color: #c41e3a;
-        }
+        .bin-details { margin-top: 8px; color: #666; font-size: 0.8em; }
+        .bin-details div { margin: 3px 0; }
 
-        .bin-status.match {
-            background-color: #d1f4e0;
-            color: #1e7c3c;
-        }
-
-        .bin-status.mismatch {
-            background-color: #fff4e5;
-            color: #cc7a00;
-        }
-
-        .bin-status.missing {
-            background-color: #ffe5e5;
-            color: #c41e3a;
-        }
-
-        .bin-details {
-            margin-top: 8px;
-            color: #666;
-            font-size: 0.8em;
-        }
-
-        .bin-details div {
-            margin: 3px 0;
-        }
-
-        /* Waste-type pills */
         .bin-type-pill {
             padding: 3px 10px;
             border-radius: 999px;
@@ -347,22 +204,10 @@
             white-space: nowrap;
         }
 
-        .bin-type-pill.general {
-            background-color: #ff3b30; /* red */
-            color: #ffffff;
-        }
+        .bin-type-pill.general { background-color: #ff3b30; color: #ffffff; }
+        .bin-type-pill.commingle { background-color: #ffd60a; color: #1d1d1f; }
 
-        .bin-type-pill.commingle {
-            background-color: #ffd60a; /* yellow */
-            color: #1d1d1f;
-        }
-
-        .loading {
-            text-align: center;
-            color: #1d1d1f;
-            font-size: 1.25em;
-            padding: 40px 20px;
-        }
+        .loading { text-align: center; color: #1d1d1f; font-size: 1.25em; padding: 40px 20px; }
 
         .error {
             background-color: #ffe5e5;
@@ -387,16 +232,8 @@
             align-items: center;
         }
 
-        .filter-btn {
-            padding: 8px 14px;
-            min-height: 40px;
-        }
-
-        .filter-btn.active {
-            background-color: #007aff;
-            color: white;
-            border-color: #007aff;
-        }
+        .filter-btn { padding: 8px 14px; min-height: 40px; }
+        .filter-btn.active { background-color: #007aff; color: white; border-color: #007aff; }
 
         .search-box {
             flex: 1;
@@ -425,21 +262,8 @@
             width: 100%;
         }
 
-        .calendar-header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 12px;
-            flex-wrap: wrap;
-            gap: 10px;
-        }
-
-        .calendar-nav {
-            display: flex;
-            gap: 8px;
-            align-items: center;
-            flex-wrap: wrap;
-        }
+        .calendar-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px; flex-wrap: wrap; gap: 10px; }
+        .calendar-nav { display: flex; gap: 8px; align-items: center; flex-wrap: wrap; }
 
         .expand-all-btn {
             padding: 6px 12px;
@@ -454,13 +278,8 @@
             transition: all 0.2s;
         }
 
-        .expand-all-btn:hover {
-            background-color: #e8e8ed;
-        }
-
-        .expand-all-btn:active {
-            transform: scale(0.97);
-        }
+        .expand-all-btn:hover { background-color: #e8e8ed; }
+        .expand-all-btn:active { transform: scale(0.97); }
 
         .nav-btn {
             padding: 8px 12px;
@@ -472,18 +291,9 @@
             font-size: 0.9rem;
         }
 
-        .nav-btn:active {
-            background-color: #0056b3;
-            transform: scale(0.97);
-        }
+        .nav-btn:active { background-color: #0056b3; transform: scale(0.97); }
 
-        .calendar-title {
-            font-size: 1.2em;
-            font-weight: 600;
-            color: #1d1d1f;
-            text-align: center;
-            flex: 1 1 140px;
-        }
+        .calendar-title { font-size: 1.2em; font-weight: 600; color: #1d1d1f; text-align: center; flex: 1 1 140px; }
 
         .bin-selector {
             padding: 8px 12px;
@@ -496,25 +306,10 @@
             min-width: 140px;
         }
 
-        .bin-selector:focus {
-            outline: none;
-            border-color: #007aff;
-            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
-        }
+        .bin-selector:focus { outline: none; border-color: #007aff; box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2); }
 
-        .month-grid {
-            display: grid;
-            grid-template-columns: repeat(7, 1fr);
-            gap: 6px;
-        }
-
-        .day-header {
-            text-align: center;
-            font-weight: 600;
-            padding: 8px 4px;
-            color: #007aff;
-            font-size: 0.82em;
-        }
+        .month-grid { display: grid; grid-template-columns: repeat(7, 1fr); gap: 6px; }
+        .day-header { text-align: center; font-weight: 600; padding: 8px 4px; color: #007aff; font-size: 0.82em; }
 
         .day-cell {
             min-height: 70px;
@@ -526,27 +321,11 @@
             background-color: #ffffff;
         }
 
-        .day-cell:active {
-            transform: scale(0.98);
-            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
-        }
+        .day-cell:active { transform: scale(0.98); box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2); }
+        .day-cell.other-month { opacity: 0.3; }
 
-        .day-cell.other-month {
-            opacity: 0.3;
-        }
-
-        .day-number {
-            font-weight: 600;
-            margin-bottom: 4px;
-            color: #1d1d1f;
-            font-size: 0.9em;
-        }
-
-        .day-events {
-            display: flex;
-            flex-direction: column;
-            gap: 2px;
-        }
+        .day-number { font-weight: 600; margin-bottom: 4px; color: #1d1d1f; font-size: 0.9em; }
+        .day-events { display: flex; flex-direction: column; gap: 2px; }
 
         .event-dot {
             width: 100%;
@@ -557,29 +336,13 @@
             text-align: center;
         }
 
-        .event-dot.in {
-            background-color: #d1f4e0;
-            color: #1e7c3c;
-        }
+        .event-dot.in { background-color: #d1f4e0; color: #1e7c3c; }
+        .event-dot.out { background-color: #ffe5e5; color: #c41e3a; }
 
-        .event-dot.out {
-            background-color: #ffe5e5;
-            color: #c41e3a;
-        }
+        .week-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(140px, 1fr)); gap: 10px; }
 
-        .week-grid {
-            display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
-            gap: 10px;
-        }
-
-        .week-day {
-            border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            padding: 10px;
-            min-height: 180px;
-            background-color: #ffffff;
-        }
+        .week-day { border: 1px solid #d2d2d7; border-radius: 8px; padding: 10px; min-height: 180px; background-color: #ffffff; }
+        .week-day.collapsed { min-height: auto; }
 
         .week-day-header {
             font-weight: 600;
@@ -599,23 +362,11 @@
             transition: background-color 0.2s;
         }
 
-        .week-day-header:hover {
-            background-color: #f5f5f7;
-        }
+        .week-day-header:hover { background-color: #f5f5f7; }
+        .week-day-header:active { background-color: #e8e8ed; }
 
-        .week-day-header:active {
-            background-color: #e8e8ed;
-        }
-
-        .week-day-header .expand-icon {
-            font-size: 1.1em;
-            transition: transform 0.3s;
-            display: inline-block;
-        }
-
-        .week-day-header.collapsed .expand-icon {
-            transform: rotate(-90deg);
-        }
+        .week-day-header .expand-icon { font-size: 1.1em; transition: transform 0.3s; display: inline-block; }
+        .week-day-header.collapsed .expand-icon { transform: rotate(-90deg); }
 
         .week-events {
             display: flex;
@@ -625,52 +376,16 @@
             overflow: hidden;
         }
 
-        .week-events.collapsed {
-            max-height: 0 !important;
-            opacity: 0;
-            margin: 0;
-        }
+        .week-events.collapsed { max-height: 0 !important; opacity: 0; margin: 0; }
 
-        .week-day.collapsed {
-            min-height: auto;
-        }
+        .week-event { padding: 7px; border-radius: 6px; font-size: 0.8em; border-left: 4px solid; }
+        .week-event.in { background-color: #d1f4e0; border-left-color: #34c759; color: #1e7c3c; }
+        .week-event.out { background-color: #ffe5e5; border-left-color: #ff3b30; color: #c41e3a; }
 
-        .week-event {
-            padding: 7px;
-            border-radius: 6px;
-            font-size: 0.8em;
-            border-left: 4px solid;
-        }
+        .event-time { font-weight: 600; margin-bottom: 2px; }
 
-        .week-event.in {
-            background-color: #d1f4e0;
-            border-left-color: #34c759;
-            color: #1e7c3c;
-        }
-
-        .week-event.out {
-            background-color: #ffe5e5;
-            border-left-color: #ff3b30;
-            color: #c41e3a;
-        }
-
-        .event-time {
-            font-weight: 600;
-            margin-bottom: 2px;
-        }
-
-        .day-view {
-            border: 1px solid #d2d2d7;
-            border-radius: 8px;
-            padding: 10px;
-            background-color: #ffffff;
-        }
-
-        .timeline {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-        }
+        .day-view { border: 1px solid #d2d2d7; border-radius: 8px; padding: 10px; background-color: #ffffff; }
+        .timeline { display: flex; flex-direction: column; gap: 8px; }
 
         .timeline-event {
             display: block;
@@ -681,59 +396,18 @@
             font-size: 0.84em;
         }
 
-        .timeline-event:active {
-            transform: scale(0.98);
-        }
+        .timeline-event:active { transform: scale(0.98); }
+        .timeline-event.in { background-color: #d1f4e0; border-left-color: #34c759; }
+        .timeline-event.out { background-color: #ffe5e5; border-left-color: #ff3b30; }
 
-        .timeline-event.in {
-            background-color: #d1f4e0;
-            border-left-color: #34c759;
-        }
+        .timeline-header { display: flex; align-items: center; justify-content: space-between; gap: 10px; margin-bottom: 2px; }
+        .timeline-main { display: flex; flex-direction: column; gap: 1px; min-width: 0; flex: 1; }
 
-        .timeline-event.out {
-            background-color: #ffe5e5;
-            border-left-color: #ff3b30;
-        }
+        .timeline-time { font-weight: 600; color: #1d1d1f; font-size: 0.86em; }
+        .timeline-details { color: #1d1d1f; }
 
-        /* New layout for daily entries: time, main text, pill on the right */
-        .timeline-header {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            gap: 10px;
-            margin-bottom: 2px;
-        }
-
-        .timeline-main {
-            display: flex;
-            flex-direction: column;
-            gap: 1px;
-            min-width: 0;
-            flex: 1;
-        }
-
-        .timeline-time {
-            font-weight: 600;
-            color: #1d1d1f;
-            font-size: 0.86em;
-        }
-
-        .timeline-details {
-            color: #1d1d1f;
-        }
-
-        .timeline-right {
-            flex-shrink: 0;
-            display: flex;
-            align-items: center;
-            justify-content: flex-end;
-        }
-
-        .timeline-info {
-            color: #666;
-            font-size: 0.78em;
-            margin-top: 2px;
-        }
+        .timeline-right { flex-shrink: 0; display: flex; align-items: center; justify-content: flex-end; }
+        .timeline-info { color: #666; font-size: 0.78em; margin-top: 2px; }
 
         /* Invoice View Styles */
         .invoice-container {
@@ -794,9 +468,7 @@
             box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
         }
 
-        #pdfFileInput {
-            display: none;
-        }
+        #pdfFileInput { display: none; }
 
         .comparison-grid {
             display: grid;
@@ -807,14 +479,8 @@
         }
 
         @keyframes fadeIn {
-            from {
-                opacity: 0;
-                transform: translateY(10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .comparison-card {
@@ -830,14 +496,8 @@
         }
 
         @keyframes slideIn {
-            from {
-                opacity: 0;
-                transform: translateX(-20px);
-            }
-            to {
-                opacity: 1;
-                transform: translateX(0);
-            }
+            from { opacity: 0; transform: translateX(-20px); }
+            to { opacity: 1; transform: translateX(0); }
         }
 
         .comparison-card::before {
@@ -857,27 +517,12 @@
             border-color: #d2d2d7;
         }
 
-        .comparison-card:hover::before {
-            width: 6px;
-        }
+        .comparison-card:hover::before { width: 6px; }
+        .comparison-card.card-match::before { background: #34c759; }
+        .comparison-card.card-mismatch-under::before { background: #ff9500; }
+        .comparison-card.card-mismatch-over::before { background: #ff3b30; }
+        .comparison-card.card-missing::before { background: #ff3b30; }
 
-        .comparison-card.card-match::before {
-            background: #34c759;
-        }
-
-        .comparison-card.card-mismatch-under::before {
-            background: #ff9500;
-        }
-
-        .comparison-card.card-mismatch-over::before {
-            background: #ff3b30;
-        }
-
-        .comparison-card.card-missing::before {
-            background: #ff3b30;
-        }
-
-        /* Stagger animation for cards */
         .comparison-card:nth-child(1) { animation-delay: 0.05s; }
         .comparison-card:nth-child(2) { animation-delay: 0.1s; }
         .comparison-card:nth-child(3) { animation-delay: 0.15s; }
@@ -910,25 +555,10 @@
             transition: all 0.2s ease;
         }
 
-        .comparison-status-badge.badge-match {
-            background: #d1f4e0;
-            color: #1e7c3c;
-        }
-
-        .comparison-status-badge.badge-mismatch-under {
-            background: #ffe5d0;
-            color: #cc7a00;
-        }
-
-        .comparison-status-badge.badge-mismatch-over {
-            background: #ffe5e5;
-            color: #c41e3a;
-        }
-
-        .comparison-status-badge.badge-missing {
-            background: #ffe5e5;
-            color: #c41e3a;
-        }
+        .comparison-status-badge.badge-match { background: #d1f4e0; color: #1e7c3c; }
+        .comparison-status-badge.badge-mismatch-under { background: #ffe5d0; color: #cc7a00; }
+        .comparison-status-badge.badge-mismatch-over { background: #ffe5e5; color: #c41e3a; }
+        .comparison-status-badge.badge-missing { background: #ffe5e5; color: #c41e3a; }
 
         .comparison-item {
             display: grid;
@@ -940,24 +570,11 @@
             transition: all 0.2s ease;
         }
 
-        .comparison-item:hover {
-            padding-left: 4px;
-        }
+        .comparison-item:hover { padding-left: 4px; }
+        .comparison-item:last-child { border-bottom: none; padding-bottom: 0; }
 
-        .comparison-item:last-child {
-            border-bottom: none;
-            padding-bottom: 0;
-        }
-
-        .comparison-label {
-            font-size: 0.9em;
-            color: #666;
-            font-weight: 500;
-        }
-
-        .comparison-values {
-            display: contents;
-        }
+        .comparison-label { font-size: 0.9em; color: #666; font-weight: 500; }
+        .comparison-values { display: contents; }
 
         .invoice-value {
             color: #007aff;
@@ -968,9 +585,7 @@
             transition: all 0.2s ease;
         }
 
-        .invoice-value:hover {
-            background: #cce5ff;
-        }
+        .invoice-value:hover { background: #cce5ff; }
 
         .actual-value {
             color: #34c759;
@@ -981,9 +596,7 @@
             transition: all 0.2s ease;
         }
 
-        .actual-value:hover {
-            background: #b8f0d0;
-        }
+        .actual-value:hover { background: #b8f0d0; }
 
         .difference {
             padding: 4px 10px;
@@ -995,29 +608,12 @@
             text-align: center;
         }
 
-        .difference:hover {
-            transform: scale(1.05);
-        }
+        .difference:hover { transform: scale(1.05); }
+        .difference.over-invoiced { background: #ffe5e5; color: #c41e3a; }
+        .difference.under-invoiced { background: #d1f4e0; color: #1e7c3c; }
+        .difference.zero { background: #e5e5e7; color: #666; }
 
-        .difference.over-invoiced {
-            background: #ffe5e5;
-            color: #c41e3a;
-        }
-
-        .difference.under-invoiced {
-            background: #d1f4e0;
-            color: #1e7c3c;
-        }
-
-        .difference.zero {
-            background: #e5e5e7;
-            color: #666;
-        }
-
-        /* Enhanced stat cards for invoice */
-        #invoiceStats {
-            animation: fadeIn 0.4s ease;
-        }
+        #invoiceStats { animation: fadeIn 0.4s ease; }
 
         #invoiceStats .stat-card {
             background: #ffffff;
@@ -1039,26 +635,12 @@
             transition: height 0.3s ease;
         }
 
-        #invoiceStats .stat-card.match::before {
-            background: #34c759;
-        }
+        #invoiceStats .stat-card.match::before { background: #34c759; }
+        #invoiceStats .stat-card.mismatch::before { background: #ff9500; }
+        #invoiceStats .stat-card.missing::before { background: #ff3b30; }
 
-        #invoiceStats .stat-card.mismatch::before {
-            background: #ff9500;
-        }
-
-        #invoiceStats .stat-card.missing::before {
-            background: #ff3b30;
-        }
-
-        #invoiceStats .stat-card:hover {
-            transform: translateY(-4px);
-            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
-        }
-
-        #invoiceStats .stat-card:hover::before {
-            height: 6px;
-        }
+        #invoiceStats .stat-card:hover { transform: translateY(-4px); box-shadow: 0 8px 20px rgba(0,0,0,0.12); }
+        #invoiceStats .stat-card:hover::before { height: 6px; }
 
         #invoiceFilters {
             background: #f9f9f9;
@@ -1067,32 +649,23 @@
             animation: fadeIn 0.4s ease;
         }
 
-        #invoiceActions {
-            animation: fadeIn 0.4s ease;
-        }
+        #invoiceActions { animation: fadeIn 0.4s ease; }
 
-        #invoiceActions .refresh-btn {
-            transition: all 0.2s ease;
-        }
+        #invoiceActions .refresh-btn { transition: all 0.2s ease; }
 
         #invoiceActions .refresh-btn:hover {
             transform: translateY(-2px);
             box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
         }
 
-        .invoice-export-btn {
-            background-color: #34c759 !important;
-        }
+        .invoice-export-btn { background-color: #34c759 !important; }
 
         .invoice-export-btn:hover {
             background-color: #28a745 !important;
             box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3) !important;
         }
 
-        #invoiceFilters .filter-btn {
-            font-weight: 600;
-            transition: all 0.2s ease;
-        }
+        #invoiceFilters .filter-btn { font-weight: 600; transition: all 0.2s ease; }
 
         #invoiceFilters .filter-btn:hover {
             background-color: #f0f0f0;
@@ -1137,238 +710,82 @@
             transition: opacity 0.3s;
         }
 
-        .refresh-indicator.active {
-            opacity: 1;
-        }
+        .refresh-indicator.active { opacity: 1; }
 
         @keyframes spin {
             0% { transform: rotate(0deg); }
             100% { transform: rotate(360deg); }
         }
 
-        .hidden {
-            display: none;
-        }
+        .hidden { display: none; }
 
-        /* Desktop tweaks */
         @media screen and (min-width: 769px) {
-            .month-grid {
-                gap: 5px;
-            }
-            .day-cell {
-                min-height: 65px;
-                padding: 5px 4px;
-            }
-            .calendar-container {
-                padding: 12px;
-            }
+            .month-grid { gap: 5px; }
+            .day-cell { min-height: 65px; padding: 5px 4px; }
+            .calendar-container { padding: 12px; }
         }
 
-        /* Mobile optimisations */
         @media screen and (max-width: 768px) {
-            body {
-                padding: 10px 10px 14px;
-            }
+            body { padding: 10px 10px 14px; }
+            .page { width: 100%; }
 
-            .page {
-                width: 100%;
-            }
+            header { flex-direction: column; align-items: center; text-align: center; }
+            .header-left { justify-content: center; }
+            .header-title { text-align: center; font-size: 1.1em; }
+            .logo { height: 34px; }
+            .home-link { order: -1; }
 
-            header {
-                flex-direction: column;
-                align-items: center;
-                text-align: center;
-            }
+            .controls-row { padding: 10px; }
+            .view-toggle { width: 100%; justify-content: center; }
+            .view-btn { flex: 1; min-width: 60px; padding: 9px 8px; font-size: 13px; }
 
-            .header-left {
-                justify-content: center;
-            }
+            .filters { padding: 10px; }
+            .filter-btn { flex: 1; text-align: center; }
 
-            .header-title {
-                text-align: center;
-                font-size: 1.1em;
-            }
+            .search-box { width: 100%; min-width: 100%; }
+            .calendar-container { padding: 10px; }
+            .calendar-header { gap: 8px; }
+            .calendar-title { font-size: 1.1em; }
 
-            .logo {
-                height: 34px;
-            }
+            .month-grid { gap: 4px; }
+            .day-cell { min-height: 60px; padding: 5px 3px; }
+            .day-number { font-size: 0.8em; }
+            .event-dot { font-size: 0.65em; padding: 2px 3px; }
 
-            .home-link {
-                order: -1;
-            }
+            .week-grid { grid-template-columns: 1fr; gap: 8px; }
+            .week-day { padding: 9px; min-height: auto; }
+            .week-day-header { font-size: 0.88em; padding: 6px; }
+            .week-event { padding: 6px; font-size: 0.75em; }
 
-            .controls-row {
-                padding: 10px;
-            }
+            .day-view { padding: 9px; }
+            .timeline-event { padding: 7px; }
+            .timeline-time { font-size: 0.86em; }
+            .timeline-info { font-size: 0.74em; }
 
-            .view-toggle {
-                width: 100%;
-                justify-content: center;
-            }
+            .stat-number { font-size: 2em; }
 
-            .view-btn {
-                flex: 1;
-                min-width: 60px;
-                padding: 9px 8px;
-                font-size: 13px;
-            }
+            .bins-grid { grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 10px; }
+            .bin-card { padding: 10px; border-radius: 6px; }
+            .bin-name { font-size: 0.96em; }
 
-            .filters {
-                padding: 10px;
-            }
+            .comparison-grid { grid-template-columns: 1fr; }
 
-            .filter-btn {
-                flex: 1;
-                text-align: center;
-            }
-
-            .search-box {
-                width: 100%;
-                min-width: 100%;
-            }
-
-            .calendar-container {
-                padding: 10px;
-            }
-
-            .calendar-header {
-                gap: 8px;
-            }
-
-            .calendar-title {
-                font-size: 1.1em;
-            }
-
-            .month-grid {
-                gap: 4px;
-            }
-
-            .day-cell {
-                min-height: 60px;
-                padding: 5px 3px;
-            }
-
-            .day-number {
-                font-size: 0.8em;
-            }
-
-            .event-dot {
-                font-size: 0.65em;
-                padding: 2px 3px;
-            }
-
-            .week-grid {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .week-day {
-                padding: 9px;
-                min-height: auto;
-            }
-
-            .week-day-header {
-                font-size: 0.88em;
-                padding: 6px;
-            }
-
-            .week-event {
-                padding: 6px;
-                font-size: 0.75em;
-            }
-
-            .day-view {
-                padding: 9px;
-            }
-
-            .timeline-event {
-                padding: 7px;
-            }
-
-            .timeline-time {
-                font-size: 0.86em;
-            }
-
-            .timeline-info {
-                font-size: 0.74em;
-            }
-
-            .stat-number {
-                font-size: 2em;
-            }
-
-            .bins-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
-                gap: 10px;
-            }
-
-            .bin-card {
-                padding: 10px;
-                border-radius: 6px;
-            }
-
-            .bin-name {
-                font-size: 0.96em;
-            }
-
-            .comparison-grid {
-                grid-template-columns: 1fr;
-            }
-
-            .upload-section {
-                padding: 40px 20px;
-            }
-
-            .upload-icon svg {
-                width: 60px;
-                height: 60px;
-            }
-
-            .comparison-card {
-                padding: 16px;
-            }
-
-            .comparison-date {
-                flex-direction: column;
-                gap: 10px;
-                align-items: flex-start;
-            }
-
-            .comparison-status-badge {
-                align-self: flex-end;
-            }
+            .upload-section { padding: 40px 20px; }
+            .comparison-card { padding: 16px; }
+            .comparison-date { flex-direction: column; gap: 10px; align-items: flex-start; }
+            .comparison-status-badge { align-self: flex-end; }
         }
 
         @media screen and (max-width: 480px) {
-            .header-title {
-                font-size: 1em;
-            }
-            .bins-grid {
-                grid-template-columns: 1fr;
-            }
+            .header-title { font-size: 1em; }
+            .bins-grid { grid-template-columns: 1fr; }
 
-            .upload-section {
-                padding: 30px 15px;
-            }
+            .upload-section { padding: 30px 15px; }
+            .comparison-card > div:first-of-type + div { display: none; }
 
-            .comparison-card > div:first-of-type + div {
-                display: none;
-            }
-
-            .comparison-item {
-                grid-template-columns: 1fr;
-                gap: 8px;
-            }
-
-            .comparison-label {
-                font-weight: 600;
-                margin-bottom: 4px;
-            }
-
-            .comparison-values > * {
-                display: block;
-                margin-bottom: 4px;
-            }
+            .comparison-item { grid-template-columns: 1fr; gap: 8px; }
+            .comparison-label { font-weight: 600; margin-bottom: 4px; }
+            .comparison-values > * { display: block; margin-bottom: 4px; }
         }
     </style>
 </head>
@@ -1408,12 +825,8 @@
                     <button class="view-btn" data-view="invoice">Invoice Check</button>
                 </div>
                 <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 0 1 auto;">
-                    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
-                        Refresh
-                    </button>
-                    <button class="export-btn" id="exportBtn" onclick="exportToCSV()">
-                        Export CSV
-                    </button>
+                    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">Refresh</button>
+                    <button class="export-btn" id="exportBtn" onclick="exportToCSV()">Export CSV</button>
                 </div>
             </div>
 
@@ -1458,7 +871,7 @@
             <div id="invoiceView" class="hidden">
                 <div class="invoice-container">
                     <h2 style="margin-bottom: 20px; color: #1d1d1f;">Invoice Comparison</h2>
-                    
+
                     <div class="upload-section" id="uploadSection">
                         <div style="margin-bottom: 20px;">
                             <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
@@ -1470,15 +883,13 @@
                         <p style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Upload Invoice PDF</p>
                         <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Drag and drop your REMONDIS invoice here or click to browse</p>
                         <input type="file" id="pdfFileInput" accept="application/pdf">
-                        <label for="pdfFileInput" class="upload-label">
-                            Choose PDF File
-                        </label>
+                        <label for="pdfFileInput" class="upload-label">Choose PDF File</label>
                         <p id="fileName" style="margin-top: 20px; font-size: 0.95em; color: #666; font-weight: 500;"></p>
                     </div>
 
                     <div id="invoiceStats" class="stats hidden"></div>
-                    
-                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;" id="invoiceActions" class="hidden">
+
+                    <div id="invoiceActions" class="hidden" style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;">
                         <button onclick="exportInvoiceCSV()" class="refresh-btn invoice-export-btn" style="flex: 1; min-width: 150px;">
                             Export to CSV
                         </button>
@@ -1486,14 +897,14 @@
                             Clear Results
                         </button>
                     </div>
-                    
+
                     <div id="invoiceFilters" class="filters hidden">
                         <button class="filter-btn active" data-invoice-filter="all">All</button>
                         <button class="filter-btn" data-invoice-filter="match">Matches</button>
                         <button class="filter-btn" data-invoice-filter="mismatch">Mismatches</button>
                         <button class="filter-btn" data-invoice-filter="missing">Missing Data</button>
                     </div>
-                    
+
                     <div id="comparisonResults" class="hidden"></div>
                 </div>
             </div>
@@ -1508,10 +919,11 @@
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
 <script>
-    // Set the worker source for PDF.js
-    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+    pdfjsLib.GlobalWorkerOptions.workerSrc =
+        'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
-    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vS1TaO2UQjqvhWGBxGFKImHsvJKfipRI7qBy-Pu1rkjx1275Gh9BtNkckHXoXNEBgkxRYhR0KqIie_b/pub?output=csv';
+    const CSV_URL =
+        'https://docs.google.com/spreadsheets/d/e/2PACX-1vS1TaO2UQjqvhWGBxGFKImHsvJKfipRI7qBy-Pu1rkjx1275Gh9BtNkckHXoXNEBgkxRYhR0KqIie_b/pub?output=csv';
 
     let allReadings = [];
     let latestBins = [];
@@ -1526,11 +938,10 @@
 
     function parseTimestamp(timestamp) {
         if (!timestamp) return new Date();
-        
-        // Handle format: DD/MM/YYYY HH:MM:SS
+
         const parts = timestamp.split(' ');
         if (parts.length < 2) return new Date();
-        
+
         const dateParts = parts[0].split('/');
         const timeParts = parts[1].split(':');
 
@@ -1540,12 +951,12 @@
         }
 
         return new Date(
-            parseInt(dateParts[2]),      // year (2025 or 2026)
-            parseInt(dateParts[1]) - 1,  // month (0-indexed)
-            parseInt(dateParts[0]),      // day
-            parseInt(timeParts[0]),      // hour
-            parseInt(timeParts[1]),      // minute
-            parseInt(timeParts[2])       // second
+            parseInt(dateParts[2], 10),
+            parseInt(dateParts[1], 10) - 1,
+            parseInt(dateParts[0], 10),
+            parseInt(timeParts[0], 10),
+            parseInt(timeParts[1], 10),
+            parseInt(timeParts[2], 10)
         );
     }
 
@@ -1559,10 +970,7 @@
             const timestamp = parseTimestamp(row.Timestamp || row.timestamp);
 
             if (!binMap.has(mac) || timestamp > binMap.get(mac).timestamp) {
-                binMap.set(mac, {
-                    ...row,
-                    timestamp: timestamp
-                });
+                binMap.set(mac, { ...row, timestamp });
             }
         });
 
@@ -1574,18 +982,14 @@
         data.forEach(row => {
             const mac = row.mac || row.MAC;
             const alias = row.alias || row.Alias || mac;
-            if (mac && !bins.has(mac)) {
-                bins.set(mac, alias);
-            }
+            if (mac && !bins.has(mac)) bins.set(mac, alias);
         });
         return bins;
     }
 
     async function loadData(isAutoRefresh = false) {
         const indicator = document.getElementById('refreshIndicator');
-        if (indicator && isAutoRefresh) {
-            indicator.classList.add('active');
-        }
+        if (indicator && isAutoRefresh) indicator.classList.add('active');
 
         try {
             const response = await fetch(CSV_URL + '&t=' + new Date().getTime());
@@ -1595,39 +999,20 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    allReadings = results.data.map(row => {
-                        // CSV columns: Timestamp, mac, alias, state, rssi
-                        const mapped = {
-                            timestamp: parseTimestamp(row.Timestamp || row.timestamp),
-                            alias: row.alias || row.Alias || row.Name || row.name || '',
-                            mac: row.mac || row.MAC || '',
-                            rssi: row.rssi || row.RSSI || '',
-                            state: (row.state || row.State || '').trim().toUpperCase()
-                        };
-                        return mapped;
-                    });
-
-                    console.log(`Loaded ${allReadings.length} total readings`);
-                    
-                    // Check for December 2025 data
-                    const dec2025 = allReadings.filter(r => 
-                        r.timestamp.getFullYear() === 2025 && r.timestamp.getMonth() === 11 // Month is 0-indexed
-                    );
-                    console.log(`Found ${dec2025.length} readings in December 2025`);
-                    if (dec2025.length > 0) {
-                        console.log('Sample December reading:', dec2025[0]);
-                        const dec2025IN = dec2025.filter(r => r.state === 'IN');
-                        console.log(`December 2025 readings with state="IN": ${dec2025IN.length}`);
-                    }
+                    allReadings = results.data.map(row => ({
+                        timestamp: parseTimestamp(row.Timestamp || row.timestamp),
+                        alias: row.alias || row.Alias || row.Name || row.name || '',
+                        mac: row.mac || row.MAC || '',
+                        rssi: row.rssi || row.RSSI || '',
+                        state: (row.state || row.State || '').trim().toUpperCase()
+                    }));
 
                     latestBins = getLatestBinStatus(results.data);
                     populateBinSelector();
-                    
-                    // Only update display if not on invoice view or if it's the initial load
+
                     if (currentView !== 'invoice' || !isAutoRefresh) {
                         displayCurrentView();
                     } else {
-                        // Just update the data in background, keep invoice view intact
                         updateLastUpdated();
                     }
 
@@ -1640,16 +1025,12 @@
                 },
                 error: function(error) {
                     showError('Error parsing CSV: ' + error.message);
-                    if (indicator) {
-                        indicator.classList.remove('active');
-                    }
+                    if (indicator) indicator.classList.remove('active');
                 }
             });
         } catch (error) {
             showError('Error loading data: ' + error.message);
-            if (indicator) {
-                indicator.classList.remove('active');
-            }
+            if (indicator) indicator.classList.remove('active');
         }
     }
 
@@ -1673,16 +1054,13 @@
     }
 
     function displayCurrentView() {
-        // Hide all views first
         document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('calendarView').classList.add('hidden');
         document.getElementById('invoiceView').classList.add('hidden');
 
-        // Hide/show main export button based on view
-        const exportBtn = document.querySelector('.refresh-btn[onclick="exportToCSV()"]');
-        if (exportBtn) {
-            exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
-        }
+        // FIX: correct export button targeting + hide during invoice view
+        const exportBtn = document.getElementById('exportBtn');
+        if (exportBtn) exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
 
         if (currentView === 'dashboard') {
             displayDashboard();
@@ -1726,29 +1104,28 @@
         return state === 'IN';
     }
 
-    // Map bin number → waste type for Wills St (16–33)
+    // FIX: Use "commingle" (matches CSS class .bin-type-pill.commingle)
     const wasteTypeByNumber = {
         16: 'general',
         17: 'general',
         18: 'general',
         19: 'general',
-        20: 'commingled',
-        21: 'commingled',
+        20: 'commingle',
+        21: 'commingle',
         22: 'general',
         23: 'general',
         24: 'general',
-        25: 'commingled',
-        26: 'commingled',
+        25: 'commingle',
+        26: 'commingle',
         27: 'general',
         28: 'general',
         29: 'general',
         30: 'general',
         31: 'general',
-        32: 'commingled',
-        33: 'commingled'
+        32: 'commingle',
+        33: 'commingle'
     };
 
-    // Extract first number from alias/name (e.g. "1 - General Waste")
     function getBinNumberFromName(name) {
         const match = String(name).match(/\d+/);
         return match ? parseInt(match[0], 10) : null;
@@ -1757,24 +1134,22 @@
     function displayBins() {
         let filteredBins = latestBins;
 
-        if (currentFilter === 'in') {
-            filteredBins = filteredBins.filter(bin => isInArea(bin));
-        } else if (currentFilter === 'out') {
-            filteredBins = filteredBins.filter(bin => !isInArea(bin));
-        }
+        if (currentFilter === 'in') filteredBins = filteredBins.filter(bin => isInArea(bin));
+        else if (currentFilter === 'out') filteredBins = filteredBins.filter(bin => !isInArea(bin));
 
         if (searchTerm) {
-            filteredBins = filteredBins.filter(bin => {
-                return Object.values(bin).some(value =>
+            filteredBins = filteredBins.filter(bin =>
+                Object.values(bin).some(value =>
                     String(value).toLowerCase().includes(searchTerm.toLowerCase())
-                );
-            });
+                )
+            );
         }
 
         const binsGrid = document.getElementById('binsGrid');
 
         if (filteredBins.length === 0) {
-            binsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No bins found</div>';
+            binsGrid.innerHTML =
+                '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No bins found</div>';
             return;
         }
 
@@ -1818,13 +1193,10 @@
         document.getElementById('calendarView').classList.remove('hidden');
 
         const existingBtn = document.getElementById('expandAllBtn');
-        if (existingBtn) {
-            existingBtn.remove();
-        }
+        if (existingBtn) existingBtn.remove();
 
-        if (currentView === 'month') {
-            displayMonthView();
-        } else if (currentView === 'week') {
+        if (currentView === 'month') displayMonthView();
+        else if (currentView === 'week') {
             displayWeekView();
             setTimeout(() => {
                 const calendarNav = document.querySelector('.calendar-nav');
@@ -1837,15 +1209,11 @@
                     calendarNav.appendChild(expandBtn);
                 }
             }, 0);
-        } else if (currentView === 'day') {
-            displayDayView();
-        }
+        } else if (currentView === 'day') displayDayView();
     }
 
     function getFilteredReadings() {
-        if (selectedBin === 'all') {
-            return allReadings;
-        }
+        if (selectedBin === 'all') return allReadings;
         return allReadings.filter(r => (r.mac || r.MAC) === selectedBin);
     }
 
@@ -1863,9 +1231,7 @@
         const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
         let html = '<div class="month-grid">';
 
-        days.forEach(day => {
-            html += `<div class="day-header">${day}</div>`;
-        });
+        days.forEach(day => { html += `<div class="day-header">${day}</div>`; });
 
         const readings = getFilteredReadings();
 
@@ -1874,11 +1240,9 @@
             currentDay.setDate(startDate.getDate() + i);
 
             const isOtherMonth = currentDay.getMonth() !== month;
-            const dayReadings = readings.filter(r =>
-                r.timestamp.toDateString() === currentDay.toDateString()
-            );
+            const dayReadings = readings.filter(r => r.timestamp.toDateString() === currentDay.toDateString());
 
-            html += `<div class="day-cell ${isOtherMonth ? 'other-month' : ''}" 
+            html += `<div class="day-cell ${isOtherMonth ? 'other-month' : ''}"
                      onclick="viewDay(new Date(${currentDay.getTime()}))">
                 <div class="day-number">${currentDay.getDate()}</div>
                 <div class="day-events">`;
@@ -1886,12 +1250,8 @@
             const inCount = dayReadings.filter(r => (r.state || r.State || '').trim().toUpperCase() === 'IN').length;
             const outCount = dayReadings.filter(r => (r.state || r.State || '').trim().toUpperCase() === 'OUT').length;
 
-            if (inCount > 0) {
-                html += `<div class="event-dot in">${inCount} IN</div>`;
-            }
-            if (outCount > 0) {
-                html += `<div class="event-dot out">${outCount} OUT</div>`;
-            }
+            if (inCount > 0) html += `<div class="event-dot in">${inCount} IN</div>`;
+            if (outCount > 0) html += `<div class="event-dot out">${outCount} OUT</div>`;
 
             html += `</div></div>`;
         }
@@ -1915,16 +1275,15 @@
         const todayDayOfWeek = today.getDay();
 
         let html = '<div class="week-grid">';
-
         const readings = getFilteredReadings();
 
         for (let i = 0; i < 7; i++) {
             const currentDay = new Date(startOfWeek);
             currentDay.setDate(startOfWeek.getDate() + i);
 
-            const dayReadings = readings.filter(r =>
-                r.timestamp.toDateString() === currentDay.toDateString()
-            ).sort((a, b) => a.timestamp - b.timestamp);
+            const dayReadings = readings
+                .filter(r => r.timestamp.toDateString() === currentDay.toDateString())
+                .sort((a, b) => a.timestamp - b.timestamp);
 
             const dayId = `week-day-${i}`;
             const eventsId = `week-events-${i}`;
@@ -1992,9 +1351,7 @@
         let collapsedCount = 0;
         for (let i = 0; i < 7; i++) {
             const eventsElement = document.getElementById(`week-events-${i}`);
-            if (eventsElement && eventsElement.classList.contains('collapsed')) {
-                collapsedCount++;
-            }
+            if (eventsElement && eventsElement.classList.contains('collapsed')) collapsedCount++;
         }
 
         const shouldExpand = collapsedCount >= 4;
@@ -2003,7 +1360,6 @@
             const dayElement = document.getElementById(`week-day-${i}`);
             const eventsElement = document.getElementById(`week-events-${i}`);
             const headerElement = dayElement?.querySelector('.week-day-header');
-
             if (!dayElement || !eventsElement || !headerElement) continue;
 
             if (shouldExpand) {
@@ -2020,18 +1376,16 @@
         }
 
         const btn = document.getElementById('expandAllBtn');
-        if (btn) {
-            btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
-        }
+        if (btn) btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
     }
 
     function displayDayView() {
         document.getElementById('calendarTitle').textContent =
             currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
 
-        const readings = getFilteredReadings().filter(r =>
-            r.timestamp.toDateString() === currentDate.toDateString()
-        ).sort((a, b) => a.timestamp - b.timestamp);
+        const readings = getFilteredReadings()
+            .filter(r => r.timestamp.toDateString() === currentDate.toDateString())
+            .sort((a, b) => a.timestamp - b.timestamp);
 
         let html = '<div class="day-view"><div class="timeline">';
 
@@ -2061,9 +1415,7 @@
                             <div class="timeline-time">${time}</div>
                             <div class="timeline-details">${alias} - ${state}</div>
                         </div>
-                        <div class="timeline-right">
-                            ${wastePillHtml}
-                        </div>
+                        <div class="timeline-right">${wastePillHtml}</div>
                     </div>
                     <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
                 </div>`;
@@ -2086,14 +1438,10 @@
     function updateLastUpdated() {
         const now = new Date();
         const textElement = document.getElementById('lastUpdatedText');
-        if (textElement) {
-            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
-        }
+        if (textElement) textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
     }
 
-    function manualRefresh() {
-        loadData(true);
-    }
+    function manualRefresh() { loadData(true); }
 
     function exportToCSV() {
         let dataToExport = [];
@@ -2102,18 +1450,15 @@
         if (currentView === 'dashboard') {
             let filteredBins = latestBins;
 
-            if (currentFilter === 'in') {
-                filteredBins = filteredBins.filter(bin => isInArea(bin));
-            } else if (currentFilter === 'out') {
-                filteredBins = filteredBins.filter(bin => !isInArea(bin));
-            }
+            if (currentFilter === 'in') filteredBins = filteredBins.filter(bin => isInArea(bin));
+            else if (currentFilter === 'out') filteredBins = filteredBins.filter(bin => !isInArea(bin));
 
             if (searchTerm) {
-                filteredBins = filteredBins.filter(bin => {
-                    return Object.values(bin).some(value =>
+                filteredBins = filteredBins.filter(bin =>
+                    Object.values(bin).some(value =>
                         String(value).toLowerCase().includes(searchTerm.toLowerCase())
-                    );
-                });
+                    )
+                );
             }
 
             dataToExport = filteredBins.map(bin => ({
@@ -2132,10 +1477,7 @@
             if (currentView === 'month') {
                 const year = currentDate.getFullYear();
                 const month = currentDate.getMonth();
-                const monthReadings = readings.filter(r =>
-                    r.timestamp.getFullYear() === year &&
-                    r.timestamp.getMonth() === month
-                );
+                const monthReadings = readings.filter(r => r.timestamp.getFullYear() === year && r.timestamp.getMonth() === month);
 
                 dataToExport = monthReadings.map(r => ({
                     'Date': r.timestamp.toLocaleDateString(),
@@ -2157,9 +1499,7 @@
                 endOfWeek.setDate(startOfWeek.getDate() + 6);
                 endOfWeek.setHours(23, 59, 59, 999);
 
-                const weekReadings = readings.filter(r =>
-                    r.timestamp >= startOfWeek && r.timestamp <= endOfWeek
-                );
+                const weekReadings = readings.filter(r => r.timestamp >= startOfWeek && r.timestamp <= endOfWeek);
 
                 dataToExport = weekReadings.map(r => ({
                     'Date': r.timestamp.toLocaleDateString(),
@@ -2173,9 +1513,7 @@
                 filename = `binspy-week-${startOfWeek.toLocaleDateString().replace(/\//g, '-')}.csv`;
 
             } else if (currentView === 'day') {
-                const dayReadings = readings.filter(r =>
-                    r.timestamp.toDateString() === currentDate.toDateString()
-                );
+                const dayReadings = readings.filter(r => r.timestamp.toDateString() === currentDate.toDateString());
 
                 dataToExport = dayReadings.map(r => ({
                     'Time': r.timestamp.toLocaleTimeString(),
@@ -2195,7 +1533,6 @@
         }
 
         const csv = Papa.unparse(dataToExport);
-
         const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -2208,60 +1545,51 @@
         document.body.removeChild(link);
     }
 
-    // Invoice View Functions
+    // ===========================
+    // Invoice View (FIXED)
+    // ===========================
+
     function displayInvoiceView() {
         document.getElementById('invoiceView').classList.remove('hidden');
-        
-        // Setup file input listener (remove any existing listeners first)
-        const fileInput = document.getElementById('pdfFileInput');
-        const newFileInput = fileInput.cloneNode(true);
-        fileInput.parentNode.replaceChild(newFileInput, fileInput);
-        
-        newFileInput.addEventListener('change', handleFileUpload);
 
-        // Setup drag and drop
-        const uploadSection = document.getElementById('uploadSection');
-        
+        // FIX: clone upload section to avoid duplicate drag/drop listeners
+        const oldUpload = document.getElementById('uploadSection');
+        const uploadSection = oldUpload.cloneNode(true);
+        oldUpload.parentNode.replaceChild(uploadSection, oldUpload);
+
+        const fileInput = uploadSection.querySelector('#pdfFileInput');
+        fileInput.addEventListener('change', handleFileUpload);
+
         uploadSection.addEventListener('dragover', (e) => {
             e.preventDefault();
             uploadSection.classList.add('dragover');
         });
-        
+
         uploadSection.addEventListener('dragleave', () => {
             uploadSection.classList.remove('dragover');
         });
-        
+
         uploadSection.addEventListener('drop', (e) => {
             e.preventDefault();
             uploadSection.classList.remove('dragover');
-            if (e.dataTransfer.files.length > 0) {
-                newFileInput.files = e.dataTransfer.files;
-                handleFileUpload({ target: newFileInput });
-            }
+            const dropped = e.dataTransfer?.files?.[0];
+            if (dropped) handleFileUpload({ file: dropped });
         });
-        
+
         console.log('Invoice view initialized');
     }
 
     async function handleFileUpload(e) {
+        const fileFromDrop = e?.file;
         const fileInput = e?.target || document.getElementById('pdfFileInput');
-        const file = fileInput.files[0];
-        
-        console.log('File selected:', file?.name, file?.type);
-        
-        if (!file) {
-            alert('No file selected');
-            return;
-        }
-        
-        if (file.type !== 'application/pdf') {
-            alert('Please select a valid PDF file. Selected file type: ' + file.type);
-            return;
-        }
+        const file = fileFromDrop || fileInput.files[0];
 
-        // Auto-clear previous invoice data
+        console.log('File selected:', file?.name, file?.type);
+
+        if (!file) { alert('No file selected'); return; }
+        if (file.type !== 'application/pdf') { alert('Please select a valid PDF file. Selected file type: ' + file.type); return; }
+
         if (invoiceData || comparisonData) {
-            console.log('Clearing previous invoice data...');
             invoiceData = null;
             comparisonData = null;
             currentInvoiceFilter = 'all';
@@ -2269,8 +1597,6 @@
             document.getElementById('invoiceActions').classList.add('hidden');
             document.getElementById('invoiceFilters').classList.add('hidden');
             document.getElementById('comparisonResults').classList.add('hidden');
-            
-            // Reset filter buttons
             document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
             });
@@ -2285,33 +1611,22 @@
                 </div>
             </div>
         `;
-        fileNameEl.style.color = '';
 
         try {
-            console.log('Reading file...');
             const arrayBuffer = await file.arrayBuffer();
-            console.log('File read, size:', arrayBuffer.byteLength);
-            
-            console.log('Loading PDF...');
             const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
             const pdf = await loadingTask.promise;
-            console.log('PDF loaded, pages:', pdf.numPages);
-            
+
             let fullText = '';
             for (let i = 1; i <= pdf.numPages; i++) {
-                console.log('Processing page', i);
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items.map(item => item.str).join(' ');
                 fullText += pageText + '\n';
             }
 
-            console.log('Extracted text length:', fullText.length);
-            console.log('First 500 chars:', fullText.substring(0, 500));
-
             invoiceData = parseInvoiceData(fullText);
-            console.log('Parsed invoice data:', invoiceData);
-            
+
             if (Object.keys(invoiceData.general).length === 0 && Object.keys(invoiceData.commingle).length === 0) {
                 fileNameEl.innerHTML = `
                     <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
@@ -2321,13 +1636,12 @@
                         </div>
                     </div>
                 `;
-                fileNameEl.style.color = '';
                 alert('Could not find any service records in the PDF. Please make sure this is a REMONDIS invoice.');
                 return;
             }
-            
+
             displayInvoiceComparison();
-            
+
         } catch (error) {
             console.error('Error processing PDF:', error);
             fileNameEl.innerHTML = `
@@ -2338,54 +1652,30 @@
                     </div>
                 </div>
             `;
-            fileNameEl.style.color = '';
             alert('Error processing PDF: ' + error.message);
         }
     }
 
     function parseInvoiceData(text) {
-        const parsed = {
-            general: {},  // Putrescible on invoice = General Waste
-            commingle: {}
-        };
+        const parsed = { general: {}, commingle: {} };
 
-        console.log('Parsing invoice text...');
-        console.log('Text length:', text.length);
-
-        // Parse the ACTUAL format from the PDF:
-        // DD/MM/YY   REFNO   QTY   $PRICE   $TOTAL Service Rear Lift 1100L (Co-Mingled|Putrescible)
-        // Example: 01/12/25   15776115.1   1   $26.69   $26.69 Service Rear Lift 1100L Co-Mingled
-        
-        const pattern = /(\d{2})\/(\d{2})\/(\d{2})\s+[\d.]+\s+(\d+)\s+\$[\d.]+\s+\$[\d.]+\s+Service\s+Rear\s+Lift\s+1100L\s+(Co-Mingled|Putrescible)/gi;
+        const pattern =
+            /(\d{2})\/(\d{2})\/(\d{2})\s+[\d.]+\s+(\d+)\s+\$[\d.]+\s+\$[\d.]+\s+Service\s+Rear\s+Lift\s+1100L\s+(Co-Mingled|Putrescible)/gi;
 
         let match;
-        let matchCount = 0;
-        
         while ((match = pattern.exec(text)) !== null) {
-            matchCount++;
             const day = match[1];
             const month = match[2];
             const year = '20' + match[3];
             const dateKey = `${year}-${month}-${day}`;
-            const qty = parseInt(match[4]);
+            const qty = parseInt(match[4], 10);
             const invoiceType = match[5];
-            // Map invoice types to our waste types
-            // Putrescible (invoice) → general (our system)
-            // Co-Mingled (invoice) → commingle (our system)
+
             const type = invoiceType === 'Co-Mingled' ? 'commingle' : 'general';
 
-            console.log(`Match ${matchCount}: Date=${dateKey}, InvoiceType=${invoiceType}, MappedType=${type}, Qty=${qty}`);
-
-            if (!parsed[type][dateKey]) {
-                parsed[type][dateKey] = 0;
-            }
+            if (!parsed[type][dateKey]) parsed[type][dateKey] = 0;
             parsed[type][dateKey] += qty;
         }
-        
-        console.log(`Total matches found: ${matchCount}`);
-        console.log('Final parsed data:', parsed);
-        console.log('General Waste (Putrescible) dates:', Object.keys(parsed.general).length);
-        console.log('Commingle (Co-Mingled) dates:', Object.keys(parsed.commingle).length);
 
         return parsed;
     }
@@ -2393,7 +1683,6 @@
     function displayInvoiceComparison() {
         if (!invoiceData) return;
 
-        // Count comparison stats
         let totalMatches = 0;
         let totalMismatches = 0;
         let totalMissing = 0;
@@ -2404,65 +1693,46 @@
             ...Object.keys(invoiceData.commingle)
         ]);
 
-        console.log('Comparing', allDates.size, 'unique dates');
-
         const comparisonsByDate = new Map();
 
         allDates.forEach(invoiceDate => {
-            // Offset by -1 day for actual data (actual is day BEFORE invoice date)
             const actualDate = new Date(invoiceDate);
             actualDate.setDate(actualDate.getDate() - 1);
             const actualDateStr = actualDate.toISOString().split('T')[0];
 
             const generalInvoice = invoiceData.general[invoiceDate] || 0;
-            const commingeInvoice = invoiceData.commingle[invoiceDate] || 0;
+            const commingleInvoice = invoiceData.commingle[invoiceDate] || 0;
 
-            // Get readings for the day where state="IN" (collection)
             const dayReadings = allReadings.filter(r => {
                 const readingDate = r.timestamp.toISOString().split('T')[0];
                 return readingDate === actualDateStr && r.state === 'IN';
             });
 
-            console.log(`Date ${actualDateStr}: Found ${dayReadings.length} readings with state="IN"`);
-
-            // Count UNIQUE bins per waste type (not all readings)
             const generalBins = new Set();
-            const commingeBins = new Set();
+            const commingleBins = new Set();
 
             dayReadings.forEach(reading => {
                 const alias = reading.alias || '';
                 const mac = reading.mac || '';
                 const binNumber = getBinNumberFromName(alias);
                 const wasteType = wasteTypeByNumber[binNumber];
-                
-                console.log(`  Reading: alias="${alias}", binNumber=${binNumber}, wasteType=${wasteType}, MAC=${mac.substring(0, 15)}...`);
-                
-                if (wasteType === 'general') {
-                    generalBins.add(mac);
-                } else if (wasteType === 'commingle') {
-                    commingeBins.add(mac);
-                } else {
-                    console.log(`  ⚠️ Unknown waste type for bin ${binNumber} (${alias})`);
-                }
+
+                if (wasteType === 'general') generalBins.add(mac);
+                else if (wasteType === 'commingle') commingleBins.add(mac);
             });
 
             const generalActual = generalBins.size;
-            const commingeActual = commingeBins.size;
+            const commingleActual = commingleBins.size;
 
-            if (generalActual > 0 || commingeActual > 0) {
-                totalDaysWithData++;
-            }
-
-            console.log(`${actualDateStr}: Invoice(G:${generalInvoice}, C:${commingeInvoice}) vs Actual(G:${generalActual}, C:${commingeActual})`);
+            if (generalActual > 0 || commingleActual > 0) totalDaysWithData++;
 
             const generalMatch = generalInvoice === generalActual;
-            const commingeMatch = commingeInvoice === commingeActual;
+            const commingleMatch = commingleInvoice === commingleActual;
 
-            if (generalMatch && commingeMatch) {
-                totalMatches++;
-            } else if (generalInvoice === 0 && commingeInvoice === 0 && generalActual === 0 && commingeActual === 0) {
-                // Skip days with no activity
-            } else if (generalActual === 0 && commingeActual === 0 && (generalInvoice > 0 || commingeInvoice > 0)) {
+            if (generalMatch && commingleMatch) totalMatches++;
+            else if (generalInvoice === 0 && commingleInvoice === 0 && generalActual === 0 && commingleActual === 0) {
+                // skip
+            } else if (generalActual === 0 && commingleActual === 0 && (generalInvoice > 0 || commingleInvoice > 0)) {
                 totalMissing++;
             } else {
                 totalMismatches++;
@@ -2470,47 +1740,16 @@
 
             comparisonsByDate.set(invoiceDate, {
                 actualDate: actualDateStr,
-                general: {
-                    invoice: generalInvoice,
-                    actual: generalActual,
-                    diff: generalInvoice - generalActual  // Reversed: positive = over invoiced, negative = under invoiced
-                },
-                commingle: {
-                    invoice: commingeInvoice,
-                    actual: commingeActual,
-                    diff: commingeInvoice - commingeActual  // Reversed: positive = over invoiced, negative = under invoiced
-                }
+                general: { invoice: generalInvoice, actual: generalActual, diff: generalInvoice - generalActual },
+                commingle: { invoice: commingleInvoice, actual: commingleActual, diff: commingleInvoice - commingleActual }
             });
         });
 
-        console.log('Results: Matches=', totalMatches, 'Mismatches=', totalMismatches, 'Missing=', totalMissing);
-
-        // Store comparison data globally for filtering
         comparisonData = {
             byDate: comparisonsByDate,
-            stats: {
-                matches: totalMatches,
-                mismatches: totalMismatches,
-                missing: totalMissing,
-                totalDaysWithData: totalDaysWithData
-            }
+            stats: { matches: totalMatches, mismatches: totalMismatches, missing: totalMissing, totalDaysWithData }
         };
 
-        // Check if we have any actual data for comparison
-        if (totalDaysWithData === 0) {
-            const fileNameEl = document.getElementById('fileName');
-            fileNameEl.innerHTML = `
-                <div style="display: inline-flex; align-items: center; gap: 10px; background: #fff4e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffcc99; margin-top: 10px;">
-                    <div style="text-align: left;">
-                        <div style="font-weight: 600; color: #cc7a00; margin-bottom: 4px;">No Collection Data Found</div>
-                        <div style="font-size: 0.9em; color: #996600;">The CSV may not contain data for this invoice period</div>
-                    </div>
-                </div>
-            `;
-            fileNameEl.style.color = '';
-        }
-
-        // Display stats
         const statsHtml = `
             <div class="stat-card match">
                 <div class="stat-number">${totalMatches}</div>
@@ -2525,89 +1764,61 @@
                 <div class="stat-label">Missing Data</div>
             </div>
         `;
-        
+
         document.getElementById('invoiceStats').innerHTML = statsHtml;
         document.getElementById('invoiceStats').classList.remove('hidden');
-        
-        // Show action buttons
         document.getElementById('invoiceActions').classList.remove('hidden');
-        
-        // Show filters
         document.getElementById('invoiceFilters').classList.remove('hidden');
 
-        // Display filtered comparisons
         displayFilteredComparisons();
-        
-        // Only show success message if we have data
-        if (totalDaysWithData > 0) {
-            const fileNameEl = document.getElementById('fileName');
-            fileNameEl.innerHTML = `
-                <div style="display: inline-flex; align-items: center; gap: 10px; background: #d1f4e0; padding: 12px 20px; border-radius: 8px; border: 1px solid #99e6b8; margin-top: 10px;">
-                    <div style="text-align: left;">
-                        <div style="font-weight: 600; color: #1e7c3c;">Analysis Complete</div>
-                        <div style="font-size: 0.9em; color: #28a745;">Found ${totalDaysWithData} days with collection data</div>
+
+        const fileNameEl = document.getElementById('fileName');
+        fileNameEl.innerHTML = `
+            <div style="display: inline-flex; align-items: center; gap: 10px; background: ${totalDaysWithData > 0 ? '#d1f4e0' : '#fff4e5'}; padding: 12px 20px; border-radius: 8px; border: 1px solid ${totalDaysWithData > 0 ? '#99e6b8' : '#ffcc99'}; margin-top: 10px;">
+                <div style="text-align: left;">
+                    <div style="font-weight: 600; color: ${totalDaysWithData > 0 ? '#1e7c3c' : '#cc7a00'};">
+                        ${totalDaysWithData > 0 ? 'Analysis Complete' : 'No Collection Data Found'}
+                    </div>
+                    <div style="font-size: 0.9em; color: ${totalDaysWithData > 0 ? '#28a745' : '#996600'};">
+                        ${totalDaysWithData > 0 ? `Found ${totalDaysWithData} days with collection data` : 'The CSV may not contain data for this invoice period'}
                     </div>
                 </div>
-            `;
-            fileNameEl.style.color = '';
-        }
+            </div>
+        `;
     }
 
     function displayFilteredComparisons() {
         if (!comparisonData) return;
 
         const comparisonsByDate = comparisonData.byDate;
-        
-        // Display comparison cards with filtering
+
         let comparisonHtml = '<div class="comparison-grid">';
-        
         const sortedDates = Array.from(comparisonsByDate.keys()).sort().reverse();
         let displayedCount = 0;
-        
+
         sortedDates.forEach(invoiceDate => {
             const data = comparisonsByDate.get(invoiceDate);
             const date = new Date(invoiceDate);
             const actualDate = new Date(data.actualDate);
-            
-            const generalMatch = data.general.diff === 0;
-            const commingeMatch = data.commingle.diff === 0;
-            const overallMatch = generalMatch && commingeMatch;
-            
-            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
-                data.general.actual === 0 && data.commingle.actual === 0) {
-                return; // Skip days with no activity
-            }
 
-            // Determine the category based on total difference
-            // diff = invoice - actual
-            // positive = over invoiced (red mismatch)
-            // negative = under invoiced (orange mismatch)
-            // zero = match
+            const generalMatch = data.general.diff === 0;
+            const commingleMatch = data.commingle.diff === 0;
+            const overallMatch = generalMatch && commingleMatch;
+
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 &&
+                data.general.actual === 0 && data.commingle.actual === 0) return;
+
             const totalDiff = data.general.diff + data.commingle.diff;
             let category;
             let statusText;
-            
-            if (overallMatch) {
-                category = 'match';
-                statusText = 'Match';
-            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
-                category = 'missing';
-                statusText = 'Missing';
-            } else if (totalDiff > 0) {
-                // Over invoiced = red mismatch
-                category = 'mismatch-over';
-                statusText = 'Mismatch';
-            } else {
-                // Under invoiced or mixed = orange mismatch
-                category = 'mismatch-under';
-                statusText = 'Mismatch';
-            }
 
-            // Apply filter - map both mismatch types to 'mismatch' filter
+            if (overallMatch) { category = 'match'; statusText = 'Match'; }
+            else if (data.general.actual === 0 && data.commingle.actual === 0) { category = 'missing'; statusText = 'Missing'; }
+            else if (totalDiff > 0) { category = 'mismatch-over'; statusText = 'Mismatch'; }
+            else { category = 'mismatch-under'; statusText = 'Mismatch'; }
+
             const filterCategory = category.startsWith('mismatch') ? 'mismatch' : category;
-            if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) {
-                return;
-            }
+            if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) return;
 
             displayedCount++;
 
@@ -2620,35 +1831,43 @@
                         </div>
                         <span class="comparison-status-badge badge-${category}">${statusText}</span>
                     </div>
-                    
+
                     <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; padding: 10px 0; border-bottom: 2px solid #f0f0f0; font-size: 0.85em; font-weight: 600; color: #666;">
                         <div></div>
                         <div style="text-align: center;">Presented</div>
                         <div style="text-align: center;">Invoiced</div>
                         <div style="text-align: center;">Diff</div>
                     </div>
-                    
+
                     <div class="comparison-item">
                         <div class="comparison-label">General Waste</div>
                         <div class="comparison-values">
                             <span class="actual-value">${data.general.actual}</span>
                             <span class="invoice-value">${data.general.invoice}</span>
-                            ${data.general.diff !== 0 ? `<span class="difference ${data.general.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.general.diff > 0 ? '+' : ''}${data.general.diff}</span>` : '<span class="difference zero">0</span>'}
+                            ${
+                                data.general.diff !== 0
+                                    ? `<span class="difference ${data.general.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.general.diff > 0 ? '+' : ''}${data.general.diff}</span>`
+                                    : '<span class="difference zero">0</span>'
+                            }
                         </div>
                     </div>
-                    
+
                     <div class="comparison-item">
                         <div class="comparison-label">Co-Mingled</div>
                         <div class="comparison-values">
                             <span class="actual-value">${data.commingle.actual}</span>
                             <span class="invoice-value">${data.commingle.invoice}</span>
-                            ${data.commingle.diff !== 0 ? `<span class="difference ${data.commingle.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.commingle.diff > 0 ? '+' : ''}${data.commingle.diff}</span>` : '<span class="difference zero">0</span>'}
+                            ${
+                                data.commingle.diff !== 0
+                                    ? `<span class="difference ${data.commingle.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.commingle.diff > 0 ? '+' : ''}${data.commingle.diff}</span>`
+                                    : '<span class="difference zero">0</span>'
+                            }
                         </div>
                     </div>
                 </div>
             `;
         });
-        
+
         if (displayedCount === 0) {
             comparisonHtml += `
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
@@ -2657,9 +1876,9 @@
                 </div>
             `;
         }
-        
+
         comparisonHtml += '</div>';
-        
+
         document.getElementById('comparisonResults').innerHTML = comparisonHtml;
         document.getElementById('comparisonResults').classList.remove('hidden');
     }
@@ -2668,19 +1887,17 @@
         invoiceData = null;
         comparisonData = null;
         currentInvoiceFilter = 'all';
-        document.getElementById('pdfFileInput').value = '';
+        const input = document.getElementById('pdfFileInput');
+        if (input) input.value = '';
         document.getElementById('fileName').textContent = '';
         document.getElementById('invoiceStats').classList.add('hidden');
         document.getElementById('invoiceActions').classList.add('hidden');
         document.getElementById('invoiceFilters').classList.add('hidden');
         document.getElementById('comparisonResults').classList.add('hidden');
-        
-        // Reset filter buttons
+
         document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
         });
-        
-        console.log('Invoice data cleared');
     }
 
     function exportInvoiceCSV() {
@@ -2689,22 +1906,13 @@
             return;
         }
 
-        // CSV header
         const headers = [
-            'Invoice Date',
-            'Actual Date',
-            'Status',
-            'General Waste (Presented)',
-            'General Waste (Invoiced)',
-            'General Waste (Difference)',
-            'Commingle (Presented)',
-            'Commingle (Invoiced)',
-            'Commingle (Difference)'
+            'Invoice Date','Actual Date','Status',
+            'General Waste (Presented)','General Waste (Invoiced)','General Waste (Difference)',
+            'Commingle (Presented)','Commingle (Invoiced)','Commingle (Difference)'
         ];
 
         const rows = [headers];
-
-        // Sort dates
         const sortedDates = Array.from(comparisonData.byDate.keys()).sort();
 
         sortedDates.forEach(invoiceDate => {
@@ -2712,29 +1920,20 @@
             const date = new Date(invoiceDate);
             const actualDate = new Date(data.actualDate);
 
-            // Determine status based on total difference
             const generalMatch = data.general.diff === 0;
-            const commingeMatch = data.commingle.diff === 0;
+            const commingleMatch = data.commingle.diff === 0;
             const totalDiff = data.general.diff + data.commingle.diff;
-            
+
             let status;
-            if (generalMatch && commingeMatch) {
-                status = 'Match';
-            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
-                status = 'Missing';
-            } else if (totalDiff > 0) {
-                status = 'Over Invoiced';
-            } else {
-                status = 'Under Invoiced';
-            }
+            if (generalMatch && commingleMatch) status = 'Match';
+            else if (data.general.actual === 0 && data.commingle.actual === 0) status = 'Missing';
+            else if (totalDiff > 0) status = 'Over Invoiced';
+            else status = 'Under Invoiced';
 
-            // Skip days with no activity
-            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
-                data.general.actual === 0 && data.commingle.actual === 0) {
-                return;
-            }
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 &&
+                data.general.actual === 0 && data.commingle.actual === 0) return;
 
-            const row = [
+            rows.push([
                 date.toLocaleDateString('en-AU'),
                 actualDate.toLocaleDateString('en-AU'),
                 status,
@@ -2744,32 +1943,26 @@
                 data.commingle.actual,
                 data.commingle.invoice,
                 data.commingle.diff
-            ];
-
-            rows.push(row);
+            ]);
         });
 
-        // Convert to CSV
         const csvContent = rows.map(row => row.join(',')).join('\n');
-
-        // Create download
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
-        
-        const timestamp = new Date().toISOString().split('T')[0];
+
+        const stamp = new Date().toISOString().split('T')[0];
         link.setAttribute('href', url);
-        link.setAttribute('download', `invoice-comparison-${timestamp}.csv`);
+        link.setAttribute('download', `invoice-comparison-${stamp}.csv`);
         link.style.visibility = 'hidden';
-        
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
-        console.log(`Exported ${rows.length - 1} rows to CSV`);
     }
 
-    // Event Listeners
+    // ===========================
+    // Event listeners
+    // ===========================
     document.addEventListener('DOMContentLoaded', () => {
         loadData(false);
 
@@ -2778,16 +1971,15 @@
                 document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentView = btn.dataset.view;
-                if (currentView === 'dashboard') {
-                    currentDate = new Date();
-                }
+                if (currentView === 'dashboard') currentDate = new Date();
                 displayCurrentView();
             });
         });
 
-        document.querySelectorAll('.filter-btn').forEach(btn => {
+        // FIX: scope dashboard filters ONLY (prevents breaking invoice filters)
+        document.querySelectorAll('#dashboardView [data-filter]').forEach(btn => {
             btn.addEventListener('click', () => {
-                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                document.querySelectorAll('#dashboardView [data-filter]').forEach(b => b.classList.remove('active'));
                 btn.classList.add('active');
                 currentFilter = btn.dataset.filter;
                 displayBins();
@@ -2800,24 +1992,16 @@
         });
 
         document.getElementById('prevBtn').addEventListener('click', () => {
-            if (currentView === 'month') {
-                currentDate.setMonth(currentDate.getMonth() - 1);
-            } else if (currentView === 'week') {
-                currentDate.setDate(currentDate.getDate() - 7);
-            } else if (currentView === 'day') {
-                currentDate.setDate(currentDate.getDate() - 1);
-            }
+            if (currentView === 'month') currentDate.setMonth(currentDate.getMonth() - 1);
+            else if (currentView === 'week') currentDate.setDate(currentDate.getDate() - 7);
+            else if (currentView === 'day') currentDate.setDate(currentDate.getDate() - 1);
             displayCalendar();
         });
 
         document.getElementById('nextBtn').addEventListener('click', () => {
-            if (currentView === 'month') {
-                currentDate.setMonth(currentDate.getMonth() + 1);
-            } else if (currentView === 'week') {
-                currentDate.setDate(currentDate.getDate() + 7);
-            } else if (currentView === 'day') {
-                currentDate.setDate(currentDate.getDate() + 1);
-            }
+            if (currentView === 'month') currentDate.setMonth(currentDate.getMonth() + 1);
+            else if (currentView === 'week') currentDate.setDate(currentDate.getDate() + 7);
+            else if (currentView === 'day') currentDate.setDate(currentDate.getDate() + 1);
             displayCalendar();
         });
 
@@ -2842,7 +2026,6 @@
         });
     });
 
-    // Auto-refresh every 60 seconds
     setInterval(() => loadData(true), 60000);
 </script>
 </body>
