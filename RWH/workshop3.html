@@ -1,0 +1,631 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Environmental Management Plan Feedback</title>
+
+<style>
+  :root{
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    color: #111827;
+  }
+
+  /* ===== Sliding Diagonals Background (Pink Palette) ===== */
+  html, body { height:100%; }
+  body{ margin:0; min-height:100svh; }
+
+  .bg{
+    animation: slide 6s ease-in-out infinite alternate;
+    background-image: linear-gradient(-60deg, #ffd1e8 50%, #ff6fae 50%);
+    bottom:0;
+    left:-50%;
+    opacity:.55;
+    position:fixed;
+    right:-50%;
+    top:0;
+    z-index:0;
+  }
+  .bg2{
+    animation-direction:alternate-reverse;
+    animation-duration:8s;
+    opacity:.45;
+  }
+  .bg3{
+    animation-duration:10s;
+    opacity:.35;
+  }
+  @keyframes slide{
+    0%{ transform:translateX(-25%); }
+    100%{ transform:translateX(25%); }
+  }
+  @media (prefers-reduced-motion: reduce){
+    .bg, .bg2, .bg3{ animation:none; }
+  }
+
+  /* ===== Foreground layout ===== */
+  .wrap{
+    position: relative;
+    z-index: 2;
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 16px;
+    padding-bottom: calc(160px + env(safe-area-inset-bottom)); /* space for sticky + footer */
+  }
+
+  .card{
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.55);
+    backdrop-filter: blur(10px);
+    border-radius:16px;
+    padding: 18px;
+    box-shadow: 0 8px 24px rgba(0,0,0,.10);
+  }
+
+  /* Brand header: logo above, centered, not squished */
+  .brand{
+    display:flex;
+    flex-direction: column;
+    align-items:center;
+    text-align:center;
+    gap: 10px;
+    margin-bottom: 8px;
+  }
+  .brand img{
+    width: auto;
+    height: auto;
+    max-width: 160px;
+    max-height: 110px;
+    object-fit: contain;
+    display:block;
+  }
+  .brand-title{
+    font-size: 18px;
+    font-weight: 800;
+    margin: 0;
+    line-height: 1.2;
+  }
+  .brand-sub{
+    font-size: 13px;
+    color:#6b7280;
+    margin: 4px 0 0;
+    line-height: 1.25;
+  }
+
+  h2{ font-size: 18px; margin: 14px 0 10px; }
+  .muted{ color:#6b7280; font-size: 14px; line-height: 1.35; }
+
+  .row{ margin: 16px 0; }
+  label{ display:block; font-weight: 650; margin-bottom: 8px; line-height: 1.25; }
+
+  input[type="text"], textarea{
+    width:100%;
+    padding: 14px 14px;
+    border-radius: 14px;
+    border: 1px solid #d1d5db;
+    font-size: 16px; /* prevents iOS zoom */
+    box-sizing: border-box;
+    background:#fff;
+  }
+  textarea{ min-height: 110px; resize: vertical; }
+
+  .progress{ display:flex; gap:8px; margin: 10px 0 14px; justify-content:center; }
+  .dot{ width: 10px; height: 10px; border-radius: 999px; background:#d1d5db; }
+  .dot.on{ background:#111827; }
+
+  .badge{
+    background:#f3f4f6;
+    border-radius: 999px;
+    padding: 8px 10px;
+    font-size: 13px;
+    color:#374151;
+    white-space: nowrap;
+  }
+
+  .error{
+    color:#b91c1c;
+    font-size: 14px;
+    margin-top: 10px;
+    display:none;
+  }
+
+  /* Slider panels */
+  .panel{
+    background:#f3f4f6;
+    border-radius: 16px;
+    padding: 16px;
+  }
+  .panel-row{
+    display:flex;
+    align-items:center;
+    gap: 14px;
+  }
+
+  .emoji{
+    font-size: 44px;
+    line-height: 1;
+    transition: transform .18s ease;
+    flex: 0 0 auto;
+  }
+  .emoji.bump{ transform: scale(1.08); }
+
+  input[type="range"]{
+    -webkit-appearance:none;
+    appearance:none;
+    width:100%;
+    height: 8px;
+    border-radius: 999px;
+    background:#d1d5db;
+    outline:none;
+    touch-action: pan-y;
+  }
+  input[type="range"]::-webkit-slider-thumb{
+    -webkit-appearance:none;
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background:#111827;
+    border: 3px solid #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.18);
+  }
+  input[type="range"]::-moz-range-thumb{
+    width: 30px;
+    height: 30px;
+    border-radius: 50%;
+    background:#111827;
+    border: 3px solid #fff;
+    box-shadow: 0 10px 26px rgba(0,0,0,.18);
+  }
+
+  .scale-labels{
+    display:flex;
+    justify-content:space-between;
+    font-size: 12px;
+    color:#6b7280;
+    margin-top: 8px;
+    padding: 0 2px;
+  }
+
+  .value-text{
+    font-weight: 650;
+    margin-top: 12px;
+    font-size: 16px;
+    line-height: 1.25;
+  }
+
+  /* Fun Yes/No toggle */
+  .toggle{
+    width: 100%;
+    max-width: 260px;
+    height: 52px;
+    background: #e5e7eb;
+    border-radius: 999px;
+    padding: 6px;
+    display:flex;
+    gap: 6px;
+  }
+  .toggle button{
+    flex:1;
+    border:0;
+    border-radius: 999px;
+    background: transparent;
+    color:#111827;
+    font-weight: 750;
+    font-size: 16px;
+    cursor:pointer;
+    padding: 0;
+  }
+  .toggle button.active{
+    background:#111827;
+    color:#fff;
+  }
+  .hint{
+    font-size: 13px;
+    color:#6b7280;
+    margin-top: 8px;
+    line-height: 1.3;
+  }
+
+  /* Sticky actions */
+  .sticky{
+    position: fixed;
+    left:0; right:0; bottom:0;
+    padding: 12px 14px calc(54px + env(safe-area-inset-bottom)); /* leave space for footer */
+    background: rgba(246,247,249,.78);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(209,213,219,.8);
+    z-index: 10;
+  }
+  .sticky-inner{
+    max-width: 720px;
+    margin: 0 auto;
+    display:flex;
+    gap: 10px;
+  }
+
+  .btn{
+    border:0;
+    border-radius: 14px;
+    padding: 14px 16px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor:pointer;
+  }
+  .btn.primary{ background:#111827; color:#fff; flex: 1; }
+  .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 110px; }
+  .btn:disabled{ opacity: .6; cursor:not-allowed; }
+
+  /* Footer */
+  footer{
+    position: fixed;
+    left:0; right:0;
+    bottom: 0;
+    z-index: 11;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(246,247,249,.78);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(209,213,219,.8);
+    font-size: 12px;
+    color: #6b7280;
+    text-align: center;
+  }
+
+  /* Desktop tweaks */
+  @media (min-width: 600px){
+    .wrap{ padding: 24px; padding-bottom: 160px; }
+    .card{ padding: 24px; }
+    .brand-title{ font-size: 20px; }
+    .emoji{ font-size: 50px; }
+    input[type="range"]::-webkit-slider-thumb{ width: 32px; height: 32px; }
+    input[type="range"]::-moz-range-thumb{ width: 32px; height: 32px; }
+    .sticky{ padding-bottom: 58px; }
+  }
+
+  .success{
+    text-align:center;
+    padding: 28px 10px;
+  }
+  .check{ font-size: 44px; }
+
+  @media (prefers-reduced-motion: reduce){
+    .emoji{ transition: none; }
+    .emoji.bump{ transform:none; }
+    .sticky{ backdrop-filter: none; }
+    footer{ backdrop-filter: none; }
+    .card{ backdrop-filter: none; }
+  }
+</style>
+</head>
+
+<body>
+  <!-- Background layers -->
+  <div class="bg" aria-hidden="true"></div>
+  <div class="bg bg2" aria-hidden="true"></div>
+  <div class="bg bg3" aria-hidden="true"></div>
+
+  <div class="wrap">
+    <div class="card">
+
+      <!-- Logo + Title -->
+      <header class="brand">
+        <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Innovation Group logo">
+        <div>
+          <p class="brand-title">Environmental Management Plan Feedback</p>
+          <p class="brand-sub">Quick 2-step feedback form</p>
+        </div>
+      </header>
+
+      <div class="progress" aria-hidden="true">
+        <div class="dot on" id="dot1"></div>
+        <div class="dot" id="dot2"></div>
+        <div class="dot" id="dot3"></div>
+      </div>
+
+      <!-- STEP 1 -->
+      <section class="step" id="step1" style="display:block;">
+        <h2>Step 1: Your name</h2>
+        <p class="muted">This helps us understand feedback across the group.</p>
+
+        <div class="row">
+          <label for="name">Name</label>
+          <input id="name" type="text" placeholder="Your name" autocomplete="name" inputmode="text">
+        </div>
+
+        <div class="error" id="err1">Please enter your name.</div>
+      </section>
+
+      <!-- STEP 2 -->
+      <section class="step" id="step2" style="display:none;">
+        <h2>Step 2: Questions</h2>
+        <p class="muted">Drag the sliders to select your answers.</p>
+
+        <!-- Q1 -->
+        <div class="row">
+          <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
+          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
+            <span class="badge">1 = Not confident</span>
+            <span class="badge">5 = Very confident</span>
+          </div>
+
+          <div class="panel">
+            <div class="panel-row">
+              <div id="q1Face" class="emoji" aria-hidden="true">😐</div>
+              <div style="flex:1; min-width: 0;">
+                <input id="q1" type="range" min="1" max="5" step="1" value="3" aria-label="Confidence 1 to 5">
+                <div class="scale-labels" aria-hidden="true">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                </div>
+              </div>
+              <div class="badge">Score: <span id="q1Score">3</span></div>
+            </div>
+            <div class="value-text" id="q1Text">Neutral</div>
+          </div>
+        </div>
+
+        <!-- Q2 -->
+        <div class="row">
+          <label for="q2">Q2. Which area gives you the most confidence?</label>
+
+          <div class="panel">
+            <div class="panel-row">
+              <div id="q2Icon" class="emoji" aria-hidden="true">🎯</div>
+              <div style="flex:1; min-width: 0;">
+                <input id="q2" type="range" min="1" max="5" step="1" value="1" aria-label="Area choice 1 to 5">
+                <div class="scale-labels" aria-hidden="true">
+                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+                </div>
+              </div>
+              <div class="badge">Choice: <span id="q2Choice">1</span></div>
+            </div>
+            <div class="value-text" id="q2Text">Clarity of targets and direction</div>
+          </div>
+        </div>
+
+        <!-- Working Group -->
+        <div class="row">
+          <label>Do you want to be in the working group?</label>
+
+          <div class="panel">
+            <div class="panel-row" style="align-items:flex-start;">
+              <div id="wgIcon" class="emoji" aria-hidden="true">😌</div>
+
+              <div style="flex:1; min-width: 0;">
+                <div class="toggle" role="group" aria-label="Working group yes or no">
+                  <button type="button" id="wgNo" class="active" aria-pressed="true">No</button>
+                  <button type="button" id="wgYes" aria-pressed="false">Yes</button>
+                </div>
+                <div class="hint" id="wgHint">All good — no action needed.</div>
+              </div>
+
+              <div class="badge">Selected: <span id="wgValue">No</span></div>
+            </div>
+
+            <div class="row" id="wgAreasRow" style="display:none; margin-top:14px;">
+              <label for="wgAreas">Awesome! in what key areas would you like to contribute</label>
+              <textarea id="wgAreas" placeholder="Type key areas you'd like to contribute to..."></textarea>
+            </div>
+          </div>
+        </div>
+
+        <div class="error" id="errSubmit"></div>
+      </section>
+
+      <!-- STEP 3 -->
+      <section class="step" id="step3" style="display:none;">
+        <div class="success">
+          <div class="check">✅</div>
+          <h2>Thank you</h2>
+          <p class="muted">Your response has been recorded.</p>
+        </div>
+      </section>
+
+    </div>
+  </div>
+
+  <!-- Sticky actions -->
+  <div class="sticky" role="region" aria-label="Form actions">
+    <div class="sticky-inner">
+      <button class="btn secondary" id="backBtn" type="button" style="display:none;">Back</button>
+      <button class="btn primary" id="nextOrSubmitBtn" type="button">Next</button>
+    </div>
+  </div>
+
+  <footer>2026 | Shrunk Innovation Group | All Rights Reserved</footer>
+
+<script>
+  /** Your Apps Script Web App URL */
+  const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwNocuTu1R50Ois2tclgihzrSjmIvWQ2ZFpMdTJ3sgkYuK5UhgMY6bZdb_VlVD26Ywm5A/exec";
+
+  // Steps
+  const step1 = document.getElementById("step1");
+  const step2 = document.getElementById("step2");
+  const step3 = document.getElementById("step3");
+
+  const dot1 = document.getElementById("dot1");
+  const dot2 = document.getElementById("dot2");
+  const dot3 = document.getElementById("dot3");
+
+  const backBtn = document.getElementById("backBtn");
+  const nextOrSubmitBtn = document.getElementById("nextOrSubmitBtn");
+
+  let currentStep = 1;
+
+  function setStep(n){
+    currentStep = n;
+    step1.style.display = (n===1) ? "block" : "none";
+    step2.style.display = (n===2) ? "block" : "none";
+    step3.style.display = (n===3) ? "block" : "none";
+
+    dot1.classList.toggle("on", n>=1);
+    dot2.classList.toggle("on", n>=2);
+    dot3.classList.toggle("on", n>=3);
+
+    backBtn.style.display = (n===2) ? "inline-block" : "none";
+
+    if (n === 1) nextOrSubmitBtn.textContent = "Next";
+    if (n === 2) nextOrSubmitBtn.textContent = "Submit";
+    if (n === 3) {
+      document.querySelector(".sticky").style.display = "none";
+    } else {
+      document.querySelector(".sticky").style.display = "block";
+    }
+
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  // Little bump animation
+  function bump(el){
+    el.classList.add("bump");
+    setTimeout(()=>el.classList.remove("bump"), 140);
+  }
+
+  // Q1 slider
+  const q1 = document.getElementById("q1");
+  const q1Face = document.getElementById("q1Face");
+  const q1Score = document.getElementById("q1Score");
+  const q1Text = document.getElementById("q1Text");
+
+  const q1States = {
+    1: { face:"😞", text:"Not confident" },
+    2: { face:"🙁", text:"Low confidence" },
+    3: { face:"😐", text:"Neutral" },
+    4: { face:"🙂", text:"Confident" },
+    5: { face:"😄", text:"Very confident" }
+  };
+
+  function updateQ1(val){
+    q1Face.textContent = q1States[val].face;
+    q1Text.textContent = q1States[val].text;
+    q1Score.textContent = val;
+    bump(q1Face);
+  }
+  updateQ1(q1.value);
+  q1.addEventListener("input", e => updateQ1(e.target.value));
+
+  // Q2 slider
+  const q2 = document.getElementById("q2");
+  const q2Icon = document.getElementById("q2Icon");
+  const q2Choice = document.getElementById("q2Choice");
+  const q2Text = document.getElementById("q2Text");
+
+  const areaStates = {
+    1: { icon:"🎯", text:"Clarity of targets and direction" },
+    2: { icon:"⚖️", text:"Balance of impact, cost, effort, and time" },
+    3: { icon:"📌", text:"Initiative prioritisation" },
+    4: { icon:"🧩", text:"Delivery pathway and governance" },
+    5: { icon:"🤝", text:"Stakeholder involvement" }
+  };
+
+  function updateQ2(val){
+    q2Icon.textContent = areaStates[val].icon;
+    q2Text.textContent = areaStates[val].text;
+    q2Choice.textContent = val;
+    bump(q2Icon);
+  }
+  updateQ2(q2.value);
+  q2.addEventListener("input", e => updateQ2(e.target.value));
+
+  // Working group toggle
+  let workingGroup = "No";
+  const wgNoBtn = document.getElementById("wgNo");
+  const wgYesBtn = document.getElementById("wgYes");
+  const wgIcon = document.getElementById("wgIcon");
+  const wgValue = document.getElementById("wgValue");
+  const wgHint = document.getElementById("wgHint");
+  const wgAreasRow = document.getElementById("wgAreasRow");
+  const wgAreas = document.getElementById("wgAreas");
+
+  function setWG(value){
+    workingGroup = value;
+    const yes = value === "Yes";
+
+    wgNoBtn.classList.toggle("active", !yes);
+    wgYesBtn.classList.toggle("active", yes);
+    wgNoBtn.setAttribute("aria-pressed", String(!yes));
+    wgYesBtn.setAttribute("aria-pressed", String(yes));
+
+    wgValue.textContent = value;
+
+    if (yes){
+      wgIcon.textContent = "🙋";
+      wgHint.textContent = "Awesome — tell us where you'd like to help.";
+      wgAreasRow.style.display = "block";
+    } else {
+      wgIcon.textContent = "😌";
+      wgHint.textContent = "All good — no action needed.";
+      wgAreasRow.style.display = "none";
+      wgAreas.value = "";
+    }
+    bump(wgIcon);
+  }
+
+  wgNoBtn.addEventListener("click", ()=> setWG("No"));
+  wgYesBtn.addEventListener("click", ()=> setWG("Yes"));
+  setWG("No");
+
+  // Step buttons
+  const nameEl = document.getElementById("name");
+  const err1 = document.getElementById("err1");
+  const errSubmit = document.getElementById("errSubmit");
+
+  backBtn.addEventListener("click", ()=> {
+    errSubmit.style.display = "none";
+    setStep(1);
+  });
+
+  nextOrSubmitBtn.addEventListener("click", async ()=> {
+    if (currentStep === 1){
+      const name = nameEl.value.trim();
+      if (!name){
+        err1.style.display = "block";
+        nameEl.focus();
+        return;
+      }
+      err1.style.display = "none";
+      setStep(2);
+      return;
+    }
+
+    if (currentStep === 2){
+      errSubmit.style.display = "none";
+
+      const payload = {
+        name: nameEl.value.trim(),
+        q1_confidence: q1.value,               // 1-5
+        q2_area: areaStates[q2.value].text,    // mapped text
+        working_group: workingGroup,           // Yes/No
+        working_group_areas: wgAreas.value.trim()
+      };
+
+      nextOrSubmitBtn.disabled = true;
+      nextOrSubmitBtn.textContent = "Submitting...";
+
+      try{
+        const res = await fetch(WEB_APP_URL, {
+          method: "POST",
+          headers: { "Content-Type":"application/json" },
+          body: JSON.stringify(payload)
+        });
+
+        const text = await res.text();
+        let json;
+        try { json = JSON.parse(text); } catch { json = { ok: res.ok }; }
+
+        if (!res.ok || (json && json.ok === false)){
+          throw new Error((json && json.error) ? json.error : "Submission failed.");
+        }
+
+        setStep(3);
+      } catch(e){
+        errSubmit.textContent = "Submit failed: " + (e.message || e);
+        errSubmit.style.display = "block";
+        window.scrollTo({ top: 0, behavior: "smooth" });
+      } finally {
+        nextOrSubmitBtn.disabled = false;
+        nextOrSubmitBtn.textContent = "Submit";
+      }
+    }
+  });
+</script>
+</body>
+</html>
