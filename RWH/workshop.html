@@ -1,9 +1,10 @@
+
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Royal Womens EMP Feedback</title>
+<title>EMP Feedback</title>
 
 <style>
   :root{
@@ -11,22 +12,43 @@
     color: #111827;
   }
 
-  /* Mobile-first */
+  /* Animated gradient background */
   body{
     margin:0;
-    background:#f6f7f9;
     -webkit-text-size-adjust: 100%;
+    min-height: 100svh;
+    background: linear-gradient(120deg, #a7f3d0, #bfdbfe, #fbcfe8, #fde68a);
+    background-size: 300% 300%;
+    animation: gradientShift 16s ease-in-out infinite;
+  }
+  @keyframes gradientShift{
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
   }
 
+  /* Optional soft overlay for readability */
+  body::before{
+    content:"";
+    position: fixed;
+    inset: 0;
+    background: rgba(246,247,249,.55);
+    pointer-events: none;
+  }
+
+  /* Mobile-first */
   .wrap{
+    position: relative; /* above overlay */
     max-width: 720px;
     margin: 0 auto;
     padding: 16px;
-    padding-bottom: calc(96px + env(safe-area-inset-bottom)); /* room for sticky bar */
+    padding-bottom: calc(132px + env(safe-area-inset-bottom)); /* room for sticky + footer */
   }
 
   .card{
-    background:#fff;
+    background: rgba(255,255,255,.92);
+    border: 1px solid rgba(255,255,255,.55);
+    backdrop-filter: blur(10px);
     border-radius:16px;
     padding: 18px;
     box-shadow: 0 8px 24px rgba(0,0,0,.08);
@@ -172,10 +194,11 @@
   .sticky{
     position: fixed;
     left:0; right:0; bottom:0;
-    padding: 12px 14px calc(12px + env(safe-area-inset-bottom));
-    background: rgba(246,247,249,.9);
+    padding: 12px 14px calc(54px + env(safe-area-inset-bottom)); /* leave space for footer */
+    background: rgba(246,247,249,.78);
     backdrop-filter: blur(10px);
     border-top: 1px solid rgba(209,213,219,.8);
+    z-index: 10;
   }
   .sticky-inner{
     max-width: 720px;
@@ -196,14 +219,30 @@
   .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 110px; }
   .btn:disabled{ opacity: .6; cursor:not-allowed; }
 
+  /* Footer */
+  footer{
+    position: fixed;
+    left:0; right:0;
+    bottom: 0;
+    z-index: 11;
+    padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
+    background: rgba(246,247,249,.78);
+    backdrop-filter: blur(10px);
+    border-top: 1px solid rgba(209,213,219,.8);
+    font-size: 12px;
+    color: #6b7280;
+    text-align: center;
+  }
+
   /* Desktop tweaks */
   @media (min-width: 600px){
-    .wrap{ padding: 24px; padding-bottom: 120px; }
+    .wrap{ padding: 24px; padding-bottom: 160px; }
     .card{ padding: 24px; }
     h1{ font-size: 22px; }
     .emoji{ font-size: 50px; }
     input[type="range"]::-webkit-slider-thumb{ width: 32px; height: 32px; }
     input[type="range"]::-moz-range-thumb{ width: 32px; height: 32px; }
+    .sticky{ padding-bottom: 58px; }
   }
 
   .success{
@@ -214,9 +253,12 @@
 
   /* Reduce motion preference */
   @media (prefers-reduced-motion: reduce){
+    body{ animation: none; background-position: 50% 50%; }
     .emoji{ transition: none; }
     .emoji.bump{ transform:none; }
     .sticky{ backdrop-filter: none; }
+    footer{ backdrop-filter: none; }
+    .card{ backdrop-filter: none; }
   }
 </style>
 </head>
@@ -310,7 +352,7 @@
             </div>
 
             <div class="row" id="wgAreasRow" style="display:none; margin-top:14px;">
-              <label for="wgAreas">Awesome, in what key areas would you like to contribute?</label>
+              <label for="wgAreas">Awesome! in what key areas would you like to contribute</label>
               <textarea id="wgAreas" placeholder="Type key areas you'd like to contribute to..."></textarea>
             </div>
           </div>
@@ -337,6 +379,8 @@
       <button class="btn primary" id="nextOrSubmitBtn" type="button">Next</button>
     </div>
   </div>
+
+  <footer>2026 | Shrunk Innovation Group | All Rights Reserved</footer>
 
 <script>
   /** Replace with your Apps Script Web App URL */
@@ -376,11 +420,9 @@
       document.querySelector(".sticky").style.display = "block";
     }
 
-    // scroll to top of card on step change (nice on mobile)
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // Little bump animation
   function bump(el){
     el.classList.add("bump");
     setTimeout(()=>el.classList.remove("bump"), 140);
@@ -419,7 +461,7 @@
     1: { icon:"🎯", text:"Clarity of targets and direction" },
     2: { icon:"⚖️", text:"Balance of impact, cost, effort, and time" },
     3: { icon:"📌", text:"Initiative prioritisation" },
-    4: { icon:"🧩", text:"Delivery pathway and governance" },
+    4: { icon:"🗺️", text:"Delivery pathway and governance" },
     5: { icon:"🤝", text:"Stakeholder involvement" }
   };
 
@@ -498,9 +540,9 @@
 
       const payload = {
         name: nameEl.value.trim(),
-        q1_confidence: q1.value,               // 1-5
-        q2_area: areaStates[q2.value].text,    // mapped text
-        working_group: workingGroup,           // Yes/No
+        q1_confidence: q1.value,
+        q2_area: areaStates[q2.value].text,
+        working_group: workingGroup,
         working_group_areas: wgAreas.value.trim()
       };
 
@@ -536,3 +578,4 @@
 </script>
 </body>
 </html>
+
