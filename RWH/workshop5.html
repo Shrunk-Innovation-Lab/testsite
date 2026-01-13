@@ -61,7 +61,7 @@
     border-radius: 18px;
   }
 
-  /* App size - responsive */
+  /* ✅ App size */
   #app{
     display:grid;
     grid-template-columns: 1fr;
@@ -88,7 +88,7 @@
     pointer-events:none;
   }
 
-  /* Vertical stack backgrounds */
+  /* Background stack */
   .background{
     border-radius: 18px;
     background-image: linear-gradient(to bottom, var(--primary), var(--secondary));
@@ -394,60 +394,63 @@
   .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 120px; }
   .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
-  /* ✅ Bottom navigation bar (ARROWS ONLY) */
-  .navBottom{
+  /* ✅ Arrows grouped and positioned "next to" card (bottom-right) */
+  .navDock{
     position: fixed;
-    left: 0;
-    right: 0;
-    bottom: calc(38px + env(safe-area-inset-bottom)); /* above footer */
-    z-index: 30;
+    z-index: 40;
+    right: max(12px, env(safe-area-inset-right));
+    bottom: calc(52px + env(safe-area-inset-bottom)); /* above footer */
     display:flex;
+    align-items:center;
     justify-content:center;
-    padding: 10px 14px;
-    pointer-events: none;
   }
-  .navBottomInner{
-    width: min(92vw, 520px);
+  .navPill{
     display:flex;
-    justify-content: space-between;
-    pointer-events: auto;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.68);
+    border: 1px solid rgba(255,255,255,.22);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.35);
   }
   .navArrow{
-    width: 58px;
-    height: 58px;
+    width: 52px;
+    height: 52px;
     border-radius: 999px;
-
-    background: rgba(0,0,0,.78);
-    border: 1px solid rgba(255,255,255,.28);
+    border: 1px solid rgba(255,255,255,.24);
+    background: rgba(255,255,255,.14);
     color: #fff;
-
-    backdrop-filter: blur(10px);
-    font-size: 26px;
+    font-size: 24px;
     font-weight: 900;
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
-    box-shadow: 0 10px 24px rgba(0,0,0,.35);
-    user-select:none;
     line-height: 1;
   }
   .navArrow:active{ transform: translateY(1px); }
   .navArrow:focus{
     outline:none;
-    box-shadow:
-      0 10px 24px rgba(0,0,0,.35),
-      0 0 0 3px rgba(255,61,154,.28);
+    box-shadow: 0 0 0 3px rgba(255,61,154,.28);
   }
   .navArrow:disabled{
-    opacity: .45;
+    opacity: .40;
     cursor:not-allowed;
-    background: rgba(0,0,0,.55);
+  }
+
+  /* Keep arrows closer to card on larger screens */
+  @media (min-width: 640px){
+    .navDock{
+      /* pull in towards the app, so it sits beside the card */
+      right: calc((100vw - min(92vw, 520px))/2 - 12px);
+    }
+    /* if calc becomes negative on very small screens, clamp by browser */
   }
 
   @media (max-width: 420px){
     .emoji{ font-size: 40px; }
-    .navArrow{ width: 54px; height: 54px; font-size: 24px; }
+    .navArrow{ width: 50px; height: 50px; font-size: 22px; }
   }
 </style>
 </head>
@@ -467,9 +470,9 @@
       src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
   </div>
 
-  <!-- Bottom arrow buttons -->
-  <div class="navBottom" aria-label="Navigate form cards">
-    <div class="navBottomInner">
+  <!-- ✅ Grouped arrows next to the card -->
+  <div class="navDock" aria-label="Navigate form cards">
+    <div class="navPill">
       <button class="navArrow" id="upBtn" type="button" aria-label="Previous">↑</button>
       <button class="navArrow" id="downBtn" type="button" aria-label="Next">↓</button>
     </div>
@@ -615,6 +618,7 @@
   function setActive(index){
     activeIndex = Math.max(0, Math.min(index, elCards.length - 1));
     elApp.querySelectorAll("[data-active]").forEach(el => el.removeAttribute("data-active"));
+
     elCards[activeIndex].setAttribute("data-active", "true");
     elBackgrounds[Math.min(activeIndex, elBackgrounds.length - 1)].setAttribute("data-active", "true");
 
@@ -633,11 +637,11 @@
     });
   });
 
-  // Bottom navigation
+  // Navigation
   upBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex - 1); });
   downBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex + 1); });
 
-  // Keyboard support (desktop)
+  // Keyboard support
   window.addEventListener("keydown", (e)=>{
     if (e.key === "ArrowUp") setActive(activeIndex - 1);
     if (e.key === "ArrowDown") setActive(activeIndex + 1);
@@ -767,7 +771,7 @@
   wgYesBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("Yes"); });
   setWG("No");
 
-  // Review button: jump to first card
+  // Review
   document.getElementById("reviewBtn").addEventListener("click", (e)=>{
     e.stopPropagation();
     setActive(0);
@@ -781,7 +785,7 @@
   function showThankYou(){
     elApp.style.display = "none";
     document.querySelector(".footer").style.display = "none";
-    document.querySelector(".navBottom").style.display = "none";
+    document.querySelector(".navDock").style.display = "none";
     thankyou.style.display = "flex";
   }
 
