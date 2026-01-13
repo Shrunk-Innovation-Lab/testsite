@@ -11,46 +11,49 @@
     color: #111827;
   }
 
-  /* ===== Sliding Diagonals Background (Pink Palette) ===== */
+  /* ===== Animated PINK gradient background ===== */
   html, body { height:100%; }
-  body{ margin:0; min-height:100svh; }
+  body{
+    margin:0;
+    min-height:100svh;
+    background: linear-gradient(-45deg,
+      #ff5fa5,
+      #ff8ccf,
+      #ffd1ea,
+      #ff6fb1
+    );
+    background-size: 400% 400%;
+    animation: gradientShift 14s ease-in-out infinite;
+    -webkit-text-size-adjust: 100%;
+  }
 
-  .bg{
-    animation: slide 6s ease-in-out infinite alternate;
-    background-image: linear-gradient(-60deg, #ffd1e8 50%, #ff6fae 50%);
-    bottom:0;
-    left:-50%;
-    opacity:.55;
-    position:fixed;
-    right:-50%;
-    top:0;
-    z-index:0;
+  @keyframes gradientShift{
+    0%{ background-position: 0% 50%; }
+    50%{ background-position: 100% 50%; }
+    100%{ background-position: 0% 50%; }
   }
-  .bg2{
-    animation-direction:alternate-reverse;
-    animation-duration:8s;
-    opacity:.45;
-  }
-  .bg3{
-    animation-duration:10s;
-    opacity:.35;
-  }
-  @keyframes slide{
-    0%{ transform:translateX(-25%); }
-    100%{ transform:translateX(25%); }
-  }
+
   @media (prefers-reduced-motion: reduce){
-    .bg, .bg2, .bg3{ animation:none; }
+    body{ animation:none; background-position: 50% 50%; }
   }
 
-  /* ===== Foreground layout ===== */
+  /* ===== Mobile-first layout ===== */
   .wrap{
-    position: relative;
-    z-index: 2;
     max-width: 720px;
     margin: 0 auto;
     padding: 16px;
-    padding-bottom: calc(160px + env(safe-area-inset-bottom)); /* space for sticky + footer */
+    padding-bottom: calc(96px + env(safe-area-inset-bottom)); /* room for sticky bar */
+  }
+
+  /* Center Step 1 card (only) */
+  body.center-step1 .wrap{
+    min-height: calc(100svh - 120px); /* leave room for sticky+footer */
+    display:flex;
+    align-items:center;
+    justify-content:center;
+  }
+  body.center-step1 .card{
+    width:100%;
   }
 
   .card{
@@ -62,7 +65,7 @@
     box-shadow: 0 8px 24px rgba(0,0,0,.10);
   }
 
-  /* Brand header: logo above, centered, not squished */
+  /* Brand header */
   .brand{
     display:flex;
     flex-direction: column;
@@ -109,7 +112,7 @@
   }
   textarea{ min-height: 110px; resize: vertical; }
 
-  .progress{ display:flex; gap:8px; margin: 10px 0 14px; justify-content:center; }
+  .progress{ display:flex; gap:8px; margin-bottom: 14px; justify-content:center; }
   .dot{ width: 10px; height: 10px; border-radius: 999px; background:#d1d5db; }
   .dot.on{ background:#111827; }
 
@@ -129,7 +132,7 @@
     display:none;
   }
 
-  /* Slider panels */
+  /* Slider cards */
   .panel{
     background:#f3f4f6;
     border-radius: 16px;
@@ -226,7 +229,7 @@
     line-height: 1.3;
   }
 
-  /* Sticky actions */
+  /* Sticky bottom actions */
   .sticky{
     position: fixed;
     left:0; right:0; bottom:0;
@@ -255,7 +258,6 @@
   .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 110px; }
   .btn:disabled{ opacity: .6; cursor:not-allowed; }
 
-  /* Footer */
   footer{
     position: fixed;
     left:0; right:0;
@@ -270,7 +272,21 @@
     text-align: center;
   }
 
-  /* Desktop tweaks */
+  /* Thank you GIF only */
+  .thankyou-wrap{
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    min-height: 70svh;
+    padding: 6px 0;
+  }
+  .thankyou{
+    width: 100%;
+    max-width: 360px;
+    height: auto;
+    display:block;
+  }
+
   @media (min-width: 600px){
     .wrap{ padding: 24px; padding-bottom: 160px; }
     .card{ padding: 24px; }
@@ -280,45 +296,27 @@
     input[type="range"]::-moz-range-thumb{ width: 32px; height: 32px; }
     .sticky{ padding-bottom: 58px; }
   }
-
-  .success{
-    text-align:center;
-    padding: 28px 10px;
-  }
-  .check{ font-size: 44px; }
-
-  @media (prefers-reduced-motion: reduce){
-    .emoji{ transition: none; }
-    .emoji.bump{ transform:none; }
-    .sticky{ backdrop-filter: none; }
-    footer{ backdrop-filter: none; }
-    .card{ backdrop-filter: none; }
-  }
 </style>
 </head>
 
 <body>
-  <!-- Background layers -->
-  <div class="bg" aria-hidden="true"></div>
-  <div class="bg bg2" aria-hidden="true"></div>
-  <div class="bg bg3" aria-hidden="true"></div>
+  <div class="wrap" id="wrap">
+    <div class="card" id="card">
+      <!-- Header/progress container (hidden on thank you) -->
+      <div id="topChrome">
+        <header class="brand">
+          <img src="https://i.imgur.com/iB983sa.png" alt="">
+          <div>
+            <p class="brand-title">Environmental Management Plan Feedback</p>
+            <p class="brand-sub">Quick 2-step feedback form</p>
+          </div>
+        </header>
 
-  <div class="wrap">
-    <div class="card">
-
-      <!-- Logo + Title -->
-      <header class="brand">
-        <img src="https://i.imgur.com/iB983sa.png" alt="Shrunk Innovation Group logo">
-        <div>
-          <p class="brand-title">Environmental Management Plan Feedback</p>
-          <p class="brand-sub">Quick 2-step feedback form</p>
+        <div class="progress" aria-hidden="true">
+          <div class="dot on" id="dot1"></div>
+          <div class="dot" id="dot2"></div>
+          <div class="dot" id="dot3"></div>
         </div>
-      </header>
-
-      <div class="progress" aria-hidden="true">
-        <div class="dot on" id="dot1"></div>
-        <div class="dot" id="dot2"></div>
-        <div class="dot" id="dot3"></div>
       </div>
 
       <!-- STEP 1 -->
@@ -410,31 +408,30 @@
         <div class="error" id="errSubmit"></div>
       </section>
 
-      <!-- STEP 3 -->
+      <!-- STEP 3 (GIF ONLY) -->
       <section class="step" id="step3" style="display:none;">
-        <div class="success">
-          <div class="check">✅</div>
-          <h2>Thank you</h2>
-          <p class="muted">Your response has been recorded.</p>
+        <div class="thankyou-wrap">
+          <img class="thankyou" alt=""
+            src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
         </div>
       </section>
-
     </div>
   </div>
 
   <!-- Sticky actions -->
-  <div class="sticky" role="region" aria-label="Form actions">
+  <div class="sticky" id="stickyBar" role="region" aria-label="Form actions">
     <div class="sticky-inner">
       <button class="btn secondary" id="backBtn" type="button" style="display:none;">Back</button>
       <button class="btn primary" id="nextOrSubmitBtn" type="button">Next</button>
     </div>
   </div>
 
-  <footer>2026 | Shrunk Innovation Group | All Rights Reserved</footer>
+  <footer id="footerBar">2026 | Shrunk Innovation Group | All Rights Reserved</footer>
 
 <script>
-  /** Your Apps Script Web App URL */
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwNocuTu1R50Ois2tclgihzrSjmIvWQ2ZFpMdTJ3sgkYuK5UhgMY6bZdb_VlVD26Ywm5A/exec";
+
+  const bodyEl = document.body;
 
   // Steps
   const step1 = document.getElementById("step1");
@@ -445,6 +442,11 @@
   const dot2 = document.getElementById("dot2");
   const dot3 = document.getElementById("dot3");
 
+  const topChrome = document.getElementById("topChrome");
+  const stickyBar = document.getElementById("stickyBar");
+  const footerBar = document.getElementById("footerBar");
+  const card = document.getElementById("card");
+
   const backBtn = document.getElementById("backBtn");
   const nextOrSubmitBtn = document.getElementById("nextOrSubmitBtn");
 
@@ -452,6 +454,7 @@
 
   function setStep(n){
     currentStep = n;
+
     step1.style.display = (n===1) ? "block" : "none";
     step2.style.display = (n===2) ? "block" : "none";
     step3.style.display = (n===3) ? "block" : "none";
@@ -462,18 +465,39 @@
 
     backBtn.style.display = (n===2) ? "inline-block" : "none";
 
-    if (n === 1) nextOrSubmitBtn.textContent = "Next";
-    if (n === 2) nextOrSubmitBtn.textContent = "Submit";
-    if (n === 3) {
-      document.querySelector(".sticky").style.display = "none";
+    nextOrSubmitBtn.textContent = (n === 2) ? "Submit" : "Next";
+
+    // Center Step 1 card only
+    bodyEl.classList.toggle("center-step1", n === 1);
+
+    // Thank you: GIF only (hide everything else)
+    if (n === 3){
+      topChrome.style.display = "none";
+      stickyBar.style.display = "none";
+      footerBar.style.display = "none";
+
+      // Remove “card” look so it’s just the GIF
+      card.style.background = "transparent";
+      card.style.border = "0";
+      card.style.boxShadow = "none";
+      card.style.backdropFilter = "none";
+      card.style.padding = "6px";
     } else {
-      document.querySelector(".sticky").style.display = "block";
+      topChrome.style.display = "block";
+      stickyBar.style.display = "block";
+      footerBar.style.display = "block";
+
+      // Restore card look
+      card.style.background = "";
+      card.style.border = "";
+      card.style.boxShadow = "";
+      card.style.backdropFilter = "";
+      card.style.padding = "";
     }
 
     window.scrollTo({ top: 0, behavior: "smooth" });
   }
 
-  // Little bump animation
   function bump(el){
     el.classList.add("bump");
     setTimeout(()=>el.classList.remove("bump"), 140);
@@ -591,9 +615,9 @@
 
       const payload = {
         name: nameEl.value.trim(),
-        q1_confidence: q1.value,               // 1-5
-        q2_area: areaStates[q2.value].text,    // mapped text
-        working_group: workingGroup,           // Yes/No
+        q1_confidence: q1.value,
+        q2_area: areaStates[q2.value].text,
+        working_group: workingGroup,
         working_group_areas: wgAreas.value.trim()
       };
 
@@ -601,21 +625,15 @@
       nextOrSubmitBtn.textContent = "Submitting...";
 
       try{
-        const res = await fetch(WEB_APP_URL, {
-          method: "POST",
-          headers: { "Content-Type":"application/json" },
-          body: JSON.stringify(payload)
-        });
+        // CORS-safe: no-cors + FormData (opaque response)
+        const fd = new FormData();
+        Object.entries(payload).forEach(([k,v]) => fd.append(k, v));
 
-        const text = await res.text();
-        let json;
-        try { json = JSON.parse(text); } catch { json = { ok: res.ok }; }
+        await fetch(WEB_APP_URL, { method:"POST", mode:"no-cors", body: fd });
 
-        if (!res.ok || (json && json.ok === false)){
-          throw new Error((json && json.error) ? json.error : "Submission failed.");
-        }
-
+        // can't read response in no-cors; assume success if no exception
         setStep(3);
+
       } catch(e){
         errSubmit.textContent = "Submit failed: " + (e.message || e);
         errSubmit.style.display = "block";
@@ -626,6 +644,9 @@
       }
     }
   });
+
+  // Init
+  setStep(1);
 </script>
 </body>
-</html>
+</html> 
