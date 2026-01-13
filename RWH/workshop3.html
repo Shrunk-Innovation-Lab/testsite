@@ -8,7 +8,18 @@
 <style>
   :root{
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
-    color: #111827;
+    color:#111827;
+    --pink-1:#ff3d9a;
+    --pink-2:#ff74c5;
+    --pink-3:#ffd1ea;
+    --pink-4:#ff55ad;
+
+    --glass-bg: rgba(255,255,255,.16);
+    --glass-bg-strong: rgba(255,255,255,.22);
+    --glass-border: rgba(255,255,255,.32);
+    --glass-shadow: 0 14px 40px rgba(0,0,0,.18);
+    --text: rgba(17,24,39,.92);
+    --muted: rgba(17,24,39,.62);
   }
 
   /* ===== Animated PINK gradient background ===== */
@@ -16,53 +27,62 @@
   body{
     margin:0;
     min-height:100svh;
-    background: linear-gradient(-45deg,
-      #ff5fa5,
-      #ff8ccf,
-      #ffd1ea,
-      #ff6fb1
-    );
+    background: linear-gradient(-45deg, var(--pink-1), var(--pink-2), var(--pink-3), var(--pink-4));
     background-size: 400% 400%;
     animation: gradientShift 14s ease-in-out infinite;
     -webkit-text-size-adjust: 100%;
+    color: var(--text);
   }
-
   @keyframes gradientShift{
     0%{ background-position: 0% 50%; }
     50%{ background-position: 100% 50%; }
     100%{ background-position: 0% 50%; }
   }
-
   @media (prefers-reduced-motion: reduce){
     body{ animation:none; background-position: 50% 50%; }
   }
 
-  /* ===== Mobile-first layout ===== */
+  /* Soft glow overlay */
+  .glow{
+    position: fixed;
+    inset: -20%;
+    background:
+      radial-gradient(closest-side at 20% 30%, rgba(255,255,255,.30), transparent 55%),
+      radial-gradient(closest-side at 80% 20%, rgba(255,255,255,.22), transparent 55%),
+      radial-gradient(closest-side at 70% 80%, rgba(255,255,255,.18), transparent 55%);
+    filter: blur(12px);
+    z-index: 0;
+    pointer-events:none;
+  }
+
+  /* ===== Layout (single page scroll) ===== */
   .wrap{
-    max-width: 720px;
+    position: relative;
+    z-index: 1;
+    max-width: 760px;
     margin: 0 auto;
-    padding: 16px;
-    padding-bottom: calc(96px + env(safe-area-inset-bottom)); /* room for sticky bar */
-  }
-
-  /* Center Step 1 card (only) */
-  body.center-step1 .wrap{
-    min-height: calc(100svh - 120px); /* leave room for sticky+footer */
-    display:flex;
-    align-items:center;
-    justify-content:center;
-  }
-  body.center-step1 .card{
-    width:100%;
-  }
-
-  .card{
-    background: rgba(255,255,255,.92);
-    border: 1px solid rgba(255,255,255,.55);
-    backdrop-filter: blur(10px);
-    border-radius:16px;
     padding: 18px;
-    box-shadow: 0 8px 24px rgba(0,0,0,.10);
+    padding-bottom: calc(160px + env(safe-area-inset-bottom)); /* sticky + footer room */
+  }
+
+  /* ===== Glass card ===== */
+  .card{
+    background: linear-gradient(180deg, rgba(255,255,255,.22), rgba(255,255,255,.12));
+    border: 1px solid var(--glass-border);
+    backdrop-filter: blur(16px) saturate(1.25);
+    -webkit-backdrop-filter: blur(16px) saturate(1.25);
+    border-radius: 22px;
+    padding: 18px;
+    box-shadow: var(--glass-shadow);
+  }
+
+  /* Inner “surface” sections */
+  .surface{
+    background: rgba(255,255,255,.20);
+    border: 1px solid rgba(255,255,255,.26);
+    border-radius: 18px;
+    padding: 16px;
+    box-shadow: 0 10px 24px rgba(0,0,0,.10);
   }
 
   /* Brand header */
@@ -72,71 +92,127 @@
     align-items:center;
     text-align:center;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 14px;
   }
   .brand img{
-    width: auto;
-    height: auto;
-    max-width: 160px;
-    max-height: 110px;
-    object-fit: contain;
+    width:auto;
+    height:auto;
+    max-width:170px;
+    max-height:120px;
+    object-fit:contain;
     display:block;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.18));
   }
   .brand-title{
     font-size: 18px;
-    font-weight: 800;
+    font-weight: 850;
     margin: 0;
-    line-height: 1.2;
+    line-height: 1.15;
+    letter-spacing: -0.01em;
+    color: rgba(17,24,39,.92);
+    text-shadow: 0 1px 0 rgba(255,255,255,.22);
   }
   .brand-sub{
     font-size: 13px;
-    color:#6b7280;
-    margin: 4px 0 0;
+    color: var(--muted);
+    margin: 0;
     line-height: 1.25;
   }
 
-  h2{ font-size: 18px; margin: 14px 0 10px; }
-  .muted{ color:#6b7280; font-size: 14px; line-height: 1.35; }
+  h1{
+    font-size: 20px;
+    margin: 0 0 10px;
+    letter-spacing: -0.01em;
+  }
 
-  .row{ margin: 16px 0; }
-  label{ display:block; font-weight: 650; margin-bottom: 8px; line-height: 1.25; }
+  .muted{
+    color: var(--muted);
+    font-size: 14px;
+    line-height: 1.35;
+    margin: 0;
+  }
 
+  /* Question spacing */
+  .question-block{
+    margin: 22px 0 30px;
+  }
+  .question-block + .question-block{
+    margin-top: 38px;
+  }
+
+  .divider{
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255,255,255,.32), transparent);
+    margin: 18px 0 8px;
+  }
+
+  label{
+    display:block;
+    font-weight: 750;
+    margin-bottom: 10px;
+    line-height: 1.25;
+    color: rgba(17,24,39,.92);
+  }
+
+  /* Inputs (glass) */
   input[type="text"], textarea{
     width:100%;
     padding: 14px 14px;
-    border-radius: 14px;
-    border: 1px solid #d1d5db;
+    border-radius: 16px;
+    border: 1px solid rgba(255,255,255,.35);
     font-size: 16px; /* prevents iOS zoom */
     box-sizing: border-box;
-    background:#fff;
+    background: rgba(255,255,255,.20);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: rgba(17,24,39,.92);
   }
   textarea{ min-height: 110px; resize: vertical; }
 
-  .progress{ display:flex; gap:8px; margin-bottom: 14px; justify-content:center; }
-  .dot{ width: 10px; height: 10px; border-radius: 999px; background:#d1d5db; }
-  .dot.on{ background:#111827; }
+  /* Pink focus */
+  input[type="text"]:focus,
+  textarea:focus{
+    outline:none;
+    border-color: rgba(255,61,154,.85);
+    box-shadow:
+      0 0 0 3px rgba(255,61,154,.22),
+      0 12px 26px rgba(0,0,0,.12);
+  }
+
+  /* Pink tap highlight */
+  input, textarea, button{
+    -webkit-tap-highlight-color: rgba(255,61,154,.20);
+  }
 
   .badge{
-    background:#f3f4f6;
+    background: rgba(255,255,255,.22);
+    border: 1px solid rgba(255,255,255,.30);
     border-radius: 999px;
     padding: 8px 10px;
-    font-size: 13px;
-    color:#374151;
+    font-size: 12px;
+    color: rgba(17,24,39,.78);
     white-space: nowrap;
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
   }
 
   .error{
-    color:#b91c1c;
+    color: rgba(185, 28, 28, .95);
     font-size: 14px;
     margin-top: 10px;
     display:none;
+    font-weight: 650;
   }
 
-  /* Slider cards */
+  /* Slider panels (glass) */
   .panel{
-    background:#f3f4f6;
-    border-radius: 16px;
+    background: rgba(255,255,255,.18);
+    border: 1px solid rgba(255,255,255,.26);
+    border-radius: 18px;
     padding: 16px;
+    backdrop-filter: blur(14px);
+    -webkit-backdrop-filter: blur(14px);
+    box-shadow: 0 10px 24px rgba(0,0,0,.10);
   }
   .panel-row{
     display:flex;
@@ -145,10 +221,11 @@
   }
 
   .emoji{
-    font-size: 44px;
+    font-size: 46px;
     line-height: 1;
     transition: transform .18s ease;
     flex: 0 0 auto;
+    filter: drop-shadow(0 10px 18px rgba(0,0,0,.14));
   }
   .emoji.bump{ transform: scale(1.08); }
 
@@ -156,91 +233,101 @@
     -webkit-appearance:none;
     appearance:none;
     width:100%;
-    height: 8px;
+    height: 10px;
     border-radius: 999px;
-    background:#d1d5db;
+    background: rgba(255,255,255,.40);
     outline:none;
     touch-action: pan-y;
   }
   input[type="range"]::-webkit-slider-thumb{
     -webkit-appearance:none;
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background:#111827;
-    border: 3px solid #fff;
-    box-shadow: 0 10px 26px rgba(0,0,0,.18);
+    background: rgba(17,24,39,.92);
+    border: 3px solid rgba(255,255,255,.92);
+    box-shadow: 0 14px 30px rgba(0,0,0,.22);
   }
   input[type="range"]::-moz-range-thumb{
-    width: 30px;
-    height: 30px;
+    width: 34px;
+    height: 34px;
     border-radius: 50%;
-    background:#111827;
-    border: 3px solid #fff;
-    box-shadow: 0 10px 26px rgba(0,0,0,.18);
+    background: rgba(17,24,39,.92);
+    border: 3px solid rgba(255,255,255,.92);
+    box-shadow: 0 14px 30px rgba(0,0,0,.22);
   }
 
   .scale-labels{
     display:flex;
     justify-content:space-between;
     font-size: 12px;
-    color:#6b7280;
-    margin-top: 8px;
+    color: rgba(17,24,39,.58);
+    margin-top: 10px;
     padding: 0 2px;
   }
 
   .value-text{
-    font-weight: 650;
+    font-weight: 800;
     margin-top: 12px;
     font-size: 16px;
     line-height: 1.25;
+    color: rgba(17,24,39,.92);
+    text-shadow: 0 1px 0 rgba(255,255,255,.18);
   }
 
-  /* Fun Yes/No toggle */
+  /* Working group toggle (glass) */
   .toggle{
     width: 100%;
-    max-width: 260px;
-    height: 52px;
-    background: #e5e7eb;
+    max-width: 280px;
+    height: 54px;
+    background: rgba(255,255,255,.20);
+    border: 1px solid rgba(255,255,255,.28);
     border-radius: 999px;
     padding: 6px;
     display:flex;
     gap: 6px;
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
   }
   .toggle button{
     flex:1;
     border:0;
     border-radius: 999px;
     background: transparent;
-    color:#111827;
-    font-weight: 750;
+    color: rgba(17,24,39,.86);
+    font-weight: 850;
     font-size: 16px;
     cursor:pointer;
     padding: 0;
+    transition: transform .10s ease, background .15s ease;
   }
+  .toggle button:active{ transform: scale(.99); }
   .toggle button.active{
-    background:#111827;
+    background: rgba(17,24,39,.92);
     color:#fff;
+    box-shadow: 0 14px 26px rgba(0,0,0,.20);
   }
+
   .hint{
     font-size: 13px;
-    color:#6b7280;
-    margin-top: 8px;
+    color: rgba(17,24,39,.60);
+    margin-top: 10px;
     line-height: 1.3;
   }
 
-  /* Sticky bottom actions */
+  /* Sticky bottom actions (glass bar) */
   .sticky{
     position: fixed;
     left:0; right:0; bottom:0;
-    padding: 12px 14px calc(54px + env(safe-area-inset-bottom)); /* leave space for footer */
-    background: rgba(246,247,249,.78);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(209,213,219,.8);
+    padding: 12px 14px calc(54px + env(safe-area-inset-bottom));
+    background: rgba(255,255,255,.18);
+    backdrop-filter: blur(18px) saturate(1.25);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    border-top: 1px solid rgba(255,255,255,.26);
     z-index: 10;
   }
   .sticky-inner{
-    max-width: 720px;
+    max-width: 760px;
     margin: 0 auto;
     display:flex;
     gap: 10px;
@@ -248,181 +335,184 @@
 
   .btn{
     border:0;
-    border-radius: 14px;
+    border-radius: 16px;
     padding: 14px 16px;
     font-size: 16px;
-    font-weight: 700;
+    font-weight: 850;
     cursor:pointer;
+    transition: transform .10s ease, filter .15s ease;
   }
-  .btn.primary{ background:#111827; color:#fff; flex: 1; }
-  .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 110px; }
-  .btn:disabled{ opacity: .6; cursor:not-allowed; }
+  .btn:active{ transform: scale(.99); }
+  .btn.primary{
+    color:#fff;
+    background: linear-gradient(135deg, rgba(17,24,39,.96), rgba(17,24,39,.80));
+    box-shadow: 0 14px 28px rgba(0,0,0,.20);
+    flex: 1;
+  }
+  .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
+  /* Footer (glass) */
   footer{
     position: fixed;
     left:0; right:0;
     bottom: 0;
     z-index: 11;
     padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
-    background: rgba(246,247,249,.78);
-    backdrop-filter: blur(10px);
-    border-top: 1px solid rgba(209,213,219,.8);
+    background: rgba(255,255,255,.16);
+    backdrop-filter: blur(18px) saturate(1.25);
+    -webkit-backdrop-filter: blur(18px) saturate(1.25);
+    border-top: 1px solid rgba(255,255,255,.22);
     font-size: 12px;
-    color: #6b7280;
+    color: rgba(17,24,39,.62);
     text-align: center;
   }
 
-  /* Thank you GIF only */
-  .thankyou-wrap{
-    display:flex;
+  /* Thank you GIF ONLY (fullscreen) */
+  #thankyou{
+    display:none;
+    min-height: 100svh;
     align-items:center;
     justify-content:center;
-    min-height: 70svh;
-    padding: 6px 0;
+    padding: 0 16px;
+    position: relative;
+    z-index: 2;
   }
-  .thankyou{
-    width: 100%;
-    max-width: 360px;
-    height: auto;
+  #thankyou img{
+    width:100%;
+    max-width: 460px;
+    height:auto;
     display:block;
+    filter: drop-shadow(0 18px 40px rgba(0,0,0,.22));
+    border-radius: 18px;
   }
 
   @media (min-width: 600px){
-    .wrap{ padding: 24px; padding-bottom: 160px; }
-    .card{ padding: 24px; }
+    .wrap{ padding: 26px; padding-bottom: 190px; }
+    .card{ padding: 22px; }
     .brand-title{ font-size: 20px; }
-    .emoji{ font-size: 50px; }
-    input[type="range"]::-webkit-slider-thumb{ width: 32px; height: 32px; }
-    input[type="range"]::-moz-range-thumb{ width: 32px; height: 32px; }
-    .sticky{ padding-bottom: 58px; }
+    .emoji{ font-size: 54px; }
   }
 </style>
 </head>
 
 <body>
-  <div class="wrap" id="wrap">
-    <div class="card" id="card">
-      <!-- Header/progress container (hidden on thank you) -->
-      <div id="topChrome">
-        <header class="brand">
-          <img src="https://i.imgur.com/iB983sa.png" alt="">
-          <div>
-            <p class="brand-title">Environmental Management Plan Feedback</p>
-            <p class="brand-sub">Quick 2-step feedback form</p>
-          </div>
-        </header>
+  <div class="glow"></div>
 
-        <div class="progress" aria-hidden="true">
-          <div class="dot on" id="dot1"></div>
-          <div class="dot" id="dot2"></div>
-          <div class="dot" id="dot3"></div>
+  <!-- THANK YOU (fullscreen gif only) -->
+  <div id="thankyou">
+    <img alt=""
+      src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
+  </div>
+
+  <!-- FORM (single scroll page) -->
+  <div class="wrap" id="formWrap">
+    <div class="card" id="formCard">
+
+      <header class="brand">
+        <img src="https://i.imgur.com/iB983sa.png" alt="">
+        <div>
+          <p class="brand-title">Environmental Management Plan Feedback</p>
+          <p class="brand-sub">One-page form — scroll to complete</p>
+        </div>
+      </header>
+
+      <div class="surface">
+        <h1>Tell us what you think</h1>
+        <p class="muted">Fill in your name, answer the questions, then hit Submit.</p>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Name -->
+      <div class="question-block" id="nameBlock">
+        <label for="name">Name</label>
+        <input id="name" type="text" placeholder="Your name" autocomplete="name" inputmode="text">
+        <div class="error" id="errName">Please enter your name.</div>
+      </div>
+
+      <div class="divider"></div>
+
+      <!-- Q1 -->
+      <div class="question-block">
+        <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
+        <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:12px;">
+          <span class="badge">1 = Not confident</span>
+          <span class="badge">5 = Very confident</span>
+        </div>
+
+        <div class="panel">
+          <div class="panel-row">
+            <div id="q1Face" class="emoji" aria-hidden="true">😐</div>
+            <div style="flex:1; min-width: 0;">
+              <input id="q1" type="range" min="1" max="5" step="1" value="3" aria-label="Confidence 1 to 5">
+              <div class="scale-labels" aria-hidden="true">
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+              </div>
+            </div>
+            <div class="badge">Score: <span id="q1Score">3</span></div>
+          </div>
+          <div class="value-text" id="q1Text">Neutral</div>
         </div>
       </div>
 
-      <!-- STEP 1 -->
-      <section class="step" id="step1" style="display:block;">
-        <h2>Step 1: Your name</h2>
-        <p class="muted">This helps us understand feedback across the group.</p>
+      <div class="divider"></div>
 
-        <div class="row">
-          <label for="name">Name</label>
-          <input id="name" type="text" placeholder="Your name" autocomplete="name" inputmode="text">
+      <!-- Q2 -->
+      <div class="question-block">
+        <label for="q2">Q2. Which area gives you the most confidence?</label>
+
+        <div class="panel">
+          <div class="panel-row">
+            <div id="q2Icon" class="emoji" aria-hidden="true">🎯</div>
+            <div style="flex:1; min-width: 0;">
+              <input id="q2" type="range" min="1" max="5" step="1" value="1" aria-label="Area choice 1 to 5">
+              <div class="scale-labels" aria-hidden="true">
+                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
+              </div>
+            </div>
+            <div class="badge">Choice: <span id="q2Choice">1</span></div>
+          </div>
+          <div class="value-text" id="q2Text">Clarity of targets and direction</div>
         </div>
+      </div>
 
-        <div class="error" id="err1">Please enter your name.</div>
-      </section>
+      <div class="divider"></div>
 
-      <!-- STEP 2 -->
-      <section class="step" id="step2" style="display:none;">
-        <h2>Step 2: Questions</h2>
-        <p class="muted">Drag the sliders to select your answers.</p>
+      <!-- Working Group -->
+      <div class="question-block">
+        <label>Do you want to be in the working group?</label>
 
-        <!-- Q1 -->
-        <div class="row">
-          <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
-          <div style="display:flex; gap:10px; flex-wrap:wrap; margin-bottom:10px;">
-            <span class="badge">1 = Not confident</span>
-            <span class="badge">5 = Very confident</span>
+        <div class="panel">
+          <div class="panel-row" style="align-items:flex-start;">
+            <div id="wgIcon" class="emoji" aria-hidden="true">😌</div>
+
+            <div style="flex:1; min-width: 0;">
+              <div class="toggle" role="group" aria-label="Working group yes or no">
+                <button type="button" id="wgNo" class="active" aria-pressed="true">No</button>
+                <button type="button" id="wgYes" aria-pressed="false">Yes</button>
+              </div>
+              <div class="hint" id="wgHint">All good — no action needed.</div>
+            </div>
+
+            <div class="badge">Selected: <span id="wgValue">No</span></div>
           </div>
 
-          <div class="panel">
-            <div class="panel-row">
-              <div id="q1Face" class="emoji" aria-hidden="true">😐</div>
-              <div style="flex:1; min-width: 0;">
-                <input id="q1" type="range" min="1" max="5" step="1" value="3" aria-label="Confidence 1 to 5">
-                <div class="scale-labels" aria-hidden="true">
-                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-                </div>
-              </div>
-              <div class="badge">Score: <span id="q1Score">3</span></div>
-            </div>
-            <div class="value-text" id="q1Text">Neutral</div>
-          </div>
-        </div>
-
-        <!-- Q2 -->
-        <div class="row">
-          <label for="q2">Q2. Which area gives you the most confidence?</label>
-
-          <div class="panel">
-            <div class="panel-row">
-              <div id="q2Icon" class="emoji" aria-hidden="true">🎯</div>
-              <div style="flex:1; min-width: 0;">
-                <input id="q2" type="range" min="1" max="5" step="1" value="1" aria-label="Area choice 1 to 5">
-                <div class="scale-labels" aria-hidden="true">
-                  <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-                </div>
-              </div>
-              <div class="badge">Choice: <span id="q2Choice">1</span></div>
-            </div>
-            <div class="value-text" id="q2Text">Clarity of targets and direction</div>
-          </div>
-        </div>
-
-        <!-- Working Group -->
-        <div class="row">
-          <label>Do you want to be in the working group?</label>
-
-          <div class="panel">
-            <div class="panel-row" style="align-items:flex-start;">
-              <div id="wgIcon" class="emoji" aria-hidden="true">😌</div>
-
-              <div style="flex:1; min-width: 0;">
-                <div class="toggle" role="group" aria-label="Working group yes or no">
-                  <button type="button" id="wgNo" class="active" aria-pressed="true">No</button>
-                  <button type="button" id="wgYes" aria-pressed="false">Yes</button>
-                </div>
-                <div class="hint" id="wgHint">All good — no action needed.</div>
-              </div>
-
-              <div class="badge">Selected: <span id="wgValue">No</span></div>
-            </div>
-
-            <div class="row" id="wgAreasRow" style="display:none; margin-top:14px;">
-              <label for="wgAreas">Awesome! in what key areas would you like to contribute</label>
-              <textarea id="wgAreas" placeholder="Type key areas you'd like to contribute to..."></textarea>
-            </div>
+          <div class="question-block" id="wgAreasRow" style="display:none; margin-top:18px;">
+            <label for="wgAreas">Awesome! in what key areas would you like to contribute</label>
+            <textarea id="wgAreas" placeholder="Type key areas you'd like to contribute to..."></textarea>
           </div>
         </div>
 
         <div class="error" id="errSubmit"></div>
-      </section>
+      </div>
 
-      <!-- STEP 3 (GIF ONLY) -->
-      <section class="step" id="step3" style="display:none;">
-        <div class="thankyou-wrap">
-          <img class="thankyou" alt=""
-            src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
-        </div>
-      </section>
     </div>
   </div>
 
-  <!-- Sticky actions -->
+  <!-- Sticky submit -->
   <div class="sticky" id="stickyBar" role="region" aria-label="Form actions">
     <div class="sticky-inner">
-      <button class="btn secondary" id="backBtn" type="button" style="display:none;">Back</button>
-      <button class="btn primary" id="nextOrSubmitBtn" type="button">Next</button>
+      <button class="btn primary" id="submitBtn" type="button">Submit</button>
     </div>
   </div>
 
@@ -431,73 +521,7 @@
 <script>
   const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwNocuTu1R50Ois2tclgihzrSjmIvWQ2ZFpMdTJ3sgkYuK5UhgMY6bZdb_VlVD26Ywm5A/exec";
 
-  const bodyEl = document.body;
-
-  // Steps
-  const step1 = document.getElementById("step1");
-  const step2 = document.getElementById("step2");
-  const step3 = document.getElementById("step3");
-
-  const dot1 = document.getElementById("dot1");
-  const dot2 = document.getElementById("dot2");
-  const dot3 = document.getElementById("dot3");
-
-  const topChrome = document.getElementById("topChrome");
-  const stickyBar = document.getElementById("stickyBar");
-  const footerBar = document.getElementById("footerBar");
-  const card = document.getElementById("card");
-
-  const backBtn = document.getElementById("backBtn");
-  const nextOrSubmitBtn = document.getElementById("nextOrSubmitBtn");
-
-  let currentStep = 1;
-
-  function setStep(n){
-    currentStep = n;
-
-    step1.style.display = (n===1) ? "block" : "none";
-    step2.style.display = (n===2) ? "block" : "none";
-    step3.style.display = (n===3) ? "block" : "none";
-
-    dot1.classList.toggle("on", n>=1);
-    dot2.classList.toggle("on", n>=2);
-    dot3.classList.toggle("on", n>=3);
-
-    backBtn.style.display = (n===2) ? "inline-block" : "none";
-
-    nextOrSubmitBtn.textContent = (n === 2) ? "Submit" : "Next";
-
-    // Center Step 1 card only
-    bodyEl.classList.toggle("center-step1", n === 1);
-
-    // Thank you: GIF only (hide everything else)
-    if (n === 3){
-      topChrome.style.display = "none";
-      stickyBar.style.display = "none";
-      footerBar.style.display = "none";
-
-      // Remove “card” look so it’s just the GIF
-      card.style.background = "transparent";
-      card.style.border = "0";
-      card.style.boxShadow = "none";
-      card.style.backdropFilter = "none";
-      card.style.padding = "6px";
-    } else {
-      topChrome.style.display = "block";
-      stickyBar.style.display = "block";
-      footerBar.style.display = "block";
-
-      // Restore card look
-      card.style.background = "";
-      card.style.border = "";
-      card.style.boxShadow = "";
-      card.style.backdropFilter = "";
-      card.style.padding = "";
-    }
-
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }
-
+  // Little bump animation
   function bump(el){
     el.classList.add("bump");
     setTimeout(()=>el.classList.remove("bump"), 140);
@@ -587,66 +611,65 @@
   wgYesBtn.addEventListener("click", ()=> setWG("Yes"));
   setWG("No");
 
-  // Step buttons
+  // Submit
   const nameEl = document.getElementById("name");
-  const err1 = document.getElementById("err1");
+  const errName = document.getElementById("errName");
   const errSubmit = document.getElementById("errSubmit");
+  const submitBtn = document.getElementById("submitBtn");
 
-  backBtn.addEventListener("click", ()=> {
+  const thankyou = document.getElementById("thankyou");
+  const formWrap = document.getElementById("formWrap");
+  const stickyBar = document.getElementById("stickyBar");
+  const footerBar = document.getElementById("footerBar");
+
+  function showThankYou(){
+    formWrap.style.display = "none";
+    stickyBar.style.display = "none";
+    footerBar.style.display = "none";
+    thankyou.style.display = "flex";
+    window.scrollTo({ top: 0, behavior: "smooth" });
+  }
+
+  submitBtn.addEventListener("click", async ()=> {
     errSubmit.style.display = "none";
-    setStep(1);
-  });
 
-  nextOrSubmitBtn.addEventListener("click", async ()=> {
-    if (currentStep === 1){
-      const name = nameEl.value.trim();
-      if (!name){
-        err1.style.display = "block";
-        nameEl.focus();
-        return;
-      }
-      err1.style.display = "none";
-      setStep(2);
+    const name = nameEl.value.trim();
+    if (!name){
+      errName.style.display = "block";
+      nameEl.focus({ preventScroll: true });
+      document.getElementById("nameBlock").scrollIntoView({ behavior:"smooth", block:"center" });
       return;
     }
+    errName.style.display = "none";
 
-    if (currentStep === 2){
-      errSubmit.style.display = "none";
+    const payload = {
+      name,
+      q1_confidence: q1.value,
+      q2_area: areaStates[q2.value].text,
+      working_group: workingGroup,
+      working_group_areas: wgAreas.value.trim()
+    };
 
-      const payload = {
-        name: nameEl.value.trim(),
-        q1_confidence: q1.value,
-        q2_area: areaStates[q2.value].text,
-        working_group: workingGroup,
-        working_group_areas: wgAreas.value.trim()
-      };
+    submitBtn.disabled = true;
+    submitBtn.textContent = "Submitting...";
 
-      nextOrSubmitBtn.disabled = true;
-      nextOrSubmitBtn.textContent = "Submitting...";
+    try{
+      // CORS-safe: FormData + no-cors
+      const fd = new FormData();
+      Object.entries(payload).forEach(([k,v]) => fd.append(k, v));
+      await fetch(WEB_APP_URL, { method:"POST", mode:"no-cors", body: fd });
 
-      try{
-        // CORS-safe: no-cors + FormData (opaque response)
-        const fd = new FormData();
-        Object.entries(payload).forEach(([k,v]) => fd.append(k, v));
-
-        await fetch(WEB_APP_URL, { method:"POST", mode:"no-cors", body: fd });
-
-        // can't read response in no-cors; assume success if no exception
-        setStep(3);
-
-      } catch(e){
-        errSubmit.textContent = "Submit failed: " + (e.message || e);
-        errSubmit.style.display = "block";
-        window.scrollTo({ top: 0, behavior: "smooth" });
-      } finally {
-        nextOrSubmitBtn.disabled = false;
-        nextOrSubmitBtn.textContent = "Submit";
-      }
+      // Can't read response in no-cors; assume success if no exception
+      showThankYou();
+    } catch(e){
+      errSubmit.textContent = "Submit failed: " + (e.message || e);
+      errSubmit.style.display = "block";
+      window.scrollTo({ top: 0, behavior: "smooth" });
+    } finally {
+      submitBtn.disabled = false;
+      submitBtn.textContent = "Submit";
     }
   });
-
-  // Init
-  setStep(1);
 </script>
 </body>
-</html> 
+</html>
