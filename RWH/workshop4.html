@@ -88,7 +88,7 @@
     pointer-events:none;
   }
 
-  /* ✅ HORIZONTAL stack backgrounds */
+  /* HORIZONTAL stack backgrounds */
   .background{
     border-radius: 18px;
     background-image: linear-gradient(to bottom, var(--primary), var(--secondary));
@@ -122,7 +122,7 @@
     transform: translateX(90%) translateZ(-25vmin) rotateY(-40deg);
   }
 
-  /* Cards (same transforms as background) */
+  /* Cards */
   .content .card{
     background: var(--card);
     color: var(--text);
@@ -258,7 +258,7 @@
     white-space: nowrap;
   }
 
-  /* Range: full grey track */
+  /* Q1 slider (keep) */
   input[type="range"]{
     -webkit-appearance:none;
     appearance:none;
@@ -318,7 +318,63 @@
     line-height: 1.25;
   }
 
-  /* Toggle */
+  /* ✅ Q2/Q3: visible options list */
+  .options{
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-top: 8px;
+  }
+  .opt{
+    display:flex;
+    align-items:flex-start;
+    gap: 10px;
+    padding: 12px 12px;
+    border-radius: 14px;
+    border: 1px solid rgba(209,213,219,.9);
+    background: rgba(255,255,255,.75);
+    cursor:pointer;
+    user-select:none;
+  }
+  .opt:active{ transform: translateY(1px); }
+  .dot{
+    width: 18px;
+    height: 18px;
+    border-radius: 999px;
+    border: 2px solid #9ca3af;
+    margin-top: 1px;
+    flex: 0 0 auto;
+    position: relative;
+  }
+  .opt.selected{
+    border-color: rgba(255,61,154,.55);
+    box-shadow: 0 0 0 3px rgba(255,61,154,.14);
+    background: rgba(255,255,255,.9);
+  }
+  .opt.selected .dot{
+    border-color: var(--pink1);
+  }
+  .opt.selected .dot::after{
+    content:"";
+    position:absolute;
+    inset: 3px;
+    background: var(--pink1);
+    border-radius: 999px;
+  }
+  .optText{
+    font-weight: 750;
+    line-height: 1.25;
+    color: #111827;
+  }
+  .optSub{
+    margin-top: 4px;
+    font-size: 13px;
+    color: #6b7280;
+    line-height: 1.35;
+    font-weight: 600;
+  }
+
+  /* Toggle (keep for working group) */
   .toggle{
     width: 100%;
     max-width: 280px;
@@ -395,7 +451,7 @@
   .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 120px; }
   .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
-  /* ✅ Grouped arrows next to card (right side, centered vertically) */
+  /* Nav arrows beside cards */
   .navDock{
     position: fixed;
     z-index: 40;
@@ -436,7 +492,6 @@
   }
   .navArrow:disabled{ opacity: .40; cursor:not-allowed; }
 
-  /* Pull arrows closer to the app on larger screens */
   @media (min-width: 640px){
     .navDock{
       right: calc((100vw - min(92vw, 560px))/2 - 14px);
@@ -465,7 +520,7 @@
       src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
   </div>
 
-  <!-- ✅ Vertical arrows beside cards -->
+  <!-- Nav arrows -->
   <div class="navDock" aria-label="Navigate form cards">
     <div class="navPill">
       <button class="navArrow" id="prevBtn" type="button" aria-label="Previous">‹</button>
@@ -497,11 +552,11 @@
 
         <p class="preamble">
           We’re refining the Environmental Management Plan and want your honest view on direction and focus areas.
-          Drag the sliders to answer. If you choose to join the working group, we’ll ask for your name + email so we can reach out.
+          Drag the slider to answer Q1. For Q2 and Q3, tap one option — all options are visible.
         </p>
       </article>
 
-      <!-- Card 2: Q1 -->
+      <!-- Card 2: Q1 (slider stays) -->
       <article class="card" data-id="2">
         <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
         <div class="badgeRow">
@@ -524,27 +579,112 @@
         </div>
       </article>
 
-      <!-- Card 3: Q2 -->
+      <!-- Card 3: Q2 (always-visible list) -->
       <article class="card" data-id="3">
-        <label for="q2">Q2. Which area gives you the most confidence?</label>
+        <label>Q2. Which area gives you the most confidence?</label>
 
-        <div class="panel">
-          <div class="panel-row">
-            <div id="q2Icon" class="emoji" aria-hidden="true">🎯</div>
-            <div style="flex:1; min-width:0;">
-              <input id="q2" type="range" min="1" max="5" step="1" value="1" aria-label="Area choice 1 to 5">
-              <div class="scale-labels" aria-hidden="true">
-                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-              </div>
+        <div class="options" id="q2Options" role="radiogroup" aria-label="Q2 options">
+          <div class="opt selected" role="radio" aria-checked="true" data-value="Clarity of targets and direction" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Clarity of targets and direction</div>
+              <div class="optSub">Clear outcomes and direction.</div>
             </div>
-            <div class="badge">Choice: <span id="q2Choice">1</span></div>
           </div>
-          <div class="value-text" id="q2Text">Clarity of targets and direction</div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Balance of impact, cost, effort, and time" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Balance of impact, cost, effort, and time</div>
+              <div class="optSub">Feels realistic and achievable.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Initiative prioritisation" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Initiative prioritisation</div>
+              <div class="optSub">Right things first.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Delivery pathway and governance" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Delivery pathway and governance</div>
+              <div class="optSub">Clear owners and milestones.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Stakeholder involvement" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Stakeholder involvement</div>
+              <div class="optSub">Right people engaged.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <div class="value-text">Selected:</div>
+          <div class="muted" id="q2SelectedText" style="margin-top:6px;">Clarity of targets and direction</div>
         </div>
       </article>
 
-      <!-- Card 4: Working group -->
+      <!-- Card 4: ✅ Q3 (always-visible list) -->
       <article class="card" data-id="4">
+        <label>Q3. Where should we focus next?</label>
+
+        <div class="options" id="q3Options" role="radiogroup" aria-label="Q3 options">
+          <div class="opt selected" role="radio" aria-checked="true" data-value="Clarify targets & timelines" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Clarify targets & timelines</div>
+              <div class="optSub">Make targets measurable and time-bound.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Improve governance & ownership" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Improve governance & ownership</div>
+              <div class="optSub">Define owners, cadence, and decisions.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Prioritise initiatives" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Prioritise initiatives</div>
+              <div class="optSub">Rank by impact and feasibility.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Strengthen stakeholder involvement" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Strengthen stakeholder involvement</div>
+              <div class="optSub">Bring in key groups earlier.</div>
+            </div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="Refine delivery pathway" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div>
+              <div class="optText">Refine delivery pathway</div>
+              <div class="optSub">Clarify steps from plan → action.</div>
+            </div>
+          </div>
+        </div>
+
+        <div class="panel" style="margin-top:14px;">
+          <div class="value-text">Selected:</div>
+          <div class="muted" id="q3SelectedText" style="margin-top:6px;">Clarify targets & timelines</div>
+        </div>
+      </article>
+
+      <!-- Card 5: Working group -->
+      <article class="card" data-id="5">
         <label>Do you want to be in the working group?</label>
 
         <div class="panel">
@@ -581,8 +721,8 @@
         </div>
       </article>
 
-      <!-- Card 5: Submit -->
-      <article class="card" data-id="5">
+      <!-- Card 6: Submit -->
+      <article class="card" data-id="6">
         <p class="title" style="margin:0 0 6px;">Submit</p>
         <p class="muted" style="margin:0;">Press Submit to send your response.</p>
 
@@ -655,7 +795,7 @@
       #d1d5db 100%)`;
   }
 
-  // Q1
+  // Q1 slider
   const q1 = document.getElementById("q1");
   const q1Face = document.getElementById("q1Face");
   const q1Score = document.getElementById("q1Score");
@@ -679,29 +819,63 @@
   updateQ1(q1.value);
   q1.addEventListener("input", e => updateQ1(e.target.value));
 
-  // Q2
-  const q2 = document.getElementById("q2");
-  const q2Icon = document.getElementById("q2Icon");
-  const q2Choice = document.getElementById("q2Choice");
-  const q2Text = document.getElementById("q2Text");
+  // ✅ Q2 list selection
+  let q2Selected = "Clarity of targets and direction";
+  const q2SelectedText = document.getElementById("q2SelectedText");
+  const q2Options = document.getElementById("q2Options");
 
-  const areaStates = {
-    1: { icon:"🎯", text:"Clarity of targets and direction" },
-    2: { icon:"⚖️", text:"Balance of impact, cost, effort, and time" },
-    3: { icon:"📋", text:"Initiative prioritisation" },
-    4: { icon:"🧭", text:"Delivery pathway and governance" },
-    5: { icon:"🤝", text:"Stakeholder involvement" }
-  };
-
-  function updateQ2(val){
-    q2Icon.textContent = areaStates[val].icon;
-    q2Text.textContent = areaStates[val].text;
-    q2Choice.textContent = val;
-    bump(q2Icon);
-    paintGreyRange(q2);
+  function setSelectedOption(container, selectedValue){
+    const opts = Array.from(container.querySelectorAll(".opt"));
+    opts.forEach(opt=>{
+      const isSel = opt.dataset.value === selectedValue;
+      opt.classList.toggle("selected", isSel);
+      opt.setAttribute("aria-checked", String(isSel));
+    });
   }
-  updateQ2(q2.value);
-  q2.addEventListener("input", e => updateQ2(e.target.value));
+
+  q2Options.addEventListener("click", (e)=>{
+    const opt = e.target.closest(".opt");
+    if (!opt) return;
+    q2Selected = opt.dataset.value;
+    setSelectedOption(q2Options, q2Selected);
+    q2SelectedText.textContent = q2Selected;
+  });
+  // keyboard (enter/space)
+  q2Options.addEventListener("keydown", (e)=>{
+    if (!(e.key === "Enter" || e.key === " ")) return;
+    const opt = e.target.closest(".opt");
+    if (!opt) return;
+    e.preventDefault();
+    q2Selected = opt.dataset.value;
+    setSelectedOption(q2Options, q2Selected);
+    q2SelectedText.textContent = q2Selected;
+  });
+
+  setSelectedOption(q2Options, q2Selected);
+
+  // ✅ Q3 list selection
+  let q3Selected = "Clarify targets & timelines";
+  const q3SelectedText = document.getElementById("q3SelectedText");
+  const q3Options = document.getElementById("q3Options");
+
+  q3Options.addEventListener("click", (e)=>{
+    const opt = e.target.closest(".opt");
+    if (!opt) return;
+    q3Selected = opt.dataset.value;
+    setSelectedOption(q3Options, q3Selected);
+    q3SelectedText.textContent = q3Selected;
+  });
+  q3Options.addEventListener("keydown", (e)=>{
+    if (!(e.key === "Enter" || e.key === " ")) return;
+    const opt = e.target.closest(".opt");
+    if (!opt) return;
+    e.preventDefault();
+    q3Selected = opt.dataset.value;
+    setSelectedOption(q3Options, q3Selected);
+    q3SelectedText.textContent = q3Selected;
+  });
+
+  setSelectedOption(q3Options, q3Selected);
 
   // Working group
   let workingGroup = "No";
@@ -788,7 +962,7 @@
       const name = wgName.value.trim();
       if (!name){
         errWGName.style.display = "block";
-        setActive(3);
+        setActive(4);
         wgName.focus({ preventScroll:true });
         return;
       }
@@ -797,7 +971,7 @@
       const email = wgEmail.value.trim();
       if (!isValidEmail(email)){
         errEmail.style.display = "block";
-        setActive(3);
+        setActive(4);
         wgEmail.focus({ preventScroll:true });
         return;
       }
@@ -807,7 +981,8 @@
     const payload = {
       name: (workingGroup === "Yes") ? wgName.value.trim() : "",
       q1_confidence: q1.value,
-      q2_area: areaStates[q2.value].text,
+      q2_area: q2Selected,
+      q3_focus_next: q3Selected,
       working_group: workingGroup,
       working_group_email: (workingGroup === "Yes") ? wgEmail.value.trim() : "",
       working_group_areas: (workingGroup === "Yes") ? wgAreas.value.trim() : ""
@@ -833,7 +1008,6 @@
   // Init
   setActive(0);
   paintGreyRange(q1);
-  paintGreyRange(q2);
 </script>
 </body>
 </html>
