@@ -197,13 +197,13 @@
     color: #374151;
   }
 
-  /* Inputs */
   label{
     display:block;
-    font-weight: 800;
+    font-weight: 900;
     margin: 14px 0 10px;
     line-height: 1.25;
   }
+
   input[type="text"], input[type="email"], textarea{
     width:100%;
     padding: 14px 14px;
@@ -224,101 +224,7 @@
   }
   input, textarea, button{ -webkit-tap-highlight-color: rgba(255,61,154,.25); }
 
-  .panel{
-    background: var(--panel);
-    border-radius: 16px;
-    padding: 16px;
-    margin-top: 6px;
-  }
-  .panel-row{
-    display:flex;
-    align-items:center;
-    gap: 14px;
-  }
-  .emoji{
-    font-size: 44px;
-    line-height: 1;
-    transition: transform .18s ease;
-    flex: 0 0 auto;
-  }
-  .emoji.bump{ transform: scale(1.08); }
-
-  .badgeRow{
-    display:flex;
-    gap: 10px;
-    flex-wrap: wrap;
-    margin: 10px 0 12px;
-  }
-  .badge{
-    background:#e5e7eb;
-    border-radius: 999px;
-    padding: 8px 10px;
-    font-size: 13px;
-    color:#374151;
-    white-space: nowrap;
-  }
-
-  /* Q1 slider (keep) */
-  input[type="range"]{
-    -webkit-appearance:none;
-    appearance:none;
-    width:100%;
-    height: 8px;
-    border-radius: 999px;
-    outline:none;
-    touch-action: pan-y;
-    background: linear-gradient(to right, #d1d5db 0%, #d1d5db 100%);
-  }
-  input[type="range"]::-webkit-slider-runnable-track{
-    height: 8px;
-    border-radius: 999px;
-    background: transparent;
-  }
-  input[type="range"]::-moz-range-track{
-    height: 8px;
-    border-radius: 999px;
-    background: #d1d5db;
-  }
-  input[type="range"]::-moz-range-progress{
-    height: 8px;
-    border-radius: 999px;
-    background: #d1d5db;
-  }
-  input[type="range"]::-webkit-slider-thumb{
-    -webkit-appearance:none;
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background:#111827;
-    border: 3px solid #fff;
-    box-shadow: 0 10px 26px rgba(0,0,0,.18);
-    margin-top: -11px;
-  }
-  input[type="range"]::-moz-range-thumb{
-    width: 30px;
-    height: 30px;
-    border-radius: 50%;
-    background:#111827;
-    border: 3px solid #fff;
-    box-shadow: 0 10px 26px rgba(0,0,0,.18);
-  }
-
-  .scale-labels{
-    display:flex;
-    justify-content:space-between;
-    font-size: 12px;
-    color:#6b7280;
-    margin-top: 10px;
-    padding: 0 2px;
-  }
-  .value-text{
-    font-weight: 850;
-    margin-top: 12px;
-    font-size: 16px;
-    line-height: 1.25;
-  }
-
-  /* ✅ Q2/Q3: visible options list */
+  /* ✅ Always-visible option rows */
   .options{
     display:flex;
     flex-direction: column;
@@ -331,7 +237,7 @@
     gap: 10px;
     padding: 12px 12px;
     border-radius: 14px;
-    border: 1px solid rgba(209,213,219,.9);
+    border: 1px solid rgba(209,213,219,.95);
     background: rgba(255,255,255,.75);
     cursor:pointer;
     user-select:none;
@@ -351,9 +257,7 @@
     box-shadow: 0 0 0 3px rgba(255,61,154,.14);
     background: rgba(255,255,255,.9);
   }
-  .opt.selected .dot{
-    border-color: var(--pink1);
-  }
+  .opt.selected .dot{ border-color: var(--pink1); }
   .opt.selected .dot::after{
     content:"";
     position:absolute;
@@ -362,7 +266,7 @@
     border-radius: 999px;
   }
   .optText{
-    font-weight: 750;
+    font-weight: 850;
     line-height: 1.25;
     color: #111827;
   }
@@ -371,10 +275,39 @@
     font-size: 13px;
     color: #6b7280;
     line-height: 1.35;
-    font-weight: 600;
+    font-weight: 650;
   }
 
-  /* Toggle (keep for working group) */
+  /* Q1 face row */
+  .faceRow{
+    display:flex;
+    align-items:center;
+    gap: 12px;
+    margin-top: 12px;
+    padding: 12px;
+    border-radius: 16px;
+    background: #f3f4f6;
+  }
+  .emoji{
+    font-size: 46px;
+    line-height: 1;
+    transition: transform .18s ease;
+    flex: 0 0 auto;
+  }
+  .emoji.bump{ transform: scale(1.08); }
+  .faceText{
+    font-weight: 900;
+    color: #111827;
+    line-height: 1.25;
+  }
+  .faceMeta{
+    margin-top: 2px;
+    font-size: 13px;
+    color: #6b7280;
+    font-weight: 700;
+  }
+
+  /* Toggle */
   .toggle{
     width: 100%;
     max-width: 280px;
@@ -406,6 +339,7 @@
     color:#6b7280;
     margin-top: 10px;
     line-height: 1.35;
+    font-weight: 700;
   }
 
   .error{
@@ -413,7 +347,13 @@
     font-size: 14px;
     margin-top: 10px;
     display:none;
-    font-weight: 700;
+    font-weight: 800;
+  }
+
+  .panel{
+    background: #f3f4f6;
+    padding: 12px;
+    border-radius: 14px;
   }
 
   /* Footer */
@@ -429,7 +369,7 @@
     pointer-events:none;
   }
 
-  /* Actions: sticky inside Submit card */
+  /* Actions */
   .actions{
     display:flex;
     gap: 10px;
@@ -451,7 +391,7 @@
   .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 120px; }
   .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
-  /* Nav arrows beside cards */
+  /* Nav arrows */
   .navDock{
     position: fixed;
     z-index: 40;
@@ -493,13 +433,10 @@
   .navArrow:disabled{ opacity: .40; cursor:not-allowed; }
 
   @media (min-width: 640px){
-    .navDock{
-      right: calc((100vw - min(92vw, 560px))/2 - 14px);
-    }
+    .navDock{ right: calc((100vw - min(92vw, 560px))/2 - 14px); }
   }
-
   @media (max-width: 420px){
-    .emoji{ font-size: 40px; }
+    .emoji{ font-size: 42px; }
     .navArrow{ width: 50px; height: 50px; font-size: 22px; }
   }
 </style>
@@ -538,56 +475,87 @@
       <div class="background" style="--primary: var(--pink1); --secondary: var(--pink3);"></div>
     </section>
 
-    <!-- Content cards -->
     <section class="content">
       <!-- Card 1 -->
       <article class="card" data-active="true" data-id="1">
         <header class="brand">
           <img src="https://i.imgur.com/iB983sa.png" alt="">
           <div>
-            <p class="title">Environmental Management Plan Feedback</p>
-            <p class="muted">Quick, anonymous feedback. Only share your contact details if you volunteer for the working group.</p>
+<br>
+<br>
+            <p class="title">The Royal Women's Hospital</p>
+            <p class="title">Enviromental Management Plan Feedback</p>
           </div>
         </header>
+<br>
+<hr>
+<br>
+        <p class="muted">
+          We're refining the Environmental Management Plan and want your honest view on direction and focus areas.
+          Tap one option per question. If you choose to join the working group, we'll ask for your name + email so we can reach out.
+        </p>
+<br>
+<br>
+<hr>
+      </article>
 
-        <p class="preamble">
-          We’re refining the Environmental Management Plan and want your honest view on direction and focus areas.
-          Drag the slider to answer Q1. For Q2 and Q3, tap one option — all options are visible.
+      <!-- Card 2: Q1 -->
+      <article class="card" data-id="2">
+        <label>Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
+
+        <div class="options" id="q1Options" role="radiogroup" aria-label="Q1 options">
+          <div class="opt" role="radio" aria-checked="false" data-value="1" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div><div class="optText">😞 Not confident</div></div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="2" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div><div class="optText">🙁 Low confidence</div></div>
+          </div>
+
+          <div class="opt selected" role="radio" aria-checked="true" data-value="3" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div><div class="optText">😐 Neutral</div></div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="4" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div><div class="optText">🙂 Confident</div></div>
+          </div>
+
+          <div class="opt" role="radio" aria-checked="false" data-value="5" tabindex="0">
+            <div class="dot" aria-hidden="true"></div>
+            <div><div class="optText">😄 Very confident</div></div>
+          </div>
+        </div>
+
+        <div class="faceRow" aria-live="polite" style="margin-top:14px;">
+          <div id="q1Face" class="emoji" aria-hidden="true">😐</div>
+          <div>
+            <div class="faceText" id="q1Text">Neutral</div>
+          </div>
+        </div>
+      </article>
+
+      <!-- Card 3: Q1 breakout -->
+      <article class="card" data-id="3">
+        <label for="q1Why">What's driving that confidence score?</label>
+        <textarea id="q1Why" placeholder="A sentence or two is perfect..."></textarea>
+        <p class="muted" style="margin-top:10px;">
+          Share anything that influenced your confidence (what's working, what's unclear, risks, etc.)
         </p>
       </article>
 
-      <!-- Card 2: Q1 (slider stays) -->
-      <article class="card" data-id="2">
-        <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
-        <div class="badgeRow">
-          <span class="badge">1 = Not confident</span>
-          <span class="badge">5 = Very confident</span>
-        </div>
-
-        <div class="panel">
-          <div class="panel-row">
-            <div id="q1Face" class="emoji" aria-hidden="true">😐</div>
-            <div style="flex:1; min-width:0;">
-              <input id="q1" type="range" min="1" max="5" step="1" value="3" aria-label="Confidence 1 to 5">
-              <div class="scale-labels" aria-hidden="true">
-                <span>1</span><span>2</span><span>3</span><span>4</span><span>5</span>
-              </div>
-            </div>
-            <div class="badge">Score: <span id="q1Score">3</span></div>
-          </div>
-          <div class="value-text" id="q1Text">Neutral</div>
-        </div>
-      </article>
-
-      <!-- Card 3: Q2 (always-visible list) -->
-      <article class="card" data-id="3">
+      <!-- Card 4: Q2 -->
+      <article class="card" data-id="4">
         <label>Q2. Which area gives you the most confidence?</label>
 
         <div class="options" id="q2Options" role="radiogroup" aria-label="Q2 options">
           <div class="opt selected" role="radio" aria-checked="true" data-value="Clarity of targets and direction" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
             <div>
-              <div class="optText">Clarity of targets and direction</div>
+              <div class="optText">🎯 Clarity of targets and direction</div>
               <div class="optSub">Clear outcomes and direction.</div>
             </div>
           </div>
@@ -595,7 +563,7 @@
           <div class="opt" role="radio" aria-checked="false" data-value="Balance of impact, cost, effort, and time" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
             <div>
-              <div class="optText">Balance of impact, cost, effort, and time</div>
+              <div class="optText">⚖️ Balance of impact, cost, effort, and time</div>
               <div class="optSub">Feels realistic and achievable.</div>
             </div>
           </div>
@@ -603,7 +571,7 @@
           <div class="opt" role="radio" aria-checked="false" data-value="Initiative prioritisation" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
             <div>
-              <div class="optText">Initiative prioritisation</div>
+              <div class="optText">📋 Initiative prioritisation</div>
               <div class="optSub">Right things first.</div>
             </div>
           </div>
@@ -611,75 +579,23 @@
           <div class="opt" role="radio" aria-checked="false" data-value="Delivery pathway and governance" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
             <div>
-              <div class="optText">Delivery pathway and governance</div>
-              <div class="optSub">Clear owners and milestones.</div>
+              <div class="optText">🧭 Delivery pathway and governance</div>
+              <div class="optSub">Clear owners and milestones.</div> 
             </div>
           </div>
 
           <div class="opt" role="radio" aria-checked="false" data-value="Stakeholder involvement" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
             <div>
-              <div class="optText">Stakeholder involvement</div>
+              <div class="optText">🤝🏻 Stakeholder involvement</div>
               <div class="optSub">Right people engaged.</div>
             </div>
           </div>
         </div>
 
         <div class="panel" style="margin-top:14px;">
-          <div class="value-text">Selected:</div>
+          <div class="faceText">You Selected:</div>
           <div class="muted" id="q2SelectedText" style="margin-top:6px;">Clarity of targets and direction</div>
-        </div>
-      </article>
-
-      <!-- Card 4: ✅ Q3 (always-visible list) -->
-      <article class="card" data-id="4">
-        <label>Q3. Where should we focus next?</label>
-
-        <div class="options" id="q3Options" role="radiogroup" aria-label="Q3 options">
-          <div class="opt selected" role="radio" aria-checked="true" data-value="Clarify targets & timelines" tabindex="0">
-            <div class="dot" aria-hidden="true"></div>
-            <div>
-              <div class="optText">Clarify targets & timelines</div>
-              <div class="optSub">Make targets measurable and time-bound.</div>
-            </div>
-          </div>
-
-          <div class="opt" role="radio" aria-checked="false" data-value="Improve governance & ownership" tabindex="0">
-            <div class="dot" aria-hidden="true"></div>
-            <div>
-              <div class="optText">Improve governance & ownership</div>
-              <div class="optSub">Define owners, cadence, and decisions.</div>
-            </div>
-          </div>
-
-          <div class="opt" role="radio" aria-checked="false" data-value="Prioritise initiatives" tabindex="0">
-            <div class="dot" aria-hidden="true"></div>
-            <div>
-              <div class="optText">Prioritise initiatives</div>
-              <div class="optSub">Rank by impact and feasibility.</div>
-            </div>
-          </div>
-
-          <div class="opt" role="radio" aria-checked="false" data-value="Strengthen stakeholder involvement" tabindex="0">
-            <div class="dot" aria-hidden="true"></div>
-            <div>
-              <div class="optText">Strengthen stakeholder involvement</div>
-              <div class="optSub">Bring in key groups earlier.</div>
-            </div>
-          </div>
-
-          <div class="opt" role="radio" aria-checked="false" data-value="Refine delivery pathway" tabindex="0">
-            <div class="dot" aria-hidden="true"></div>
-            <div>
-              <div class="optText">Refine delivery pathway</div>
-              <div class="optSub">Clarify steps from plan → action.</div>
-            </div>
-          </div>
-        </div>
-
-        <div class="panel" style="margin-top:14px;">
-          <div class="value-text">Selected:</div>
-          <div class="muted" id="q3SelectedText" style="margin-top:6px;">Clarify targets & timelines</div>
         </div>
       </article>
 
@@ -688,7 +604,7 @@
         <label>Do you want to be in the working group?</label>
 
         <div class="panel">
-          <div class="panel-row" style="align-items:flex-start;">
+          <div style="display:flex; align-items:flex-start; gap:14px;">
             <div id="wgIcon" class="emoji" aria-hidden="true">😌</div>
 
             <div style="flex:1; min-width:0;">
@@ -699,7 +615,10 @@
               <div class="hint" id="wgHint">All good — no action needed.</div>
             </div>
 
-            <div class="badge">Selected: <span id="wgValue">No</span></div>
+            <!-- ✅ hidden but keeps #wgValue for JS -->
+            <div class="badge" style="display:none;" aria-hidden="true">
+              Selected: <span id="wgValue">No</span>
+            </div>
           </div>
 
           <div class="row" id="wgNameRow" style="display:none; margin-top:18px;">
@@ -715,7 +634,7 @@
           </div>
 
           <div class="row" id="wgAreasRow" style="display:none; margin-top:18px;">
-            <label for="wgAreas">Key areas you’d like to contribute to (optional)</label>
+            <label for="wgAreas">Key areas you'd like to contribute to (optional)</label>
             <textarea id="wgAreas" placeholder="Type key areas you'd like to contribute to..."></textarea>
           </div>
         </div>
@@ -763,16 +682,21 @@
     elCards[activeIndex].scrollTop = 0;
   }
 
-  // Tap any card to activate
+  // Fixed: Only navigate to card if clicking on non-interactive elements
   elCards.forEach((card) => {
-    card.addEventListener("click", () => setActive(elCards.indexOf(card)));
+    card.addEventListener("click", (e) => {
+      // Don't navigate if clicking on interactive elements
+      const target = e.target;
+      if (target.closest('button, input, textarea, .opt, .toggle')) {
+        return;
+      }
+      setActive(elCards.indexOf(card));
+    });
   });
 
-  // Nav
   prevBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex - 1); });
   nextBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex + 1); });
 
-  // Keyboard
   window.addEventListener("keydown", (e)=>{
     if (e.key === "ArrowLeft") setActive(activeIndex - 1);
     if (e.key === "ArrowRight") setActive(activeIndex + 1);
@@ -783,47 +707,6 @@
     setTimeout(()=>el.classList.remove("bump"), 140);
   }
 
-  function paintGreyRange(el){
-    const min = Number(el.min || 0);
-    const max = Number(el.max || 100);
-    const val = Number(el.value || 0);
-    const pct = ((val - min) * 100) / (max - min);
-    el.style.background = `linear-gradient(to right,
-      #d1d5db 0%,
-      #d1d5db ${pct}%,
-      #d1d5db ${pct}%,
-      #d1d5db 100%)`;
-  }
-
-  // Q1 slider
-  const q1 = document.getElementById("q1");
-  const q1Face = document.getElementById("q1Face");
-  const q1Score = document.getElementById("q1Score");
-  const q1Text = document.getElementById("q1Text");
-
-  const q1States = {
-    1: { face:"😞", text:"Not confident" },
-    2: { face:"🙁", text:"Low confidence" },
-    3: { face:"😐", text:"Neutral" },
-    4: { face:"🙂", text:"Confident" },
-    5: { face:"😄", text:"Very confident" }
-  };
-
-  function updateQ1(val){
-    q1Face.textContent = q1States[val].face;
-    q1Text.textContent = q1States[val].text;
-    q1Score.textContent = val;
-    bump(q1Face);
-    paintGreyRange(q1);
-  }
-  updateQ1(q1.value);
-  q1.addEventListener("input", e => updateQ1(e.target.value));
-
-  // ✅ Q2 list selection
-  let q2Selected = "Clarity of targets and direction";
-  const q2SelectedText = document.getElementById("q2SelectedText");
-  const q2Options = document.getElementById("q2Options");
-
   function setSelectedOption(container, selectedValue){
     const opts = Array.from(container.querySelectorAll(".opt"));
     opts.forEach(opt=>{
@@ -833,49 +716,65 @@
     });
   }
 
-  q2Options.addEventListener("click", (e)=>{
-    const opt = e.target.closest(".opt");
-    if (!opt) return;
-    q2Selected = opt.dataset.value;
-    setSelectedOption(q2Options, q2Selected);
-    q2SelectedText.textContent = q2Selected;
-  });
-  // keyboard (enter/space)
-  q2Options.addEventListener("keydown", (e)=>{
-    if (!(e.key === "Enter" || e.key === " ")) return;
-    const opt = e.target.closest(".opt");
-    if (!opt) return;
-    e.preventDefault();
-    q2Selected = opt.dataset.value;
-    setSelectedOption(q2Options, q2Selected);
-    q2SelectedText.textContent = q2Selected;
-  });
+  function bindOptionGroup(container, getDefault, onChange){
+    let selected = getDefault();
+    setSelectedOption(container, selected);
 
-  setSelectedOption(q2Options, q2Selected);
+    container.addEventListener("click", (e)=>{
+      const opt = e.target.closest(".opt");
+      if (!opt) return;
+      selected = opt.dataset.value;
+      setSelectedOption(container, selected);
+      onChange(selected);
+    });
 
-  // ✅ Q3 list selection
-  let q3Selected = "Clarify targets & timelines";
-  const q3SelectedText = document.getElementById("q3SelectedText");
-  const q3Options = document.getElementById("q3Options");
+    container.addEventListener("keydown", (e)=>{
+      if (!(e.key === "Enter" || e.key === " ")) return;
+      const opt = e.target.closest(".opt");
+      if (!opt) return;
+      e.preventDefault();
+      selected = opt.dataset.value;
+      setSelectedOption(container, selected);
+      onChange(selected);
+    });
 
-  q3Options.addEventListener("click", (e)=>{
-    const opt = e.target.closest(".opt");
-    if (!opt) return;
-    q3Selected = opt.dataset.value;
-    setSelectedOption(q3Options, q3Selected);
-    q3SelectedText.textContent = q3Selected;
-  });
-  q3Options.addEventListener("keydown", (e)=>{
-    if (!(e.key === "Enter" || e.key === " ")) return;
-    const opt = e.target.closest(".opt");
-    if (!opt) return;
-    e.preventDefault();
-    q3Selected = opt.dataset.value;
-    setSelectedOption(q3Options, q3Selected);
-    q3SelectedText.textContent = q3Selected;
-  });
+    return () => selected;
+  }
 
-  setSelectedOption(q3Options, q3Selected);
+  // Q1
+  const q1Face = document.getElementById("q1Face");
+  const q1Text = document.getElementById("q1Text");
+
+  const q1States = {
+    "1": { face:"😞", text:"Not confident" },
+    "2": { face:"🙁", text:"Low confidence" },
+    "3": { face:"😐", text:"Neutral" },
+    "4": { face:"🙂", text:"Confident" },
+    "5": { face:"😄", text:"Very confident" }
+  };
+
+  const getQ1 = bindOptionGroup(
+    document.getElementById("q1Options"),
+    () => "3",
+    (val) => {
+      q1Face.textContent = q1States[val].face;
+      q1Text.textContent = q1States[val].text;
+      bump(q1Face);
+    }
+  );
+  q1Face.textContent = q1States[getQ1()].face;
+  q1Text.textContent = q1States[getQ1()].text;
+
+  const q1Why = document.getElementById("q1Why");
+
+  // Q2
+  const q2SelectedText = document.getElementById("q2SelectedText");
+  const getQ2 = bindOptionGroup(
+    document.getElementById("q2Options"),
+    () => "Clarity of targets and direction",
+    (val) => { q2SelectedText.textContent = val; }
+  );
+  q2SelectedText.textContent = getQ2();
 
   // Working group
   let workingGroup = "No";
@@ -932,13 +831,28 @@
     bump(wgIcon);
   }
 
-  wgNoBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("No"); });
-  wgYesBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("Yes"); });
+  // Fixed: Improved event handling for working group buttons
+  wgNoBtn.addEventListener("click", (e)=>{ 
+    e.preventDefault();
+    e.stopPropagation(); 
+    e.stopImmediatePropagation();
+    setWG("No"); 
+  });
+  
+  wgYesBtn.addEventListener("click", (e)=>{ 
+    e.preventDefault();
+    e.stopPropagation(); 
+    e.stopImmediatePropagation();
+    setWG("Yes"); 
+  });
+  
   setWG("No");
 
-  // Review
+  // Fixed: Review button with proper event handling
   document.getElementById("reviewBtn").addEventListener("click", (e)=>{
+    e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
     setActive(0);
   });
 
@@ -954,8 +868,11 @@
     thankyou.style.display = "flex";
   }
 
+  // Fixed: Submit button with proper event handling
   submitBtn.addEventListener("click", async (e)=>{
+    e.preventDefault();
     e.stopPropagation();
+    e.stopImmediatePropagation();
     errSubmit.style.display = "none";
 
     if (workingGroup === "Yes"){
@@ -980,9 +897,9 @@
 
     const payload = {
       name: (workingGroup === "Yes") ? wgName.value.trim() : "",
-      q1_confidence: q1.value,
-      q2_area: q2Selected,
-      q3_focus_next: q3Selected,
+      q1_confidence: getQ1(),
+      q1_breakout: q1Why.value.trim(),
+      q2_area: getQ2(),
       working_group: workingGroup,
       working_group_email: (workingGroup === "Yes") ? wgEmail.value.trim() : "",
       working_group_areas: (workingGroup === "Yes") ? wgAreas.value.trim() : ""
@@ -1005,9 +922,7 @@
     }
   });
 
-  // Init
   setActive(0);
-  paintGreyRange(q1);
 </script>
 </body>
 </html>
