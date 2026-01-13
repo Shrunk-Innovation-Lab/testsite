@@ -23,7 +23,10 @@
     --muted:#6b7280;
     --grey:#d1d5db;
 
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
+    /* ✨ Adjust this to move nav arrows up or down (50% = centered) */
+    --nav-position: 70%;
+
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
   }
 
   *{ box-sizing:border-box; }
@@ -307,6 +310,18 @@
     font-weight: 700;
   }
 
+  /* Panel */
+  .panel{
+    padding: 12px;
+    border-radius: 14px;
+    background: var(--panel);
+  }
+
+  /* Row */
+  .row{
+    margin-top: 14px;
+  }
+
   /* Toggle */
   .toggle{
     width: 100%;
@@ -350,12 +365,6 @@
     font-weight: 800;
   }
 
-  .panel{
-    background: #f3f4f6;
-    padding: 12px;
-    border-radius: 14px;
-  }
-
   /* Footer */
   .footer{
     position: fixed;
@@ -376,7 +385,6 @@
     margin-top: 16px;
     position: sticky;
     bottom: 0;
-    background: linear-gradient(to top, rgba(255,255,255,.98), rgba(255,255,255,0));
     padding: 10px 0 8px;
   }
   .btn{
@@ -395,7 +403,7 @@
   .navDock{
     position: fixed;
     z-index: 40;
-    top: 50%;
+    top: var(--nav-position);
     transform: translateY(-50%);
     right: max(10px, env(safe-area-inset-right));
   }
@@ -484,15 +492,16 @@
 <br>
 <br>
             <p class="title">The Royal Women's Hospital</p>
-            <p class="title">Enviromental Management Plan Feedback</p>
-          </div>
+            <p class="title">Environmental Management Plan Feedback</p>
+
         </header>
 <br>
 <hr>
 <br>
         <p class="muted">
           We're refining the Environmental Management Plan and want your honest view on direction and focus areas.
-          Tap one option per question. If you choose to join the working group, we'll ask for your name + email so we can reach out.
+          Tap one option per question. 
+          If you choose to join the working group, we'll ask for your name and email so we can reach out.
         </p>
 <br>
 <br>
@@ -502,7 +511,7 @@
       <!-- Card 2: Q1 -->
       <article class="card" data-id="2">
         <label>Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
-
+<br>
         <div class="options" id="q1Options" role="radiogroup" aria-label="Q1 options">
           <div class="opt" role="radio" aria-checked="false" data-value="1" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
@@ -529,7 +538,7 @@
             <div><div class="optText">😄 Very confident</div></div>
           </div>
         </div>
-
+<br><br>
         <div class="faceRow" aria-live="polite" style="margin-top:14px;">
           <div id="q1Face" class="emoji" aria-hidden="true">😐</div>
           <div>
@@ -541,6 +550,7 @@
       <!-- Card 3: Q1 breakout -->
       <article class="card" data-id="3">
         <label for="q1Why">What's driving that confidence score?</label>
+<br>
         <textarea id="q1Why" placeholder="A sentence or two is perfect..."></textarea>
         <p class="muted" style="margin-top:10px;">
           Share anything that influenced your confidence (what's working, what's unclear, risks, etc.)
@@ -550,7 +560,7 @@
       <!-- Card 4: Q2 -->
       <article class="card" data-id="4">
         <label>Q2. Which area gives you the most confidence?</label>
-
+<br>
         <div class="options" id="q2Options" role="radiogroup" aria-label="Q2 options">
           <div class="opt selected" role="radio" aria-checked="true" data-value="Clarity of targets and direction" tabindex="0">
             <div class="dot" aria-hidden="true"></div>
@@ -602,7 +612,7 @@
       <!-- Card 5: Working group -->
       <article class="card" data-id="5">
         <label>Do you want to be in the working group?</label>
-
+<br>
         <div class="panel">
           <div style="display:flex; align-items:flex-start; gap:14px;">
             <div id="wgIcon" class="emoji" aria-hidden="true">😌</div>
@@ -644,7 +654,7 @@
       <article class="card" data-id="6">
         <p class="title" style="margin:0 0 6px;">Submit</p>
         <p class="muted" style="margin:0;">Press Submit to send your response.</p>
-
+<br>
         <div class="actions">
           <button class="btn secondary" type="button" id="reviewBtn">Review</button>
           <button class="btn primary" type="button" id="submitBtn">Submit</button>
@@ -682,16 +692,8 @@
     elCards[activeIndex].scrollTop = 0;
   }
 
-  // Fixed: Only navigate to card if clicking on non-interactive elements
   elCards.forEach((card) => {
-    card.addEventListener("click", (e) => {
-      // Don't navigate if clicking on interactive elements
-      const target = e.target;
-      if (target.closest('button, input, textarea, .opt, .toggle')) {
-        return;
-      }
-      setActive(elCards.indexOf(card));
-    });
+    card.addEventListener("click", () => setActive(elCards.indexOf(card)));
   });
 
   prevBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex - 1); });
@@ -831,28 +833,13 @@
     bump(wgIcon);
   }
 
-  // Fixed: Improved event handling for working group buttons
-  wgNoBtn.addEventListener("click", (e)=>{ 
-    e.preventDefault();
-    e.stopPropagation(); 
-    e.stopImmediatePropagation();
-    setWG("No"); 
-  });
-  
-  wgYesBtn.addEventListener("click", (e)=>{ 
-    e.preventDefault();
-    e.stopPropagation(); 
-    e.stopImmediatePropagation();
-    setWG("Yes"); 
-  });
-  
+  wgNoBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("No"); });
+  wgYesBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("Yes"); });
   setWG("No");
 
-  // Fixed: Review button with proper event handling
+  // Review
   document.getElementById("reviewBtn").addEventListener("click", (e)=>{
-    e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation();
     setActive(0);
   });
 
@@ -868,11 +855,8 @@
     thankyou.style.display = "flex";
   }
 
-  // Fixed: Submit button with proper event handling
   submitBtn.addEventListener("click", async (e)=>{
-    e.preventDefault();
     e.stopPropagation();
-    e.stopImmediatePropagation();
     errSubmit.style.display = "none";
 
     if (workingGroup === "Yes"){
