@@ -1,11 +1,10 @@
-
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Environmental Management Plan Feedback</title>
- 
+
 <style>
   :root{
     --duration: 0.7s;
@@ -18,7 +17,6 @@
     --pink3:#ffd1ea;
     --pink4:#ff55ad;
 
-    --deep: #2a1034;
     --card: rgba(255,255,255,.92);
     --panel: #f3f4f6;
     --text: #111827;
@@ -28,22 +26,22 @@
     font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   }
 
-  * { box-sizing: border-box; }
+  *{ box-sizing:border-box; }
   html, body { height:100%; margin:0; padding:0; }
 
   body{
     display:flex;
     justify-content:center;
     align-items:center;
-    background: radial-gradient(1200px 800px at 20% 20%, rgba(255,255,255,.10), transparent 60%),
-                radial-gradient(900px 700px at 80% 30%, rgba(255,255,255,.08), transparent 60%),
-                linear-gradient(180deg, #1a0c22, #120818);
+    background:
+      radial-gradient(1200px 800px at 20% 20%, rgba(255,255,255,.10), transparent 60%),
+      radial-gradient(900px 700px at 80% 30%, rgba(255,255,255,.08), transparent 60%),
+      linear-gradient(180deg, #1a0c22, #120818);
     overflow:hidden;
     color: white;
   }
 
-  /* Goo filter */
-  .goo-filter { position:absolute; visibility:hidden; }
+  .goo-filter{ position:absolute; visibility:hidden; }
 
   /* Thank you (gif only) */
   #thankyou{
@@ -63,13 +61,13 @@
     border-radius: 18px;
   }
 
-  /* App size - responsive */
+  /* App size */
   #app{
     display:grid;
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
-    width: min(92vw, 520px);
-    height: min(92vh, 760px);
+    width: min(92vw, 560px);
+    height: min(92svh, 760px);
   }
   #app > section{
     margin: clamp(10px, 3.5vw, 28px);
@@ -81,86 +79,86 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     transform-style: preserve-3d;
-    perspective: 900px;
+    perspective: 1100px;
   }
   section > *{ grid-area: 1 / 1; }
 
-  /* Background layers */
   .backgrounds{
     filter: url("#goo");
     pointer-events:none;
   }
 
+  /* ✅ HORIZONTAL stack backgrounds */
   .background{
     border-radius: 18px;
     background-image: linear-gradient(to bottom, var(--primary), var(--secondary));
     transition: var(--transition);
     transform-origin: right center;
-    transform: translateX(-90%) translateZ(-22vmin) rotateY(40deg);
+    transform: translateX(-90%) translateZ(-25vmin) rotateY(40deg);
   }
   .background::before{
     content:"";
     position:absolute;
     inset: 0;
     border-radius: 18px;
-    background: linear-gradient(to bottom, rgba(18,8,24,.88), rgba(18,8,24,.95));
-    opacity: .75;
+    background: linear-gradient(to bottom, rgba(18,8,24,.86), rgba(18,8,24,.96));
+    opacity: .78;
     transition: opacity var(--duration) var(--ease);
   }
-  .background[data-active]::before{ opacity: .05; }
+  .background[data-active]::before{ opacity: .06; }
 
   .background[data-active]{
-    transform-origin:center;
-    transform: translateX(0) translateZ(0) rotateY(0);
+    transform-origin: center center;
+    transform: translateX(0) translateZ(0) rotateY(0deg);
     z-index: 3;
   }
   .background[data-active] ~ .background{
     z-index: -1;
-    transform-origin:left center;
-    transform: translateX(140%) translateZ(-22vmin) rotateY(-40deg);
+    transform-origin: left center;
+    transform: translateX(140%) translateZ(-25vmin) rotateY(-40deg);
   }
   .background[data-active] + .background{
     z-index: 1;
-    transform: translateX(90%) translateZ(-22vmin) rotateY(-40deg);
+    transform: translateX(90%) translateZ(-25vmin) rotateY(-40deg);
   }
 
-  /* Cards */
+  /* Cards (same transforms as background) */
   .content .card{
     background: var(--card);
     color: var(--text);
     border-radius: 18px;
     padding: 18px;
     box-shadow: 0 18px 40px rgba(0,0,0,.35);
+
     transition: var(--transition);
     transition-property: transform, transform-origin, opacity, z-index;
+
     transform-origin: right center;
-    transform: translateX(-90%) translateZ(-22vmin) rotateY(40deg);
+    transform: translateX(-90%) translateZ(-25vmin) rotateY(40deg);
     opacity: 0;
+
+    max-height: 100%;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-gutter: stable both-edges;
   }
 
   .content .card[data-active]{
-    transform-origin:center;
-    transform: translateX(0) translateZ(0) rotateY(0);
+    transform-origin: center center;
+    transform: translateX(0) translateZ(0) rotateY(0deg);
     z-index: 3;
     opacity: 1;
   }
   .content .card[data-active] ~ .card{
     z-index: -1;
-    transform-origin:left center;
-    transform: translateX(140%) translateZ(-22vmin) rotateY(-40deg);
+    transform-origin: left center;
+    transform: translateX(140%) translateZ(-25vmin) rotateY(-40deg);
     opacity: 0;
   }
   .content .card[data-active] + .card{
     z-index: 1;
-    transform: translateX(90%) translateZ(-22vmin) rotateY(-40deg);
+    transform: translateX(90%) translateZ(-25vmin) rotateY(-40deg);
     opacity: .85;
-  }
-
-  /* Tap hint */
-  .tapHint{
-    font-size: 12px;
-    color: rgba(17,24,39,.55);
-    margin-top: 8px;
   }
 
   /* Brand */
@@ -170,7 +168,7 @@
     align-items:center;
     text-align:center;
     gap: 10px;
-    margin-bottom: 8px;
+    margin-bottom: 10px;
   }
   .brand img{
     max-width: 150px;
@@ -181,7 +179,7 @@
     display:block;
   }
   .title{
-    font-weight: 850;
+    font-weight: 900;
     line-height: 1.15;
     font-size: 18px;
     margin: 0;
@@ -190,13 +188,19 @@
     margin: 6px 0 0;
     color: var(--muted);
     font-size: 13px;
-    line-height: 1.35;
+    line-height: 1.4;
+  }
+  .preamble{
+    margin: 12px 0 0;
+    font-size: 14px;
+    line-height: 1.5;
+    color: #374151;
   }
 
   /* Inputs */
   label{
     display:block;
-    font-weight: 750;
+    font-weight: 800;
     margin: 14px 0 10px;
     line-height: 1.25;
   }
@@ -254,7 +258,7 @@
     white-space: nowrap;
   }
 
-  /* ===== RANGE: FORCE FULL GREY (no native accent fill) ===== */
+  /* Range: full grey track */
   input[type="range"]{
     -webkit-appearance:none;
     appearance:none;
@@ -308,7 +312,7 @@
     padding: 0 2px;
   }
   .value-text{
-    font-weight: 800;
+    font-weight: 850;
     margin-top: 12px;
     font-size: 16px;
     line-height: 1.25;
@@ -332,7 +336,7 @@
     border-radius: 999px;
     background: transparent;
     color:#111827;
-    font-weight: 850;
+    font-weight: 900;
     font-size: 16px;
     cursor:pointer;
     padding: 0;
@@ -353,7 +357,7 @@
     font-size: 14px;
     margin-top: 10px;
     display:none;
-    font-weight: 650;
+    font-weight: 700;
   }
 
   /* Footer */
@@ -363,46 +367,90 @@
     bottom: 0;
     padding: 10px 14px calc(10px + env(safe-area-inset-bottom));
     text-align:center;
-    color: rgba(255,255,255,.72);
+    color: rgba(255,255,255,.75);
     font-size: 12px;
     z-index: 20;
     pointer-events:none;
   }
 
-  /* Buttons inside final card */
+  /* Actions: sticky inside Submit card */
   .actions{
     display:flex;
     gap: 10px;
     margin-top: 16px;
+    position: sticky;
+    bottom: 0;
+    background: linear-gradient(to top, rgba(255,255,255,.98), rgba(255,255,255,0));
+    padding: 10px 0 8px;
   }
   .btn{
     border:0;
     border-radius: 14px;
     padding: 14px 16px;
     font-size: 16px;
-    font-weight: 850;
+    font-weight: 900;
     cursor:pointer;
   }
-  .btn.primary{
-    background:#111827;
-    color:#fff;
-    flex:1;
-  }
-  .btn.secondary{
-    background:#e5e7eb;
-    color:#111827;
-    min-width: 120px;
-  }
+  .btn.primary{ background:#111827; color:#fff; flex:1; }
+  .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 120px; }
   .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
-  @media (max-width: 380px){
+  /* ✅ Grouped arrows next to card (right side, centered vertically) */
+  .navDock{
+    position: fixed;
+    z-index: 40;
+    top: 50%;
+    transform: translateY(-50%);
+    right: max(10px, env(safe-area-inset-right));
+  }
+  .navPill{
+    display:flex;
+    flex-direction: column;
+    gap: 8px;
+    padding: 8px;
+    border-radius: 999px;
+    background: rgba(0,0,0,.66);
+    border: 1px solid rgba(255,255,255,.22);
+    backdrop-filter: blur(10px);
+    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+  }
+  .navArrow{
+    width: 52px;
+    height: 52px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.24);
+    background: rgba(255,255,255,.14);
+    color: #fff;
+    font-size: 24px;
+    font-weight: 900;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    line-height: 1;
+  }
+  .navArrow:active{ transform: translateY(1px); }
+  .navArrow:focus{
+    outline:none;
+    box-shadow: 0 0 0 3px rgba(255,61,154,.28);
+  }
+  .navArrow:disabled{ opacity: .40; cursor:not-allowed; }
+
+  /* Pull arrows closer to the app on larger screens */
+  @media (min-width: 640px){
+    .navDock{
+      right: calc((100vw - min(92vw, 560px))/2 - 14px);
+    }
+  }
+
+  @media (max-width: 420px){
     .emoji{ font-size: 40px; }
+    .navArrow{ width: 50px; height: 50px; font-size: 22px; }
   }
 </style>
 </head>
 
 <body>
-  <!-- Goo filter -->
   <svg class="goo-filter" viewBox="0 0 1 1" aria-hidden="true">
     <filter id="goo">
       <feGaussianBlur in="SourceGraphic" stdDeviation="10" result="blur"></feGaussianBlur>
@@ -417,11 +465,19 @@
       src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
   </div>
 
+  <!-- ✅ Vertical arrows beside cards -->
+  <div class="navDock" aria-label="Navigate form cards">
+    <div class="navPill">
+      <button class="navArrow" id="prevBtn" type="button" aria-label="Previous">‹</button>
+      <button class="navArrow" id="nextBtn" type="button" aria-label="Next">›</button>
+    </div>
+  </div>
+
   <main id="app" aria-label="EMP feedback cards">
     <!-- Background stack -->
     <section class="backgrounds">
       <div class="background" style="--primary: var(--pink1); --secondary: var(--pink2);"></div>
-      <div class="background" data-active="true" style="--primary: var(--pink2); --secondary: var(--pink3);"></div>
+      <div class="background" style="--primary: var(--pink2); --secondary: var(--pink3);"></div>
       <div class="background" style="--primary: var(--pink3); --secondary: var(--pink4);"></div>
       <div class="background" style="--primary: var(--pink4); --secondary: var(--pink1);"></div>
       <div class="background" style="--primary: var(--pink1); --secondary: var(--pink3);"></div>
@@ -429,25 +485,24 @@
 
     <!-- Content cards -->
     <section class="content">
-      <!-- Card 1: Intro + Name -->
-      <article class="card" data-id="1">
+      <!-- Card 1 -->
+      <article class="card" data-active="true" data-id="1">
         <header class="brand">
           <img src="https://i.imgur.com/iB983sa.png" alt="">
           <div>
             <p class="title">Environmental Management Plan Feedback</p>
-            <p class="muted">Tap a card to bring it forward.</p>
+            <p class="muted">Quick, anonymous feedback. Only share your contact details if you volunteer for the working group.</p>
           </div>
         </header>
 
-        <label for="name">Your name</label>
-        <input id="name" type="text" placeholder="Your name" autocomplete="name" inputmode="text">
-        <div class="error" id="errName">Please enter your name.</div>
-
-        <p class="tapHint">Next: tap the next card →</p>
+        <p class="preamble">
+          We’re refining the Environmental Management Plan and want your honest view on direction and focus areas.
+          Drag the sliders to answer. If you choose to join the working group, we’ll ask for your name + email so we can reach out.
+        </p>
       </article>
 
       <!-- Card 2: Q1 -->
-      <article class="card" data-active="true" data-id="2">
+      <article class="card" data-id="2">
         <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
         <div class="badgeRow">
           <span class="badge">1 = Not confident</span>
@@ -467,8 +522,6 @@
           </div>
           <div class="value-text" id="q1Text">Neutral</div>
         </div>
-
-        <p class="tapHint">Next: tap the next card →</p>
       </article>
 
       <!-- Card 3: Q2 -->
@@ -488,8 +541,6 @@
           </div>
           <div class="value-text" id="q2Text">Clarity of targets and direction</div>
         </div>
-
-        <p class="tapHint">Next: tap the next card →</p>
       </article>
 
       <!-- Card 4: Working group -->
@@ -511,6 +562,12 @@
             <div class="badge">Selected: <span id="wgValue">No</span></div>
           </div>
 
+          <div class="row" id="wgNameRow" style="display:none; margin-top:18px;">
+            <label for="wgName">Name</label>
+            <input id="wgName" type="text" placeholder="Your name" autocomplete="name" inputmode="text">
+            <div class="error" id="errWGName">Please enter your name.</div>
+          </div>
+
           <div class="row" id="wgContactRow" style="display:none; margin-top:18px;">
             <label for="wgEmail">Email address (so we can contact you)</label>
             <input id="wgEmail" type="email" placeholder="name@company.com" autocomplete="email" inputmode="email">
@@ -522,14 +579,12 @@
             <textarea id="wgAreas" placeholder="Type key areas you'd like to contribute to..."></textarea>
           </div>
         </div>
-
-        <p class="tapHint">Next: tap the final card →</p>
       </article>
 
       <!-- Card 5: Submit -->
       <article class="card" data-id="5">
         <p class="title" style="margin:0 0 6px;">Submit</p>
-        <p class="muted" style="margin:0;">Tap Submit to send your response.</p>
+        <p class="muted" style="margin:0;">Press Submit to send your response.</p>
 
         <div class="actions">
           <button class="btn secondary" type="button" id="reviewBtn">Review</button>
@@ -537,7 +592,6 @@
         </div>
 
         <div class="error" id="errSubmit" style="margin-top:12px;"></div>
-        <p class="tapHint">Tip: tap any card to edit.</p>
       </article>
     </section>
   </main>
@@ -551,29 +605,44 @@
   const elBackgrounds = Array.from(document.querySelectorAll(".background"));
   const elCards = Array.from(document.querySelectorAll(".content .card"));
 
+  const prevBtn = document.getElementById("prevBtn");
+  const nextBtn = document.getElementById("nextBtn");
+
+  let activeIndex = 0;
+
   function setActive(index){
-    // clear
+    activeIndex = Math.max(0, Math.min(index, elCards.length - 1));
     elApp.querySelectorAll("[data-active]").forEach(el => el.removeAttribute("data-active"));
-    // set
-    elCards[index].setAttribute("data-active", "true");
-    elBackgrounds[Math.min(index, elBackgrounds.length - 1)].setAttribute("data-active", "true");
+
+    elCards[activeIndex].setAttribute("data-active", "true");
+    elBackgrounds[Math.min(activeIndex, elBackgrounds.length - 1)].setAttribute("data-active", "true");
+
+    prevBtn.disabled = activeIndex === 0;
+    nextBtn.disabled = activeIndex === elCards.length - 1;
+
+    elCards[activeIndex].scrollTop = 0;
   }
 
-  // Click/tap any card to activate it
+  // Tap any card to activate
   elCards.forEach((card) => {
-    card.addEventListener("click", () => {
-      const index = elCards.indexOf(card);
-      setActive(index);
-    });
+    card.addEventListener("click", () => setActive(elCards.indexOf(card)));
   });
 
-  // Little bump animation
+  // Nav
+  prevBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex - 1); });
+  nextBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex + 1); });
+
+  // Keyboard
+  window.addEventListener("keydown", (e)=>{
+    if (e.key === "ArrowLeft") setActive(activeIndex - 1);
+    if (e.key === "ArrowRight") setActive(activeIndex + 1);
+  });
+
   function bump(el){
     el.classList.add("bump");
     setTimeout(()=>el.classList.remove("bump"), 140);
   }
 
-  // Paint range track fully grey (stops Safari accent fill)
   function paintGreyRange(el){
     const min = Number(el.min || 0);
     const max = Number(el.max || 100);
@@ -642,9 +711,14 @@
   const wgValue = document.getElementById("wgValue");
   const wgHint = document.getElementById("wgHint");
 
+  const wgNameRow = document.getElementById("wgNameRow");
+  const wgName = document.getElementById("wgName");
+  const errWGName = document.getElementById("errWGName");
+
   const wgContactRow = document.getElementById("wgContactRow");
   const wgEmail = document.getElementById("wgEmail");
   const errEmail = document.getElementById("errEmail");
+
   const wgAreasRow = document.getElementById("wgAreasRow");
   const wgAreas = document.getElementById("wgAreas");
 
@@ -665,33 +739,36 @@
 
     if (yes){
       wgIcon.textContent = "🙋";
-      wgHint.textContent = "Awesome — add your email so we can contact you (and optional areas).";
+      wgHint.textContent = "Thanks! Add your name + email so we can contact you (areas optional).";
+      wgNameRow.style.display = "block";
       wgContactRow.style.display = "block";
       wgAreasRow.style.display = "block";
     } else {
       wgIcon.textContent = "😌";
       wgHint.textContent = "All good — no action needed.";
+      wgNameRow.style.display = "none";
       wgContactRow.style.display = "none";
       wgAreasRow.style.display = "none";
       errEmail.style.display = "none";
+      errWGName.style.display = "none";
+      wgName.value = "";
       wgEmail.value = "";
       wgAreas.value = "";
     }
     bump(wgIcon);
   }
-  wgNoBtn.addEventListener("click", ()=> setWG("No"));
-  wgYesBtn.addEventListener("click", ()=> setWG("Yes"));
+
+  wgNoBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("No"); });
+  wgYesBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("Yes"); });
   setWG("No");
 
-  // Review button: jumps back to first card
+  // Review
   document.getElementById("reviewBtn").addEventListener("click", (e)=>{
     e.stopPropagation();
     setActive(0);
   });
 
   // Submit
-  const nameEl = document.getElementById("name");
-  const errName = document.getElementById("errName");
   const errSubmit = document.getElementById("errSubmit");
   const submitBtn = document.getElementById("submitBtn");
   const thankyou = document.getElementById("thankyou");
@@ -699,6 +776,7 @@
   function showThankYou(){
     elApp.style.display = "none";
     document.querySelector(".footer").style.display = "none";
+    document.querySelector(".navDock").style.display = "none";
     thankyou.style.display = "flex";
   }
 
@@ -706,16 +784,16 @@
     e.stopPropagation();
     errSubmit.style.display = "none";
 
-    const name = nameEl.value.trim();
-    if (!name){
-      errName.style.display = "block";
-      setActive(0);
-      nameEl.focus({ preventScroll:true });
-      return;
-    }
-    errName.style.display = "none";
-
     if (workingGroup === "Yes"){
+      const name = wgName.value.trim();
+      if (!name){
+        errWGName.style.display = "block";
+        setActive(3);
+        wgName.focus({ preventScroll:true });
+        return;
+      }
+      errWGName.style.display = "none";
+
       const email = wgEmail.value.trim();
       if (!isValidEmail(email)){
         errEmail.style.display = "block";
@@ -727,7 +805,7 @@
     }
 
     const payload = {
-      name,
+      name: (workingGroup === "Yes") ? wgName.value.trim() : "",
       q1_confidence: q1.value,
       q2_area: areaStates[q2.value].text,
       working_group: workingGroup,
@@ -752,7 +830,8 @@
     }
   });
 
-  // Initialize grey track paint
+  // Init
+  setActive(0);
   paintGreyRange(q1);
   paintGreyRange(q2);
 </script>
