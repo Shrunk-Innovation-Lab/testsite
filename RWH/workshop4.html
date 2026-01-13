@@ -1,11 +1,10 @@
-
 <!doctype html>
 <html lang="en">
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover" />
 <title>Environmental Management Plan Feedback</title>
- 
+
 <style>
   :root{
     --duration: 0.7s;
@@ -18,7 +17,6 @@
     --pink3:#ffd1ea;
     --pink4:#ff55ad;
 
-    --deep: #2a1034;
     --card: rgba(255,255,255,.92);
     --panel: #f3f4f6;
     --text: #111827;
@@ -42,7 +40,6 @@
     color: white;
   }
 
-  /* Goo filter */
   .goo-filter { position:absolute; visibility:hidden; }
 
   /* Thank you (gif only) */
@@ -81,7 +78,7 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     transform-style: preserve-3d;
-    perspective: 900px;
+    perspective: 1100px;
   }
   section > *{ grid-area: 1 / 1; }
 
@@ -91,12 +88,18 @@
     pointer-events:none;
   }
 
+  /* ======================
+     VERTICAL STACK (BG)
+     - Active in the center
+     - Previous above, Next below
+     ====================== */
   .background{
     border-radius: 18px;
     background-image: linear-gradient(to bottom, var(--primary), var(--secondary));
     transition: var(--transition);
-    transform-origin: right center;
-    transform: translateX(-90%) translateZ(-22vmin) rotateY(40deg);
+
+    transform-origin: center top;
+    transform: translateY(90%) translateZ(-22vmin) rotateX(-40deg);
   }
   .background::before{
     content:"";
@@ -110,18 +113,22 @@
   .background[data-active]::before{ opacity: .05; }
 
   .background[data-active]{
-    transform-origin:center;
-    transform: translateX(0) translateZ(0) rotateY(0);
+    transform-origin:center center;
+    transform: translateY(0) translateZ(0) rotateX(0);
     z-index: 3;
   }
+
+  /* Items AFTER active => go DOWN (below) */
   .background[data-active] ~ .background{
     z-index: -1;
-    transform-origin:left center;
-    transform: translateX(140%) translateZ(-22vmin) rotateY(-40deg);
+    transform-origin: center top;
+    transform: translateY(140%) translateZ(-22vmin) rotateX(40deg);
   }
+
+  /* Immediate next (below) a bit closer */
   .background[data-active] + .background{
     z-index: 1;
-    transform: translateX(90%) translateZ(-22vmin) rotateY(-40deg);
+    transform: translateY(90%) translateZ(-22vmin) rotateX(40deg);
   }
 
   /* Cards */
@@ -131,28 +138,34 @@
     border-radius: 18px;
     padding: 18px;
     box-shadow: 0 18px 40px rgba(0,0,0,.35);
+
     transition: var(--transition);
     transition-property: transform, transform-origin, opacity, z-index;
-    transform-origin: right center;
-    transform: translateX(-90%) translateZ(-22vmin) rotateY(40deg);
+
+    transform-origin: center top;
+    transform: translateY(90%) translateZ(-22vmin) rotateX(-40deg);
     opacity: 0;
   }
 
   .content .card[data-active]{
-    transform-origin:center;
-    transform: translateX(0) translateZ(0) rotateY(0);
+    transform-origin:center center;
+    transform: translateY(0) translateZ(0) rotateX(0);
     z-index: 3;
     opacity: 1;
   }
+
+  /* Items AFTER active => go DOWN (below) */
   .content .card[data-active] ~ .card{
     z-index: -1;
-    transform-origin:left center;
-    transform: translateX(140%) translateZ(-22vmin) rotateY(-40deg);
+    transform-origin: center top;
+    transform: translateY(140%) translateZ(-22vmin) rotateX(40deg);
     opacity: 0;
   }
+
+  /* Immediate next (below) a bit closer */
   .content .card[data-active] + .card{
     z-index: 1;
-    transform: translateX(90%) translateZ(-22vmin) rotateY(-40deg);
+    transform: translateY(90%) translateZ(-22vmin) rotateX(40deg);
     opacity: .85;
   }
 
@@ -160,7 +173,7 @@
   .tapHint{
     font-size: 12px;
     color: rgba(17,24,39,.55);
-    margin-top: 8px;
+    margin-top: 10px;
   }
 
   /* Brand */
@@ -395,7 +408,43 @@
   }
   .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
-  @media (max-width: 380px){
+  /* Manual up/down arrows */
+  .navArrows{
+    position: fixed;
+    right: 14px;
+    top: 50%;
+    transform: translateY(-50%);
+    display:flex;
+    flex-direction: column;
+    gap: 10px;
+    z-index: 30;
+  }
+  .navBtn{
+    width: 46px;
+    height: 46px;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,.35);
+    background: rgba(255,255,255,.18);
+    backdrop-filter: blur(10px);
+    color: #fff;
+    font-size: 18px;
+    font-weight: 900;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    justify-content:center;
+    box-shadow: 0 10px 24px rgba(0,0,0,.25);
+    user-select:none;
+  }
+  .navBtn:active{ transform: scale(.98); }
+  .navBtn:disabled{
+    opacity: .35;
+    cursor:not-allowed;
+  }
+
+  @media (max-width: 420px){
+    .navArrows{ right: 10px; }
+    .navBtn{ width: 42px; height: 42px; }
     .emoji{ font-size: 40px; }
   }
 </style>
@@ -417,11 +466,17 @@
       src="https://media3.giphy.com/media/v1.Y2lkPTc5MGI3NjExbXVxNjAyMWN6ZjcyYnNjbDR5aHM1YzRhbzhkZG1taGhsNTloZ253ZiZlcD12MV9pbnRlcm5hbF9naWZfYnlfaWQmY3Q9cw/VGuKJjZOHvbTUtFNPT/giphy.gif">
   </div>
 
+  <!-- Manual arrows -->
+  <div class="navArrows" aria-label="Navigate form cards">
+    <button class="navBtn" id="upBtn" type="button" aria-label="Previous">↑</button>
+    <button class="navBtn" id="downBtn" type="button" aria-label="Next">↓</button>
+  </div>
+
   <main id="app" aria-label="EMP feedback cards">
     <!-- Background stack -->
     <section class="backgrounds">
       <div class="background" style="--primary: var(--pink1); --secondary: var(--pink2);"></div>
-      <div class="background" data-active="true" style="--primary: var(--pink2); --secondary: var(--pink3);"></div>
+      <div class="background" style="--primary: var(--pink2); --secondary: var(--pink3);"></div>
       <div class="background" style="--primary: var(--pink3); --secondary: var(--pink4);"></div>
       <div class="background" style="--primary: var(--pink4); --secondary: var(--pink1);"></div>
       <div class="background" style="--primary: var(--pink1); --secondary: var(--pink3);"></div>
@@ -429,13 +484,13 @@
 
     <!-- Content cards -->
     <section class="content">
-      <!-- Card 1: Intro + Name -->
-      <article class="card" data-id="1">
+      <!-- Card 1: Intro + Name (starts active) -->
+      <article class="card" data-active="true" data-id="1">
         <header class="brand">
           <img src="https://i.imgur.com/iB983sa.png" alt="">
           <div>
             <p class="title">Environmental Management Plan Feedback</p>
-            <p class="muted">Tap a card to bring it forward.</p>
+            <p class="muted">Use the arrows (or tap a card) to move up/down.</p>
           </div>
         </header>
 
@@ -443,11 +498,11 @@
         <input id="name" type="text" placeholder="Your name" autocomplete="name" inputmode="text">
         <div class="error" id="errName">Please enter your name.</div>
 
-        <p class="tapHint">Next: tap the next card →</p>
+        <p class="tapHint">Next: press ↓</p>
       </article>
 
       <!-- Card 2: Q1 -->
-      <article class="card" data-active="true" data-id="2">
+      <article class="card" data-id="2">
         <label for="q1">Q1. How confident do you feel in the current direction of the Environmental Management Plan?</label>
         <div class="badgeRow">
           <span class="badge">1 = Not confident</span>
@@ -468,7 +523,7 @@
           <div class="value-text" id="q1Text">Neutral</div>
         </div>
 
-        <p class="tapHint">Next: tap the next card →</p>
+        <p class="tapHint">Next: press ↓</p>
       </article>
 
       <!-- Card 3: Q2 -->
@@ -489,7 +544,7 @@
           <div class="value-text" id="q2Text">Clarity of targets and direction</div>
         </div>
 
-        <p class="tapHint">Next: tap the next card →</p>
+        <p class="tapHint">Next: press ↓</p>
       </article>
 
       <!-- Card 4: Working group -->
@@ -523,13 +578,13 @@
           </div>
         </div>
 
-        <p class="tapHint">Next: tap the final card →</p>
+        <p class="tapHint">Next: press ↓</p>
       </article>
 
       <!-- Card 5: Submit -->
       <article class="card" data-id="5">
         <p class="title" style="margin:0 0 6px;">Submit</p>
-        <p class="muted" style="margin:0;">Tap Submit to send your response.</p>
+        <p class="muted" style="margin:0;">Press Submit to send your response.</p>
 
         <div class="actions">
           <button class="btn secondary" type="button" id="reviewBtn">Review</button>
@@ -537,7 +592,7 @@
         </div>
 
         <div class="error" id="errSubmit" style="margin-top:12px;"></div>
-        <p class="tapHint">Tip: tap any card to edit.</p>
+        <p class="tapHint">Tip: use ↑ / ↓ to navigate.</p>
       </article>
     </section>
   </main>
@@ -551,20 +606,40 @@
   const elBackgrounds = Array.from(document.querySelectorAll(".background"));
   const elCards = Array.from(document.querySelectorAll(".content .card"));
 
+  const upBtn = document.getElementById("upBtn");
+  const downBtn = document.getElementById("downBtn");
+
+  let activeIndex = 0; // start on first card
+
   function setActive(index){
-    // clear
+    activeIndex = Math.max(0, Math.min(index, elCards.length - 1));
+
     elApp.querySelectorAll("[data-active]").forEach(el => el.removeAttribute("data-active"));
-    // set
-    elCards[index].setAttribute("data-active", "true");
-    elBackgrounds[Math.min(index, elBackgrounds.length - 1)].setAttribute("data-active", "true");
+
+    elCards[activeIndex].setAttribute("data-active", "true");
+    elBackgrounds[Math.min(activeIndex, elBackgrounds.length - 1)].setAttribute("data-active", "true");
+
+    // enable/disable arrows
+    upBtn.disabled = activeIndex === 0;
+    downBtn.disabled = activeIndex === elCards.length - 1;
   }
 
-  // Click/tap any card to activate it
+  // Tap any card to activate
   elCards.forEach((card) => {
     card.addEventListener("click", () => {
       const index = elCards.indexOf(card);
       setActive(index);
     });
+  });
+
+  // Arrow navigation
+  upBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex - 1); });
+  downBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex + 1); });
+
+  // Keyboard support (desktop)
+  window.addEventListener("keydown", (e)=>{
+    if (e.key === "ArrowUp") setActive(activeIndex - 1);
+    if (e.key === "ArrowDown") setActive(activeIndex + 1);
   });
 
   // Little bump animation
@@ -679,14 +754,16 @@
     }
     bump(wgIcon);
   }
-  wgNoBtn.addEventListener("click", ()=> setWG("No"));
-  wgYesBtn.addEventListener("click", ()=> setWG("Yes"));
+
+  wgNoBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("No"); });
+  wgYesBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setWG("Yes"); });
   setWG("No");
 
-  // Review button: jumps back to first card
+  // Review button: jump to first card
   document.getElementById("reviewBtn").addEventListener("click", (e)=>{
     e.stopPropagation();
     setActive(0);
+    document.getElementById("name").focus({ preventScroll:true });
   });
 
   // Submit
@@ -699,6 +776,7 @@
   function showThankYou(){
     elApp.style.display = "none";
     document.querySelector(".footer").style.display = "none";
+    document.querySelector(".navArrows").style.display = "none";
     thankyou.style.display = "flex";
   }
 
@@ -752,10 +830,12 @@
     }
   });
 
-  // Initialize grey track paint
+  // Init: start on FIRST card + sync background
+  setActive(0);
+
+  // Init grey tracks
   paintGreyRange(q1);
   paintGreyRange(q2);
 </script>
 </body>
 </html>
-
