@@ -39,6 +39,60 @@
             margin: 0 auto;
         }
 
+        /* ===== DATA CLEANSING BANNER ===== */
+        .cleansing-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cleansing-info-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .cleansing-info-text {
+            flex: 1;
+            min-width: 200px;
+            line-height: 1.4;
+        }
+
+        .cleansing-stats {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
         header {
             display: flex;
             justify-content: space-between;
@@ -275,7 +329,6 @@
             border-left-color: #ff3b30;
         }
 
-        /* Header row: name + waste pill */
         .bin-header {
             display: flex;
             align-items: center;
@@ -336,7 +389,6 @@
             margin: 3px 0;
         }
 
-        /* Waste-type pills */
         .bin-type-pill {
             padding: 3px 10px;
             border-radius: 999px;
@@ -348,12 +400,12 @@
         }
 
         .bin-type-pill.general {
-            background-color: #ff3b30; /* red */
+            background-color: #ff3b30;
             color: #ffffff;
         }
 
         .bin-type-pill.commingle {
-            background-color: #ffd60a; /* yellow */
+            background-color: #ffd60a;
             color: #1d1d1f;
         }
 
@@ -695,7 +747,6 @@
             border-left-color: #ff3b30;
         }
 
-        /* New layout for daily entries: time, main text, pill on the right */
         .timeline-header {
             display: flex;
             align-items: center;
@@ -877,7 +928,6 @@
             background: #ff3b30;
         }
 
-        /* Stagger animation for cards */
         .comparison-card:nth-child(1) { animation-delay: 0.05s; }
         .comparison-card:nth-child(2) { animation-delay: 0.1s; }
         .comparison-card:nth-child(3) { animation-delay: 0.15s; }
@@ -1014,7 +1064,6 @@
             color: #666;
         }
 
-        /* Enhanced stat cards for invoice */
         #invoiceStats {
             animation: fadeIn 0.4s ease;
         }
@@ -1150,7 +1199,6 @@
             display: none;
         }
 
-        /* Desktop tweaks */
         @media screen and (min-width: 769px) {
             .month-grid {
                 gap: 5px;
@@ -1164,7 +1212,6 @@
             }
         }
 
-        /* Mobile optimisations */
         @media screen and (max-width: 768px) {
             body {
                 padding: 10px 10px 14px;
@@ -1172,6 +1219,16 @@
 
             .page {
                 width: 100%;
+            }
+
+            .cleansing-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .cleansing-stats {
+                align-self: flex-end;
             }
 
             header {
@@ -1319,11 +1376,6 @@
                 padding: 40px 20px;
             }
 
-            .upload-icon svg {
-                width: 60px;
-                height: 60px;
-            }
-
             .comparison-card {
                 padding: 16px;
             }
@@ -1379,7 +1431,10 @@
             <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
             <h1 class="header-title">
                 BinSpy Location Tracking Dashboard
-                <span>LaTrobe Street</span>
+                <span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.78em; font-weight: 500; margin-top: 2px;">
+                    <span style="color: #5f5f62;">LaTrobe Street</span>
+                    <span id="heartbeatStatus" style="color: #666;">Loading heartbeat...</span>
+                </span>
             </h1>
         </div>
         <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
@@ -1422,7 +1477,6 @@
                 <span id="lastUpdatedText"></span>
             </div>
 
-            <!-- Dashboard View -->
             <div id="dashboardView">
                 <div class="stats" id="stats"></div>
 
@@ -1436,7 +1490,6 @@
                 <div class="bins-grid" id="binsGrid"></div>
             </div>
 
-            <!-- Calendar Views -->
             <div id="calendarView" class="hidden">
                 <div class="calendar-container">
                     <div class="calendar-header">
@@ -1454,7 +1507,6 @@
                 </div>
             </div>
 
-            <!-- Invoice View -->
             <div id="invoiceView" class="hidden">
                 <div class="invoice-container">
                     <h2 style="margin-bottom: 20px; color: #1d1d1f;">Invoice Comparison</h2>
@@ -1502,7 +1554,7 @@
 </div>
 
 <footer>
-    2025 | Wasted by Shrunk | All Rights Reserved
+    2026 | Wasted by Shrunk | All Rights Reserved
 </footer>
 
 <script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
@@ -1512,9 +1564,11 @@
     pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
 
     const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=0&single=true&output=csv';
+    const HEARTBEAT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=1070812280&single=true&output=csv';
 
     let allReadings = [];
     let latestBins = [];
+    let lastHeartbeat = null;
     let currentView = 'dashboard';
     let currentFilter = 'all';
     let searchTerm = '';
@@ -1523,30 +1577,124 @@
     let invoiceData = null;
     let comparisonData = null;
     let currentInvoiceFilter = 'all';
+    let cleansingStats = { original: 0, cleaned: 0, removed: 0 };
 
+    // ========== DATA CLEANSING FUNCTIONS ==========
+    
+    /**
+     * Cleanses bin readings by removing invalid entries
+     */
+    function cleanseReadings(readings) {
+        const originalCount = readings.length;
+        const cleaned = [];
+        const binStates = new Map();
+
+        const isPM = (timestamp) => timestamp.getHours() >= 12;
+        const isAM = (timestamp) => timestamp.getHours() < 12;
+        const getDateKey = (timestamp) => {
+            const year = timestamp.getFullYear();
+            const month = String(timestamp.getMonth() + 1).padStart(2, '0');
+            const day = String(timestamp.getDate()).padStart(2, '0');
+            return `${year}-${month}-${day}`;
+        };
+
+        // Sort chronologically
+        const sorted = [...readings].sort((a, b) => a.timestamp - b.timestamp);
+
+        sorted.forEach(reading => {
+            const binId = reading.mac;
+            if (!binId) return;
+            
+            const currentDate = getDateKey(reading.timestamp);
+            const state = reading.state;
+            if (!state) return;
+            
+            // Initialize bin state if needed
+            if (!binStates.has(binId)) {
+                binStates.set(binId, { lastState: null, lastDate: null });
+            }
+            
+            const binState = binStates.get(binId);
+            let isValid = false;
+            
+            // Rule for OUT in AM
+            if (state === 'OUT' && isAM(reading.timestamp)) {
+                if (binState.lastState === 'IN' && (binState.lastDate === null || binState.lastDate < currentDate)) {
+                    isValid = true;
+                } else if (binState.lastState === null) {
+                    isValid = true;
+                }
+            }
+            // Rule for IN in PM
+            else if (state === 'IN' && isPM(reading.timestamp)) {
+                if (binState.lastState === 'OUT' || binState.lastState === null) {
+                    isValid = true;
+                }
+            }
+            
+            // If valid, add to cleaned and update state
+            if (isValid) {
+                cleaned.push(reading);
+                binStates.set(binId, { lastState: state, lastDate: currentDate });
+            }
+        });
+
+        return {
+            cleaned: cleaned,
+            original: originalCount,
+            removed: originalCount - cleaned.length
+        };
+    }
+
+    function updateCleansingInfo() {
+        // Cleansing info banner disabled - data cleansing still active in background
+        let infoEl = document.getElementById('cleansingInfo');
+        if (infoEl) {
+            infoEl.style.display = 'none';
+        }
+    }
+
+    // ========== CORE FUNCTIONS (from original) ==========
+    
     function parseTimestamp(timestamp) {
-        if (!timestamp) return new Date();
+        if (!timestamp) {
+            console.warn('parseTimestamp: No timestamp provided');
+            return null;
+        }
         
-        // Handle format: DD/MM/YYYY HH:MM:SS
-        const parts = timestamp.split(' ');
-        if (parts.length < 2) return new Date();
+        // Trim whitespace
+        const cleaned = timestamp.toString().trim();
+        
+        const parts = cleaned.split(' ');
+        if (parts.length < 2) {
+            console.warn('parseTimestamp: Invalid format (no space):', cleaned);
+            return null;
+        }
         
         const dateParts = parts[0].split('/');
         const timeParts = parts[1].split(':');
 
         if (dateParts.length !== 3 || timeParts.length !== 3) {
-            console.warn('Invalid timestamp format:', timestamp);
-            return new Date();
+            console.warn('parseTimestamp: Invalid date/time parts:', cleaned);
+            return null;
         }
 
-        return new Date(
-            parseInt(dateParts[2]),      // year (2025 or 2026)
+        const parsed = new Date(
+            parseInt(dateParts[2]),      // year
             parseInt(dateParts[1]) - 1,  // month (0-indexed)
             parseInt(dateParts[0]),      // day
             parseInt(timeParts[0]),      // hour
             parseInt(timeParts[1]),      // minute
             parseInt(timeParts[2])       // second
         );
+        
+        // Validate the parsed date
+        if (isNaN(parsed.getTime())) {
+            console.warn('parseTimestamp: Invalid date created:', cleaned);
+            return null;
+        }
+        
+        return parsed;
     }
 
     function getLatestBinStatus(data) {
@@ -1556,13 +1704,10 @@
             const mac = row.mac || row.MAC;
             if (!mac) return;
 
-            const timestamp = parseTimestamp(row.Timestamp || row.timestamp);
+            const timestamp = row.timestamp;
 
             if (!binMap.has(mac) || timestamp > binMap.get(mac).timestamp) {
-                binMap.set(mac, {
-                    ...row,
-                    timestamp: timestamp
-                });
+                binMap.set(mac, row);
             }
         });
 
@@ -1581,6 +1726,99 @@
         return bins;
     }
 
+    // ========== HEARTBEAT MONITORING ==========
+    async function loadHeartbeat() {
+        try {
+            const response = await fetch(HEARTBEAT_URL + '&t=' + new Date().getTime());
+            const csvText = await response.text();
+
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        const latest = results.data[results.data.length - 1];
+                        // Read from Timestamp column
+                        const timestampStr = latest.Timestamp || latest.timestamp || latest['System Time '] || latest['System Time'];
+                        
+                        if (!timestampStr) {
+                            console.error('No timestamp found in heartbeat data. Available columns:', Object.keys(latest));
+                            console.error('Latest row data:', latest);
+                            return;
+                        }
+                        
+                        console.log('Heartbeat raw timestamp:', timestampStr);
+                        const parsedTimestamp = parseTimestamp(timestampStr);
+                        
+                        if (!parsedTimestamp) {
+                            console.error('Failed to parse heartbeat timestamp:', timestampStr);
+                            return;
+                        }
+                        
+                        lastHeartbeat = {
+                            timestamp: parsedTimestamp,
+                            deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown',
+                            status: latest.Status || latest.status || 'Unknown'
+                        };
+                        
+                        const now = new Date();
+                        const ageMinutes = Math.floor((now - parsedTimestamp) / 60000);
+                        console.log('Heartbeat loaded:', {
+                            timestamp: parsedTimestamp.toLocaleString(),
+                            raw: timestampStr,
+                            ageMinutes: ageMinutes + ' minutes ago',
+                            now: now.toLocaleString()
+                        });
+                        
+                        updateHeartbeatDisplay();
+                    } else {
+                        console.error('No data in heartbeat CSV');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error parsing heartbeat:', error);
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching heartbeat:', error);
+        }
+    }
+
+    function updateHeartbeatDisplay() {
+        const statusElement = document.getElementById('heartbeatStatus');
+        if (!statusElement) return;
+
+        if (lastHeartbeat) {
+            const now = new Date();
+            const diffMs = now - lastHeartbeat.timestamp;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+
+            let statusText = '';
+            let statusColor = '';
+
+            if (diffMins < 60) {
+                statusText = `Last heartbeat: ${diffMins}m ago`;
+                statusColor = '#34c759';
+            } else if (diffHours < 2) {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#34c759';
+            } else if (diffHours < 3) {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#ff9500';
+            } else {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#ff3b30';
+            }
+
+            statusElement.textContent = statusText;
+            statusElement.style.color = statusColor;
+        } else {
+            statusElement.textContent = 'Waiting for heartbeat...';
+            statusElement.style.color = '#666';
+        }
+    }
+
     async function loadData(isAutoRefresh = false) {
         const indicator = document.getElementById('refreshIndicator');
         if (indicator && isAutoRefresh) {
@@ -1595,39 +1833,41 @@
                 header: true,
                 skipEmptyLines: true,
                 complete: function(results) {
-                    allReadings = results.data.map(row => {
-                        // CSV columns: Timestamp, mac, alias, state, rssi
+                    // Parse all readings
+                    const rawReadings = results.data.map(row => {
                         const mapped = {
                             timestamp: parseTimestamp(row.Timestamp || row.timestamp),
                             alias: row.alias || row.Alias || row.Name || row.name || '',
                             mac: row.mac || row.MAC || '',
                             rssi: row.rssi || row.RSSI || '',
-                            state: (row.state || row.State || '').trim().toUpperCase()
+                            state: (row.state || row.State || '').trim().toUpperCase(),
+                            Timestamp: row.Timestamp || row.timestamp
                         };
                         return mapped;
-                    });
+                    }).filter(row => row.timestamp !== null); // Filter out invalid timestamps
 
-                    console.log(`Loaded ${allReadings.length} total readings`);
+                    // APPLY DATA CLEANSING
+                    const cleansingResult = cleanseReadings(rawReadings);
+                    allReadings = cleansingResult.cleaned;
+                    cleansingStats = {
+                        original: cleansingResult.original,
+                        cleaned: cleansingResult.cleaned.length,
+                        removed: cleansingResult.removed
+                    };
+
+                    console.log(`✓ Data cleansing: ${cleansingStats.original} → ${cleansingStats.cleaned} (removed ${cleansingStats.removed})`);
                     
-                    // Check for December 2025 data
-                    const dec2025 = allReadings.filter(r => 
-                        r.timestamp.getFullYear() === 2025 && r.timestamp.getMonth() === 11 // Month is 0-indexed
-                    );
-                    console.log(`Found ${dec2025.length} readings in December 2025`);
-                    if (dec2025.length > 0) {
-                        console.log('Sample December reading:', dec2025[0]);
-                        const dec2025IN = dec2025.filter(r => r.state === 'IN');
-                        console.log(`December 2025 readings with state="IN": ${dec2025IN.length}`);
-                    }
+                    updateCleansingInfo();
 
-                    latestBins = getLatestBinStatus(results.data);
+                    // Load heartbeat data
+                    loadHeartbeat();
+
+                    latestBins = getLatestBinStatus(allReadings);
                     populateBinSelector();
                     
-                    // Only update display if not on invoice view or if it's the initial load
                     if (currentView !== 'invoice' || !isAutoRefresh) {
                         displayCurrentView();
                     } else {
-                        // Just update the data in background, keep invoice view intact
                         updateLastUpdated();
                     }
 
@@ -1673,13 +1913,11 @@
     }
 
     function displayCurrentView() {
-        // Hide all views first
         document.getElementById('dashboardView').classList.add('hidden');
         document.getElementById('calendarView').classList.add('hidden');
         document.getElementById('invoiceView').classList.add('hidden');
 
-        // Hide/show main export button based on view
-        const exportBtn = document.querySelector('.refresh-btn[onclick="exportToCSV()"]');
+        const exportBtn = document.querySelector('.export-btn[onclick="exportToCSV()"]');
         if (exportBtn) {
             exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
         }
@@ -1726,26 +1964,13 @@
         return state === 'IN';
     }
 
-    // Map bin number → waste type for LaTrobe (1–15)
     const wasteTypeByNumber = {
-        1: 'general',
-        2: 'general',
-        3: 'general',
-        4: 'commingle',
-        5: 'general',
-        6: 'general',
-        7: 'general',
-        8: 'commingle',
-        9: 'commingle',
-        10: 'general',
-        11: 'commingle',
-        12: 'general',
-        13: 'general',
-        14: 'general',
-        15: 'commingle'
+        1: 'general', 2: 'general', 3: 'general', 4: 'commingle',
+        5: 'general', 6: 'general', 7: 'general', 8: 'commingle',
+        9: 'commingle', 10: 'general', 11: 'commingle', 12: 'general',
+        13: 'general', 14: 'general', 15: 'commingle'
     };
 
-    // Extract first number from alias/name (e.g. "1 - General Waste")
     function getBinNumberFromName(name) {
         const match = String(name).match(/\d+/);
         return match ? parseInt(match[0], 10) : null;
@@ -1829,7 +2054,7 @@
                     const expandBtn = document.createElement('button');
                     expandBtn.id = 'expandAllBtn';
                     expandBtn.className = 'expand-all-btn';
-                    expandBtn.textContent = 'Expand All';
+                    expandBtn.textContent = 'Collapse All';
                     expandBtn.onclick = toggleAllWeekDays;
                     calendarNav.appendChild(expandBtn);
                 }
@@ -1908,8 +2133,6 @@
             `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
 
         const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
-        const today = new Date();
-        const todayDayOfWeek = today.getDay();
 
         let html = '<div class="week-grid">';
 
@@ -1925,15 +2148,13 @@
 
             const dayId = `week-day-${i}`;
             const eventsId = `week-events-${i}`;
-            const isToday = i === todayDayOfWeek;
-            const collapsedClass = isToday ? '' : 'collapsed';
 
-            html += `<div class="week-day ${collapsedClass}" id="${dayId}">
-                <div class="week-day-header ${collapsedClass}" onclick="toggleWeekDay(${i})">
+            html += `<div class="week-day" id="${dayId}">
+                <div class="week-day-header" onclick="toggleWeekDay(${i})">
                     <span class="expand-icon">▼</span>
                     <span>${days[i]}<br>${currentDay.getDate()}</span>
                 </div>
-                <div class="week-events ${collapsedClass}" id="${eventsId}" style="max-height: ${isToday ? 'none' : '0'}">`;
+                <div class="week-events" id="${eventsId}">`;
 
             if (dayReadings.length === 0) {
                 html += '<div style="text-align: center; color: #999; font-size: 0.85em; padding: 10px;">No events</div>';
@@ -1960,7 +2181,7 @@
         setTimeout(() => {
             for (let i = 0; i < 7; i++) {
                 const eventsElement = document.getElementById(`week-events-${i}`);
-                if (eventsElement && !eventsElement.classList.contains('collapsed')) {
+                if (eventsElement) {
                     eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
                 }
             }
@@ -1994,7 +2215,8 @@
             }
         }
 
-        const shouldExpand = collapsedCount >= 4;
+        // If any days are collapsed, expand all. Otherwise, collapse all.
+        const shouldExpand = collapsedCount > 0;
 
         for (let i = 0; i < 7; i++) {
             const dayElement = document.getElementById(`week-day-${i}`);
@@ -2121,7 +2343,7 @@
                 'Signal (dBm)': bin.rssi || bin.RSSI || ''
             }));
 
-            filename = `binspy-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+            filename = `binspy-cleansed-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
 
         } else {
             const readings = getFilteredReadings();
@@ -2143,7 +2365,7 @@
                     'Signal (dBm)': r.rssi || r.RSSI || ''
                 }));
 
-                filename = `binspy-month-${currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).replace(' ', '-')}.csv`;
+                filename = `binspy-cleansed-month-${currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).replace(' ', '-')}.csv`;
 
             } else if (currentView === 'week') {
                 const startOfWeek = new Date(currentDate);
@@ -2167,7 +2389,7 @@
                     'Signal (dBm)': r.rssi || r.RSSI || ''
                 }));
 
-                filename = `binspy-week-${startOfWeek.toLocaleDateString().replace(/\//g, '-')}.csv`;
+                filename = `binspy-cleansed-week-${startOfWeek.toLocaleDateString().replace(/\//g, '-')}.csv`;
 
             } else if (currentView === 'day') {
                 const dayReadings = readings.filter(r =>
@@ -2182,7 +2404,7 @@
                     'Signal (dBm)': r.rssi || r.RSSI || ''
                 }));
 
-                filename = `binspy-day-${currentDate.toLocaleDateString().replace(/\//g, '-')}.csv`;
+                filename = `binspy-cleansed-day-${currentDate.toLocaleDateString().replace(/\//g, '-')}.csv`;
             }
         }
 
@@ -2205,18 +2427,16 @@
         document.body.removeChild(link);
     }
 
-    // Invoice View Functions
+    // Invoice View Functions (abbreviated - keeping full original logic)
     function displayInvoiceView() {
         document.getElementById('invoiceView').classList.remove('hidden');
         
-        // Setup file input listener (remove any existing listeners first)
         const fileInput = document.getElementById('pdfFileInput');
         const newFileInput = fileInput.cloneNode(true);
         fileInput.parentNode.replaceChild(newFileInput, fileInput);
         
         newFileInput.addEventListener('change', handleFileUpload);
 
-        // Setup drag and drop
         const uploadSection = document.getElementById('uploadSection');
         
         uploadSection.addEventListener('dragover', (e) => {
@@ -2236,15 +2456,11 @@
                 handleFileUpload({ target: newFileInput });
             }
         });
-        
-        console.log('Invoice view initialized');
     }
 
     async function handleFileUpload(e) {
         const fileInput = e?.target || document.getElementById('pdfFileInput');
         const file = fileInput.files[0];
-        
-        console.log('File selected:', file?.name, file?.type);
         
         if (!file) {
             alert('No file selected');
@@ -2252,13 +2468,11 @@
         }
         
         if (file.type !== 'application/pdf') {
-            alert('Please select a valid PDF file. Selected file type: ' + file.type);
+            alert('Please select a valid PDF file');
             return;
         }
 
-        // Auto-clear previous invoice data
         if (invoiceData || comparisonData) {
-            console.log('Clearing previous invoice data...');
             invoiceData = null;
             comparisonData = null;
             currentInvoiceFilter = 'all';
@@ -2267,7 +2481,6 @@
             document.getElementById('invoiceFilters').classList.add('hidden');
             document.getElementById('comparisonResults').classList.add('hidden');
             
-            // Reset filter buttons
             document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
                 btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
             });
@@ -2282,32 +2495,21 @@
                 </div>
             </div>
         `;
-        fileNameEl.style.color = '';
 
         try {
-            console.log('Reading file...');
             const arrayBuffer = await file.arrayBuffer();
-            console.log('File read, size:', arrayBuffer.byteLength);
-            
-            console.log('Loading PDF...');
             const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
             const pdf = await loadingTask.promise;
-            console.log('PDF loaded, pages:', pdf.numPages);
             
             let fullText = '';
             for (let i = 1; i <= pdf.numPages; i++) {
-                console.log('Processing page', i);
                 const page = await pdf.getPage(i);
                 const textContent = await page.getTextContent();
                 const pageText = textContent.items.map(item => item.str).join(' ');
                 fullText += pageText + '\n';
             }
 
-            console.log('Extracted text length:', fullText.length);
-            console.log('First 500 chars:', fullText.substring(0, 500));
-
             invoiceData = parseInvoiceData(fullText);
-            console.log('Parsed invoice data:', invoiceData);
             
             if (Object.keys(invoiceData.general).length === 0 && Object.keys(invoiceData.commingle).length === 0) {
                 fileNameEl.innerHTML = `
@@ -2318,8 +2520,7 @@
                         </div>
                     </div>
                 `;
-                fileNameEl.style.color = '';
-                alert('Could not find any service records in the PDF. Please make sure this is a REMONDIS invoice.');
+                alert('Could not find any service records in the PDF');
                 return;
             }
             
@@ -2335,54 +2536,34 @@
                     </div>
                 </div>
             `;
-            fileNameEl.style.color = '';
             alert('Error processing PDF: ' + error.message);
         }
     }
 
     function parseInvoiceData(text) {
         const parsed = {
-            general: {},  // Putrescible on invoice = General Waste
+            general: {},
             commingle: {}
         };
 
-        console.log('Parsing invoice text...');
-        console.log('Text length:', text.length);
-
-        // Parse the ACTUAL format from the PDF:
-        // DD/MM/YY   REFNO   QTY   $PRICE   $TOTAL Service Rear Lift 1100L (Co-Mingled|Putrescible)
-        // Example: 01/12/25   15776115.1   1   $26.69   $26.69 Service Rear Lift 1100L Co-Mingled
-        
         const pattern = /(\d{2})\/(\d{2})\/(\d{2})\s+[\d.]+\s+(\d+)\s+\$[\d.]+\s+\$[\d.]+\s+Service\s+Rear\s+Lift\s+1100L\s+(Co-Mingled|Putrescible)/gi;
 
         let match;
-        let matchCount = 0;
         
         while ((match = pattern.exec(text)) !== null) {
-            matchCount++;
             const day = match[1];
             const month = match[2];
             const year = '20' + match[3];
             const dateKey = `${year}-${month}-${day}`;
             const qty = parseInt(match[4]);
             const invoiceType = match[5];
-            // Map invoice types to our waste types
-            // Putrescible (invoice) → general (our system)
-            // Co-Mingled (invoice) → commingle (our system)
             const type = invoiceType === 'Co-Mingled' ? 'commingle' : 'general';
-
-            console.log(`Match ${matchCount}: Date=${dateKey}, InvoiceType=${invoiceType}, MappedType=${type}, Qty=${qty}`);
 
             if (!parsed[type][dateKey]) {
                 parsed[type][dateKey] = 0;
             }
             parsed[type][dateKey] += qty;
         }
-        
-        console.log(`Total matches found: ${matchCount}`);
-        console.log('Final parsed data:', parsed);
-        console.log('General Waste (Putrescible) dates:', Object.keys(parsed.general).length);
-        console.log('Commingle (Co-Mingled) dates:', Object.keys(parsed.commingle).length);
 
         return parsed;
     }
@@ -2390,7 +2571,6 @@
     function displayInvoiceComparison() {
         if (!invoiceData) return;
 
-        // Count comparison stats
         let totalMatches = 0;
         let totalMismatches = 0;
         let totalMissing = 0;
@@ -2401,12 +2581,9 @@
             ...Object.keys(invoiceData.commingle)
         ]);
 
-        console.log('Comparing', allDates.size, 'unique dates');
-
         const comparisonsByDate = new Map();
 
         allDates.forEach(invoiceDate => {
-            // Offset by -1 day for actual data (actual is day BEFORE invoice date)
             const actualDate = new Date(invoiceDate);
             actualDate.setDate(actualDate.getDate() - 1);
             const actualDateStr = actualDate.toISOString().split('T')[0];
@@ -2414,15 +2591,11 @@
             const generalInvoice = invoiceData.general[invoiceDate] || 0;
             const commingeInvoice = invoiceData.commingle[invoiceDate] || 0;
 
-            // Get readings for the day where state="IN" (collection)
             const dayReadings = allReadings.filter(r => {
                 const readingDate = r.timestamp.toISOString().split('T')[0];
                 return readingDate === actualDateStr && r.state === 'IN';
             });
 
-            console.log(`Date ${actualDateStr}: Found ${dayReadings.length} readings with state="IN"`);
-
-            // Count UNIQUE bins per waste type (not all readings)
             const generalBins = new Set();
             const commingeBins = new Set();
 
@@ -2432,14 +2605,10 @@
                 const binNumber = getBinNumberFromName(alias);
                 const wasteType = wasteTypeByNumber[binNumber];
                 
-                console.log(`  Reading: alias="${alias}", binNumber=${binNumber}, wasteType=${wasteType}, MAC=${mac.substring(0, 15)}...`);
-                
                 if (wasteType === 'general') {
                     generalBins.add(mac);
                 } else if (wasteType === 'commingle') {
                     commingeBins.add(mac);
-                } else {
-                    console.log(`  ⚠️ Unknown waste type for bin ${binNumber} (${alias})`);
                 }
             });
 
@@ -2450,15 +2619,13 @@
                 totalDaysWithData++;
             }
 
-            console.log(`${actualDateStr}: Invoice(G:${generalInvoice}, C:${commingeInvoice}) vs Actual(G:${generalActual}, C:${commingeActual})`);
-
             const generalMatch = generalInvoice === generalActual;
             const commingeMatch = commingeInvoice === commingeActual;
 
             if (generalMatch && commingeMatch) {
                 totalMatches++;
             } else if (generalInvoice === 0 && commingeInvoice === 0 && generalActual === 0 && commingeActual === 0) {
-                // Skip days with no activity
+                // Skip
             } else if (generalActual === 0 && commingeActual === 0 && (generalInvoice > 0 || commingeInvoice > 0)) {
                 totalMissing++;
             } else {
@@ -2470,19 +2637,16 @@
                 general: {
                     invoice: generalInvoice,
                     actual: generalActual,
-                    diff: generalInvoice - generalActual  // Reversed: positive = over invoiced, negative = under invoiced
+                    diff: generalInvoice - generalActual
                 },
                 commingle: {
                     invoice: commingeInvoice,
                     actual: commingeActual,
-                    diff: commingeInvoice - commingeActual  // Reversed: positive = over invoiced, negative = under invoiced
+                    diff: commingeInvoice - commingeActual
                 }
             });
         });
 
-        console.log('Results: Matches=', totalMatches, 'Mismatches=', totalMismatches, 'Missing=', totalMissing);
-
-        // Store comparison data globally for filtering
         comparisonData = {
             byDate: comparisonsByDate,
             stats: {
@@ -2493,7 +2657,6 @@
             }
         };
 
-        // Check if we have any actual data for comparison
         if (totalDaysWithData === 0) {
             const fileNameEl = document.getElementById('fileName');
             fileNameEl.innerHTML = `
@@ -2504,10 +2667,8 @@
                     </div>
                 </div>
             `;
-            fileNameEl.style.color = '';
         }
 
-        // Display stats
         const statsHtml = `
             <div class="stat-card match">
                 <div class="stat-number">${totalMatches}</div>
@@ -2525,17 +2686,11 @@
         
         document.getElementById('invoiceStats').innerHTML = statsHtml;
         document.getElementById('invoiceStats').classList.remove('hidden');
-        
-        // Show action buttons
         document.getElementById('invoiceActions').classList.remove('hidden');
-        
-        // Show filters
         document.getElementById('invoiceFilters').classList.remove('hidden');
 
-        // Display filtered comparisons
         displayFilteredComparisons();
         
-        // Only show success message if we have data
         if (totalDaysWithData > 0) {
             const fileNameEl = document.getElementById('fileName');
             fileNameEl.innerHTML = `
@@ -2546,7 +2701,6 @@
                     </div>
                 </div>
             `;
-            fileNameEl.style.color = '';
         }
     }
 
@@ -2555,7 +2709,6 @@
 
         const comparisonsByDate = comparisonData.byDate;
         
-        // Display comparison cards with filtering
         let comparisonHtml = '<div class="comparison-grid">';
         
         const sortedDates = Array.from(comparisonsByDate.keys()).sort().reverse();
@@ -2572,14 +2725,9 @@
             
             if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
                 data.general.actual === 0 && data.commingle.actual === 0) {
-                return; // Skip days with no activity
+                return;
             }
 
-            // Determine the category based on total difference
-            // diff = invoice - actual
-            // positive = over invoiced (red mismatch)
-            // negative = under invoiced (orange mismatch)
-            // zero = match
             const totalDiff = data.general.diff + data.commingle.diff;
             let category;
             let statusText;
@@ -2591,16 +2739,13 @@
                 category = 'missing';
                 statusText = 'Missing';
             } else if (totalDiff > 0) {
-                // Over invoiced = red mismatch
                 category = 'mismatch-over';
                 statusText = 'Mismatch';
             } else {
-                // Under invoiced or mixed = orange mismatch
                 category = 'mismatch-under';
                 statusText = 'Mismatch';
             }
 
-            // Apply filter - map both mismatch types to 'mismatch' filter
             const filterCategory = category.startsWith('mismatch') ? 'mismatch' : category;
             if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) {
                 return;
@@ -2672,12 +2817,9 @@
         document.getElementById('invoiceFilters').classList.add('hidden');
         document.getElementById('comparisonResults').classList.add('hidden');
         
-        // Reset filter buttons
         document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
             btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
         });
-        
-        console.log('Invoice data cleared');
     }
 
     function exportInvoiceCSV() {
@@ -2686,7 +2828,6 @@
             return;
         }
 
-        // CSV header
         const headers = [
             'Invoice Date',
             'Actual Date',
@@ -2701,7 +2842,6 @@
 
         const rows = [headers];
 
-        // Sort dates
         const sortedDates = Array.from(comparisonData.byDate.keys()).sort();
 
         sortedDates.forEach(invoiceDate => {
@@ -2709,7 +2849,6 @@
             const date = new Date(invoiceDate);
             const actualDate = new Date(data.actualDate);
 
-            // Determine status based on total difference
             const generalMatch = data.general.diff === 0;
             const commingeMatch = data.commingle.diff === 0;
             const totalDiff = data.general.diff + data.commingle.diff;
@@ -2725,7 +2864,6 @@
                 status = 'Under Invoiced';
             }
 
-            // Skip days with no activity
             if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
                 data.general.actual === 0 && data.commingle.actual === 0) {
                 return;
@@ -2746,10 +2884,8 @@
             rows.push(row);
         });
 
-        // Convert to CSV
         const csvContent = rows.map(row => row.join(',')).join('\n');
 
-        // Create download
         const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const link = document.createElement('a');
         const url = URL.createObjectURL(blob);
@@ -2762,8 +2898,6 @@
         document.body.appendChild(link);
         link.click();
         document.body.removeChild(link);
-
-        console.log(`Exported ${rows.length - 1} rows to CSV`);
     }
 
     // Event Listeners
@@ -2828,7 +2962,6 @@
             displayCalendar();
         });
 
-        // Invoice filter buttons
         document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
             btn.addEventListener('click', () => {
                 document.querySelectorAll('[data-invoice-filter]').forEach(b => b.classList.remove('active'));
@@ -2841,6 +2974,16 @@
 
     // Auto-refresh every 60 seconds
     setInterval(() => loadData(true), 60000);
+
+    // Update heartbeat display every 5 seconds
+    setInterval(() => {
+        updateHeartbeatDisplay();
+    }, 5000);
+
+    // Refresh heartbeat data every 30 seconds
+    setInterval(() => {
+        loadHeartbeat();
+    }, 30000);
 </script>
 </body>
-</html>
+</html> 
