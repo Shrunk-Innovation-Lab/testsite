@@ -1,0 +1,17 @@
+Format Rank,Site Name,State,Site Type,Service Description,Unique Service Line,Service Type,Waste Stream,Bin Size,Cleanaway,Veolia,Remondis,Current,Incumbant
+1,Wills Street,VIC,,11 x 1100L General Waste - 7 x Weekly,Wills Street - 11 x 1100L General Waste - 7 x Weekly,Rear Lift,General Waste,1100,"$37,521.85","$30,617.91","$30,205.81","$67,809.55",Remondis
+2,Wills Street,VIC,,6 x 1100L Comingle - 7 x Weekly,Wills Street - 6 x 1100L Comingle - 7 x Weekly,Rear Lift,Comingle,1100,"$11,922.46","$10,328.36","$10,085.35","$23,975.17",Remondis
+3,Wills Street,VIC,,1 x 1100L Paper & Cardboard - 2 x Weekly,Wills Street - 1 x 1100L Paper & Cardboard - 2 x Weekly,Rear Lift,Paper & Cardboard,1100,"$1,560.00","$1,037.04","$1,248.00",$0,Remondis
+4,La Trobe Street,VIC,,10 x 1100L General Waste - 7 x Weekly,La Trobe Street - 10 x 1100L General Waste - 7 x Weekly,Rear Lift,General Waste,1100,"$39,313.09","$32,006.37","$31,647.80","$71,243.60",Remondis
+5,La Trobe Street,VIC,,4 x 1100L Comingle - 7 x Weekly,La Trobe Street - 4 x 1100L Comingle - 7 x Weekly,Rear Lift,Comingle,1100,"$12,501.22","$11,191.50","$10,574.93","$24,191.48",Remondis
+6,La Trobe Street,VIC,,1 x 1100L Paper & Cardboard - 2 x Weekly,La Trobe Street - 1 x 1100L Paper & Cardboard - 2 x Weekly,Rear Lift,Paper & Cardboard,1100,"$1,560.00","$1,037.04","$1,248.00",$0,Remondis
+7,Footscray,VIC,,4 x 1100L General Waste - 7 x Weekly,Footscray - 4 x 1100L General Waste - 7 x Weekly,Rear Lift,General Waste,1100,"$21,683.48","$17,580.64","$17,455.62","$29,146.94",Remondis
+8,Footscray,VIC,,3 x 1100L Comingle - 7 x Weekly,Footscray - 3 x 1100L Comingle - 7 x Weekly,Rear Lift,Comingle,1100,"$10,649.18","$9,112.09","$9,008.27","$18,707.69",Remondis
+9,Footscray,VIC,,1 x 1100L Paper & Cardboard - 2 x Weekly,Footscray - 1 x 1100L Paper & Cardboard - 2 x Weekly,Rear Lift,Paper & Cardboard,1100,"$1,560.00","$1,068.24","$1,248.00","$5,556.20",Remondis
+10,Footscray,VIC,,2 x 240L General Waste - 7 x Weekly,Footscray - 2 x 240L General Waste - 7 x Weekly,Rear Lift,General Waste,240,$0,$0,$0,"$16,254.16",Remondis
+11,Footscray,VIC,,1 x 240L Comingle - 7 x Weekly,Footscray - 1 x 240L Comingle - 7 x Weekly,Rear Lift,Comingle,240,$0,$0,$0,"$7,041.32",Remondis
+12,Kensington,NSW,,16 x 660L General Waste - 3 x Weekly,Kensington - 16 x 660L General Waste - 3 x Weekly,Rear Lift,General Waste,660,"$57,556.67","$40,135.94","$39,941.46","$89,305.01",Waste Clear
+13,Kensington,NSW,,35 x 240L Food Organics - 1 x Weekly,Kensington - 35 x 240L General Waste - 1 x Weekly,Rear Lift,General Waste,240,$0,$0,$0,"$6,292.00",Waste Clear
+14,Kensington,NSW,,16 x 660L Comingle - 3 x Weekly,Kensington - 16 x 660L Comingle - 3 x Weekly,Rear Lift,Comingle,660,"$32,082.96","$21,868.72","$21,153.60","$28,204.80",Waste Clear
+15,Kensington,NSW,,1 x 1100L Paper & Cardboard - 2 x Weekly,Kensington - 1 x 1100L Paper & Cardboard - 2 x Weekly,Rear Lift,Paper & Cardboard,1100,"$1,237.60","$1,921.04","$1,248.00",$0,Waste Clear
+,,,,,,,,,"$229,148.50","$177,904.89","$175,064.84","$387,727.92",
