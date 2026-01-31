@@ -2015,14 +2015,15 @@
                 width: 100%;
                 display: grid;
                 grid-template-columns: repeat(3, 1fr);
-                gap: 8px;
+                gap: 6px;
             }
 
             .view-btn {
-                padding: 10px 6px;
+                padding: 10px 8px;
                 font-size: 0.75em;
                 white-space: normal;
-                line-height: 1.3;
+                line-height: 1.2;
+                min-height: 44px;
             }
 
             .refresh-btn, .export-btn {
@@ -2162,35 +2163,55 @@
                 flex-shrink: 0;
             }
 
-            /* Controls - optimized touch targets */
+            /* Controls - optimized touch targets with compact button layout */
             .controls-row {
                 padding: 6px;
-                gap: 8px;
-            }
-
-            .view-toggle {
-                grid-template-columns: repeat(3, 1fr);
                 gap: 6px;
             }
 
+            .view-toggle {
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 4px;
+                width: 100%;
+            }
+
+            /* Make button text smaller and more compact */
             .view-btn {
-                min-height: 50px;
-                padding: 12px 4px;
-                font-size: 0.7em;
+                min-height: 44px;
+                padding: 8px 4px;
+                font-size: 0.65em;
                 border-radius: 8px;
-                line-height: 1.2;
+                line-height: 1.1;
+                font-weight: 500;
+            }
+
+            /* Shorten button labels on mobile */
+            .view-btn[data-view="dashboard"]::before { content: "Dashboard"; }
+            .view-btn[data-view="month"]::before { content: "Monthly"; }
+            .view-btn[data-view="week"]::before { content: "Weekly"; }
+            .view-btn[data-view="day"]::before { content: "Daily"; }
+            .view-btn[data-view="cleaning-report"]::before { content: "Cleaning"; }
+            .view-btn[data-view="invoice"]::before { content: "Invoice"; }
+            
+            .view-btn {
+                font-size: 0;
+            }
+            
+            .view-btn::before {
+                font-size: 13px;
             }
 
             .refresh-btn, .export-btn {
-                min-height: 52px;
-                padding: 14px;
-                font-size: 1em;
+                min-height: 48px;
+                padding: 12px;
+                font-size: 0.95em;
                 border-radius: 10px;
                 font-weight: 500;
             }
 
             .last-updated {
-                font-size: 0.75em;
+                font-size: 0.7em;
                 padding: 8px 4px;
             }
 
@@ -2416,44 +2437,58 @@
                 gap: 6px;
             }
 
-            /* Cleaning Report - mobile optimized */
+            /* Cleaning Report - mobile optimized and compact */
             .cleaning-report-table tbody tr {
-                padding: 16px;
-                border-radius: 12px;
-                margin-bottom: 12px;
+                padding: 12px;
+                border-radius: 10px;
+                margin-bottom: 8px;
             }
 
             .cleaning-report-table td {
-                padding: 8px 0;
+                padding: 4px 0;
             }
 
             .cleaning-report-table td:first-child {
-                font-size: 1.15em;
-                padding-bottom: 14px;
+                font-size: 1.05em;
+                padding-bottom: 8px;
+                margin-bottom: 6px;
             }
 
             .cleaning-report-table td:before {
-                width: 100px;
-                font-size: 0.85em;
+                width: 70px;
+                font-size: 0.8em;
+            }
+
+            .cleaning-report-table td:nth-child(2):before,
+            .cleaning-report-table td:nth-child(3):before,
+            .cleaning-report-table td:nth-child(4):before {
+                display: inline;
             }
 
             .cleaning-dates {
-                flex-direction: column;
-                gap: 6px;
+                display: inline-flex;
+                flex-wrap: wrap;
+                gap: 4px;
+                margin-left: 4px;
             }
 
             .cleaning-date-chip {
-                align-self: flex-start;
-                font-size: 0.85em;
-                padding: 6px 12px;
-                border-radius: 8px;
+                font-size: 0.75em;
+                padding: 3px 8px;
+                border-radius: 6px;
             }
 
             .cleaning-count-badge {
-                min-width: 50px;
-                padding: 8px 16px;
-                font-size: 1em;
-                border-radius: 12px;
+                min-width: 40px;
+                padding: 4px 10px;
+                font-size: 0.9em;
+                border-radius: 10px;
+                margin-left: 4px;
+            }
+
+            .bin-type-pill {
+                margin-left: 4px;
+                display: inline-block;
             }
 
             /* Invoice view */
@@ -2566,9 +2601,8 @@
                 height: 28px;
             }
 
-            .view-btn {
-                font-size: 0.65em;
-                padding: 10px 2px;
+            .view-btn::before {
+                font-size: 12px;
             }
 
             .stat-number {
@@ -2585,6 +2619,37 @@
 
             .event-dot {
                 font-size: 0.5em;
+            }
+
+            /* Even more compact cleaning report for small screens */
+            .cleaning-report-table tbody tr {
+                padding: 10px;
+                margin-bottom: 6px;
+            }
+
+            .cleaning-report-table td {
+                padding: 3px 0;
+            }
+
+            .cleaning-report-table td:first-child {
+                font-size: 1em;
+                padding-bottom: 6px;
+                margin-bottom: 4px;
+            }
+
+            .cleaning-report-table td:before {
+                width: 60px;
+                font-size: 0.75em;
+            }
+
+            .cleaning-date-chip {
+                font-size: 0.7em;
+                padding: 2px 6px;
+            }
+
+            .cleaning-count-badge {
+                padding: 3px 8px;
+                font-size: 0.85em;
             }
         }
 
