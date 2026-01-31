@@ -605,6 +605,10 @@
             color: #1d1d1f;
             text-align: center;
             flex: 1 1 140px;
+            align-self: center;
+            display: flex;
+            align-items: center;
+            justify-content: center;
         }
 
         .bin-selector {
@@ -1546,6 +1550,7 @@
             .calendar-header {
                 gap: 6px;
                 flex-direction: column;
+                align-items: stretch;
             }
 
             .calendar-nav {
@@ -2083,6 +2088,14 @@
             .calendar-header {
                 flex-direction: column;
                 gap: 10px;
+                align-items: stretch;
+            }
+
+            /* Keep cleaning report calendar horizontal even on tablet */
+            #cleaningReportView .calendar-header {
+                flex-direction: row;
+                gap: 4px;
+                align-items: center;
             }
 
             .calendar-nav {
@@ -2415,33 +2428,40 @@
                 margin-bottom: 8px;
             }
 
-            /* Compact calendar header for cleaning report - minimal spacing */
+            /* Compact calendar header for cleaning report - ABSOLUTE ZERO space */
             #cleaningReportView .calendar-container {
-                padding: 6px 6px 2px 6px;
-                margin-bottom: 2px;
-            }
-
-            #cleaningReportView .calendar-container > div {
-                background: white;
-                padding: 8px 8px 2px 8px;
+                padding: 8px 8px 2px 8px;  /* Minimal bottom padding */
+                margin-bottom: 0;
                 border-radius: 8px;
+                overflow: hidden;
+                background-color: #ffffff;
             }
 
             #cleaningReportView .calendar-header {
-                gap: 6px;
-                margin-bottom: 0;
+                gap: 4px;
+                margin: 0;
+                padding: 0;
+                align-items: center;
+                min-height: 0;
+                flex-direction: row;
+                height: auto;
             }
 
             #cleaningReportView .calendar-title {
                 font-size: 0.95em;
-                padding: 2px 0 0 0;
+                padding: 0;
                 text-align: center;
                 margin: 0;
+                line-height: 1;
+                min-height: 0;
+                height: auto;
+                display: inline-block;
             }
 
             .calendar-header {
                 gap: 6px;
                 margin-bottom: 8px;
+                align-items: center;
             }
 
             .calendar-nav {
@@ -2900,18 +2920,25 @@
 
             #cleaningReportView .calendar-container {
                 padding: 6px 6px 2px 6px;
-            }
-
-            #cleaningReportView .calendar-container > div {
-                padding: 6px 6px 2px 6px;
-            }
-
-            #cleaningReportView .calendar-header {
                 margin-bottom: 0;
             }
 
+            #cleaningReportView .calendar-header {
+                gap: 4px;
+                margin: 0;
+                padding: 0;
+                min-height: 0;
+                flex-direction: row;
+                height: auto;
+            }
+
             #cleaningReportView .calendar-title {
-                padding: 2px 0 0 0;
+                padding: 0;
+                margin: 0;
+                line-height: 1;
+                min-height: 0;
+                height: auto;
+                display: inline-block;
             }
 
             #cleaningPrevBtn, #cleaningNextBtn,
