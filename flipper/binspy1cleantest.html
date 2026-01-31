@@ -1,0 +1,3638 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>BinSpy - LaTrobe Street</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=5.0, user-scalable=yes, viewport-fit=cover">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="default">
+    <link rel="icon" type="image/png" href="https://i.imgur.com/dZR7M8C.png">
+    <link rel="apple-touch-icon" href="https://i.imgur.com/dZR7M8C.png">
+    <style>
+        html, body {
+            width: 100%;
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Helvetica', 'Arial', sans-serif;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+            display: flex;
+            flex-direction: column;
+            min-height: 100vh;
+            padding: 12px 15px;
+            -webkit-font-smoothing: antialiased;
+        }
+
+        .page {
+            max-width: 1400px;
+            width: 100%;
+            margin: 0 auto;
+        }
+
+        /* ===== CLEANING EVENT STYLES ===== */
+        .stat-card.cleaning .stat-number {
+            color: #007aff;
+        }
+
+        .bin-card.cleaning {
+            border-left-color: #007aff;
+        }
+
+        .bin-status.cleaning-in, .bin-status.cleaning-out {
+            background-color: #e5f2ff;
+            color: #0056b3;
+        }
+
+        .event-dot.cleaning-in, .event-dot.cleaning-out {
+            background-color: #e5f2ff;
+            color: #0056b3;
+        }
+
+        .week-event.cleaning-in, .week-event.cleaning-out {
+            background-color: #e5f2ff;
+            border-left-color: #007aff;
+            color: #0056b3;
+        }
+
+        .timeline-event.cleaning-in, .timeline-event.cleaning-out {
+            background-color: #e5f2ff;
+            border-left-color: #007aff;
+        }
+
+        /* ===== DATA CLEANSING BANNER ===== */
+        .cleansing-info {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 12px 16px;
+            border-radius: 10px;
+            margin-bottom: 15px;
+            box-shadow: 0 2px 8px rgba(102, 126, 234, 0.3);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            font-size: 0.9em;
+            flex-wrap: wrap;
+            animation: slideDown 0.4s ease;
+        }
+
+        @keyframes slideDown {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .cleansing-info-icon {
+            flex-shrink: 0;
+            width: 24px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.2);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: bold;
+            font-size: 1.1em;
+        }
+
+        .cleansing-info-text {
+            flex: 1;
+            min-width: 200px;
+            line-height: 1.4;
+        }
+
+        .cleansing-stats {
+            background: rgba(255, 255, 255, 0.15);
+            padding: 6px 12px;
+            border-radius: 6px;
+            font-weight: 600;
+            white-space: nowrap;
+        }
+
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 15px;
+            padding: 8px 0 4px;
+            gap: 12px;
+            flex-wrap: wrap;
+        }
+
+        .header-left {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .logo {
+            height: 38px;
+            flex-shrink: 0;
+        }
+
+        .header-title {
+            font-size: 1.25em;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-align: left;
+            flex: 1;
+            min-width: 0;
+        }
+
+        .header-title span {
+            display: block;
+            font-size: 0.78em;
+            font-weight: 500;
+            color: #5f5f62;
+            margin-top: 2px;
+        }
+
+        .home-link {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            width: 40px;
+            height: 40px;
+            border-radius: 999px;
+            border: 1px solid #d2d2d7;
+            background-color: #ffffff;
+            text-decoration: none;
+            color: #007aff;
+            flex-shrink: 0;
+            transition: background-color 0.18s, box-shadow 0.18s, transform 0.08s;
+        }
+
+        .home-link svg {
+            width: 18px;
+            height: 18px;
+        }
+
+        .home-link:active {
+            transform: scale(0.96);
+            box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+        }
+
+        .container {
+            width: 100%;
+        }
+
+        .controls-row {
+            background-color: #ffffff;
+            padding: 12px;
+            border-radius: 10px;
+            margin-bottom: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .view-toggle {
+            display: flex;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .view-btn, .export-btn, .nav-btn, .filter-btn, .refresh-btn {
+            padding: 10px 18px;
+            border: 1px solid #d2d2d7;
+            background-color: #ffffff;
+            color: #1d1d1f;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            transition: all 0.2s;
+            font-size: 15px;
+            min-height: 40px;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            touch-action: manipulation;
+            -webkit-user-select: none;
+            user-select: none;
+            white-space: nowrap;
+        }
+
+        .view-btn:active, .filter-btn:active {
+            transform: scale(0.97);
+        }
+
+        .view-btn.active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+
+        .export-btn {
+            background-color: #34c759;
+            color: white;
+            border-color: #34c759;
+        }
+
+        .export-btn:active {
+            background-color: #2fb350;
+            transform: scale(0.97);
+        }
+
+        .refresh-btn {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+
+        .refresh-btn:active {
+            background-color: #0056b3;
+            transform: scale(0.97);
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+            gap: 15px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background-color: #ffffff;
+            padding: 18px 16px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            text-align: center;
+        }
+
+        .stat-number {
+            font-size: 2.2em;
+            font-weight: bold;
+            margin-bottom: 6px;
+        }
+
+        .stat-label {
+            color: #666;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .stat-card.in .stat-number {
+            color: #34c759;
+        }
+
+        .stat-card.out .stat-number {
+            color: #ff3b30;
+        }
+
+        .stat-card.total .stat-number {
+            color: #007aff;
+        }
+
+        .stat-card.match .stat-number {
+            color: #34c759;
+        }
+
+        .stat-card.mismatch .stat-number {
+            color: #ff9500;
+        }
+
+        .stat-card.missing .stat-number {
+            color: #ff3b30;
+        }
+
+        .bins-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(190px, 1fr));
+            gap: 12px;
+            margin-bottom: 20px;
+        }
+
+        .bin-card {
+            background-color: #ffffff;
+            padding: 12px;
+            border-radius: 8px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            transition: transform 0.2s, box-shadow 0.2s;
+            border-left: 4px solid;
+        }
+
+        .bin-card:active {
+            transform: scale(0.98);
+        }
+
+        .bin-card.in {
+            border-left-color: #34c759;
+        }
+
+        .bin-card.out {
+            border-left-color: #ff3b30;
+        }
+
+        .bin-card.match {
+            border-left-color: #34c759;
+        }
+
+        .bin-card.mismatch {
+            border-left-color: #ff9500;
+        }
+
+        .bin-card.missing {
+            border-left-color: #ff3b30;
+        }
+
+        .bin-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 6px;
+            margin-bottom: 6px;
+        }
+
+        .bin-name {
+            font-size: 1.02em;
+            font-weight: 600;
+            margin-bottom: 0;
+            color: #1d1d1f;
+        }
+
+        .bin-status {
+            display: inline-block;
+            padding: 4px 8px;
+            border-radius: 999px;
+            font-weight: 600;
+            font-size: 0.75em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .bin-status.in {
+            background-color: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .bin-status.out {
+            background-color: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .bin-status.match {
+            background-color: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .bin-status.mismatch {
+            background-color: #fff4e5;
+            color: #cc7a00;
+        }
+
+        .bin-status.missing {
+            background-color: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .bin-details {
+            margin-top: 8px;
+            color: #666;
+            font-size: 0.8em;
+        }
+
+        .bin-details div {
+            margin: 3px 0;
+        }
+
+        .bin-type-pill {
+            padding: 3px 10px;
+            border-radius: 999px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.4px;
+            white-space: nowrap;
+        }
+
+        .bin-type-pill.general {
+            background-color: #ff3b30;
+            color: #ffffff;
+        }
+
+        .bin-type-pill.commingle {
+            background-color: #ffd60a;
+            color: #1d1d1f;
+        }
+
+        .loading {
+            text-align: center;
+            color: #1d1d1f;
+            font-size: 1.25em;
+            padding: 40px 20px;
+        }
+
+        .error {
+            background-color: #ffe5e5;
+            color: #c41e3a;
+            padding: 15px;
+            border-radius: 10px;
+            text-align: center;
+            margin: 15px 0;
+            border: 1px solid #ffcccc;
+        }
+
+        .filters {
+            background-color: #ffffff;
+            padding: 14px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+        }
+
+        .filter-btn {
+            padding: 8px 14px;
+            min-height: 40px;
+        }
+
+        .filter-btn.active {
+            background-color: #007aff;
+            color: white;
+            border-color: #007aff;
+        }
+
+        .search-box {
+            flex: 1;
+            min-width: 180px;
+            padding: 10px 14px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 15px;
+            background-color: #ffffff;
+            min-height: 40px;
+        }
+
+        .search-box:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+
+        .calendar-container {
+            background-color: #ffffff;
+            padding: 14px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            margin-bottom: 10px;
+            width: 100%;
+        }
+
+        .calendar-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 12px;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .calendar-nav {
+            display: flex;
+            gap: 8px;
+            align-items: center;
+            flex-wrap: wrap;
+        }
+
+        .expand-all-btn {
+            padding: 6px 12px;
+            background-color: #f5f5f7;
+            color: #007aff;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 0.8rem;
+            min-height: 34px;
+            transition: all 0.2s;
+        }
+
+        .expand-all-btn:hover {
+            background-color: #e8e8ed;
+        }
+
+        .expand-all-btn:active {
+            transform: scale(0.97);
+        }
+
+        .nav-btn {
+            padding: 8px 12px;
+            background-color: #007aff;
+            color: white;
+            border: none;
+            border-radius: 8px;
+            min-height: 36px;
+            font-size: 0.9rem;
+        }
+
+        .nav-btn:active {
+            background-color: #0056b3;
+            transform: scale(0.97);
+        }
+
+        .calendar-title {
+            font-size: 1.2em;
+            font-weight: 600;
+            color: #1d1d1f;
+            text-align: center;
+            flex: 1 1 140px;
+        }
+
+        .bin-selector {
+            padding: 8px 12px;
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            font-size: 0.95rem;
+            cursor: pointer;
+            background-color: #ffffff;
+            min-height: 36px;
+            min-width: 140px;
+        }
+
+        .bin-selector:focus {
+            outline: none;
+            border-color: #007aff;
+            box-shadow: 0 0 0 2px rgba(0, 122, 255, 0.2);
+        }
+
+        .month-grid {
+            display: grid;
+            grid-template-columns: repeat(7, 1fr);
+            gap: 6px;
+        }
+
+        .day-header {
+            text-align: center;
+            font-weight: 600;
+            padding: 8px 4px;
+            color: #007aff;
+            font-size: 0.82em;
+        }
+
+        .day-cell {
+            min-height: 70px;
+            border: 1px solid #d2d2d7;
+            border-radius: 6px;
+            padding: 6px 4px;
+            cursor: pointer;
+            transition: all 0.2s;
+            background-color: #ffffff;
+        }
+
+        .day-cell:active {
+            transform: scale(0.98);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.2);
+        }
+
+        .day-cell.other-month {
+            opacity: 0.3;
+        }
+
+        .day-number {
+            font-weight: 600;
+            margin-bottom: 4px;
+            color: #1d1d1f;
+            font-size: 0.9em;
+        }
+
+        .day-events {
+            display: flex;
+            flex-direction: column;
+            gap: 2px;
+        }
+
+        .event-dot {
+            width: 100%;
+            padding: 3px 4px;
+            border-radius: 4px;
+            font-size: 0.7em;
+            font-weight: 600;
+            text-align: center;
+        }
+
+        .event-dot.in {
+            background-color: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .event-dot.out {
+            background-color: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .week-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 10px;
+        }
+
+        .week-day {
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            padding: 10px;
+            min-height: 180px;
+            background-color: #ffffff;
+        }
+
+        .week-day-header {
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #007aff;
+            font-size: 0.9em;
+            text-align: center;
+            cursor: pointer;
+            user-select: none;
+            -webkit-user-select: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 6px;
+            padding: 6px;
+            border-radius: 6px;
+            transition: background-color 0.2s;
+        }
+
+        .week-day-header:hover {
+            background-color: #f5f5f7;
+        }
+
+        .week-day-header:active {
+            background-color: #e8e8ed;
+        }
+
+        .week-day-header .expand-icon {
+            font-size: 1.1em;
+            transition: transform 0.3s;
+            display: inline-block;
+        }
+
+        .week-day-header.collapsed .expand-icon {
+            transform: rotate(-90deg);
+        }
+
+        .week-events {
+            display: flex;
+            flex-direction: column;
+            gap: 6px;
+            transition: max-height 0.3s ease-out, opacity 0.3s;
+            overflow: hidden;
+        }
+
+        .week-events.collapsed {
+            max-height: 0 !important;
+            opacity: 0;
+            margin: 0;
+        }
+
+        .week-day.collapsed {
+            min-height: auto;
+        }
+
+        .week-event {
+            padding: 7px;
+            border-radius: 6px;
+            font-size: 0.8em;
+            border-left: 4px solid;
+        }
+
+        .week-event.in {
+            background-color: #d1f4e0;
+            border-left-color: #34c759;
+            color: #1e7c3c;
+        }
+
+        .week-event.out {
+            background-color: #ffe5e5;
+            border-left-color: #ff3b30;
+            color: #c41e3a;
+        }
+
+        .event-time {
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .day-view {
+            border: 1px solid #d2d2d7;
+            border-radius: 8px;
+            padding: 10px;
+            background-color: #ffffff;
+        }
+
+        .timeline {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+
+        .timeline-event {
+            display: block;
+            padding: 8px;
+            border-radius: 6px;
+            border-left: 4px solid;
+            transition: transform 0.2s;
+            font-size: 0.84em;
+        }
+
+        .timeline-event:active {
+            transform: scale(0.98);
+        }
+
+        .timeline-event.in {
+            background-color: #d1f4e0;
+            border-left-color: #34c759;
+        }
+
+        .timeline-event.out {
+            background-color: #ffe5e5;
+            border-left-color: #ff3b30;
+        }
+
+        .timeline-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            gap: 10px;
+            margin-bottom: 2px;
+        }
+
+        .timeline-main {
+            display: flex;
+            flex-direction: column;
+            gap: 1px;
+            min-width: 0;
+            flex: 1;
+        }
+
+        .timeline-time {
+            font-weight: 600;
+            color: #1d1d1f;
+            font-size: 0.86em;
+        }
+
+        .timeline-details {
+            color: #1d1d1f;
+        }
+
+        .timeline-right {
+            flex-shrink: 0;
+            display: flex;
+            align-items: center;
+            justify-content: flex-end;
+        }
+
+        .timeline-info {
+            color: #666;
+            font-size: 0.78em;
+            margin-top: 2px;
+        }
+
+        /* Invoice View Styles */
+        .invoice-container {
+            background-color: #ffffff;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 1px 3px rgba(0,0,0,0.1);
+            border: 1px solid #d2d2d7;
+            margin-bottom: 20px;
+        }
+
+        .upload-section {
+            text-align: center;
+            padding: 50px 30px;
+            border: 3px dashed #d2d2d7;
+            border-radius: 12px;
+            margin-bottom: 20px;
+            background: #f9f9f9;
+            transition: all 0.3s ease;
+            position: relative;
+        }
+
+        .upload-section:hover {
+            border-color: #007aff;
+            background: #f5f9ff;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.15);
+        }
+
+        .upload-section.dragover {
+            border-color: #007aff;
+            background: #e5f2ff;
+            transform: scale(1.02);
+            box-shadow: 0 6px 20px rgba(0, 122, 255, 0.25);
+        }
+
+        .upload-label {
+            display: inline-block;
+            padding: 14px 32px;
+            background: #007aff;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            font-weight: 600;
+            font-size: 16px;
+            transition: all 0.3s ease;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        .upload-label:hover {
+            background: #0056b3;
+            transform: translateY(-2px);
+            box-shadow: 0 6px 16px rgba(0, 122, 255, 0.4);
+        }
+
+        .upload-label:active {
+            transform: translateY(0px);
+            box-shadow: 0 2px 8px rgba(0, 122, 255, 0.3);
+        }
+
+        #pdfFileInput {
+            display: none;
+        }
+
+        .comparison-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(320px, 1fr));
+            gap: 16px;
+            margin-top: 20px;
+            animation: fadeIn 0.4s ease;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .comparison-card {
+            background: #ffffff;
+            padding: 20px;
+            border-radius: 12px;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+            animation: slideIn 0.3s ease backwards;
+        }
+
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateX(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateX(0);
+            }
+        }
+
+        .comparison-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 4px;
+            height: 100%;
+            background: #007aff;
+            transition: width 0.3s ease;
+        }
+
+        .comparison-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+            border-color: #d2d2d7;
+        }
+
+        .comparison-card:hover::before {
+            width: 6px;
+        }
+
+        .comparison-card.card-match::before {
+            background: #34c759;
+        }
+
+        .comparison-card.card-mismatch-under::before {
+            background: #ff9500;
+        }
+
+        .comparison-card.card-mismatch-over::before {
+            background: #ff3b30;
+        }
+
+        .comparison-card.card-missing::before {
+            background: #ff3b30;
+        }
+
+        .comparison-card:nth-child(1) { animation-delay: 0.05s; }
+        .comparison-card:nth-child(2) { animation-delay: 0.1s; }
+        .comparison-card:nth-child(3) { animation-delay: 0.15s; }
+        .comparison-card:nth-child(4) { animation-delay: 0.2s; }
+        .comparison-card:nth-child(5) { animation-delay: 0.25s; }
+        .comparison-card:nth-child(6) { animation-delay: 0.3s; }
+
+        .comparison-date {
+            font-weight: 600;
+            font-size: 1.05em;
+            margin-bottom: 16px;
+            color: #1d1d1f;
+            padding-bottom: 12px;
+            border-bottom: 2px solid #f0f0f0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .comparison-status-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 6px;
+            padding: 4px 12px;
+            border-radius: 999px;
+            font-size: 0.75em;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-status-badge.badge-match {
+            background: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .comparison-status-badge.badge-mismatch-under {
+            background: #ffe5d0;
+            color: #cc7a00;
+        }
+
+        .comparison-status-badge.badge-mismatch-over {
+            background: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .comparison-status-badge.badge-missing {
+            background: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .comparison-item {
+            display: grid;
+            grid-template-columns: 2fr 1fr 1fr 1fr;
+            gap: 8px;
+            align-items: center;
+            padding: 14px 0;
+            border-bottom: 1px solid #f5f5f7;
+            transition: all 0.2s ease;
+        }
+
+        .comparison-item:hover {
+            padding-left: 4px;
+        }
+
+        .comparison-item:last-child {
+            border-bottom: none;
+            padding-bottom: 0;
+        }
+
+        .comparison-label {
+            font-size: 0.9em;
+            color: #666;
+            font-weight: 500;
+        }
+
+        .comparison-values {
+            display: contents;
+        }
+
+        .invoice-value {
+            color: #007aff;
+            background: #e5f2ff;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .invoice-value:hover {
+            background: #cce5ff;
+        }
+
+        .actual-value {
+            color: #34c759;
+            background: #d1f4e0;
+            padding: 4px 10px;
+            border-radius: 6px;
+            text-align: center;
+            transition: all 0.2s ease;
+        }
+
+        .actual-value:hover {
+            background: #b8f0d0;
+        }
+
+        .difference {
+            padding: 4px 10px;
+            border-radius: 6px;
+            font-size: 0.9em;
+            white-space: nowrap;
+            font-weight: 700;
+            transition: all 0.2s ease;
+            text-align: center;
+        }
+
+        .difference:hover {
+            transform: scale(1.05);
+        }
+
+        .difference.over-invoiced {
+            background: #ffe5e5;
+            color: #c41e3a;
+        }
+
+        .difference.under-invoiced {
+            background: #d1f4e0;
+            color: #1e7c3c;
+        }
+
+        .difference.zero {
+            background: #e5e5e7;
+            color: #666;
+        }
+
+        #invoiceStats {
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceStats .stat-card {
+            background: #ffffff;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 4px 12px rgba(0,0,0,0.08);
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        #invoiceStats .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 4px;
+            background: #007aff;
+            transition: height 0.3s ease;
+        }
+
+        #invoiceStats .stat-card.match::before {
+            background: #34c759;
+        }
+
+        #invoiceStats .stat-card.mismatch::before {
+            background: #ff9500;
+        }
+
+        #invoiceStats .stat-card.missing::before {
+            background: #ff3b30;
+        }
+
+        #invoiceStats .stat-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(0,0,0,0.12);
+        }
+
+        #invoiceStats .stat-card:hover::before {
+            height: 6px;
+        }
+
+        #invoiceFilters {
+            background: #f9f9f9;
+            border: 1px solid #e5e5e7;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceActions {
+            animation: fadeIn 0.4s ease;
+        }
+
+        #invoiceActions .refresh-btn {
+            transition: all 0.2s ease;
+        }
+
+        #invoiceActions .refresh-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.2);
+        }
+
+        .invoice-export-btn {
+            background-color: #34c759 !important;
+        }
+
+        .invoice-export-btn:hover {
+            background-color: #28a745 !important;
+            box-shadow: 0 4px 12px rgba(52, 199, 89, 0.3) !important;
+        }
+
+        #invoiceFilters .filter-btn {
+            font-weight: 600;
+            transition: all 0.2s ease;
+        }
+
+        #invoiceFilters .filter-btn:hover {
+            background-color: #f0f0f0;
+            transform: translateY(-1px);
+        }
+
+        #invoiceFilters .filter-btn.active {
+            background: #007aff;
+            box-shadow: 0 4px 12px rgba(0, 122, 255, 0.3);
+        }
+
+        /* Cleaning Report Styles */
+        .cleaning-report-table {
+            width: 100%;
+            border-collapse: collapse;
+            background: white;
+            border-radius: 8px;
+            overflow: hidden;
+        }
+
+        .cleaning-report-table thead {
+            background-color: #f5f5f7;
+            border-bottom: 2px solid #d2d2d7;
+        }
+
+        .cleaning-report-table th {
+            padding: 16px;
+            text-align: left;
+            font-weight: 600;
+            font-size: 0.9em;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: #1d1d1f;
+        }
+
+        .cleaning-report-table th:last-child {
+            text-align: center;
+        }
+
+        .cleaning-report-table tbody tr {
+            border-bottom: 1px solid #f0f0f0;
+            transition: background-color 0.2s;
+        }
+
+        .cleaning-report-table tbody tr:hover {
+            background-color: #f9f9f9;
+        }
+
+        .cleaning-report-table tbody tr:last-child {
+            border-bottom: none;
+        }
+
+        .cleaning-report-table td {
+            padding: 14px 16px;
+            font-size: 0.9em;
+        }
+
+        .cleaning-count-badge {
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            min-width: 40px;
+            padding: 6px 12px;
+            background: #007aff;
+            color: white;
+            border-radius: 20px;
+            font-weight: 600;
+            font-size: 0.95em;
+        }
+
+        .cleaning-count-badge.zero {
+            background: #e5e5e7;
+            color: #8e8e93;
+        }
+
+        .cleaning-dates {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 6px;
+            margin-top: 4px;
+        }
+
+        .cleaning-date-chip {
+            background: #e5f2ff;
+            color: #007aff;
+            padding: 4px 10px;
+            border-radius: 12px;
+            font-size: 0.8em;
+            font-weight: 500;
+            white-space: nowrap;
+        }
+
+        .no-cleaning-data {
+            text-align: center;
+            padding: 60px 20px;
+            color: #666;
+        }
+
+        .no-cleaning-data svg {
+            width: 80px;
+            height: 80px;
+            margin-bottom: 20px;
+            opacity: 0.3;
+        }
+
+        footer {
+            margin-top: auto;
+            text-align: center;
+            padding: 15px 20px 10px;
+            font-size: 12px;
+            background-color: #f5f5f7;
+            color: #1d1d1f;
+        }
+
+        .last-updated {
+            text-align: center;
+            color: #666;
+            margin: 8px 0 12px 0;
+            font-size: 0.82em;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 8px;
+            flex-wrap: wrap;
+        }
+
+        .refresh-indicator {
+            display: inline-block;
+            width: 12px;
+            height: 12px;
+            border: 2px solid #34c759;
+            border-radius: 50%;
+            border-top-color: transparent;
+            animation: spin 1s linear infinite;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .refresh-indicator.active {
+            opacity: 1;
+        }
+
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        @media screen and (min-width: 769px) {
+            .month-grid {
+                gap: 5px;
+            }
+            .day-cell {
+                min-height: 65px;
+                padding: 5px 4px;
+            }
+            .calendar-container {
+                padding: 12px;
+            }
+        }
+
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px 10px 14px;
+            }
+
+            .page {
+                width: 100%;
+            }
+
+            .cleansing-info {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+            }
+
+            .cleansing-stats {
+                align-self: flex-end;
+            }
+
+            header {
+                flex-direction: column;
+                align-items: center;
+                text-align: center;
+            }
+
+            .header-left {
+                justify-content: center;
+            }
+
+            .header-title {
+                text-align: center;
+                font-size: 1.1em;
+            }
+
+            .logo {
+                height: 34px;
+            }
+
+            .home-link {
+                order: -1;
+            }
+
+            .controls-row {
+                padding: 10px;
+            }
+
+            .view-toggle {
+                width: 100%;
+                justify-content: center;
+            }
+
+            .view-btn {
+                flex: 1;
+                min-width: 60px;
+                padding: 9px 8px;
+                font-size: 13px;
+            }
+
+            /* Cleaning Report Mobile Styles */
+            .cleaning-report-table {
+                font-size: 0.85em;
+            }
+
+            .cleaning-report-table thead {
+                display: none;
+            }
+
+            .cleaning-report-table tbody tr {
+                display: block;
+                margin-bottom: 16px;
+                border: 1px solid #e5e5e7;
+                border-radius: 8px;
+                padding: 12px;
+                background: white;
+            }
+
+            .cleaning-report-table td {
+                display: block;
+                padding: 8px 0;
+                border: none;
+                text-align: left !important;
+            }
+
+            .cleaning-report-table td:first-child {
+                font-weight: 600;
+                font-size: 1.1em;
+                color: #1d1d1f;
+                padding-bottom: 12px;
+                border-bottom: 2px solid #f0f0f0;
+                margin-bottom: 8px;
+            }
+
+            .cleaning-report-table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #666;
+                display: inline-block;
+                width: 120px;
+                font-size: 0.9em;
+            }
+
+            .cleaning-report-table td:first-child:before {
+                content: none;
+            }
+
+            .cleaning-count-badge {
+                margin-left: 0;
+            }
+
+            .filters {
+                padding: 10px;
+            }
+
+            .filter-btn {
+                flex: 1;
+                text-align: center;
+            }
+
+            .search-box {
+                width: 100%;
+                min-width: 100%;
+            }
+
+            .calendar-container {
+                padding: 10px;
+            }
+
+            .calendar-header {
+                gap: 8px;
+            }
+
+            .calendar-title {
+                font-size: 1.1em;
+            }
+
+            .month-grid {
+                gap: 4px;
+            }
+
+            .day-cell {
+                min-height: 60px;
+                padding: 5px 3px;
+            }
+
+            .day-number {
+                font-size: 0.8em;
+            }
+
+            .event-dot {
+                font-size: 0.65em;
+                padding: 2px 3px;
+            }
+
+            .week-grid {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .week-day {
+                padding: 9px;
+                min-height: auto;
+            }
+
+            .week-day-header {
+                font-size: 0.88em;
+                padding: 6px;
+            }
+
+            .week-event {
+                padding: 6px;
+                font-size: 0.75em;
+            }
+
+            .day-view {
+                padding: 9px;
+            }
+
+            .timeline-event {
+                padding: 7px;
+            }
+
+            .timeline-time {
+                font-size: 0.86em;
+            }
+
+            .timeline-info {
+                font-size: 0.74em;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .bins-grid {
+                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                gap: 10px;
+            }
+
+            .bin-card {
+                padding: 10px;
+                border-radius: 6px;
+            }
+
+            .bin-name {
+                font-size: 0.96em;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-section {
+                padding: 40px 20px;
+            }
+
+            .comparison-card {
+                padding: 16px;
+            }
+
+            .comparison-date {
+                flex-direction: column;
+                gap: 10px;
+                align-items: flex-start;
+            }
+
+            .comparison-status-badge {
+                align-self: flex-end;
+            }
+        }
+
+        @media screen and (max-width: 480px) {
+            .header-title {
+                font-size: 1em;
+            }
+            .bins-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .upload-section {
+                padding: 30px 15px;
+            }
+
+            .comparison-card > div:first-of-type + div {
+                display: none;
+            }
+
+            .comparison-item {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .comparison-label {
+                font-weight: 600;
+                margin-bottom: 4px;
+            }
+
+            .comparison-values > * {
+                display: block;
+                margin-bottom: 4px;
+            }
+        }
+    </style>
+</head>
+<body>
+<div class="page">
+    <header>
+        <div class="header-left">
+            <img src="https://i.imgur.com/iB983sa.png" alt="BinSpy Logo" class="logo">
+            <h1 class="header-title">
+                BinSpy Location Tracking Dashboard
+                <span style="display: flex; justify-content: space-between; align-items: center; gap: 10px; font-size: 0.78em; font-weight: 500; margin-top: 2px;">
+                    <span style="color: #5f5f62;">LaTrobe Street</span>
+                    <span id="heartbeatStatus" style="color: #666;">Loading heartbeat...</span>
+                </span>
+            </h1>
+        </div>
+        <a href="menu.html" class="home-link" aria-label="Back to BinSpy menu">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+                <path d="M4 11L12 4L20 11V20H14V14H10V20H4V11Z"
+                      fill="none"
+                      stroke="currentColor"
+                      stroke-width="1.8"
+                      stroke-linecap="round"
+                      stroke-linejoin="round"/>
+            </svg>
+        </a>
+    </header>
+
+    <div class="container">
+        <div class="loading" id="loading">Loading bin data...</div>
+        <div class="error" id="error" style="display: none;"></div>
+
+        <div id="content" style="display: none;">
+            <div class="controls-row">
+                <div class="view-toggle">
+                    <button class="view-btn active" data-view="dashboard">Dashboard</button>
+                    <button class="view-btn" data-view="month">Monthly</button>
+                    <button class="view-btn" data-view="week">Weekly</button>
+                    <button class="view-btn" data-view="day">Daily</button>
+                    <button class="view-btn" data-view="cleaning-report">Cleaning Report</button>
+                    <button class="view-btn" data-view="invoice">Invoice Check</button>
+                </div>
+                <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 0 1 auto;">
+                    <button class="refresh-btn" id="refreshBtn" onclick="manualRefresh()">
+                        Refresh
+                    </button>
+                    <button class="export-btn" id="exportBtn" onclick="exportToCSV()">
+                        Export CSV
+                    </button>
+                </div>
+            </div>
+
+            <div class="last-updated" id="lastUpdated">
+                <span class="refresh-indicator" id="refreshIndicator"></span>
+                <span id="lastUpdatedText"></span>
+            </div>
+
+            <div id="dashboardView">
+                <div class="stats" id="stats"></div>
+
+                <div class="filters">
+                    <input type="text" class="search-box" id="searchBox" placeholder="Search bins...">
+                    <button class="filter-btn active" data-filter="all">All</button>
+                    <button class="filter-btn" data-filter="in">In Area</button>
+                    <button class="filter-btn" data-filter="out">Out of Area</button>
+                    <button class="filter-btn" data-filter="cleaning">Cleaning</button>
+                </div>
+
+                <div class="bins-grid" id="binsGrid"></div>
+            </div>
+
+            <div id="calendarView" class="hidden">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="nav-btn" id="prevBtn">← Prev</button>
+                            <button class="nav-btn" id="todayBtn">Today</button>
+                            <button class="nav-btn" id="nextBtn">Next →</button>
+                        </div>
+                        <div class="calendar-title" id="calendarTitle"></div>
+                        <select class="bin-selector" id="binSelector">
+                            <option value="all">All Bins</option>
+                        </select>
+                    </div>
+                    <div id="calendarContent"></div>
+                </div>
+            </div>
+
+            <div id="cleaningReportView" class="hidden">
+                <div class="calendar-container">
+                    <div class="calendar-header">
+                        <div class="calendar-nav">
+                            <button class="nav-btn" id="cleaningPrevBtn">Prev Month</button>
+                            <button class="nav-btn" id="cleaningTodayBtn">Current Month</button>
+                            <button class="nav-btn" id="cleaningNextBtn">Next Month</button>
+                        </div>
+                        <div class="calendar-title" id="cleaningReportTitle"></div>
+                    </div>
+                </div>
+                
+                <div style="background-color: #ffffff; padding: 20px; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.1); border: 1px solid #d2d2d7; margin-bottom: 20px;">
+                    <div id="cleaningReportContent"></div>
+                </div>
+            </div>
+
+            <div id="invoiceView" class="hidden">
+                <div class="invoice-container">
+                    <h2 style="margin-bottom: 20px; color: #1d1d1f;">Invoice Comparison</h2>
+                    
+                    <div class="upload-section" id="uploadSection">
+                        <div style="margin-bottom: 20px;">
+                            <svg width="80" height="80" viewBox="0 0 24 24" fill="none">
+                                <path d="M14 2H6C5.46957 2 4.96086 2.21071 4.58579 2.58579C4.21071 2.96086 4 3.46957 4 4V20C4 20.5304 4.21071 21.0391 4.58579 21.4142C4.96086 21.7893 5.46957 22 6 22H18C18.5304 22 19.0391 21.7893 19.4142 21.4142C19.7893 21.0391 20 20.5304 20 20V8L14 2Z" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M14 2V8H20" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                                <path d="M12 11V17M12 11L9 14M12 11L15 14" stroke="#007aff" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                            </svg>
+                        </div>
+                        <p style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Upload Invoice PDF</p>
+                        <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Drag and drop your waste invoice here or click to browse</p>
+                        <input type="file" id="pdfFileInput" accept="application/pdf">
+                        <label for="pdfFileInput" class="upload-label">
+                            Choose PDF File
+                        </label>
+                        <p id="fileName" style="margin-top: 20px; font-size: 0.95em; color: #666; font-weight: 500;"></p>
+                    </div>
+
+                    <div id="invoiceStats" class="stats hidden"></div>
+                    
+                    <div style="display: flex; gap: 10px; margin-top: 15px; flex-wrap: wrap;" id="invoiceActions" class="hidden">
+                        <button onclick="exportInvoiceCSV()" class="refresh-btn invoice-export-btn" style="flex: 1; min-width: 150px;">
+                            Export to CSV
+                        </button>
+                        <button onclick="clearInvoiceData()" class="refresh-btn" style="flex: 1; min-width: 150px;">
+                            Clear Results
+                        </button>
+                    </div>
+                    
+                    <div id="invoiceFilters" class="filters hidden">
+                        <button class="filter-btn active" data-invoice-filter="all">All</button>
+                        <button class="filter-btn" data-invoice-filter="match">Matches</button>
+                        <button class="filter-btn" data-invoice-filter="mismatch">Mismatches</button>
+                        <button class="filter-btn" data-invoice-filter="missing">Missing Data</button>
+                    </div>
+                    
+                    <div id="comparisonResults" class="hidden"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<footer>
+    2026 | Wasted by Shrunk | All Rights Reserved
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/PapaParse/5.3.2/papaparse.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.min.js"></script>
+<script>
+    // Set the worker source for PDF.js
+    pdfjsLib.GlobalWorkerOptions.workerSrc = 'https://cdnjs.cloudflare.com/ajax/libs/pdf.js/3.11.174/pdf.worker.min.js';
+
+    const CSV_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=0&single=true&output=csv';
+    const HEARTBEAT_URL = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vSfVu-9XvodyfrUbke5gJGL_J_y7t05n24tfIJ6JVa1yQgBt_pbZezMb0IoX1c4ZeXBUh_3bW2i8SUH/pub?gid=1070812280&single=true&output=csv';
+
+    let allReadings = [];
+    let latestBins = [];
+    let lastHeartbeat = null;
+    let currentView = 'dashboard';
+    let currentFilter = 'all';
+    let searchTerm = '';
+    let currentDate = new Date();
+    let selectedBin = 'all';
+    let invoiceData = null;
+    let comparisonData = null;
+    let currentInvoiceFilter = 'all';
+    let cleansingStats = { original: 0, cleaned: 0, removed: 0 };
+    let cleaningEvents = { inEvents: 0, outEvents: 0, totalEvents: 0 };
+    let cleaningReportDate = new Date();
+
+    // ========== BIN CLEANING EVENT DETECTION ==========
+    
+    /**
+     * Get date key for grouping
+     */
+    function getDateKey(timestamp) {
+        const year = timestamp.getFullYear();
+        const month = String(timestamp.getMonth() + 1).padStart(2, '0');
+        const day = String(timestamp.getDate()).padStart(2, '0');
+        return `${year}-${month}-${day}`;
+    }
+
+    /**
+     * Detects bin cleaning events based on clustering of IN events
+     */
+    function detectCleaningEvents(readings) {
+        const cleaningThreshold = 8; // Minimum bins for cleaning event
+        const timeWindowHours = 4; // Time window to detect clustering
+        const minHourForCleaning = 14; // 2 PM - cleaning usually happens afternoon onwards
+        
+        const cleaningData = {
+            inEvents: new Map(), // date -> Set of bin MACs
+            outEvents: new Map(), // date -> Set of bin MACs
+            markedReadings: new Set() // Set of reading indices marked as cleaning
+        };
+        
+        // Sort by timestamp
+        const sorted = [...readings].sort((a, b) => a.timestamp - b.timestamp);
+        
+        // Group readings by date
+        const readingsByDate = new Map();
+        sorted.forEach((reading, index) => {
+            const dateKey = getDateKey(reading.timestamp);
+            if (!readingsByDate.has(dateKey)) {
+                readingsByDate.set(dateKey, []);
+            }
+            readingsByDate.get(dateKey).push({ reading, index });
+        });
+        
+        // Detect cleaning IN events
+        readingsByDate.forEach((dayReadings, dateKey) => {
+            const inReadings = dayReadings.filter(r => 
+                r.reading.state === 'IN' && 
+                r.reading.timestamp.getHours() >= minHourForCleaning
+            );
+            
+            if (inReadings.length < cleaningThreshold) return;
+            
+            // Check for clustering within time window
+            for (let i = 0; i < inReadings.length; i++) {
+                const windowStart = inReadings[i].reading.timestamp;
+                const windowEnd = new Date(windowStart.getTime() + timeWindowHours * 60 * 60 * 1000);
+                
+                const binsInWindow = new Set();
+                const readingsInWindow = [];
+                
+                for (let j = i; j < inReadings.length; j++) {
+                    if (inReadings[j].reading.timestamp <= windowEnd) {
+                        binsInWindow.add(inReadings[j].reading.mac);
+                        readingsInWindow.push(inReadings[j]);
+                    } else {
+                        break;
+                    }
+                }
+                
+                // If we found a cleaning event
+                if (binsInWindow.size >= cleaningThreshold) {
+                    cleaningData.inEvents.set(dateKey, binsInWindow);
+                    readingsInWindow.forEach(r => cleaningData.markedReadings.add(r.index));
+                    
+                    console.log(`✓ Detected cleaning IN event on ${dateKey}: ${binsInWindow.size} bins`);
+                    
+                    // Look for corresponding OUT events in next 1-3 days
+                    findCorrespondingOutEvents(sorted, binsInWindow, windowEnd, cleaningData, readingsByDate);
+                    break; // Only one cleaning event per day
+                }
+            }
+        });
+        
+        return cleaningData;
+    }
+
+    /**
+     * Find corresponding OUT events for bins that came IN during cleaning
+     * Only marks OUT events as cleaning if they occur within 1 day of the cleaning IN
+     */
+    function findCorrespondingOutEvents(allReadings, cleanedBins, cleaningTime, cleaningData, readingsByDate) {
+        const searchDays = 3; // Look up to 3 days ahead to find bins
+        const cleaningOutMaxDays = 1; // Only mark as cleaning OUT if within 1 day
+        
+        const startDate = new Date(cleaningTime);
+        startDate.setDate(startDate.getDate() + 1);
+        startDate.setHours(0, 0, 0, 0);
+        
+        const endDate = new Date(startDate);
+        endDate.setDate(endDate.getDate() + searchDays);
+        
+        // Track which bins have been found
+        const foundBins = new Set();
+        
+        // Look through subsequent days
+        for (let d = 0; d < searchDays; d++) {
+            const checkDate = new Date(startDate);
+            checkDate.setDate(checkDate.getDate() + d);
+            const dateKey = getDateKey(checkDate);
+            
+            const dayReadings = readingsByDate.get(dateKey);
+            if (!dayReadings) continue;
+            
+            const outReadings = dayReadings.filter(r => r.reading.state === 'OUT');
+            
+            outReadings.forEach(r => {
+                if (cleanedBins.has(r.reading.mac) && !foundBins.has(r.reading.mac)) {
+                    // Check if this OUT is within 1 day of cleaning IN
+                    const daysSinceCleaningIn = d;
+                    
+                    if (daysSinceCleaningIn <= cleaningOutMaxDays) {
+                        // This is a cleaning OUT event (within 1 day)
+                        if (!cleaningData.outEvents.has(dateKey)) {
+                            cleaningData.outEvents.set(dateKey, new Set());
+                        }
+                        cleaningData.outEvents.get(dateKey).add(r.reading.mac);
+                        cleaningData.markedReadings.add(r.index);
+                    }
+                    // If beyond 1 day, we found the bin but don't mark it as cleaning
+                    foundBins.add(r.reading.mac);
+                }
+            });
+            
+            // Log if we found OUT events within cleaning window
+            if (cleaningData.outEvents.has(dateKey) && cleaningData.outEvents.get(dateKey).size > 0) {
+                console.log(`✓ Detected cleaning OUT event on ${dateKey}: ${cleaningData.outEvents.get(dateKey).size} bins (within 1 day of cleaning IN)`);
+            }
+        }
+    }
+
+    /**
+     * Mark readings as cleaning events
+     */
+    function markCleaningEvents(readings, cleaningData) {
+        return readings.map((reading, index) => {
+            if (cleaningData.markedReadings.has(index)) {
+                return { ...reading, isCleaning: true };
+            }
+            return { ...reading, isCleaning: false };
+        });
+    }
+
+    /**
+     * Count cleaning events per bin for a given month
+     */
+    function getCleaningReportForMonth(year, month) {
+        const binCleaningData = new Map();
+        const bins = getUniqueBins(allReadings);
+        
+        // Initialize all bins with 0 counts
+        bins.forEach((alias, mac) => {
+            binCleaningData.set(mac, {
+                name: alias,
+                mac: mac,
+                cleaningCount: 0,
+                cleaningDates: []
+            });
+        });
+        
+        // Filter readings for the selected month that are cleaning IN events
+        const monthReadings = allReadings.filter(r => {
+            return r.timestamp.getFullYear() === year &&
+                   r.timestamp.getMonth() === month &&
+                   r.isCleaning &&
+                   r.state === 'IN';
+        });
+        
+        // Group by date to count cleaning events
+        const cleaningEventsByDate = new Map();
+        monthReadings.forEach(reading => {
+            const dateKey = getDateKey(reading.timestamp);
+            if (!cleaningEventsByDate.has(dateKey)) {
+                cleaningEventsByDate.set(dateKey, new Set());
+            }
+            cleaningEventsByDate.get(dateKey).add(reading.mac);
+        });
+        
+        // Count cleaning events per bin
+        cleaningEventsByDate.forEach((bins, dateKey) => {
+            bins.forEach(mac => {
+                if (binCleaningData.has(mac)) {
+                    const data = binCleaningData.get(mac);
+                    data.cleaningCount++;
+                    data.cleaningDates.push(dateKey);
+                }
+            });
+        });
+        
+        // Convert to array and sort by cleaning count (ascending - least cleaned first), 
+        // then by oldest cleaning date, then by name
+        const report = Array.from(binCleaningData.values()).sort((a, b) => {
+            // First sort by cleaning count (ascending - 0 cleanings first, then 1, 2, etc.)
+            if (a.cleaningCount !== b.cleaningCount) {
+                return a.cleaningCount - b.cleaningCount;
+            }
+            
+            // If same count and both have cleanings, sort by oldest date (earliest first)
+            if (a.cleaningDates.length > 0 && b.cleaningDates.length > 0) {
+                const aOldest = a.cleaningDates[0]; // Already sorted chronologically
+                const bOldest = b.cleaningDates[0];
+                return aOldest.localeCompare(bOldest);
+            }
+            
+            // Finally sort by name
+            return a.name.localeCompare(b.name);
+        });
+        
+        return report;
+    }
+
+    // ========== DATA CLEANSING FUNCTIONS ==========
+    
+    /**
+     * Cleanses bin readings by removing invalid entries
+     */
+    function cleanseReadings(readings) {
+        const originalCount = readings.length;
+        const cleaned = [];
+        const binStates = new Map();
+
+        const isPM = (timestamp) => timestamp.getHours() >= 12;
+        const isAM = (timestamp) => timestamp.getHours() < 12;
+
+        // Sort chronologically
+        const sorted = [...readings].sort((a, b) => a.timestamp - b.timestamp);
+
+        sorted.forEach(reading => {
+            const binId = reading.mac;
+            if (!binId) return;
+            
+            const currentDate = getDateKey(reading.timestamp);
+            const state = reading.state;
+            if (!state) return;
+            
+            // Initialize bin state if needed
+            if (!binStates.has(binId)) {
+                binStates.set(binId, { lastState: null, lastDate: null });
+            }
+            
+            const binState = binStates.get(binId);
+            let isValid = false;
+            
+            // Rule for OUT in AM
+            if (state === 'OUT' && isAM(reading.timestamp)) {
+                if (binState.lastState === 'IN' && (binState.lastDate === null || binState.lastDate < currentDate)) {
+                    isValid = true;
+                } else if (binState.lastState === null) {
+                    isValid = true;
+                }
+            }
+            // Rule for IN in PM
+            else if (state === 'IN' && isPM(reading.timestamp)) {
+                if (binState.lastState === 'OUT' || binState.lastState === null) {
+                    isValid = true;
+                }
+            }
+            
+            // If valid, add to cleaned and update state
+            if (isValid) {
+                cleaned.push(reading);
+                binStates.set(binId, { lastState: state, lastDate: currentDate });
+            }
+        });
+
+        return {
+            cleaned: cleaned,
+            original: originalCount,
+            removed: originalCount - cleaned.length
+        };
+    }
+
+    function updateCleansingInfo() {
+        // Cleansing info banner disabled - data cleansing still active in background
+        let infoEl = document.getElementById('cleansingInfo');
+        if (infoEl) {
+            infoEl.style.display = 'none';
+        }
+    }
+
+    // ========== CORE FUNCTIONS (from original) ==========
+    
+    function parseTimestamp(timestamp) {
+        if (!timestamp) {
+            console.warn('parseTimestamp: No timestamp provided');
+            return null;
+        }
+        
+        // Trim whitespace
+        const cleaned = timestamp.toString().trim();
+        
+        const parts = cleaned.split(' ');
+        if (parts.length < 2) {
+            console.warn('parseTimestamp: Invalid format (no space):', cleaned);
+            return null;
+        }
+        
+        const dateParts = parts[0].split('/');
+        const timeParts = parts[1].split(':');
+
+        if (dateParts.length !== 3 || timeParts.length !== 3) {
+            console.warn('parseTimestamp: Invalid date/time parts:', cleaned);
+            return null;
+        }
+
+        const parsed = new Date(
+            parseInt(dateParts[2]),      // year
+            parseInt(dateParts[1]) - 1,  // month (0-indexed)
+            parseInt(dateParts[0]),      // day
+            parseInt(timeParts[0]),      // hour
+            parseInt(timeParts[1]),      // minute
+            parseInt(timeParts[2])       // second
+        );
+        
+        // Validate the parsed date
+        if (isNaN(parsed.getTime())) {
+            console.warn('parseTimestamp: Invalid date created:', cleaned);
+            return null;
+        }
+        
+        return parsed;
+    }
+
+    function getLatestBinStatus(data) {
+        const binMap = new Map();
+
+        data.forEach(row => {
+            const mac = row.mac || row.MAC;
+            if (!mac) return;
+
+            const timestamp = row.timestamp;
+
+            if (!binMap.has(mac) || timestamp > binMap.get(mac).timestamp) {
+                binMap.set(mac, row);
+            }
+        });
+
+        return Array.from(binMap.values());
+    }
+
+    function getUniqueBins(data) {
+        const bins = new Map();
+        data.forEach(row => {
+            const mac = row.mac || row.MAC;
+            const alias = row.alias || row.Alias || mac;
+            if (mac && !bins.has(mac)) {
+                bins.set(mac, alias);
+            }
+        });
+        return bins;
+    }
+
+    // ========== HEARTBEAT MONITORING ==========
+    async function loadHeartbeat() {
+        try {
+            const response = await fetch(HEARTBEAT_URL + '&t=' + new Date().getTime());
+            const csvText = await response.text();
+
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    if (results.data && results.data.length > 0) {
+                        const latest = results.data[results.data.length - 1];
+                        // Read from Timestamp column
+                        const timestampStr = latest.Timestamp || latest.timestamp || latest['System Time '] || latest['System Time'];
+                        
+                        if (!timestampStr) {
+                            console.error('No timestamp found in heartbeat data. Available columns:', Object.keys(latest));
+                            console.error('Latest row data:', latest);
+                            return;
+                        }
+                        
+                        console.log('Heartbeat raw timestamp:', timestampStr);
+                        const parsedTimestamp = parseTimestamp(timestampStr);
+                        
+                        if (!parsedTimestamp) {
+                            console.error('Failed to parse heartbeat timestamp:', timestampStr);
+                            return;
+                        }
+                        
+                        lastHeartbeat = {
+                            timestamp: parsedTimestamp,
+                            deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown',
+                            status: latest.Status || latest.status || 'Unknown'
+                        };
+                        
+                        const now = new Date();
+                        const ageMinutes = Math.floor((now - parsedTimestamp) / 60000);
+                        console.log('Heartbeat loaded:', {
+                            timestamp: parsedTimestamp.toLocaleString(),
+                            raw: timestampStr,
+                            ageMinutes: ageMinutes + ' minutes ago',
+                            now: now.toLocaleString()
+                        });
+                        
+                        updateHeartbeatDisplay();
+                    } else {
+                        console.error('No data in heartbeat CSV');
+                    }
+                },
+                error: function(error) {
+                    console.error('Error parsing heartbeat:', error);
+                }
+            });
+        } catch (error) {
+            console.error('Error fetching heartbeat:', error);
+        }
+    }
+
+    function updateHeartbeatDisplay() {
+        const statusElement = document.getElementById('heartbeatStatus');
+        if (!statusElement) return;
+
+        if (lastHeartbeat) {
+            const now = new Date();
+            const diffMs = now - lastHeartbeat.timestamp;
+            const diffMins = Math.floor(diffMs / 60000);
+            const diffHours = Math.floor(diffMins / 60);
+
+            let statusText = '';
+            let statusColor = '';
+
+            if (diffMins < 60) {
+                statusText = `Last heartbeat: ${diffMins}m ago`;
+                statusColor = '#34c759';
+            } else if (diffHours < 2) {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#34c759';
+            } else if (diffHours < 3) {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#ff9500';
+            } else {
+                statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
+                statusColor = '#ff3b30';
+            }
+
+            statusElement.textContent = statusText;
+            statusElement.style.color = statusColor;
+        } else {
+            statusElement.textContent = 'Waiting for heartbeat...';
+            statusElement.style.color = '#666';
+        }
+    }
+
+    async function loadData(isAutoRefresh = false) {
+        const indicator = document.getElementById('refreshIndicator');
+        if (indicator && isAutoRefresh) {
+            indicator.classList.add('active');
+        }
+
+        try {
+            const response = await fetch(CSV_URL + '&t=' + new Date().getTime());
+            const csvText = await response.text();
+
+            Papa.parse(csvText, {
+                header: true,
+                skipEmptyLines: true,
+                complete: function(results) {
+                    // Parse all readings
+                    const rawReadings = results.data.map(row => {
+                        const mapped = {
+                            timestamp: parseTimestamp(row.Timestamp || row.timestamp),
+                            alias: row.alias || row.Alias || row.Name || row.name || '',
+                            mac: row.mac || row.MAC || '',
+                            rssi: row.rssi || row.RSSI || '',
+                            state: (row.state || row.State || '').trim().toUpperCase(),
+                            Timestamp: row.Timestamp || row.timestamp
+                        };
+                        return mapped;
+                    }).filter(row => row.timestamp !== null); // Filter out invalid timestamps
+
+                    // APPLY DATA CLEANSING
+                    const cleansingResult = cleanseReadings(rawReadings);
+                    const cleansedReadings = cleansingResult.cleaned;
+                    cleansingStats = {
+                        original: cleansingResult.original,
+                        cleaned: cleansingResult.cleaned.length,
+                        removed: cleansingResult.removed
+                    };
+
+                    console.log(`✓ Data cleansing: ${cleansingStats.original} → ${cleansingStats.cleaned} (removed ${cleansingStats.removed})`);
+                    
+                    // DETECT CLEANING EVENTS
+                    const cleaningData = detectCleaningEvents(cleansedReadings);
+                    allReadings = markCleaningEvents(cleansedReadings, cleaningData);
+                    
+                    // Count cleaning events - each bin's IN→OUT cycle is ONE event
+                    let totalCleaningEvents = 0;
+                    let cleaningInCount = 0;
+                    let cleaningOutCount = 0;
+                    
+                    // Count unique bins that went through cleaning (IN event exists)
+                    cleaningData.inEvents.forEach(bins => {
+                        cleaningInCount += bins.size;
+                        totalCleaningEvents += bins.size; // Each bin = 1 complete cleaning event
+                    });
+                    cleaningData.outEvents.forEach(bins => cleaningOutCount += bins.size);
+                    
+                    cleaningEvents = {
+                        inEvents: cleaningInCount,
+                        outEvents: cleaningOutCount,
+                        totalEvents: totalCleaningEvents // Count of bins that went through cleaning
+                    };
+
+                    console.log(`✓ Cleaning events: ${totalCleaningEvents} bins went through cleaning (${cleaningInCount} IN, ${cleaningOutCount} OUT)`);
+                    
+                    updateCleansingInfo();
+
+                    // Load heartbeat data
+                    loadHeartbeat();
+
+                    latestBins = getLatestBinStatus(allReadings);
+                    populateBinSelector();
+                    
+                    if (currentView !== 'invoice' || !isAutoRefresh) {
+                        displayCurrentView();
+                    } else {
+                        updateLastUpdated();
+                    }
+
+                    document.getElementById('loading').style.display = 'none';
+                    document.getElementById('content').style.display = 'block';
+
+                    if (indicator && isAutoRefresh) {
+                        setTimeout(() => indicator.classList.remove('active'), 500);
+                    }
+                },
+                error: function(error) {
+                    showError('Error parsing CSV: ' + error.message);
+                    if (indicator) {
+                        indicator.classList.remove('active');
+                    }
+                }
+            });
+        } catch (error) {
+            showError('Error loading data: ' + error.message);
+            if (indicator) {
+                indicator.classList.remove('active');
+            }
+        }
+    }
+
+    function showError(message) {
+        document.getElementById('loading').style.display = 'none';
+        document.getElementById('error').style.display = 'block';
+        document.getElementById('error').textContent = message;
+    }
+
+    function populateBinSelector() {
+        const selector = document.getElementById('binSelector');
+        const bins = getUniqueBins(allReadings);
+
+        selector.innerHTML = '<option value="all">All Bins</option>';
+        bins.forEach((alias, mac) => {
+            const option = document.createElement('option');
+            option.value = mac;
+            option.textContent = alias;
+            selector.appendChild(option);
+        });
+    }
+
+    function displayCurrentView() {
+        document.getElementById('dashboardView').classList.add('hidden');
+        document.getElementById('calendarView').classList.add('hidden');
+        document.getElementById('cleaningReportView').classList.add('hidden');
+        document.getElementById('invoiceView').classList.add('hidden');
+
+        const exportBtn = document.querySelector('.export-btn[onclick="exportToCSV()"]');
+        if (exportBtn) {
+            exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
+        }
+
+        if (currentView === 'dashboard') {
+            displayDashboard();
+        } else if (currentView === 'cleaning-report') {
+            displayCleaningReport();
+        } else if (currentView === 'invoice') {
+            displayInvoiceView();
+        } else {
+            displayCalendar();
+        }
+        updateLastUpdated();
+    }
+
+    function displayDashboard() {
+        document.getElementById('dashboardView').classList.remove('hidden');
+        displayStats();
+        displayBins();
+    }
+
+    function displayStats() {
+        // Filter bins based on current cleaning status (not just the isCleaning flag)
+        const normalBins = latestBins.filter(bin => !isCurrentlyCleaning(bin));
+        const cleaningBins = latestBins.filter(bin => isCurrentlyCleaning(bin));
+        
+        const inCount = normalBins.filter(bin => isInArea(bin)).length;
+        const outCount = normalBins.filter(bin => !isInArea(bin)).length;
+        const total = normalBins.length;
+        const cleaningCount = cleaningBins.length;
+
+        document.getElementById('stats').innerHTML = `
+            <div class="stat-card in">
+                <div class="stat-number">${inCount}</div>
+                <div class="stat-label">In Area</div>
+            </div>
+            <div class="stat-card out">
+                <div class="stat-number">${outCount}</div>
+                <div class="stat-label">Out of Area</div>
+            </div>
+            <div class="stat-card cleaning">
+                <div class="stat-number">${cleaningCount}</div>
+                <div class="stat-label">Bin Cleaning</div>
+            </div>
+            <div class="stat-card total">
+                <div class="stat-number">${total}</div>
+                <div class="stat-label">Total Bins</div>
+            </div>
+        `;
+    }
+
+    function isInArea(bin) {
+        const state = (bin.state || bin.State || '').trim().toUpperCase();
+        return state === 'IN';
+    }
+
+    const wasteTypeByNumber = {
+        1: 'general', 2: 'general', 3: 'general', 4: 'commingle',
+        5: 'general', 6: 'general', 7: 'general', 8: 'commingle',
+        9: 'commingle', 10: 'general', 11: 'commingle', 12: 'general',
+        13: 'general', 14: 'general', 15: 'commingle', 16: 'commingle'
+    };
+
+    function getBinNumberFromName(name) {
+        const match = String(name).match(/\d+/);
+        return match ? parseInt(match[0], 10) : null;
+    }
+
+    function displayBins() {
+        let filteredBins = latestBins;
+
+        if (currentFilter === 'in') {
+            filteredBins = filteredBins.filter(bin => isInArea(bin) && !isCurrentlyCleaning(bin));
+        } else if (currentFilter === 'out') {
+            filteredBins = filteredBins.filter(bin => !isInArea(bin) && !isCurrentlyCleaning(bin));
+        } else if (currentFilter === 'cleaning') {
+            filteredBins = filteredBins.filter(bin => isCurrentlyCleaning(bin));
+        } else if (currentFilter === 'all') {
+            // Show all bins
+        }
+
+        if (searchTerm) {
+            filteredBins = filteredBins.filter(bin => {
+                return Object.values(bin).some(value =>
+                    String(value).toLowerCase().includes(searchTerm.toLowerCase())
+                );
+            });
+        }
+
+        const binsGrid = document.getElementById('binsGrid');
+
+        if (filteredBins.length === 0) {
+            binsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No bins found</div>';
+            return;
+        }
+
+        binsGrid.innerHTML = filteredBins.map(bin => {
+            const inArea = isInArea(bin);
+            const isCleaning = isCurrentlyCleaning(bin);
+            let statusClass, statusText;
+            
+            if (isCleaning) {
+                statusClass = 'cleaning';
+                statusText = inArea ? 'Cleaning (IN)' : 'Cleaning (OUT)';
+            } else {
+                statusClass = inArea ? 'in' : 'out';
+                statusText = inArea ? 'In Area' : 'Out of Area';
+            }
+
+            const binName = bin.alias || bin.Alias || bin.mac || bin.MAC || 'Unknown Bin';
+            const timestampStr = bin.Timestamp || bin.timestamp || '';
+            const mac = bin.mac || bin.MAC || '';
+            const rssi = bin.rssi || bin.RSSI || '';
+
+            const binNumber = getBinNumberFromName(binName);
+            const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+            let wastePillHtml = '';
+
+            if (wasteTypeKey) {
+                const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingle';
+                wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
+            }
+
+            return `
+                <div class="bin-card ${statusClass}">
+                    <div class="bin-header">
+                        <div class="bin-name">${binName}</div>
+                        ${wastePillHtml}
+                    </div>
+                    <span class="bin-status ${isCleaning ? 'cleaning-' + (inArea ? 'in' : 'out') : statusClass}">${statusText}</span>
+                    <div class="bin-details">
+                        ${timestampStr ? `<div><strong>Last Seen:</strong> ${timestampStr}</div>` : ''}
+                        ${mac ? `<div><strong>MAC:</strong> ${mac}</div>` : ''}
+                        ${rssi ? `<div><strong>Signal:</strong> ${rssi} dBm</div>` : ''}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    /**
+     * Check if a bin is currently in cleaning status
+     * Returns false if the cleaning event is more than 1 day old
+     */
+    function isCurrentlyCleaning(bin) {
+        if (!bin.isCleaning) return false;
+        
+        // Check if more than 1 day has passed since this reading
+        const now = new Date();
+        const readingTime = bin.timestamp;
+        const daysSince = (now - readingTime) / (1000 * 60 * 60 * 24);
+        
+        // If more than 1 day has passed, no longer show as cleaning
+        if (daysSince > 1) {
+            return false;
+        }
+        
+        return true;
+    }
+
+    function displayCalendar() {
+        document.getElementById('calendarView').classList.remove('hidden');
+
+        const existingBtn = document.getElementById('expandAllBtn');
+        if (existingBtn) {
+            existingBtn.remove();
+        }
+
+        if (currentView === 'month') {
+            displayMonthView();
+        } else if (currentView === 'week') {
+            displayWeekView();
+            setTimeout(() => {
+                const calendarNav = document.querySelector('.calendar-nav');
+                if (calendarNav && !document.getElementById('expandAllBtn')) {
+                    const expandBtn = document.createElement('button');
+                    expandBtn.id = 'expandAllBtn';
+                    expandBtn.className = 'expand-all-btn';
+                    expandBtn.textContent = 'Collapse All';
+                    expandBtn.onclick = toggleAllWeekDays;
+                    calendarNav.appendChild(expandBtn);
+                }
+            }, 0);
+        } else if (currentView === 'day') {
+            displayDayView();
+        }
+    }
+
+    function displayCleaningReport() {
+        document.getElementById('cleaningReportView').classList.remove('hidden');
+        
+        const year = cleaningReportDate.getFullYear();
+        const month = cleaningReportDate.getMonth();
+        
+        document.getElementById('cleaningReportTitle').textContent =
+            cleaningReportDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+        
+        const report = getCleaningReportForMonth(year, month);
+        
+        // Display table
+        let contentHtml = '';
+        
+        const totalCleanings = report.reduce((sum, bin) => sum + bin.cleaningCount, 0);
+        
+        if (report.length === 0 || totalCleanings === 0) {
+            contentHtml = `
+                <div class="no-cleaning-data">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <path d="M12 6v6l4 2"></path>
+                    </svg>
+                    <div style="font-size: 1.2em; font-weight: 600; margin-bottom: 8px;">No Cleaning Events</div>
+                    <div style="font-size: 0.95em; color: #8e8e93;">No bins were cleaned during this month</div>
+                </div>
+            `;
+        } else {
+            contentHtml = `
+                <table class="cleaning-report-table">
+                    <thead>
+                        <tr>
+                            <th>Bin Name</th>
+                            <th>Waste Type</th>
+                            <th>Cleaning Dates</th>
+                            <th>Times Cleaned</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+            `;
+            
+            report.forEach(bin => {
+                const binNumber = getBinNumberFromName(bin.name);
+                const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+                let wasteTypeLabel = 'Unknown';
+                let wasteTypePillClass = '';
+                
+                if (wasteTypeKey === 'general') {
+                    wasteTypeLabel = 'General Waste';
+                    wasteTypePillClass = 'general';
+                } else if (wasteTypeKey === 'commingle') {
+                    wasteTypeLabel = 'Commingle';
+                    wasteTypePillClass = 'commingle';
+                }
+                
+                const datesHtml = bin.cleaningDates.length > 0
+                    ? bin.cleaningDates.map(date => {
+                        const d = new Date(date);
+                        return `<span class="cleaning-date-chip">${d.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })}</span>`;
+                    }).join('')
+                    : '<span style="color: #8e8e93; font-style: italic;">—</span>';
+                
+                const countBadgeClass = bin.cleaningCount === 0 ? 'zero' : '';
+                
+                contentHtml += `
+                    <tr>
+                        <td data-label="Bin: "><strong>${bin.name}</strong></td>
+                        <td data-label="Type: ">${wasteTypeKey ? `<span class="bin-type-pill ${wasteTypePillClass}">${wasteTypeLabel}</span>` : '—'}</td>
+                        <td data-label="Dates: ">
+                            <div class="cleaning-dates">${datesHtml}</div>
+                        </td>
+                        <td data-label="Count: " style="text-align: center;">
+                            <span class="cleaning-count-badge ${countBadgeClass}">${bin.cleaningCount}</span>
+                        </td>
+                    </tr>
+                `;
+            });
+            
+            contentHtml += `
+                    </tbody>
+                </table>
+            `;
+        }
+        
+        document.getElementById('cleaningReportContent').innerHTML = contentHtml;
+    }
+
+    function getFilteredReadings() {
+        if (selectedBin === 'all') {
+            return allReadings;
+        }
+        return allReadings.filter(r => (r.mac || r.MAC) === selectedBin);
+    }
+
+    function displayMonthView() {
+        const year = currentDate.getFullYear();
+        const month = currentDate.getMonth();
+
+        document.getElementById('calendarTitle').textContent =
+            currentDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+
+        const firstDay = new Date(year, month, 1);
+        const startDate = new Date(firstDay);
+        startDate.setDate(startDate.getDate() - startDate.getDay());
+
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        let html = '<div class="month-grid">';
+
+        days.forEach(day => {
+            html += `<div class="day-header">${day}</div>`;
+        });
+
+        const readings = getFilteredReadings();
+
+        for (let i = 0; i < 42; i++) {
+            const currentDay = new Date(startDate);
+            currentDay.setDate(startDate.getDate() + i);
+
+            const isOtherMonth = currentDay.getMonth() !== month;
+            const dayReadings = readings.filter(r =>
+                r.timestamp.toDateString() === currentDay.toDateString()
+            );
+
+            html += `<div class="day-cell ${isOtherMonth ? 'other-month' : ''}" 
+                     onclick="viewDay(new Date(${currentDay.getTime()}))">
+                <div class="day-number">${currentDay.getDate()}</div>
+                <div class="day-events">`;
+
+            const inCount = dayReadings.filter(r => !r.isCleaning && r.state === 'IN').length;
+            const outCount = dayReadings.filter(r => !r.isCleaning && r.state === 'OUT').length;
+            const cleaningInCount = dayReadings.filter(r => r.isCleaning && r.state === 'IN').length;
+            const cleaningOutCount = dayReadings.filter(r => r.isCleaning && r.state === 'OUT').length;
+
+            if (inCount > 0) {
+                html += `<div class="event-dot in">${inCount} IN</div>`;
+            }
+            if (outCount > 0) {
+                html += `<div class="event-dot out">${outCount} OUT</div>`;
+            }
+            if (cleaningInCount > 0) {
+                html += `<div class="event-dot cleaning-in">${cleaningInCount} CLEAN</div>`;
+            }
+            if (cleaningOutCount > 0) {
+                html += `<div class="event-dot cleaning-out">${cleaningOutCount} CLEAN</div>`;
+            }
+
+            html += `</div></div>`;
+        }
+
+        html += '</div>';
+        document.getElementById('calendarContent').innerHTML = html;
+    }
+
+    function displayWeekView() {
+        const startOfWeek = new Date(currentDate);
+        startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+
+        const endOfWeek = new Date(startOfWeek);
+        endOfWeek.setDate(startOfWeek.getDate() + 6);
+
+        document.getElementById('calendarTitle').textContent =
+            `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
+
+        const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+
+        let html = '<div class="week-grid">';
+
+        const readings = getFilteredReadings();
+
+        for (let i = 0; i < 7; i++) {
+            const currentDay = new Date(startOfWeek);
+            currentDay.setDate(startOfWeek.getDate() + i);
+
+            const dayReadings = readings.filter(r =>
+                r.timestamp.toDateString() === currentDay.toDateString()
+            ).sort((a, b) => a.timestamp - b.timestamp);
+
+            const dayId = `week-day-${i}`;
+            const eventsId = `week-events-${i}`;
+
+            html += `<div class="week-day" id="${dayId}">
+                <div class="week-day-header" onclick="toggleWeekDay(${i})">
+                    <span class="expand-icon">▼</span>
+                    <span>${days[i]}<br>${currentDay.getDate()}</span>
+                </div>
+                <div class="week-events" id="${eventsId}">`;
+
+            if (dayReadings.length === 0) {
+                html += '<div style="text-align: center; color: #999; font-size: 0.85em; padding: 10px;">No events</div>';
+            } else {
+                dayReadings.forEach(reading => {
+                    const state = reading.state;
+                    const isCleaning = reading.isCleaning;
+                    let statusClass;
+                    
+                    if (isCleaning) {
+                        statusClass = state === 'IN' ? 'cleaning-in' : 'cleaning-out';
+                    } else {
+                        statusClass = state === 'IN' ? 'in' : 'out';
+                    }
+                    
+                    const time = reading.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                    const alias = reading.alias || reading.Alias || 'Bin';
+                    const eventLabel = isCleaning ? `${state} (CLEAN)` : state;
+
+                    html += `<div class="week-event ${statusClass}">
+                        <div class="event-time">${time}</div>
+                        <div>${alias} - ${eventLabel}</div>
+                    </div>`;
+                });
+            }
+
+            html += `</div></div>`;
+        }
+
+        html += '</div>';
+        document.getElementById('calendarContent').innerHTML = html;
+
+        setTimeout(() => {
+            for (let i = 0; i < 7; i++) {
+                const eventsElement = document.getElementById(`week-events-${i}`);
+                if (eventsElement) {
+                    eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
+                }
+            }
+        }, 0);
+    }
+
+    function toggleWeekDay(dayIndex) {
+        const dayElement = document.getElementById(`week-day-${dayIndex}`);
+        const eventsElement = document.getElementById(`week-events-${dayIndex}`);
+        const headerElement = dayElement.querySelector('.week-day-header');
+
+        if (eventsElement.classList.contains('collapsed')) {
+            eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
+            eventsElement.classList.remove('collapsed');
+            headerElement.classList.remove('collapsed');
+            dayElement.classList.remove('collapsed');
+        } else {
+            eventsElement.style.maxHeight = '0';
+            eventsElement.classList.add('collapsed');
+            headerElement.classList.add('collapsed');
+            dayElement.classList.add('collapsed');
+        }
+    }
+
+    function toggleAllWeekDays() {
+        let collapsedCount = 0;
+        for (let i = 0; i < 7; i++) {
+            const eventsElement = document.getElementById(`week-events-${i}`);
+            if (eventsElement && eventsElement.classList.contains('collapsed')) {
+                collapsedCount++;
+            }
+        }
+
+        // If any days are collapsed, expand all. Otherwise, collapse all.
+        const shouldExpand = collapsedCount > 0;
+
+        for (let i = 0; i < 7; i++) {
+            const dayElement = document.getElementById(`week-day-${i}`);
+            const eventsElement = document.getElementById(`week-events-${i}`);
+            const headerElement = dayElement?.querySelector('.week-day-header');
+
+            if (!dayElement || !eventsElement || !headerElement) continue;
+
+            if (shouldExpand) {
+                eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
+                eventsElement.classList.remove('collapsed');
+                headerElement.classList.remove('collapsed');
+                dayElement.classList.remove('collapsed');
+            } else {
+                eventsElement.style.maxHeight = '0';
+                eventsElement.classList.add('collapsed');
+                headerElement.classList.add('collapsed');
+                dayElement.classList.add('collapsed');
+            }
+        }
+
+        const btn = document.getElementById('expandAllBtn');
+        if (btn) {
+            btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
+        }
+    }
+
+    function displayDayView() {
+        document.getElementById('calendarTitle').textContent =
+            currentDate.toLocaleDateString('en-US', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
+
+        const readings = getFilteredReadings().filter(r =>
+            r.timestamp.toDateString() === currentDate.toDateString()
+        ).sort((a, b) => a.timestamp - b.timestamp);
+
+        let html = '<div class="day-view"><div class="timeline">';
+
+        if (readings.length === 0) {
+            html += '<div style="text-align: center; padding: 40px; color: #666;">No readings for this day</div>';
+        } else {
+            readings.forEach(reading => {
+                const state = reading.state;
+                const isCleaning = reading.isCleaning;
+                let statusClass;
+                
+                if (isCleaning) {
+                    statusClass = state === 'IN' ? 'cleaning-in' : 'cleaning-out';
+                } else {
+                    statusClass = state === 'IN' ? 'in' : 'out';
+                }
+                
+                const time = reading.timestamp.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+                const alias = reading.alias || reading.Alias || 'Unknown Bin';
+                const mac = reading.mac || reading.MAC || '';
+                const rssi = reading.rssi || reading.RSSI || '';
+                const eventLabel = isCleaning ? `${state} (CLEAN)` : state;
+
+                const binNumber = getBinNumberFromName(alias);
+                const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+                let wastePillHtml = '';
+
+                if (wasteTypeKey) {
+                    const label = wasteTypeKey === 'general' ? 'GENERAL WASTE' : 'COMMINGLE';
+                    wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
+                }
+
+                html += `<div class="timeline-event ${statusClass}">
+                    <div class="timeline-header">
+                        <div class="timeline-main">
+                            <div class="timeline-time">${time}</div>
+                            <div class="timeline-details">${alias} - ${eventLabel}</div>
+                        </div>
+                        <div class="timeline-right">
+                            ${wastePillHtml}
+                        </div>
+                    </div>
+                    <div class="timeline-info">MAC: ${mac} | Signal: ${rssi} dBm</div>
+                </div>`;
+            });
+        }
+
+        html += '</div></div>';
+        document.getElementById('calendarContent').innerHTML = html;
+    }
+
+    function viewDay(date) {
+        currentDate = date;
+        currentView = 'day';
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.view === 'day');
+        });
+        displayCurrentView();
+    }
+
+    function updateLastUpdated() {
+        const now = new Date();
+        const textElement = document.getElementById('lastUpdatedText');
+        if (textElement) {
+            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
+        }
+    }
+
+    function manualRefresh() {
+        loadData(true);
+    }
+
+    function exportToCSV() {
+        let dataToExport = [];
+        let filename = '';
+
+        if (currentView === 'dashboard') {
+            let filteredBins = latestBins;
+
+            if (currentFilter === 'in') {
+                filteredBins = filteredBins.filter(bin => isInArea(bin) && !isCurrentlyCleaning(bin));
+            } else if (currentFilter === 'out') {
+                filteredBins = filteredBins.filter(bin => !isInArea(bin) && !isCurrentlyCleaning(bin));
+            } else if (currentFilter === 'cleaning') {
+                filteredBins = filteredBins.filter(bin => isCurrentlyCleaning(bin));
+            }
+
+            if (searchTerm) {
+                filteredBins = filteredBins.filter(bin => {
+                    return Object.values(bin).some(value =>
+                        String(value).toLowerCase().includes(searchTerm.toLowerCase())
+                    );
+                });
+            }
+
+            dataToExport = filteredBins.map(bin => {
+                const inArea = isInArea(bin);
+                const isCleaning = isCurrentlyCleaning(bin);
+                let status;
+                
+                if (isCleaning) {
+                    status = inArea ? 'CLEANING_IN' : 'CLEANING_OUT';
+                } else {
+                    status = inArea ? 'IN' : 'OUT';
+                }
+                
+                return {
+                    'Bin Name': bin.alias || bin.Alias || 'Unknown',
+                    'MAC Address': bin.mac || bin.MAC || '',
+                    'Status': status,
+                    'Is Cleaning': isCleaning ? 'YES' : 'NO',
+                    'Last Seen': bin.Timestamp || bin.timestamp || '',
+                    'Signal (dBm)': bin.rssi || bin.RSSI || ''
+                };
+            });
+
+            filename = `binspy-enhanced-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
+
+        } else if (currentView === 'cleaning-report') {
+            const year = cleaningReportDate.getFullYear();
+            const month = cleaningReportDate.getMonth();
+            const report = getCleaningReportForMonth(year, month);
+            
+            dataToExport = report.map(bin => {
+                const binNumber = getBinNumberFromName(bin.name);
+                const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
+                const wasteType = wasteTypeKey === 'general' ? 'General Waste' : 
+                                  wasteTypeKey === 'commingle' ? 'Commingle' : 'Unknown';
+                
+                const datesStr = bin.cleaningDates.map(date => {
+                    const d = new Date(date);
+                    return d.toLocaleDateString('en-US');
+                }).join('; ');
+                
+                return {
+                    'Bin Name': bin.name,
+                    'Waste Type': wasteType,
+                    'Times Cleaned': bin.cleaningCount,
+                    'Cleaning Dates': datesStr || 'None'
+                };
+            });
+            
+            const monthName = cleaningReportDate.toLocaleDateString('en-US', { month: 'long', year: 'numeric' }).replace(' ', '-');
+            filename = `binspy-cleaning-report-${monthName}.csv`;
+
+        } else {
+            const readings = getFilteredReadings();
+
+            if (currentView === 'month') {
+                const year = currentDate.getFullYear();
+                const month = currentDate.getMonth();
+                const monthReadings = readings.filter(r =>
+                    r.timestamp.getFullYear() === year &&
+                    r.timestamp.getMonth() === month
+                );
+
+                dataToExport = monthReadings.map(r => ({
+                    'Date': r.timestamp.toLocaleDateString(),
+                    'Time': r.timestamp.toLocaleTimeString(),
+                    'Bin Name': r.alias || r.Alias || 'Unknown',
+                    'MAC Address': r.mac || r.MAC || '',
+                    'Status': r.state,
+                    'Is Cleaning': r.isCleaning ? 'YES' : 'NO',
+                    'Signal (dBm)': r.rssi || r.RSSI || ''
+                }));
+
+                filename = `binspy-enhanced-month-${currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).replace(' ', '-')}.csv`;
+
+            } else if (currentView === 'week') {
+                const startOfWeek = new Date(currentDate);
+                startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
+                startOfWeek.setHours(0, 0, 0, 0);
+
+                const endOfWeek = new Date(startOfWeek);
+                endOfWeek.setDate(startOfWeek.getDate() + 6);
+                endOfWeek.setHours(23, 59, 59, 999);
+
+                const weekReadings = readings.filter(r =>
+                    r.timestamp >= startOfWeek && r.timestamp <= endOfWeek
+                );
+
+                dataToExport = weekReadings.map(r => ({
+                    'Date': r.timestamp.toLocaleDateString(),
+                    'Time': r.timestamp.toLocaleTimeString(),
+                    'Bin Name': r.alias || r.Alias || 'Unknown',
+                    'MAC Address': r.mac || r.MAC || '',
+                    'Status': r.state,
+                    'Is Cleaning': r.isCleaning ? 'YES' : 'NO',
+                    'Signal (dBm)': r.rssi || r.RSSI || ''
+                }));
+
+                filename = `binspy-enhanced-week-${startOfWeek.toLocaleDateString().replace(/\//g, '-')}.csv`;
+
+            } else if (currentView === 'day') {
+                const dayReadings = readings.filter(r =>
+                    r.timestamp.toDateString() === currentDate.toDateString()
+                );
+
+                dataToExport = dayReadings.map(r => ({
+                    'Time': r.timestamp.toLocaleTimeString(),
+                    'Bin Name': r.alias || r.Alias || 'Unknown',
+                    'MAC Address': r.mac || r.MAC || '',
+                    'Status': r.state,
+                    'Is Cleaning': r.isCleaning ? 'YES' : 'NO',
+                    'Signal (dBm)': r.rssi || r.RSSI || ''
+                }));
+
+                filename = `binspy-enhanced-day-${currentDate.toLocaleDateString().replace(/\//g, '-')}.csv`;
+            }
+        }
+
+        if (dataToExport.length === 0) {
+            alert('No data to export');
+            return;
+        }
+
+        const csv = Papa.unparse(dataToExport);
+
+        const blob = new Blob([csv], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+
+        link.setAttribute('href', url);
+        link.setAttribute('download', filename);
+        link.style.visibility = 'hidden';
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Invoice View Functions
+    function displayInvoiceView() {
+        document.getElementById('invoiceView').classList.remove('hidden');
+        
+        const fileInput = document.getElementById('pdfFileInput');
+        const newFileInput = fileInput.cloneNode(true);
+        fileInput.parentNode.replaceChild(newFileInput, fileInput);
+        
+        newFileInput.addEventListener('change', handleFileUpload);
+
+        const uploadSection = document.getElementById('uploadSection');
+        
+        uploadSection.addEventListener('dragover', (e) => {
+            e.preventDefault();
+            uploadSection.classList.add('dragover');
+        });
+        
+        uploadSection.addEventListener('dragleave', () => {
+            uploadSection.classList.remove('dragover');
+        });
+        
+        uploadSection.addEventListener('drop', (e) => {
+            e.preventDefault();
+            uploadSection.classList.remove('dragover');
+            if (e.dataTransfer.files.length > 0) {
+                newFileInput.files = e.dataTransfer.files;
+                handleFileUpload({ target: newFileInput });
+            }
+        });
+    }
+
+    async function handleFileUpload(e) {
+        const fileInput = e?.target || document.getElementById('pdfFileInput');
+        const file = fileInput.files[0];
+        
+        if (!file) {
+            alert('No file selected');
+            return;
+        }
+        
+        if (file.type !== 'application/pdf') {
+            alert('Please select a valid PDF file');
+            return;
+        }
+
+        if (invoiceData || comparisonData) {
+            invoiceData = null;
+            comparisonData = null;
+            currentInvoiceFilter = 'all';
+            document.getElementById('invoiceStats').classList.add('hidden');
+            document.getElementById('invoiceActions').classList.add('hidden');
+            document.getElementById('invoiceFilters').classList.add('hidden');
+            document.getElementById('comparisonResults').classList.add('hidden');
+            
+            document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+                btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
+            });
+        }
+
+        const fileNameEl = document.getElementById('fileName');
+        fileNameEl.innerHTML = `
+            <div style="display: inline-flex; align-items: center; gap: 10px; background: #e5f2ff; padding: 12px 20px; border-radius: 8px; border: 1px solid #99ccff;">
+                <div style="text-align: left;">
+                    <div style="font-weight: 600; color: #007aff;">Processing PDF</div>
+                    <div style="font-size: 0.9em; color: #0056b3;">${file.name}</div>
+                </div>
+            </div>
+        `;
+
+        try {
+            const arrayBuffer = await file.arrayBuffer();
+            const loadingTask = pdfjsLib.getDocument({ data: arrayBuffer });
+            const pdf = await loadingTask.promise;
+            
+            let fullText = '';
+            for (let i = 1; i <= pdf.numPages; i++) {
+                const page = await pdf.getPage(i);
+                const textContent = await page.getTextContent();
+                const pageText = textContent.items.map(item => item.str).join(' ');
+                fullText += pageText + '\n';
+            }
+
+            invoiceData = parseInvoiceData(fullText);
+            
+            if (Object.keys(invoiceData.general).length === 0 && Object.keys(invoiceData.commingle).length === 0) {
+                fileNameEl.innerHTML = `
+                    <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
+                        <div style="text-align: left;">
+                            <div style="font-weight: 600; color: #c41e3a;">No Invoice Data Found</div>
+                            <div style="font-size: 0.9em; color: #dc2626;">Please check the file format</div>
+                        </div>
+                    </div>
+                `;
+                alert('Could not find any service records in the PDF');
+                return;
+            }
+            
+            displayInvoiceComparison();
+            
+        } catch (error) {
+            console.error('Error processing PDF:', error);
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #c41e3a;">Error Processing PDF</div>
+                        <div style="font-size: 0.9em; color: #dc2626;">${error.message}</div>
+                    </div>
+                </div>
+            `;
+            alert('Error processing PDF: ' + error.message);
+        }
+    }
+
+    function parseInvoiceData(text) {
+        const parsed = {
+            general: {},
+            commingle: {}
+        };
+
+        const pattern = /(\d{2})\/(\d{2})\/(\d{2})\s+[\d.]+\s+(\d+)\s+\$[\d.]+\s+\$[\d.]+\s+Service\s+Rear\s+Lift\s+1100L\s+(Co-Mingled|Putrescible)/gi;
+
+        let match;
+        
+        while ((match = pattern.exec(text)) !== null) {
+            const day = match[1];
+            const month = match[2];
+            const year = '20' + match[3];
+            const dateKey = `${year}-${month}-${day}`;
+            const qty = parseInt(match[4]);
+            const invoiceType = match[5];
+            const type = invoiceType === 'Co-Mingled' ? 'commingle' : 'general';
+
+            if (!parsed[type][dateKey]) {
+                parsed[type][dateKey] = 0;
+            }
+            parsed[type][dateKey] += qty;
+        }
+
+        return parsed;
+    }
+
+    function displayInvoiceComparison() {
+        if (!invoiceData) return;
+
+        let totalMatches = 0;
+        let totalMismatches = 0;
+        let totalMissing = 0;
+        let totalDaysWithData = 0;
+
+        const allDates = new Set([
+            ...Object.keys(invoiceData.general),
+            ...Object.keys(invoiceData.commingle)
+        ]);
+
+        const comparisonsByDate = new Map();
+
+        allDates.forEach(invoiceDate => {
+            const actualDate = new Date(invoiceDate);
+            actualDate.setDate(actualDate.getDate() - 1);
+            const actualDateStr = actualDate.toISOString().split('T')[0];
+
+            const generalInvoice = invoiceData.general[invoiceDate] || 0;
+            const commingeInvoice = invoiceData.commingle[invoiceDate] || 0;
+
+            // EXCLUDE CLEANING EVENTS FROM INVOICE COMPARISON
+            const dayReadings = allReadings.filter(r => {
+                const readingDate = r.timestamp.toISOString().split('T')[0];
+                return readingDate === actualDateStr && r.state === 'IN' && !r.isCleaning;
+            });
+
+            const generalBins = new Set();
+            const commingeBins = new Set();
+
+            dayReadings.forEach(reading => {
+                const alias = reading.alias || '';
+                const mac = reading.mac || '';
+                const binNumber = getBinNumberFromName(alias);
+                const wasteType = wasteTypeByNumber[binNumber];
+                
+                if (wasteType === 'general') {
+                    generalBins.add(mac);
+                } else if (wasteType === 'commingle') {
+                    commingeBins.add(mac);
+                }
+            });
+
+            const generalActual = generalBins.size;
+            const commingeActual = commingeBins.size;
+
+            if (generalActual > 0 || commingeActual > 0) {
+                totalDaysWithData++;
+            }
+
+            const generalMatch = generalInvoice === generalActual;
+            const commingeMatch = commingeInvoice === commingeActual;
+
+            if (generalMatch && commingeMatch) {
+                totalMatches++;
+            } else if (generalInvoice === 0 && commingeInvoice === 0 && generalActual === 0 && commingeActual === 0) {
+                // Skip
+            } else if (generalActual === 0 && commingeActual === 0 && (generalInvoice > 0 || commingeInvoice > 0)) {
+                totalMissing++;
+            } else {
+                totalMismatches++;
+            }
+
+            comparisonsByDate.set(invoiceDate, {
+                actualDate: actualDateStr,
+                general: {
+                    invoice: generalInvoice,
+                    actual: generalActual,
+                    diff: generalInvoice - generalActual
+                },
+                commingle: {
+                    invoice: commingeInvoice,
+                    actual: commingeActual,
+                    diff: commingeInvoice - commingeActual
+                }
+            });
+        });
+
+        comparisonData = {
+            byDate: comparisonsByDate,
+            stats: {
+                matches: totalMatches,
+                mismatches: totalMismatches,
+                missing: totalMissing,
+                totalDaysWithData: totalDaysWithData
+            }
+        };
+
+        if (totalDaysWithData === 0) {
+            const fileNameEl = document.getElementById('fileName');
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #fff4e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffcc99; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #cc7a00; margin-bottom: 4px;">No Collection Data Found</div>
+                        <div style="font-size: 0.9em; color: #996600;">The CSV may not contain data for this invoice period</div>
+                    </div>
+                </div>
+            `;
+        }
+
+        const statsHtml = `
+            <div class="stat-card match">
+                <div class="stat-number">${totalMatches}</div>
+                <div class="stat-label">Matches</div>
+            </div>
+            <div class="stat-card mismatch">
+                <div class="stat-number">${totalMismatches}</div>
+                <div class="stat-label">Mismatches</div>
+            </div>
+            <div class="stat-card missing">
+                <div class="stat-number">${totalMissing}</div>
+                <div class="stat-label">Missing Data</div>
+            </div>
+        `;
+        
+        document.getElementById('invoiceStats').innerHTML = statsHtml;
+        document.getElementById('invoiceStats').classList.remove('hidden');
+        document.getElementById('invoiceActions').classList.remove('hidden');
+        document.getElementById('invoiceFilters').classList.remove('hidden');
+
+        displayFilteredComparisons();
+        
+        if (totalDaysWithData > 0) {
+            const fileNameEl = document.getElementById('fileName');
+            fileNameEl.innerHTML = `
+                <div style="display: inline-flex; align-items: center; gap: 10px; background: #d1f4e0; padding: 12px 20px; border-radius: 8px; border: 1px solid #99e6b8; margin-top: 10px;">
+                    <div style="text-align: left;">
+                        <div style="font-weight: 600; color: #1e7c3c;">Analysis Complete</div>
+                        <div style="font-size: 0.9em; color: #28a745;">Found ${totalDaysWithData} days with collection data (cleaning events excluded)</div>
+                    </div>
+                </div>
+            `;
+        }
+    }
+
+    function displayFilteredComparisons() {
+        if (!comparisonData) return;
+
+        const comparisonsByDate = comparisonData.byDate;
+        
+        let comparisonHtml = '<div class="comparison-grid">';
+        
+        const sortedDates = Array.from(comparisonsByDate.keys()).sort().reverse();
+        let displayedCount = 0;
+        
+        sortedDates.forEach(invoiceDate => {
+            const data = comparisonsByDate.get(invoiceDate);
+            const date = new Date(invoiceDate);
+            const actualDate = new Date(data.actualDate);
+            
+            const generalMatch = data.general.diff === 0;
+            const commingeMatch = data.commingle.diff === 0;
+            const overallMatch = generalMatch && commingeMatch;
+            
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
+                data.general.actual === 0 && data.commingle.actual === 0) {
+                return;
+            }
+
+            const totalDiff = data.general.diff + data.commingle.diff;
+            let category;
+            let statusText;
+            
+            if (overallMatch) {
+                category = 'match';
+                statusText = 'Match';
+            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
+                category = 'missing';
+                statusText = 'Missing';
+            } else if (totalDiff > 0) {
+                category = 'mismatch-over';
+                statusText = 'Mismatch';
+            } else {
+                category = 'mismatch-under';
+                statusText = 'Mismatch';
+            }
+
+            const filterCategory = category.startsWith('mismatch') ? 'mismatch' : category;
+            if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) {
+                return;
+            }
+
+            displayedCount++;
+
+            comparisonHtml += `
+                <div class="comparison-card card-${category}">
+                    <div class="comparison-date">
+                        <div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 500;">Invoice: ${date.toLocaleDateString('en-AU')}</div>
+                            <div style="font-size: 0.85em; color: #666; font-weight: 500;">Actual: ${actualDate.toLocaleDateString('en-AU')}</div>
+                        </div>
+                        <span class="comparison-status-badge badge-${category}">${statusText}</span>
+                    </div>
+                    
+                    <div style="display: grid; grid-template-columns: 2fr 1fr 1fr 1fr; gap: 8px; padding: 10px 0; border-bottom: 2px solid #f0f0f0; font-size: 0.85em; font-weight: 600; color: #666;">
+                        <div></div>
+                        <div style="text-align: center;">Presented</div>
+                        <div style="text-align: center;">Invoiced</div>
+                        <div style="text-align: center;">Diff</div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-label">General Waste</div>
+                        <div class="comparison-values">
+                            <span class="actual-value">${data.general.actual}</span>
+                            <span class="invoice-value">${data.general.invoice}</span>
+                            ${data.general.diff !== 0 ? `<span class="difference ${data.general.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.general.diff > 0 ? '+' : ''}${data.general.diff}</span>` : '<span class="difference zero">0</span>'}
+                        </div>
+                    </div>
+                    
+                    <div class="comparison-item">
+                        <div class="comparison-label">Co-Mingled</div>
+                        <div class="comparison-values">
+                            <span class="actual-value">${data.commingle.actual}</span>
+                            <span class="invoice-value">${data.commingle.invoice}</span>
+                            ${data.commingle.diff !== 0 ? `<span class="difference ${data.commingle.diff > 0 ? 'over-invoiced' : 'under-invoiced'}">${data.commingle.diff > 0 ? '+' : ''}${data.commingle.diff}</span>` : '<span class="difference zero">0</span>'}
+                        </div>
+                    </div>
+                </div>
+            `;
+        });
+        
+        if (displayedCount === 0) {
+            comparisonHtml += `
+                <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
+                    <div style="font-size: 1.2em; font-weight: 600; color: #1d1d1f; margin-bottom: 8px;">No Results Found</div>
+                    <div style="color: #666; font-size: 0.95em;">Try changing the filter or upload a different invoice</div>
+                </div>
+            `;
+        }
+        
+        comparisonHtml += '</div>';
+        
+        document.getElementById('comparisonResults').innerHTML = comparisonHtml;
+        document.getElementById('comparisonResults').classList.remove('hidden');
+    }
+
+    function clearInvoiceData() {
+        invoiceData = null;
+        comparisonData = null;
+        currentInvoiceFilter = 'all';
+        document.getElementById('pdfFileInput').value = '';
+        document.getElementById('fileName').textContent = '';
+        document.getElementById('invoiceStats').classList.add('hidden');
+        document.getElementById('invoiceActions').classList.add('hidden');
+        document.getElementById('invoiceFilters').classList.add('hidden');
+        document.getElementById('comparisonResults').classList.add('hidden');
+        
+        document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+            btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
+        });
+    }
+
+    function exportInvoiceCSV() {
+        if (!comparisonData || !comparisonData.byDate) {
+            alert('No comparison data available to export');
+            return;
+        }
+
+        const headers = [
+            'Invoice Date',
+            'Actual Date',
+            'Status',
+            'General Waste (Presented)',
+            'General Waste (Invoiced)',
+            'General Waste (Difference)',
+            'Commingle (Presented)',
+            'Commingle (Invoiced)',
+            'Commingle (Difference)'
+        ];
+
+        const rows = [headers];
+
+        const sortedDates = Array.from(comparisonData.byDate.keys()).sort();
+
+        sortedDates.forEach(invoiceDate => {
+            const data = comparisonData.byDate.get(invoiceDate);
+            const date = new Date(invoiceDate);
+            const actualDate = new Date(data.actualDate);
+
+            const generalMatch = data.general.diff === 0;
+            const commingeMatch = data.commingle.diff === 0;
+            const totalDiff = data.general.diff + data.commingle.diff;
+            
+            let status;
+            if (generalMatch && commingeMatch) {
+                status = 'Match';
+            } else if (data.general.actual === 0 && data.commingle.actual === 0) {
+                status = 'Missing';
+            } else if (totalDiff > 0) {
+                status = 'Over Invoiced';
+            } else {
+                status = 'Under Invoiced';
+            }
+
+            if (data.general.invoice === 0 && data.commingle.invoice === 0 && 
+                data.general.actual === 0 && data.commingle.actual === 0) {
+                return;
+            }
+
+            const row = [
+                date.toLocaleDateString('en-AU'),
+                actualDate.toLocaleDateString('en-AU'),
+                status,
+                data.general.actual,
+                data.general.invoice,
+                data.general.diff,
+                data.commingle.actual,
+                data.commingle.invoice,
+                data.commingle.diff
+            ];
+
+            rows.push(row);
+        });
+
+        const csvContent = rows.map(row => row.join(',')).join('\n');
+
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+        const link = document.createElement('a');
+        const url = URL.createObjectURL(blob);
+        
+        const timestamp = new Date().toISOString().split('T')[0];
+        link.setAttribute('href', url);
+        link.setAttribute('download', `invoice-comparison-${timestamp}.csv`);
+        link.style.visibility = 'hidden';
+        
+        document.body.appendChild(link);
+        link.click();
+        document.body.removeChild(link);
+    }
+
+    // Event Listeners
+    document.addEventListener('DOMContentLoaded', () => {
+        loadData(false);
+
+        document.querySelectorAll('.view-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentView = btn.dataset.view;
+                if (currentView === 'dashboard') {
+                    currentDate = new Date();
+                }
+                displayCurrentView();
+            });
+        });
+
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentFilter = btn.dataset.filter;
+                displayBins();
+            });
+        });
+
+        document.getElementById('searchBox').addEventListener('input', (e) => {
+            searchTerm = e.target.value;
+            displayBins();
+        });
+
+        document.getElementById('prevBtn').addEventListener('click', () => {
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() - 1);
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() - 7);
+            } else if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() - 1);
+            }
+            displayCalendar();
+        });
+
+        document.getElementById('nextBtn').addEventListener('click', () => {
+            if (currentView === 'month') {
+                currentDate.setMonth(currentDate.getMonth() + 1);
+            } else if (currentView === 'week') {
+                currentDate.setDate(currentDate.getDate() + 7);
+            } else if (currentView === 'day') {
+                currentDate.setDate(currentDate.getDate() + 1);
+            }
+            displayCalendar();
+        });
+
+        document.getElementById('todayBtn').addEventListener('click', () => {
+            currentDate = new Date();
+            displayCalendar();
+        });
+
+        document.getElementById('binSelector').addEventListener('change', (e) => {
+            selectedBin = e.target.value;
+            displayCalendar();
+        });
+
+        // Cleaning Report navigation
+        document.getElementById('cleaningPrevBtn').addEventListener('click', () => {
+            cleaningReportDate.setMonth(cleaningReportDate.getMonth() - 1);
+            displayCleaningReport();
+        });
+
+        document.getElementById('cleaningNextBtn').addEventListener('click', () => {
+            cleaningReportDate.setMonth(cleaningReportDate.getMonth() + 1);
+            displayCleaningReport();
+        });
+
+        document.getElementById('cleaningTodayBtn').addEventListener('click', () => {
+            cleaningReportDate = new Date();
+            displayCleaningReport();
+        });
+
+        document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
+            btn.addEventListener('click', () => {
+                document.querySelectorAll('[data-invoice-filter]').forEach(b => b.classList.remove('active'));
+                btn.classList.add('active');
+                currentInvoiceFilter = btn.dataset.invoiceFilter;
+                displayFilteredComparisons();
+            });
+        });
+    });
+
+    // Auto-refresh every 60 seconds
+    setInterval(() => loadData(true), 60000);
+
+    // Update heartbeat display every 5 seconds
+    setInterval(() => {
+        updateHeartbeatDisplay();
+    }, 5000);
+
+    // Refresh heartbeat data every 30 seconds
+    setInterval(() => {
+        loadHeartbeat();
+    }, 30000);
+</script>
+</body>
+</html>
