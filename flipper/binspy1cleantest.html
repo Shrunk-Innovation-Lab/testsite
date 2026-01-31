@@ -517,10 +517,10 @@
         }
 
         .calendar-nav {
-            display: flex;
+            display: grid;
+            grid-template-columns: 60px 1fr 60px;
             gap: 8px;
             align-items: center;
-            flex-wrap: wrap;
         }
 
         .expand-all-btn {
@@ -557,6 +557,46 @@
         .nav-btn:active {
             background-color: #0056b3;
             transform: scale(0.97);
+        }
+
+        /* Chevron-style navigation buttons for desktop */
+        #prevBtn, #nextBtn,
+        #cleaningPrevBtn, #cleaningNextBtn {
+            font-size: 0;
+            padding: 10px 16px;
+            position: relative;
+            min-width: 50px;
+        }
+
+        #prevBtn::before,
+        #nextBtn::after,
+        #cleaningPrevBtn::before,
+        #cleaningNextBtn::after {
+            content: "";
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 10px;
+            height: 10px;
+            border-top: 2.5px solid white;
+            border-right: 2.5px solid white;
+        }
+
+        #prevBtn::before,
+        #cleaningPrevBtn::before {
+            transform: translate(-50%, -50%) rotate(-135deg);
+        }
+
+        #nextBtn::after,
+        #cleaningNextBtn::after {
+            transform: translate(-50%, -50%) rotate(45deg);
+        }
+
+        /* Keep text visible on Today/Current Month buttons */
+        #todayBtn,
+        #cleaningTodayBtn {
+            font-size: 0.9rem;
         }
 
         .calendar-title {
@@ -2202,12 +2242,20 @@
                 font-size: 13px;
             }
 
+            /* Side-by-side refresh and export buttons */
+            .controls-row > div:last-child {
+                display: grid !important;
+                grid-template-columns: 1fr 1fr;
+                gap: 6px;
+            }
+
             .refresh-btn, .export-btn {
                 min-height: 48px;
                 padding: 12px;
                 font-size: 0.95em;
                 border-radius: 10px;
                 font-weight: 500;
+                width: 100%;
             }
 
             .last-updated {
@@ -2315,17 +2363,68 @@
                 padding: 8px;
             }
 
+            /* Compact calendar header for cleaning report */
+            #cleaningReportView .calendar-container {
+                padding: 8px;
+                margin-bottom: 8px;
+            }
+
+            #cleaningReportView .calendar-container > div {
+                background: white;
+                padding: 10px;
+                border-radius: 10px;
+            }
+
             .calendar-header {
                 gap: 8px;
             }
 
             .calendar-nav {
-                flex-direction: column;
-                gap: 6px;
+                display: grid;
+                grid-template-columns: 60px 1fr 60px;
+                gap: 8px;
+                align-items: center;
+            }
+
+            /* Override for regular calendar to also use chevron style */
+            .calendar-nav .nav-btn:first-child,
+            .calendar-nav .nav-btn:last-child {
+                font-size: 0;
+                position: relative;
+            }
+
+            .calendar-nav .nav-btn:nth-child(2) {
+                font-size: 0.85em;
+            }
+
+            /* Mobile overrides for chevron navigation buttons */
+            #cleaningPrevBtn, #cleaningNextBtn,
+            #prevBtn, #nextBtn {
+                width: 100%;
+                min-height: 44px;
+                padding: 10px;
+                border-radius: 10px;
+            }
+
+            #cleaningPrevBtn::before,
+            #cleaningNextBtn::after,
+            #prevBtn::before,
+            #nextBtn::after {
+                width: 12px;
+                height: 12px;
+                border-width: 2px;
+            }
+
+            #cleaningTodayBtn,
+            #todayBtn {
+                min-height: 44px;
+                font-size: 0.85em;
+                padding: 10px;
+                border-radius: 10px;
+                white-space: nowrap;
             }
 
             .nav-btn {
-                width: 100%;
                 min-height: 50px;
                 font-size: 0.9em;
                 padding: 12px;
@@ -2438,56 +2537,69 @@
             }
 
             /* Cleaning Report - mobile optimized and compact */
+            #cleaningReportView > div:last-child {
+                padding: 10px;
+                margin-bottom: 12px;
+            }
+
             .cleaning-report-table tbody tr {
-                padding: 12px;
+                padding: 10px;
                 border-radius: 10px;
-                margin-bottom: 8px;
+                margin-bottom: 6px;
+                background: white;
             }
 
             .cleaning-report-table td {
-                padding: 4px 0;
+                padding: 3px 0;
+                display: flex;
+                align-items: center;
+                flex-wrap: wrap;
             }
 
             .cleaning-report-table td:first-child {
-                font-size: 1.05em;
-                padding-bottom: 8px;
+                font-size: 1em;
+                font-weight: 600;
+                padding-bottom: 6px;
                 margin-bottom: 6px;
+                border-bottom: 1px solid #f0f0f0;
+                display: block;
             }
 
             .cleaning-report-table td:before {
-                width: 70px;
-                font-size: 0.8em;
+                font-weight: 600;
+                color: #666;
+                font-size: 0.75em;
+                margin-right: 6px;
+                min-width: 50px;
             }
 
-            .cleaning-report-table td:nth-child(2):before,
-            .cleaning-report-table td:nth-child(3):before,
-            .cleaning-report-table td:nth-child(4):before {
-                display: inline;
+            .cleaning-report-table td:first-child:before {
+                display: none;
             }
 
             .cleaning-dates {
                 display: inline-flex;
                 flex-wrap: wrap;
-                gap: 4px;
-                margin-left: 4px;
+                gap: 3px;
+                margin: 0;
             }
 
             .cleaning-date-chip {
-                font-size: 0.75em;
-                padding: 3px 8px;
-                border-radius: 6px;
+                font-size: 0.7em;
+                padding: 2px 6px;
+                border-radius: 5px;
             }
 
             .cleaning-count-badge {
-                min-width: 40px;
-                padding: 4px 10px;
-                font-size: 0.9em;
-                border-radius: 10px;
-                margin-left: 4px;
+                min-width: 36px;
+                padding: 3px 8px;
+                font-size: 0.85em;
+                border-radius: 8px;
+                margin: 0;
             }
 
             .bin-type-pill {
-                margin-left: 4px;
+                margin: 0;
                 display: inline-block;
             }
 
@@ -2623,33 +2735,45 @@
 
             /* Even more compact cleaning report for small screens */
             .cleaning-report-table tbody tr {
-                padding: 10px;
-                margin-bottom: 6px;
+                padding: 8px;
+                margin-bottom: 5px;
             }
 
             .cleaning-report-table td {
-                padding: 3px 0;
+                padding: 2px 0;
             }
 
             .cleaning-report-table td:first-child {
-                font-size: 1em;
-                padding-bottom: 6px;
-                margin-bottom: 4px;
+                font-size: 0.95em;
+                padding-bottom: 5px;
+                margin-bottom: 5px;
             }
 
             .cleaning-report-table td:before {
-                width: 60px;
-                font-size: 0.75em;
+                min-width: 45px;
+                font-size: 0.7em;
+                margin-right: 5px;
             }
 
             .cleaning-date-chip {
-                font-size: 0.7em;
-                padding: 2px 6px;
+                font-size: 0.65em;
+                padding: 2px 5px;
             }
 
             .cleaning-count-badge {
-                padding: 3px 8px;
-                font-size: 0.85em;
+                padding: 2px 6px;
+                font-size: 0.8em;
+                min-width: 32px;
+            }
+
+            #cleaningReportView .calendar-container > div {
+                padding: 8px;
+            }
+
+            #cleaningPrevBtn, #cleaningNextBtn,
+            #cleaningTodayBtn,
+            #prevBtn, #nextBtn, #todayBtn {
+                min-height: 40px;
             }
         }
 
@@ -3479,7 +3603,7 @@
             </div>
             <div class="stat-card cleaning">
                 <div class="stat-number">${cleaningCount}</div>
-                <div class="stat-label">Cleaning </div>
+                <div class="stat-label">Cleaning</div>
             </div>
             <div class="stat-card total">
                 <div class="stat-number">${total}</div>
