@@ -2114,44 +2114,61 @@
                 grid-template-columns: 1fr;
             }
 
-            /* Cleaning Report Tablet */
+            /* Cleaning Report Tablet - Proper table layout */
+            .cleaning-report-table {
+                font-size: 0.85em;
+                display: table;
+                width: 100%;
+            }
+
             .cleaning-report-table thead {
-                display: none;
+                display: table-header-group;
+            }
+
+            .cleaning-report-table thead th {
+                padding: 12px 8px;
+                font-size: 0.85em;
+            }
+
+            .cleaning-report-table tbody {
+                display: table-row-group;
             }
 
             .cleaning-report-table tbody tr {
-                display: block;
-                margin-bottom: 12px;
-                border: 1px solid #e5e5e7;
-                border-radius: 8px;
-                padding: 12px;
+                display: table-row;
             }
 
             .cleaning-report-table td {
-                display: block;
-                padding: 8px 0;
-                text-align: left !important;
+                display: table-cell;
+                padding: 10px 8px;
+                font-size: 0.9em;
+                vertical-align: middle;
             }
 
             .cleaning-report-table td:first-child {
                 font-weight: 600;
-                font-size: 1.1em;
-                padding-bottom: 10px;
-                border-bottom: 2px solid #f0f0f0;
-                margin-bottom: 8px;
             }
 
-            .cleaning-report-table td:before {
-                content: attr(data-label);
-                font-weight: 600;
-                color: #666;
-                display: inline-block;
-                width: 110px;
+            .bin-type-pill {
+                font-size: 0.7em;
+                padding: 3px 8px;
+            }
+
+            .cleaning-dates {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 4px;
+            }
+
+            .cleaning-date-chip {
+                font-size: 0.75em;
+                padding: 3px 8px;
+            }
+
+            .cleaning-count-badge {
+                min-width: 36px;
+                padding: 4px 10px;
                 font-size: 0.9em;
-            }
-
-            .cleaning-report-table td:first-child:before {
-                content: none;
             }
         }
 
@@ -2242,7 +2259,7 @@
                 font-size: 13px;
             }
 
-            /* Side-by-side refresh and export buttons */
+            /* Side-by-side refresh and export buttons - match view button size */
             .controls-row > div:last-child {
                 display: grid !important;
                 grid-template-columns: 1fr 1fr;
@@ -2250,10 +2267,10 @@
             }
 
             .refresh-btn, .export-btn {
-                min-height: 48px;
-                padding: 12px;
-                font-size: 0.95em;
-                border-radius: 10px;
+                min-height: 44px;
+                padding: 10px;
+                font-size: 0.85em;
+                border-radius: 8px;
                 font-weight: 500;
                 width: 100%;
             }
@@ -2360,29 +2377,31 @@
 
             /* Calendar - optimized for touch */
             .calendar-container {
-                padding: 8px;
+                padding: 6px;
+                margin-bottom: 8px;
             }
 
             /* Compact calendar header for cleaning report */
             #cleaningReportView .calendar-container {
-                padding: 8px;
-                margin-bottom: 8px;
+                padding: 6px;
+                margin-bottom: 6px;
             }
 
             #cleaningReportView .calendar-container > div {
                 background: white;
-                padding: 10px;
-                border-radius: 10px;
+                padding: 8px;
+                border-radius: 8px;
             }
 
             .calendar-header {
-                gap: 8px;
+                gap: 6px;
+                margin-bottom: 8px;
             }
 
             .calendar-nav {
                 display: grid;
                 grid-template-columns: 60px 1fr 60px;
-                gap: 8px;
+                gap: 6px;
                 align-items: center;
             }
 
@@ -2419,7 +2438,7 @@
             #todayBtn {
                 min-height: 44px;
                 font-size: 0.85em;
-                padding: 10px;
+                padding: 8px;
                 border-radius: 10px;
                 white-space: nowrap;
             }
@@ -2432,9 +2451,10 @@
             }
 
             .calendar-title {
-                font-size: 1em;
-                padding: 10px 0;
+                font-size: 0.95em;
+                padding: 6px 0;
                 text-align: center;
+                margin: 0;
             }
 
             .bin-selector {
@@ -2536,71 +2556,64 @@
                 gap: 6px;
             }
 
-            /* Cleaning Report - mobile optimized and compact */
-            #cleaningReportView > div:last-child {
-                padding: 10px;
-                margin-bottom: 12px;
+            /* Cleaning Report - mobile table layout */
+            .cleaning-report-table {
+                font-size: 0.75em;
+                display: table;
+                width: 100%;
+            }
+
+            .cleaning-report-table thead {
+                display: table-header-group;
+            }
+
+            .cleaning-report-table thead th {
+                padding: 10px 6px;
+                font-size: 0.8em;
+            }
+
+            .cleaning-report-table tbody {
+                display: table-row-group;
             }
 
             .cleaning-report-table tbody tr {
-                padding: 10px;
-                border-radius: 10px;
-                margin-bottom: 6px;
-                background: white;
+                display: table-row;
             }
 
             .cleaning-report-table td {
-                padding: 3px 0;
-                display: flex;
-                align-items: center;
-                flex-wrap: wrap;
+                display: table-cell;
+                padding: 8px 6px;
+                font-size: 0.85em;
+                vertical-align: middle;
             }
 
             .cleaning-report-table td:first-child {
-                font-size: 1em;
                 font-weight: 600;
-                padding-bottom: 6px;
-                margin-bottom: 6px;
-                border-bottom: 1px solid #f0f0f0;
-                display: block;
+                font-size: 0.9em;
             }
 
-            .cleaning-report-table td:before {
-                font-weight: 600;
-                color: #666;
-                font-size: 0.75em;
-                margin-right: 6px;
-                min-width: 50px;
-            }
-
-            .cleaning-report-table td:first-child:before {
-                display: none;
+            .bin-type-pill {
+                font-size: 0.65em;
+                padding: 2px 6px;
+                white-space: nowrap;
             }
 
             .cleaning-dates {
-                display: inline-flex;
-                flex-wrap: wrap;
-                gap: 3px;
-                margin: 0;
+                display: flex;
+                flex-direction: column;
+                gap: 2px;
             }
 
             .cleaning-date-chip {
                 font-size: 0.7em;
                 padding: 2px 6px;
-                border-radius: 5px;
+                white-space: nowrap;
             }
 
             .cleaning-count-badge {
-                min-width: 36px;
+                min-width: 32px;
                 padding: 3px 8px;
                 font-size: 0.85em;
-                border-radius: 8px;
-                margin: 0;
-            }
-
-            .bin-type-pill {
-                margin: 0;
-                display: inline-block;
             }
 
             /* Invoice view */
@@ -2733,26 +2746,28 @@
                 font-size: 0.5em;
             }
 
-            /* Even more compact cleaning report for small screens */
-            .cleaning-report-table tbody tr {
-                padding: 8px;
-                margin-bottom: 5px;
+            /* Even more compact cleaning report table for small screens */
+            .cleaning-report-table {
+                font-size: 0.7em;
+            }
+
+            .cleaning-report-table thead th {
+                padding: 8px 4px;
+                font-size: 0.75em;
             }
 
             .cleaning-report-table td {
-                padding: 2px 0;
+                padding: 6px 4px;
+                font-size: 0.8em;
             }
 
             .cleaning-report-table td:first-child {
-                font-size: 0.95em;
-                padding-bottom: 5px;
-                margin-bottom: 5px;
+                font-size: 0.85em;
             }
 
-            .cleaning-report-table td:before {
-                min-width: 45px;
-                font-size: 0.7em;
-                margin-right: 5px;
+            .bin-type-pill {
+                font-size: 0.6em;
+                padding: 2px 5px;
             }
 
             .cleaning-date-chip {
@@ -2763,17 +2778,22 @@
             .cleaning-count-badge {
                 padding: 2px 6px;
                 font-size: 0.8em;
-                min-width: 32px;
+                min-width: 28px;
             }
 
             #cleaningReportView .calendar-container > div {
-                padding: 8px;
+                padding: 6px;
             }
 
             #cleaningPrevBtn, #cleaningNextBtn,
             #cleaningTodayBtn,
             #prevBtn, #nextBtn, #todayBtn {
                 min-height: 40px;
+            }
+
+            .calendar-title {
+                font-size: 0.9em;
+                padding: 4px 0;
             }
         }
 
@@ -2925,7 +2945,7 @@
                             </svg>
                         </div>
                         <p style="font-size: 1.3em; font-weight: 600; margin-bottom: 8px; color: #1d1d1f;">Upload Invoice PDF</p>
-                        <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Drag and drop your waste invoice here or click to browse</p>
+                        <p style="font-size: 0.95em; color: #666; margin-bottom: 20px;">Drag and drop your weight invoice here or click to browse</p>
                         <input type="file" id="pdfFileInput" accept="application/pdf">
                         <label for="pdfFileInput" class="upload-label">
                             Choose PDF File
@@ -3621,7 +3641,7 @@
         1: 'general', 2: 'general', 3: 'general', 4: 'commingle',
         5: 'general', 6: 'general', 7: 'general', 8: 'commingle',
         9: 'commingle', 10: 'general', 11: 'commingle', 12: 'general',
-        13: 'general', 14: 'general', 15: 'commingle', 16: 'commingle',
+        13: 'general', 14: 'general', 15: 'commingle', 16: 'commingle'
     };
 
     function getBinNumberFromName(name) {
