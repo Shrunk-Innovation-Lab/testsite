@@ -2129,22 +2129,26 @@
             .cleaning-report-table thead th {
                 padding: 10px 6px;
                 font-size: 0.8em;
+                text-align: center;
             }
 
             /* Column width distribution for tablet */
             .cleaning-report-table th:nth-child(1),
             .cleaning-report-table td:nth-child(1) {
                 width: 20%; /* Bin Name */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(2),
             .cleaning-report-table td:nth-child(2) {
                 width: 25%; /* Waste Type */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(3),
             .cleaning-report-table td:nth-child(3) {
                 width: 35%; /* Cleaning Dates */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(4),
@@ -2168,6 +2172,12 @@
                 vertical-align: middle;
             }
 
+            /* Hide data-label pseudo-elements in tablet table view */
+            .cleaning-report-table td::before {
+                display: none !important;
+                content: none !important;
+            }
+
             .cleaning-report-table td:first-child {
                 font-weight: 600;
             }
@@ -2181,6 +2191,7 @@
                 display: flex;
                 flex-wrap: wrap;
                 gap: 4px;
+                justify-content: center;
             }
 
             .cleaning-date-chip {
@@ -2404,16 +2415,28 @@
                 margin-bottom: 8px;
             }
 
-            /* Compact calendar header for cleaning report */
+            /* Compact calendar header for cleaning report - minimal spacing */
             #cleaningReportView .calendar-container {
-                padding: 6px;
-                margin-bottom: 6px;
+                padding: 6px 6px 2px 6px;
+                margin-bottom: 2px;
             }
 
             #cleaningReportView .calendar-container > div {
                 background: white;
-                padding: 8px;
+                padding: 8px 8px 2px 8px;
                 border-radius: 8px;
+            }
+
+            #cleaningReportView .calendar-header {
+                gap: 6px;
+                margin-bottom: 0;
+            }
+
+            #cleaningReportView .calendar-title {
+                font-size: 0.95em;
+                padding: 2px 0 0 0;
+                text-align: center;
+                margin: 0;
             }
 
             .calendar-header {
@@ -2596,22 +2619,26 @@
                 font-size: 0.75em;
                 overflow: hidden;
                 text-overflow: ellipsis;
+                text-align: center;
             }
 
             /* Column width distribution */
             .cleaning-report-table th:nth-child(1),
             .cleaning-report-table td:nth-child(1) {
                 width: 18%; /* Bin Name */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(2),
             .cleaning-report-table td:nth-child(2) {
                 width: 28%; /* Waste Type */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(3),
             .cleaning-report-table td:nth-child(3) {
                 width: 32%; /* Cleaning Dates */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(4),
@@ -2636,6 +2663,12 @@
                 overflow: hidden;
             }
 
+            /* Hide data-label pseudo-elements in mobile table view */
+            .cleaning-report-table td::before {
+                display: none !important;
+                content: none !important;
+            }
+
             .cleaning-report-table td:first-child {
                 font-weight: 600;
                 font-size: 0.85em;
@@ -2653,7 +2686,7 @@
                 display: flex;
                 flex-direction: column;
                 gap: 2px;
-                align-items: flex-start;
+                align-items: center;
             }
 
             .cleaning-date-chip {
@@ -2807,27 +2840,32 @@
             .cleaning-report-table thead th {
                 padding: 6px 3px;
                 font-size: 0.7em;
+                text-align: center;
             }
 
             /* Tighter column widths for very small screens */
             .cleaning-report-table th:nth-child(1),
             .cleaning-report-table td:nth-child(1) {
                 width: 16%; /* Bin Name */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(2),
             .cleaning-report-table td:nth-child(2) {
                 width: 26%; /* Waste Type */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(3),
             .cleaning-report-table td:nth-child(3) {
                 width: 36%; /* Cleaning Dates */
+                text-align: center;
             }
 
             .cleaning-report-table th:nth-child(4),
             .cleaning-report-table td:nth-child(4) {
                 width: 22%; /* Times Cleaned */
+                text-align: center;
             }
 
             .cleaning-report-table td {
@@ -2849,14 +2887,31 @@
                 padding: 2px 4px;
             }
 
+            .cleaning-dates {
+                justify-content: center;
+                align-items: center;
+            }
+
             .cleaning-count-badge {
                 padding: 2px 5px;
                 font-size: 0.75em;
                 min-width: 24px;
             }
 
+            #cleaningReportView .calendar-container {
+                padding: 6px 6px 2px 6px;
+            }
+
             #cleaningReportView .calendar-container > div {
-                padding: 6px;
+                padding: 6px 6px 2px 6px;
+            }
+
+            #cleaningReportView .calendar-header {
+                margin-bottom: 0;
+            }
+
+            #cleaningReportView .calendar-title {
+                padding: 2px 0 0 0;
             }
 
             #cleaningPrevBtn, #cleaningNextBtn,
