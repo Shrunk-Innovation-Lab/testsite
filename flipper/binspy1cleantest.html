@@ -1338,7 +1338,7 @@
 
         @media screen and (max-width: 768px) {
             body {
-                padding: 10px 10px 14px;
+                padding: 8px;
             }
 
             .page {
@@ -1356,42 +1356,75 @@
             }
 
             header {
-                flex-direction: column;
+                flex-direction: row;
+                justify-content: space-between;
                 align-items: center;
-                text-align: center;
+                margin-bottom: 12px;
+                padding: 6px 0;
             }
 
             .header-left {
-                justify-content: center;
+                flex-direction: row;
+                gap: 10px;
+                align-items: center;
+                flex: 1;
             }
 
             .header-title {
-                text-align: center;
-                font-size: 1.1em;
+                font-size: 0.95em;
+                text-align: left;
+            }
+
+            .header-title span {
+                font-size: 0.75em;
+                display: block;
             }
 
             .logo {
-                height: 34px;
+                height: 32px;
             }
 
             .home-link {
-                order: -1;
+                width: 36px;
+                height: 36px;
+            }
+
+            .home-link svg {
+                width: 16px;
+                height: 16px;
             }
 
             .controls-row {
-                padding: 10px;
+                padding: 8px;
+                gap: 8px;
+                flex-direction: column;
             }
 
             .view-toggle {
                 width: 100%;
-                justify-content: center;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
             }
 
             .view-btn {
-                flex: 1;
-                min-width: 60px;
-                padding: 9px 8px;
-                font-size: 13px;
+                padding: 10px 4px;
+                font-size: 0.75em;
+                min-height: 44px;
+                white-space: normal;
+                line-height: 1.2;
+            }
+
+            .refresh-btn, .export-btn {
+                width: 100%;
+                padding: 12px;
+                font-size: 0.9em;
+                min-height: 48px;
+            }
+
+            .last-updated {
+                font-size: 0.75em;
+                padding: 0 4px;
             }
 
             /* Cleaning Report Mobile Styles */
@@ -1405,7 +1438,7 @@
 
             .cleaning-report-table tbody tr {
                 display: block;
-                margin-bottom: 16px;
+                margin-bottom: 12px;
                 border: 1px solid #e5e5e7;
                 border-radius: 8px;
                 padding: 12px;
@@ -1414,16 +1447,16 @@
 
             .cleaning-report-table td {
                 display: block;
-                padding: 8px 0;
+                padding: 6px 0;
                 border: none;
                 text-align: left !important;
             }
 
             .cleaning-report-table td:first-child {
                 font-weight: 600;
-                font-size: 1.1em;
+                font-size: 1.05em;
                 color: #1d1d1f;
-                padding-bottom: 12px;
+                padding-bottom: 10px;
                 border-bottom: 2px solid #f0f0f0;
                 margin-bottom: 8px;
             }
@@ -1433,7 +1466,7 @@
                 font-weight: 600;
                 color: #666;
                 display: inline-block;
-                width: 120px;
+                width: 110px;
                 font-size: 0.9em;
             }
 
@@ -1446,47 +1479,75 @@
             }
 
             .filters {
-                padding: 10px;
+                padding: 8px;
+                gap: 6px;
             }
 
             .filter-btn {
                 flex: 1;
-                text-align: center;
+                min-width: 70px;
+                padding: 10px 6px;
+                font-size: 0.8em;
+                min-height: 44px;
             }
 
             .search-box {
                 width: 100%;
                 min-width: 100%;
+                padding: 12px;
+                font-size: 0.9em;
+                min-height: 48px;
             }
 
             .calendar-container {
-                padding: 10px;
+                padding: 8px;
             }
 
             .calendar-header {
-                gap: 8px;
+                gap: 6px;
+                flex-direction: column;
+            }
+
+            .calendar-nav {
+                width: 100%;
+                justify-content: space-between;
+            }
+
+            .nav-btn {
+                flex: 1;
+                padding: 10px 8px;
+                font-size: 0.8em;
+                min-height: 44px;
             }
 
             .calendar-title {
-                font-size: 1.1em;
+                font-size: 1em;
+                width: 100%;
+            }
+
+            .bin-selector {
+                width: 100%;
+                padding: 10px;
+                font-size: 0.9em;
+                min-height: 44px;
             }
 
             .month-grid {
-                gap: 4px;
+                gap: 3px;
             }
 
             .day-cell {
-                min-height: 60px;
-                padding: 5px 3px;
+                min-height: 55px;
+                padding: 4px 2px;
             }
 
             .day-number {
-                font-size: 0.8em;
+                font-size: 0.75em;
             }
 
             .event-dot {
-                font-size: 0.65em;
-                padding: 2px 3px;
+                font-size: 0.6em;
+                padding: 2px;
             }
 
             .week-grid {
@@ -1495,64 +1556,932 @@
             }
 
             .week-day {
-                padding: 9px;
+                padding: 10px;
                 min-height: auto;
             }
 
             .week-day-header {
-                font-size: 0.88em;
-                padding: 6px;
+                font-size: 0.85em;
+                padding: 8px;
+                min-height: 44px;
             }
 
             .week-event {
-                padding: 6px;
-                font-size: 0.75em;
+                padding: 8px;
+                font-size: 0.8em;
             }
 
             .day-view {
-                padding: 9px;
+                padding: 8px;
             }
 
             .timeline-event {
-                padding: 7px;
+                padding: 10px;
+                font-size: 0.85em;
             }
 
             .timeline-time {
-                font-size: 0.86em;
+                font-size: 0.9em;
             }
 
             .timeline-info {
-                font-size: 0.74em;
+                font-size: 0.75em;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+                margin-bottom: 15px;
+            }
+
+            .stat-card {
+                padding: 14px 12px;
             }
 
             .stat-number {
-                font-size: 2em;
+                font-size: 1.8em;
+            }
+
+            .stat-label {
+                font-size: 0.75em;
             }
 
             .bins-grid {
-                grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
+                grid-template-columns: 1fr;
                 gap: 10px;
             }
 
             .bin-card {
-                padding: 10px;
-                border-radius: 6px;
+                padding: 12px;
             }
 
             .bin-name {
-                font-size: 0.96em;
+                font-size: 1em;
+            }
+
+            .bin-status {
+                font-size: 0.7em;
+                padding: 3px 8px;
+            }
+
+            .bin-details {
+                font-size: 0.75em;
+            }
+
+            .bin-type-pill {
+                font-size: 0.65em;
+                padding: 2px 8px;
+            }
+
+            .comparison-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .upload-section {
+                padding: 30px 15px;
+            }
+
+            .upload-label {
+                padding: 12px 24px;
+                font-size: 0.9em;
+            }
+
+            .comparison-card {
+                padding: 14px;
+            }
+
+            .comparison-date {
+                flex-direction: column;
+                gap: 8px;
+                align-items: flex-start;
+            }
+
+            .comparison-status-badge {
+                align-self: flex-end;
+            }
+
+            .comparison-item {
+                grid-template-columns: 1fr;
+                gap: 6px;
+                padding: 10px 0;
+            }
+
+            .comparison-label {
+                font-weight: 600;
+                margin-bottom: 6px;
+            }
+
+            .comparison-values > * {
+                display: block;
+                margin-bottom: 6px;
+            }
+
+            .invoice-container {
+                padding: 15px;
+            }
+        }
+
+        /* iPhone-specific optimizations (including iPhone 17 Pro Max) */
+        @media screen and (max-width: 430px) {
+            body {
+                padding: 6px;
+                font-size: 16px; /* Prevent zoom on input focus */
+            }
+
+            .page {
+                max-width: 100%;
+            }
+
+            /* Optimize header for iPhone */
+            header {
+                padding: 8px 0;
+                margin-bottom: 10px;
+            }
+
+            .header-title {
+                font-size: 0.85em;
+                line-height: 1.2;
+            }
+
+            .header-title span {
+                font-size: 0.7em;
+                margin-top: 1px;
+            }
+
+            .logo {
+                height: 28px;
+            }
+
+            /* Larger touch targets for iPhone */
+            .view-btn {
+                min-height: 48px;
+                padding: 12px 6px;
+                font-size: 0.7em;
+                border-radius: 6px;
+            }
+
+            .refresh-btn, .export-btn {
+                min-height: 52px;
+                padding: 14px;
+                font-size: 1em;
+                border-radius: 8px;
+            }
+
+            /* Single column stats for iPhone */
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 8px;
+            }
+
+            .stat-card {
+                padding: 16px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                text-align: left;
+            }
+
+            .stat-number {
+                font-size: 2em;
+                margin-bottom: 0;
+                order: 2;
+            }
+
+            .stat-label {
+                font-size: 0.85em;
+                order: 1;
+                text-align: left;
+            }
+
+            /* Optimize filters for iPhone */
+            .filters {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            .filter-btn {
+                width: 100%;
+                min-height: 48px;
+                font-size: 0.9em;
+            }
+
+            .search-box {
+                width: 100%;
+                min-height: 52px;
+                font-size: 16px; /* Prevent zoom */
+                border-radius: 8px;
+            }
+
+            /* Optimize bins grid for iPhone */
+            .bins-grid {
+                gap: 8px;
+            }
+
+            .bin-card {
+                padding: 14px;
+                border-radius: 10px;
+            }
+
+            .bin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .bin-name {
+                font-size: 1.05em;
+            }
+
+            .bin-status {
+                align-self: flex-start;
+                font-size: 0.75em;
+                padding: 4px 10px;
+            }
+
+            .bin-details {
+                font-size: 0.8em;
+            }
+
+            .bin-details div {
+                margin: 5px 0;
+            }
+
+            /* Calendar optimizations for iPhone */
+            .calendar-container {
+                padding: 6px;
+            }
+
+            .calendar-nav {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                min-height: 48px;
+                font-size: 0.85em;
+            }
+
+            .calendar-title {
+                font-size: 0.95em;
+                padding: 8px 0;
+            }
+
+            .bin-selector {
+                width: 100%;
+                min-height: 48px;
+            }
+
+            .day-header {
+                padding: 6px 2px;
+                font-size: 0.7em;
+            }
+
+            .day-cell {
+                min-height: 50px;
+                padding: 3px 1px;
+            }
+
+            .day-number {
+                font-size: 0.7em;
+                margin-bottom: 2px;
+            }
+
+            .event-dot {
+                font-size: 0.55em;
+                padding: 1px 2px;
+            }
+
+            /* Week view for iPhone */
+            .week-day {
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .week-day-header {
+                padding: 10px;
+                font-size: 0.9em;
+                min-height: 48px;
+            }
+
+            .week-event {
+                padding: 10px;
+                font-size: 0.85em;
+                border-radius: 8px;
+            }
+
+            /* Timeline for iPhone */
+            .timeline-event {
+                padding: 12px;
+                border-radius: 8px;
+            }
+
+            .timeline-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 6px;
+            }
+
+            .timeline-right {
+                align-self: flex-start;
+            }
+
+            /* Cleaning report for iPhone */
+            .cleaning-report-table tbody tr {
+                padding: 14px;
+                border-radius: 10px;
+            }
+
+            .cleaning-report-table td {
+                padding: 8px 0;
+            }
+
+            .cleaning-report-table td:first-child {
+                font-size: 1.1em;
+                padding-bottom: 12px;
+            }
+
+            .cleaning-dates {
+                flex-direction: column;
+                gap: 4px;
+            }
+
+            .cleaning-date-chip {
+                align-self: flex-start;
+                font-size: 0.85em;
+                padding: 5px 12px;
+            }
+
+            .cleaning-count-badge {
+                min-width: 50px;
+                padding: 8px 14px;
+                font-size: 1em;
+            }
+
+            /* Invoice view for iPhone */
+            .upload-section {
+                padding: 25px 12px;
+            }
+
+            .upload-section svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            .upload-label {
+                padding: 14px 28px;
+                font-size: 0.95em;
+            }
+
+            .comparison-card {
+                padding: 16px;
+                border-radius: 10px;
+            }
+
+            .comparison-item {
+                padding: 12px 0;
+            }
+
+            .invoice-value, .actual-value, .difference {
+                padding: 6px 12px;
+                font-size: 0.9em;
+            }
+
+            /* No data message for iPhone */
+            .no-cleaning-data {
+                padding: 40px 15px;
+            }
+
+            .no-cleaning-data svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            /* Controls row for iPhone */
+            .controls-row {
+                padding: 6px;
+            }
+
+            .view-toggle {
+                gap: 4px;
+            }
+        }
+
+        /* ===== MOBILE & IPHONE OPTIMIZATIONS ===== */
+        
+        /* Tablet and smaller desktop (768px and below) */
+        @media screen and (max-width: 768px) {
+            body {
+                padding: 10px;
+            }
+
+            .page {
+                width: 100%;
+            }
+
+            header {
+                flex-direction: row;
+                justify-content: space-between;
+                align-items: center;
+                margin-bottom: 15px;
+            }
+
+            .header-left {
+                flex-direction: row;
+                gap: 12px;
+                align-items: center;
+            }
+
+            .header-title {
+                font-size: 1em;
+                text-align: left;
+            }
+
+            .header-title span {
+                font-size: 0.75em;
+            }
+
+            .logo {
+                height: 36px;
+            }
+
+            .controls-row {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .view-toggle {
+                width: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                gap: 8px;
+            }
+
+            .view-btn {
+                padding: 10px 6px;
+                font-size: 0.75em;
+                white-space: normal;
+                line-height: 1.3;
+            }
+
+            .refresh-btn, .export-btn {
+                width: 100%;
+            }
+
+            .stats {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 12px;
+            }
+
+            .bins-grid {
+                grid-template-columns: 1fr;
+                gap: 12px;
+            }
+
+            .calendar-header {
+                flex-direction: column;
+                gap: 10px;
+            }
+
+            .calendar-nav {
+                width: 100%;
+            }
+
+            .nav-btn {
+                flex: 1;
+                font-size: 0.85em;
+            }
+
+            .bin-selector {
+                width: 100%;
+            }
+
+            .month-grid {
+                gap: 4px;
+            }
+
+            .day-cell {
+                min-height: 60px;
+            }
+
+            .week-grid {
+                grid-template-columns: 1fr;
             }
 
             .comparison-grid {
                 grid-template-columns: 1fr;
             }
 
+            /* Cleaning Report Tablet */
+            .cleaning-report-table thead {
+                display: none;
+            }
+
+            .cleaning-report-table tbody tr {
+                display: block;
+                margin-bottom: 12px;
+                border: 1px solid #e5e5e7;
+                border-radius: 8px;
+                padding: 12px;
+            }
+
+            .cleaning-report-table td {
+                display: block;
+                padding: 8px 0;
+                text-align: left !important;
+            }
+
+            .cleaning-report-table td:first-child {
+                font-weight: 600;
+                font-size: 1.1em;
+                padding-bottom: 10px;
+                border-bottom: 2px solid #f0f0f0;
+                margin-bottom: 8px;
+            }
+
+            .cleaning-report-table td:before {
+                content: attr(data-label);
+                font-weight: 600;
+                color: #666;
+                display: inline-block;
+                width: 110px;
+                font-size: 0.9em;
+            }
+
+            .cleaning-report-table td:first-child:before {
+                content: none;
+            }
+        }
+
+        /* iPhone and mobile-specific (430px and below - optimized for iPhone 17 Pro Max) */
+        @media screen and (max-width: 430px) {
+            body {
+                padding: 8px;
+                font-size: 16px; /* Prevents zoom on input focus */
+            }
+
+            .page {
+                width: 100%;
+                max-width: 100%;
+            }
+
+            /* Header optimizations */
+            header {
+                padding: 8px 0;
+                margin-bottom: 12px;
+                gap: 10px;
+            }
+
+            .header-left {
+                gap: 10px;
+                flex: 1;
+                min-width: 0;
+            }
+
+            .header-title {
+                font-size: 0.9em;
+                line-height: 1.3;
+                min-width: 0;
+            }
+
+            .header-title span {
+                font-size: 0.72em;
+                display: block;
+                margin-top: 2px;
+            }
+
+            .logo {
+                height: 32px;
+                flex-shrink: 0;
+            }
+
+            .home-link {
+                width: 40px;
+                height: 40px;
+                flex-shrink: 0;
+            }
+
+            /* Controls - optimized touch targets */
+            .controls-row {
+                padding: 6px;
+                gap: 8px;
+            }
+
+            .view-toggle {
+                grid-template-columns: repeat(3, 1fr);
+                gap: 6px;
+            }
+
+            .view-btn {
+                min-height: 50px;
+                padding: 12px 4px;
+                font-size: 0.7em;
+                border-radius: 8px;
+                line-height: 1.2;
+            }
+
+            .refresh-btn, .export-btn {
+                min-height: 52px;
+                padding: 14px;
+                font-size: 1em;
+                border-radius: 10px;
+                font-weight: 500;
+            }
+
+            .last-updated {
+                font-size: 0.75em;
+                padding: 8px 4px;
+            }
+
+            /* Stats - single column for better readability */
+            .stats {
+                grid-template-columns: 1fr;
+                gap: 10px;
+                margin-bottom: 16px;
+            }
+
+            .stat-card {
+                padding: 16px 18px;
+                display: flex;
+                justify-content: space-between;
+                align-items: center;
+                border-radius: 12px;
+            }
+
+            .stat-label {
+                font-size: 0.9em;
+                text-align: left;
+                order: 1;
+            }
+
+            .stat-number {
+                font-size: 2.2em;
+                order: 2;
+                margin-bottom: 0;
+            }
+
+            /* Filters - full width buttons */
+            .filters {
+                flex-direction: column;
+                padding: 8px;
+                gap: 8px;
+            }
+
+            .filter-btn {
+                width: 100%;
+                min-height: 50px;
+                font-size: 0.9em;
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .search-box {
+                width: 100%;
+                min-height: 52px;
+                font-size: 16px; /* Prevents zoom */
+                padding: 14px;
+                border-radius: 10px;
+            }
+
+            /* Bins grid - optimized cards */
+            .bins-grid {
+                grid-template-columns: 1fr;
+                gap: 10px;
+            }
+
+            .bin-card {
+                padding: 16px;
+                border-radius: 12px;
+                border-left-width: 4px;
+            }
+
+            .bin-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 10px;
+                margin-bottom: 12px;
+            }
+
+            .bin-name {
+                font-size: 1.1em;
+            }
+
+            .bin-status {
+                align-self: flex-start;
+                font-size: 0.75em;
+                padding: 5px 12px;
+                border-radius: 8px;
+            }
+
+            .bin-type-pill {
+                align-self: flex-start;
+                font-size: 0.7em;
+                padding: 4px 10px;
+            }
+
+            .bin-details {
+                font-size: 0.85em;
+            }
+
+            .bin-details div {
+                margin: 6px 0;
+                line-height: 1.4;
+            }
+
+            /* Calendar - optimized for touch */
+            .calendar-container {
+                padding: 8px;
+            }
+
+            .calendar-header {
+                gap: 8px;
+            }
+
+            .calendar-nav {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .nav-btn {
+                width: 100%;
+                min-height: 50px;
+                font-size: 0.9em;
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .calendar-title {
+                font-size: 1em;
+                padding: 10px 0;
+                text-align: center;
+            }
+
+            .bin-selector {
+                width: 100%;
+                min-height: 50px;
+                font-size: 16px;
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            /* Month view */
+            .month-grid {
+                gap: 3px;
+            }
+
+            .day-header {
+                padding: 8px 2px;
+                font-size: 0.7em;
+            }
+
+            .day-cell {
+                min-height: 55px;
+                padding: 4px 2px;
+                border-radius: 6px;
+            }
+
+            .day-number {
+                font-size: 0.75em;
+                margin-bottom: 3px;
+            }
+
+            .event-dot {
+                font-size: 0.55em;
+                padding: 2px 4px;
+                margin: 1px 0;
+                border-radius: 4px;
+            }
+
+            /* Week view */
+            .week-grid {
+                gap: 10px;
+            }
+
+            .week-day {
+                padding: 14px;
+                border-radius: 12px;
+            }
+
+            .week-day-header {
+                min-height: 50px;
+                padding: 12px;
+                font-size: 0.95em;
+                border-radius: 10px;
+            }
+
+            .week-event {
+                padding: 12px;
+                font-size: 0.85em;
+                border-radius: 10px;
+                margin: 6px 0;
+            }
+
+            .expand-all-btn {
+                min-height: 44px;
+                padding: 10px 16px;
+                font-size: 0.85em;
+            }
+
+            /* Day view / Timeline */
+            .day-view {
+                padding: 10px;
+            }
+
+            .timeline-event {
+                padding: 14px;
+                border-radius: 12px;
+                margin-bottom: 10px;
+            }
+
+            .timeline-header {
+                flex-direction: column;
+                align-items: flex-start;
+                gap: 8px;
+            }
+
+            .timeline-time {
+                font-size: 1em;
+            }
+
+            .timeline-right {
+                align-self: flex-start;
+            }
+
+            .timeline-info {
+                font-size: 0.8em;
+            }
+
+            .waste-types-container {
+                gap: 6px;
+            }
+
+            /* Cleaning Report - mobile optimized */
+            .cleaning-report-table tbody tr {
+                padding: 16px;
+                border-radius: 12px;
+                margin-bottom: 12px;
+            }
+
+            .cleaning-report-table td {
+                padding: 8px 0;
+            }
+
+            .cleaning-report-table td:first-child {
+                font-size: 1.15em;
+                padding-bottom: 14px;
+            }
+
+            .cleaning-report-table td:before {
+                width: 100px;
+                font-size: 0.85em;
+            }
+
+            .cleaning-dates {
+                flex-direction: column;
+                gap: 6px;
+            }
+
+            .cleaning-date-chip {
+                align-self: flex-start;
+                font-size: 0.85em;
+                padding: 6px 12px;
+                border-radius: 8px;
+            }
+
+            .cleaning-count-badge {
+                min-width: 50px;
+                padding: 8px 16px;
+                font-size: 1em;
+                border-radius: 12px;
+            }
+
+            /* Invoice view */
+            .invoice-container {
+                padding: 12px;
+            }
+
             .upload-section {
-                padding: 40px 20px;
+                padding: 30px 15px;
+                border-radius: 12px;
+            }
+
+            .upload-section svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            .upload-label {
+                min-height: 50px;
+                padding: 14px 24px;
+                font-size: 0.95em;
+                border-radius: 10px;
             }
 
             .comparison-card {
                 padding: 16px;
+                border-radius: 12px;
+                margin-bottom: 12px;
             }
 
             .comparison-date {
@@ -1563,6 +2492,99 @@
 
             .comparison-status-badge {
                 align-self: flex-end;
+                padding: 6px 12px;
+                font-size: 0.75em;
+            }
+
+            .comparison-item {
+                grid-template-columns: 1fr;
+                padding: 12px 0;
+            }
+
+            .comparison-label {
+                font-size: 0.85em;
+                margin-bottom: 8px;
+            }
+
+            .invoice-value, .actual-value, .difference {
+                padding: 8px 12px;
+                font-size: 0.9em;
+                border-radius: 8px;
+                margin-bottom: 6px;
+            }
+
+            #invoiceFilters {
+                flex-direction: column;
+                gap: 8px;
+            }
+
+            #invoiceFilters .filter-btn {
+                width: 100%;
+            }
+
+            /* Cleansing info */
+            .cleansing-info {
+                flex-direction: column;
+                gap: 10px;
+                padding: 12px;
+                border-radius: 10px;
+            }
+
+            .cleansing-stats {
+                align-self: flex-end;
+                font-size: 0.85em;
+            }
+
+            /* No data states */
+            .no-cleaning-data {
+                padding: 40px 20px;
+            }
+
+            .no-cleaning-data svg {
+                width: 60px;
+                height: 60px;
+            }
+
+            /* Footer */
+            footer {
+                font-size: 0.75em;
+                padding: 16px 0;
+            }
+        }
+
+        /* Extra small mobile phones (375px and below - iPhone SE, 12/13 mini) */
+        @media screen and (max-width: 375px) {
+            body {
+                padding: 6px;
+            }
+
+            .header-title {
+                font-size: 0.85em;
+            }
+
+            .logo {
+                height: 28px;
+            }
+
+            .view-btn {
+                font-size: 0.65em;
+                padding: 10px 2px;
+            }
+
+            .stat-number {
+                font-size: 2em;
+            }
+
+            .bin-name {
+                font-size: 1em;
+            }
+
+            .day-cell {
+                min-height: 50px;
+            }
+
+            .event-dot {
+                font-size: 0.5em;
             }
         }
 
@@ -2392,7 +3414,7 @@
             </div>
             <div class="stat-card cleaning">
                 <div class="stat-number">${cleaningCount}</div>
-                <div class="stat-label">Bin Cleaning</div>
+                <div class="stat-label">Cleaning</div>
             </div>
             <div class="stat-card total">
                 <div class="stat-number">${total}</div>
@@ -2410,7 +3432,7 @@
         1: 'general', 2: 'general', 3: 'general', 4: 'commingle',
         5: 'general', 6: 'general', 7: 'general', 8: 'commingle',
         9: 'commingle', 10: 'general', 11: 'commingle', 12: 'general',
-        13: 'general', 14: 'general', 15: 'commingle', 16: 'commingle'
+        13: 'general', 14: 'general', 15: 'commingle', 16: 'commingle',
     };
 
     function getBinNumberFromName(name) {
@@ -2893,7 +3915,7 @@
         const now = new Date();
         const textElement = document.getElementById('lastUpdatedText');
         if (textElement) {
-            textElement.textContent = `Last updated: ${now.toLocaleString()} • Auto-refresh: 60s`;
+            textElement.textContent = `Last updated: ${now.toLocaleString()}`;
         }
     }
 
@@ -3621,8 +4643,8 @@
         });
     });
 
-    // Auto-refresh every 60 seconds
-    setInterval(() => loadData(true), 60000);
+    // Manual refresh only - auto-refresh removed
+    // Use the refresh button to update data
 
     // Update heartbeat display every 5 seconds
     setInterval(() => {
