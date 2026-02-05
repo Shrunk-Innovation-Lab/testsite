@@ -1634,7 +1634,6 @@
       cleaned: 0,
       removed: 0
     };
-
     // ========== DATA CLEANSING FUNCTIONS ==========
     /**
      * Cleanses bin readings by removing invalid entries
@@ -1643,64 +1642,69 @@
       const originalCount = readings.length;
       const cleaned = [];
       const binStates = new Map();
-      const isPM = (timestamp) => timestamp.getHours() >= 12;
-      const isAM = (timestamp) => timestamp.getHours() < 12;
-      const getDateKey = (timestamp) => {
-        const year = timestamp.getFullYear();
-        const month = String(timestamp.getMonth() + 1).padStart(2, '0');
-        const day = String(timestamp.getDate()).padStart(2, '0');
-        return `${year}-${month}-${day}`;
+      const MIN_FLIP_MS = 4 * 60 * 60 * 1000; // 4 hours
+      const getDateKey = (ts) => {
+        const y = ts.getFullYear();
+        const m = String(ts.getMonth() + 1).padStart(2, '0');
+        const d = String(ts.getDate()).padStart(2, '0');
+        return `${y}-${m}-${d}`;
       };
-
+      const prevDateKey = (dateKey) => {
+        const [y, m, d] = dateKey.split('-').map(Number);
+        const dt = new Date(y, m - 1, d);
+        dt.setDate(dt.getDate() - 1);
+        return getDateKey(dt);
+      };
       // Sort chronologically
       const sorted = [...readings].sort((a, b) => a.timestamp - b.timestamp);
-
-      sorted.forEach(reading => {
+      for (const reading of sorted) {
         const binId = reading.mac;
-        if (!binId) return;
-
-        const currentDate = getDateKey(reading.timestamp);
-        const state = reading.state;
-        if (!state) return;
-
-        // Initialize bin state if needed
+        const ts = reading.timestamp;
+        const state = (reading.state || '').trim().toUpperCase();
+        if (!binId || !ts || (state !== 'IN' && state !== 'OUT')) continue;
+        const day = getDateKey(ts);
+        const yesterday = prevDateKey(day);
         if (!binStates.has(binId)) {
           binStates.set(binId, {
-            lastState: null,
-            lastDate: null
+            lastAcceptedState: null,
+            lastAcceptedTime: null,
+            lastDay: null,
+            // Track which days had accepted IN/OUT
+            inDays: new Set(),
+            outDays: new Set(),
           });
         }
-
-        const binState = binStates.get(binId);
-        let isValid = false;
-
-        // Rule for OUT in AM
-        if (state === 'OUT' && isAM(reading.timestamp)) {
-          if (binState.lastState === 'IN' && (binState.lastDate === null || binState.lastDate < currentDate)) {
-            isValid = true;
-          } else if (binState.lastState === null) {
-            isValid = true;
+        const s = binStates.get(binId);
+        // 1) Reject opposite flips within 4 hours
+        if (s.lastAcceptedState && s.lastAcceptedTime) {
+          const isFlip = s.lastAcceptedState !== state;
+          const dt = ts - s.lastAcceptedTime;
+          if (isFlip && dt < MIN_FLIP_MS) {
+            continue; // spurious
           }
         }
-        // Rule for IN in PM
-        else if (state === 'IN' && isPM(reading.timestamp)) {
-          if (binState.lastState === 'OUT' || binState.lastState === null) {
-            isValid = true;
+        // 2) Enforce "same bin cannot go in and out or out and in on same day"
+        if (state === 'IN') {
+          if (s.inDays.has(day)) continue; // already IN today
+          if (s.outDays.has(day)) continue; // can't OUT then IN same day
+        } else { // OUT
+          if (s.outDays.has(day)) continue; // already OUT today
+          if (s.inDays.has(day)) continue; // can't IN then OUT same day
+          // 3) Enforce "OUT only valid if bin was IN yesterday"
+          if (!s.inDays.has(yesterday)) {
+            continue; // invalid OUT (no accepted IN previous day)
           }
         }
-
-        // If valid, add to cleaned and update state
-        if (isValid) {
-          cleaned.push(reading);
-          binStates.set(binId, {
-            lastState: state,
-            lastDate: currentDate
-          });
-        }
-      });
-
+        // Accept reading
+        cleaned.push(reading);
+        s.lastAcceptedState = state;
+        s.lastAcceptedTime = ts;
+        s.lastDay = day;
+        if (state === 'IN') s.inDays.add(day);
+        else s.outDays.add(day);
+      }
       return {
-        cleaned: cleaned,
+        cleaned,
         original: originalCount,
         removed: originalCount - cleaned.length
       };
@@ -1713,14 +1717,12 @@
         infoEl.style.display = 'none';
       }
     }
-
     // ========== CORE FUNCTIONS (from original) ==========
     function parseTimestamp(timestamp) {
       if (!timestamp) {
         console.warn('parseTimestamp: No timestamp provided');
         return null;
       }
-
       // Trim whitespace
       const cleaned = timestamp.toString().trim();
       const parts = cleaned.split(' ');
@@ -1728,15 +1730,12 @@
         console.warn('parseTimestamp: Invalid format (no space):', cleaned);
         return null;
       }
-
       const dateParts = parts[0].split('/');
       const timeParts = parts[1].split(':');
-
       if (dateParts.length !== 3 || timeParts.length !== 3) {
         console.warn('parseTimestamp: Invalid date/time parts:', cleaned);
         return null;
       }
-
       const parsed = new Date(
         parseInt(dateParts[2]), // year
         parseInt(dateParts[1]) - 1, // month (0-indexed)
@@ -1745,13 +1744,11 @@
         parseInt(timeParts[1]), // minute
         parseInt(timeParts[2]) // second
       );
-
       // Validate the parsed date
       if (isNaN(parsed.getTime())) {
         console.warn('parseTimestamp: Invalid date created:', cleaned);
         return null;
       }
-
       return parsed;
     }
 
@@ -1760,7 +1757,6 @@
       data.forEach(row => {
         const mac = row.mac || row.MAC;
         if (!mac) return;
-
         const timestamp = row.timestamp;
         if (!binMap.has(mac) || timestamp > binMap.get(mac).timestamp) {
           binMap.set(mac, row);
@@ -1780,7 +1776,6 @@
       });
       return bins;
     }
-
     // ========== HEARTBEAT MONITORING ==========
     async function loadHeartbeat() {
       try {
@@ -1792,7 +1787,6 @@
           complete: function(results) {
             if (results.data && results.data.length > 0) {
               const latest = results.data[results.data.length - 1];
-
               // Read from Timestamp column
               const timestampStr = latest.Timestamp || latest.timestamp || latest['System Time '] || latest['System Time'];
               if (!timestampStr) {
@@ -1800,20 +1794,17 @@
                 console.error('Latest row data:', latest);
                 return;
               }
-
               console.log('Heartbeat raw timestamp:', timestampStr);
               const parsedTimestamp = parseTimestamp(timestampStr);
               if (!parsedTimestamp) {
                 console.error('Failed to parse heartbeat timestamp:', timestampStr);
                 return;
               }
-
               lastHeartbeat = {
                 timestamp: parsedTimestamp,
                 deviceTime: latest['Device Time'] || latest.deviceTime || 'Unknown',
                 status: latest.Status || latest.status || 'Unknown'
               };
-
               const now = new Date();
               const ageMinutes = Math.floor((now - parsedTimestamp) / 60000);
               console.log('Heartbeat loaded:', {
@@ -1822,7 +1813,6 @@
                 ageMinutes: ageMinutes + ' minutes ago',
                 now: now.toLocaleString()
               });
-
               updateHeartbeatDisplay();
             } else {
               console.error('No data in heartbeat CSV');
@@ -1840,16 +1830,13 @@
     function updateHeartbeatDisplay() {
       const statusElement = document.getElementById('heartbeatStatus');
       if (!statusElement) return;
-
       if (lastHeartbeat) {
         const now = new Date();
         const diffMs = now - lastHeartbeat.timestamp;
         const diffMins = Math.floor(diffMs / 60000);
         const diffHours = Math.floor(diffMins / 60);
-
         let statusText = '';
         let statusColor = '';
-
         if (diffMins < 60) {
           statusText = `Last heartbeat: ${diffMins}m ago`;
           statusColor = '#34c759';
@@ -1863,7 +1850,6 @@
           statusText = `Last heartbeat: ${diffHours}h ${diffMins % 60}m ago`;
           statusColor = '#ff3b30';
         }
-
         statusElement.textContent = statusText;
         statusElement.style.color = statusColor;
       } else {
@@ -1871,22 +1857,18 @@
         statusElement.style.color = '#666';
       }
     }
-
     async function loadData(isAutoRefresh = false) {
       const indicator = document.getElementById('refreshIndicator');
       if (indicator && isAutoRefresh) {
         indicator.classList.add('active');
       }
-
       try {
         const response = await fetch(CSV_URL + '&t=' + new Date().getTime());
         const csvText = await response.text();
-
         Papa.parse(csvText, {
           header: true,
           skipEmptyLines: true,
           complete: function(results) {
-
             // Parse all readings
             const rawReadings = results.data.map(row => {
               const mapped = {
@@ -1899,7 +1881,6 @@
               };
               return mapped;
             }).filter(row => row.timestamp !== null); // Filter out invalid timestamps
-
             // APPLY DATA CLEANSING
             const cleansingResult = cleanseReadings(rawReadings);
             allReadings = cleansingResult.cleaned;
@@ -1908,25 +1889,19 @@
               cleaned: cleansingResult.cleaned.length,
               removed: cleansingResult.removed
             };
-
             console.log(`✓ Data cleansing: ${cleansingStats.original} → ${cleansingStats.cleaned} (removed ${cleansingStats.removed})`);
             updateCleansingInfo();
-
             // Load heartbeat data
             loadHeartbeat();
-
             latestBins = getLatestBinStatus(allReadings);
             populateBinSelector();
-
             if (currentView !== 'invoice' || !isAutoRefresh) {
               displayCurrentView();
             } else {
               updateLastUpdated();
             }
-
             document.getElementById('loading').style.display = 'none';
             document.getElementById('content').style.display = 'block';
-
             if (indicator && isAutoRefresh) {
               setTimeout(() => indicator.classList.remove('active'), 500);
             }
@@ -1968,12 +1943,10 @@
       document.getElementById('dashboardView').classList.add('hidden');
       document.getElementById('calendarView').classList.add('hidden');
       document.getElementById('invoiceView').classList.add('hidden');
-
       const exportBtn = document.querySelector('.export-btn[onclick="exportToCSV()"]');
       if (exportBtn) {
         exportBtn.style.display = currentView === 'invoice' ? 'none' : 'inline-flex';
       }
-
       if (currentView === 'dashboard') {
         displayDashboard();
       } else if (currentView === 'invoice') {
@@ -1981,7 +1954,6 @@
       } else {
         displayCalendar();
       }
-
       updateLastUpdated();
     }
 
@@ -1995,7 +1967,6 @@
       const inCount = latestBins.filter(bin => isInArea(bin)).length;
       const outCount = latestBins.filter(bin => !isInArea(bin)).length;
       const total = latestBins.length;
-
       document.getElementById('stats').innerHTML = `
             <div class="stat-card in">
                 <div class="stat-number">${inCount}</div>
@@ -2016,7 +1987,6 @@
       const state = (bin.state || bin.State || '').trim().toUpperCase();
       return state === 'IN';
     }
-
     const wasteTypeByNumber = {
       16: 'general',
       17: 'general',
@@ -2045,13 +2015,11 @@
 
     function displayBins() {
       let filteredBins = latestBins;
-
       if (currentFilter === 'in') {
         filteredBins = filteredBins.filter(bin => isInArea(bin));
       } else if (currentFilter === 'out') {
         filteredBins = filteredBins.filter(bin => !isInArea(bin));
       }
-
       if (searchTerm) {
         filteredBins = filteredBins.filter(bin => {
           return Object.values(bin).some(value =>
@@ -2059,14 +2027,11 @@
           );
         });
       }
-
       const binsGrid = document.getElementById('binsGrid');
-
       if (filteredBins.length === 0) {
         binsGrid.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: #666;">No bins found</div>';
         return;
       }
-
       binsGrid.innerHTML = filteredBins.map(bin => {
         const inArea = isInArea(bin);
         const statusClass = inArea ? 'in' : 'out';
@@ -2077,13 +2042,11 @@
         const rssi = bin.rssi || bin.RSSI || '';
         const binNumber = getBinNumberFromName(binName);
         const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
-
         let wastePillHtml = '';
         if (wasteTypeKey) {
           const label = wasteTypeKey === 'general' ? 'General Waste' : 'Commingle';
           wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
         }
-
         return `
                 <div class="bin-card ${statusClass}">
                     <div class="bin-header">
@@ -2103,12 +2066,10 @@
 
     function displayCalendar() {
       document.getElementById('calendarView').classList.remove('hidden');
-
       const existingBtn = document.getElementById('expandAllBtn');
       if (existingBtn) {
         existingBtn.remove();
       }
-
       if (currentView === 'month') {
         displayMonthView();
       } else if (currentView === 'week') {
@@ -2139,54 +2100,41 @@
     function displayMonthView() {
       const year = currentDate.getFullYear();
       const month = currentDate.getMonth();
-
       document.getElementById('calendarTitle').textContent =
         currentDate.toLocaleDateString('en-US', {
           month: 'long',
           year: 'numeric'
         });
-
       const firstDay = new Date(year, month, 1);
       const startDate = new Date(firstDay);
       startDate.setDate(startDate.getDate() - startDate.getDay());
-
       const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
       let html = '<div class="month-grid">';
-
       days.forEach(day => {
         html += `<div class="day-header">${day}</div>`;
       });
-
       const readings = getFilteredReadings();
-
       for (let i = 0; i < 42; i++) {
         const currentDay = new Date(startDate);
         currentDay.setDate(startDate.getDate() + i);
-
         const isOtherMonth = currentDay.getMonth() !== month;
-
         const dayReadings = readings.filter(r =>
           r.timestamp.toDateString() === currentDay.toDateString()
         );
-
         html += `<div class="day-cell ${isOtherMonth ? 'other-month' : ''}" 
                      onclick="viewDay(new Date(${currentDay.getTime()}))">
                 <div class="day-number">${currentDay.getDate()}</div>
                 <div class="day-events">`;
-
         const inCount = dayReadings.filter(r => (r.state || r.State || '').trim().toUpperCase() === 'IN').length;
         const outCount = dayReadings.filter(r => (r.state || r.State || '').trim().toUpperCase() === 'OUT').length;
-
         if (inCount > 0) {
           html += `<div class="event-dot in">${inCount} IN</div>`;
         }
         if (outCount > 0) {
           html += `<div class="event-dot out">${outCount} OUT</div>`;
         }
-
         html += `</div></div>`;
       }
-
       html += '</div>';
       document.getElementById('calendarContent').innerHTML = html;
     }
@@ -2194,36 +2142,27 @@
     function displayWeekView() {
       const startOfWeek = new Date(currentDate);
       startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
-
       const endOfWeek = new Date(startOfWeek);
       endOfWeek.setDate(startOfWeek.getDate() + 6);
-
       document.getElementById('calendarTitle').textContent =
         `${startOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric' })} - ${endOfWeek.toLocaleDateString('en-US', { month: 'short', day: 'numeric', year: 'numeric' })}`;
-
       const days = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
       let html = '<div class="week-grid">';
-
       const readings = getFilteredReadings();
-
       for (let i = 0; i < 7; i++) {
         const currentDay = new Date(startOfWeek);
         currentDay.setDate(startOfWeek.getDate() + i);
-
         const dayReadings = readings.filter(r =>
           r.timestamp.toDateString() === currentDay.toDateString()
         ).sort((a, b) => a.timestamp - b.timestamp);
-
         const dayId = `week-day-${i}`;
         const eventsId = `week-events-${i}`;
-
         html += `<div class="week-day" id="${dayId}">
                 <div class="week-day-header" onclick="toggleWeekDay(${i})">
                     <span class="expand-icon">▼</span>
                     <span>${days[i]}<br>${currentDay.getDate()}</span>
                 </div>
                 <div class="week-events" id="${eventsId}">`;
-
         if (dayReadings.length === 0) {
           html += '<div style="text-align: center; color: #999; font-size: 0.85em; padding: 10px;">No events</div>';
         } else {
@@ -2235,20 +2174,16 @@
               minute: '2-digit'
             });
             const alias = reading.alias || reading.Alias || 'Bin';
-
             html += `<div class="week-event ${statusClass}">
                         <div class="event-time">${time}</div>
                         <div>${alias} - ${state}</div>
                     </div>`;
           });
         }
-
         html += `</div></div>`;
       }
-
       html += '</div>';
       document.getElementById('calendarContent').innerHTML = html;
-
       setTimeout(() => {
         for (let i = 0; i < 7; i++) {
           const eventsElement = document.getElementById(`week-events-${i}`);
@@ -2263,7 +2198,6 @@
       const dayElement = document.getElementById(`week-day-${dayIndex}`);
       const eventsElement = document.getElementById(`week-events-${dayIndex}`);
       const headerElement = dayElement.querySelector('.week-day-header');
-
       if (eventsElement.classList.contains('collapsed')) {
         eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
         eventsElement.classList.remove('collapsed');
@@ -2285,16 +2219,13 @@
           collapsedCount++;
         }
       }
-
       // If any days are collapsed, expand all. Otherwise, collapse all.
       const shouldExpand = collapsedCount > 0;
-
       for (let i = 0; i < 7; i++) {
         const dayElement = document.getElementById(`week-day-${i}`);
         const eventsElement = document.getElementById(`week-events-${i}`);
         const headerElement = dayElement?.querySelector('.week-day-header');
         if (!dayElement || !eventsElement || !headerElement) continue;
-
         if (shouldExpand) {
           eventsElement.style.maxHeight = eventsElement.scrollHeight + 'px';
           eventsElement.classList.remove('collapsed');
@@ -2307,7 +2238,6 @@
           dayElement.classList.add('collapsed');
         }
       }
-
       const btn = document.getElementById('expandAllBtn');
       if (btn) {
         btn.textContent = shouldExpand ? 'Collapse All' : 'Expand All';
@@ -2322,13 +2252,10 @@
           month: 'long',
           day: 'numeric'
         });
-
       const readings = getFilteredReadings().filter(r =>
         r.timestamp.toDateString() === currentDate.toDateString()
       ).sort((a, b) => a.timestamp - b.timestamp);
-
       let html = '<div class="day-view"><div class="timeline">';
-
       if (readings.length === 0) {
         html += '<div style="text-align: center; padding: 40px; color: #666;">No readings for this day</div>';
       } else {
@@ -2342,16 +2269,13 @@
           const alias = reading.alias || reading.Alias || 'Unknown Bin';
           const mac = reading.mac || reading.MAC || '';
           const rssi = reading.rssi || reading.RSSI || '';
-
           const binNumber = getBinNumberFromName(alias);
           const wasteTypeKey = binNumber && wasteTypeByNumber[binNumber];
-
           let wastePillHtml = '';
           if (wasteTypeKey) {
             const label = wasteTypeKey === 'general' ? 'GENERAL WASTE' : 'COMMINGLE';
             wastePillHtml = `<span class="bin-type-pill ${wasteTypeKey}">${label}</span>`;
           }
-
           html += `<div class="timeline-event ${statusClass}">
                     <div class="timeline-header">
                         <div class="timeline-main">
@@ -2366,7 +2290,6 @@
                 </div>`;
         });
       }
-
       html += '</div></div>';
       document.getElementById('calendarContent').innerHTML = html;
     }
@@ -2395,16 +2318,13 @@
     function exportToCSV() {
       let dataToExport = [];
       let filename = '';
-
       if (currentView === 'dashboard') {
         let filteredBins = latestBins;
-
         if (currentFilter === 'in') {
           filteredBins = filteredBins.filter(bin => isInArea(bin));
         } else if (currentFilter === 'out') {
           filteredBins = filteredBins.filter(bin => !isInArea(bin));
         }
-
         if (searchTerm) {
           filteredBins = filteredBins.filter(bin => {
             return Object.values(bin).some(value =>
@@ -2412,7 +2332,6 @@
             );
           });
         }
-
         dataToExport = filteredBins.map(bin => ({
           'Bin Name': bin.alias || bin.Alias || 'Unknown',
           'MAC Address': bin.mac || bin.MAC || '',
@@ -2420,20 +2339,16 @@
           'Last Seen': bin.Timestamp || bin.timestamp || '',
           'Signal (dBm)': bin.rssi || bin.RSSI || ''
         }));
-
         filename = `binspy-cleansed-dashboard-${new Date().toISOString().split('T')[0]}.csv`;
       } else {
         const readings = getFilteredReadings();
-
         if (currentView === 'month') {
           const year = currentDate.getFullYear();
           const month = currentDate.getMonth();
-
           const monthReadings = readings.filter(r =>
             r.timestamp.getFullYear() === year &&
             r.timestamp.getMonth() === month
           );
-
           dataToExport = monthReadings.map(r => ({
             'Date': r.timestamp.toLocaleDateString(),
             'Time': r.timestamp.toLocaleTimeString(),
@@ -2442,21 +2357,17 @@
             'Status': (r.state || r.State || '').trim().toUpperCase(),
             'Signal (dBm)': r.rssi || r.RSSI || ''
           }));
-
           filename = `binspy-cleansed-month-${currentDate.toLocaleDateString('en-US', { year: 'numeric', month: 'long' }).replace(' ', '-')}.csv`;
         } else if (currentView === 'week') {
           const startOfWeek = new Date(currentDate);
           startOfWeek.setDate(currentDate.getDate() - currentDate.getDay());
           startOfWeek.setHours(0, 0, 0, 0);
-
           const endOfWeek = new Date(startOfWeek);
           endOfWeek.setDate(startOfWeek.getDate() + 6);
           endOfWeek.setHours(23, 59, 59, 999);
-
           const weekReadings = readings.filter(r =>
             r.timestamp >= startOfWeek && r.timestamp <= endOfWeek
           );
-
           dataToExport = weekReadings.map(r => ({
             'Date': r.timestamp.toLocaleDateString(),
             'Time': r.timestamp.toLocaleTimeString(),
@@ -2465,13 +2376,11 @@
             'Status': (r.state || r.State || '').trim().toUpperCase(),
             'Signal (dBm)': r.rssi || r.RSSI || ''
           }));
-
           filename = `binspy-cleansed-week-${startOfWeek.toLocaleDateString().replace(/\//g, '-')}.csv`;
         } else if (currentView === 'day') {
           const dayReadings = readings.filter(r =>
             r.timestamp.toDateString() === currentDate.toDateString()
           );
-
           dataToExport = dayReadings.map(r => ({
             'Time': r.timestamp.toLocaleTimeString(),
             'Bin Name': r.alias || r.Alias || 'Unknown',
@@ -2479,21 +2388,17 @@
             'Status': (r.state || r.State || '').trim().toUpperCase(),
             'Signal (dBm)': r.rssi || r.RSSI || ''
           }));
-
           filename = `binspy-cleansed-day-${currentDate.toLocaleDateString().replace(/\//g, '-')}.csv`;
         }
       }
-
       if (dataToExport.length === 0) {
         alert('No data to export');
         return;
       }
-
       const csv = Papa.unparse(dataToExport);
       const blob = new Blob([csv], {
         type: 'text/csv;charset=utf-8;'
       });
-
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       link.setAttribute('href', url);
@@ -2503,16 +2408,13 @@
       link.click();
       document.body.removeChild(link);
     }
-
     // Invoice View Functions (abbreviated - keeping full original logic)
     function displayInvoiceView() {
       document.getElementById('invoiceView').classList.remove('hidden');
-
       const fileInput = document.getElementById('pdfFileInput');
       const newFileInput = fileInput.cloneNode(true);
       fileInput.parentNode.replaceChild(newFileInput, fileInput);
       newFileInput.addEventListener('change', handleFileUpload);
-
       const uploadSection = document.getElementById('uploadSection');
       uploadSection.addEventListener('dragover', (e) => {
         e.preventDefault();
@@ -2532,36 +2434,29 @@
         }
       });
     }
-
     async function handleFileUpload(e) {
       const fileInput = e?.target || document.getElementById('pdfFileInput');
       const file = fileInput.files[0];
-
       if (!file) {
         alert('No file selected');
         return;
       }
-
       if (file.type !== 'application/pdf') {
         alert('Please select a valid PDF file');
         return;
       }
-
       if (invoiceData || comparisonData) {
         invoiceData = null;
         comparisonData = null;
         currentInvoiceFilter = 'all';
-
         document.getElementById('invoiceStats').classList.add('hidden');
         document.getElementById('invoiceActions').classList.add('hidden');
         document.getElementById('invoiceFilters').classList.add('hidden');
         document.getElementById('comparisonResults').classList.add('hidden');
-
         document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
           btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
         });
       }
-
       const fileNameEl = document.getElementById('fileName');
       fileNameEl.innerHTML = `
             <div style="display: inline-flex; align-items: center; gap: 10px; background: #e5f2ff; padding: 12px 20px; border-radius: 8px; border: 1px solid #99ccff;">
@@ -2571,14 +2466,12 @@
                 </div>
             </div>
         `;
-
       try {
         const arrayBuffer = await file.arrayBuffer();
         const loadingTask = pdfjsLib.getDocument({
           data: arrayBuffer
         });
         const pdf = await loadingTask.promise;
-
         let fullText = '';
         for (let i = 1; i <= pdf.numPages; i++) {
           const page = await pdf.getPage(i);
@@ -2586,9 +2479,7 @@
           const pageText = textContent.items.map(item => item.str).join(' ');
           fullText += pageText + '\n';
         }
-
         invoiceData = parseInvoiceData(fullText);
-
         if (Object.keys(invoiceData.general).length === 0 && Object.keys(invoiceData.commingle).length === 0) {
           fileNameEl.innerHTML = `
                     <div style="display: inline-flex; align-items: center; gap: 10px; background: #ffe5e5; padding: 12px 20px; border-radius: 8px; border: 1px solid #ffb3b3; margin-top: 10px;">
@@ -2601,9 +2492,7 @@
           alert('Could not find any service records in the PDF');
           return;
         }
-
         displayInvoiceComparison();
-
       } catch (error) {
         console.error('Error processing PDF:', error);
         fileNameEl.innerHTML = `
@@ -2623,10 +2512,8 @@
         general: {},
         commingle: {}
       };
-
       const pattern = /(\d{2})\/(\d{2})\/(\d{2})\s+[\d.]+\s+(\d+)\s+\$[\d.]+\s+\$[\d.]+\s+Service\s+Rear\s+Lift\s+1100L\s+(Co-Mingled|Putrescible)/gi;
       let match;
-
       while ((match = pattern.exec(text)) !== null) {
         const day = match[1];
         const month = match[2];
@@ -2635,83 +2522,66 @@
         const qty = parseInt(match[4]);
         const invoiceType = match[5];
         const type = invoiceType === 'Co-Mingled' ? 'commingle' : 'general';
-
         if (!parsed[type][dateKey]) {
           parsed[type][dateKey] = 0;
         }
         parsed[type][dateKey] += qty;
       }
-
       return parsed;
     }
 
     function displayInvoiceComparison() {
       if (!invoiceData) return;
-
       let totalMatches = 0;
       let totalMismatches = 0;
       let totalMissing = 0;
       let totalDaysWithData = 0;
       let totalSkippedDays = 0; // Track skipped days due to data gaps
-
       const allDates = new Set([
         ...Object.keys(invoiceData.general),
         ...Object.keys(invoiceData.commingle)
       ]);
-
       const comparisonsByDate = new Map();
-
       allDates.forEach(invoiceDate => {
         const actualDate = new Date(invoiceDate);
         actualDate.setDate(actualDate.getDate() - 1);
         const actualDateStr = actualDate.toISOString().split('T')[0];
-
         // CHECK FOR DATA GAP - Skip if no readings exist for this date
         const hasDataForDate = allReadings.some(r => {
           const readingDate = r.timestamp.toISOString().split('T')[0];
           return readingDate === actualDateStr;
         });
-
         if (!hasDataForDate) {
           console.log(`⚠️ Skipping ${invoiceDate} (actual: ${actualDateStr}) - no log data available`);
           totalSkippedDays++;
           return; // Skip this date - data gap detected
         }
-
         const generalInvoice = invoiceData.general[invoiceDate] || 0;
         const commingeInvoice = invoiceData.commingle[invoiceDate] || 0;
-
         const dayReadings = allReadings.filter(r => {
           const readingDate = r.timestamp.toISOString().split('T')[0];
           return readingDate === actualDateStr && r.state === 'IN';
         });
-
         const generalBins = new Set();
         const commingeBins = new Set();
-
         dayReadings.forEach(reading => {
           const alias = reading.alias || '';
           const mac = reading.mac || '';
           const binNumber = getBinNumberFromName(alias);
           const wasteType = wasteTypeByNumber[binNumber];
-
           if (wasteType === 'general') {
             generalBins.add(mac);
           } else if (wasteType === 'commingle') {
             commingeBins.add(mac);
           }
         });
-
         const generalActual = generalBins.size;
         const commingeActual = commingeBins.size;
-
         if (generalActual > 0 || commingeActual > 0) {
           totalDaysWithData++;
         }
-
         const generalMatch = generalInvoice === generalActual;
         const commingeMatch = commingeInvoice === commingeActual;
-
         if (generalMatch && commingeMatch) {
           totalMatches++;
         } else if (generalInvoice === 0 && commingeInvoice === 0 && generalActual === 0 && commingeActual === 0) {
@@ -2721,7 +2591,6 @@
         } else {
           totalMismatches++;
         }
-
         comparisonsByDate.set(invoiceDate, {
           actualDate: actualDateStr,
           general: {
@@ -2736,7 +2605,6 @@
           }
         });
       });
-
       comparisonData = {
         byDate: comparisonsByDate,
         stats: {
@@ -2747,7 +2615,6 @@
           skippedDays: totalSkippedDays
         }
       };
-
       // Update stats display to show skipped days (skipped is purple via CSS)
       const statsHtml = `
     <div class="stat-card match">
@@ -2769,14 +2636,11 @@
     </div>
     ` : ''}
   `;
-
       document.getElementById('invoiceStats').innerHTML = statsHtml;
       document.getElementById('invoiceStats').classList.remove('hidden');
       document.getElementById('invoiceActions').classList.remove('hidden');
       document.getElementById('invoiceFilters').classList.remove('hidden');
-
       displayFilteredComparisons();
-
       // Update success message to show skipped days
       if (totalDaysWithData > 0) {
         const fileNameEl = document.getElementById('fileName');
@@ -2794,33 +2658,24 @@
 
     function displayFilteredComparisons() {
       if (!comparisonData) return;
-
       const comparisonsByDate = comparisonData.byDate;
       let comparisonHtml = '<div class="comparison-grid">';
-
       const sortedDates = Array.from(comparisonsByDate.keys()).sort().reverse();
       let displayedCount = 0;
-
       sortedDates.forEach(invoiceDate => {
         const data = comparisonsByDate.get(invoiceDate);
-
         const date = new Date(invoiceDate);
         const actualDate = new Date(data.actualDate);
-
         const generalMatch = data.general.diff === 0;
         const commingeMatch = data.commingle.diff === 0;
         const overallMatch = generalMatch && commingeMatch;
-
         if (data.general.invoice === 0 && data.commingle.invoice === 0 &&
           data.general.actual === 0 && data.commingle.actual === 0) {
           return;
         }
-
         const totalDiff = data.general.diff + data.commingle.diff;
-
         let category;
         let statusText;
-
         if (overallMatch) {
           category = 'match';
           statusText = 'Match';
@@ -2834,14 +2689,11 @@
           category = 'mismatch-under';
           statusText = 'Mismatch';
         }
-
         const filterCategory = category.startsWith('mismatch') ? 'mismatch' : category;
         if (currentInvoiceFilter !== 'all' && currentInvoiceFilter !== filterCategory) {
           return;
         }
-
         displayedCount++;
-
         comparisonHtml += `
                 <div class="comparison-card card-${category}">
                     <div class="comparison-date">
@@ -2879,7 +2731,6 @@
                 </div>
             `;
       });
-
       if (displayedCount === 0) {
         comparisonHtml += `
                 <div style="grid-column: 1/-1; text-align: center; padding: 60px 20px;">
@@ -2888,9 +2739,7 @@
                 </div>
             `;
       }
-
       comparisonHtml += '</div>';
-
       document.getElementById('comparisonResults').innerHTML = comparisonHtml;
       document.getElementById('comparisonResults').classList.remove('hidden');
     }
@@ -2899,14 +2748,12 @@
       invoiceData = null;
       comparisonData = null;
       currentInvoiceFilter = 'all';
-
       document.getElementById('pdfFileInput').value = '';
       document.getElementById('fileName').textContent = '';
       document.getElementById('invoiceStats').classList.add('hidden');
       document.getElementById('invoiceActions').classList.add('hidden');
       document.getElementById('invoiceFilters').classList.add('hidden');
       document.getElementById('comparisonResults').classList.add('hidden');
-
       document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
         btn.classList.toggle('active', btn.dataset.invoiceFilter === 'all');
       });
@@ -2917,7 +2764,6 @@
         alert('No comparison data available to export');
         return;
       }
-
       const headers = [
         'Invoice Date',
         'Actual Date',
@@ -2929,20 +2775,15 @@
         'Commingle (Invoiced)',
         'Commingle (Difference)'
       ];
-
       const rows = [headers];
       const sortedDates = Array.from(comparisonData.byDate.keys()).sort();
-
       sortedDates.forEach(invoiceDate => {
         const data = comparisonData.byDate.get(invoiceDate);
-
         const date = new Date(invoiceDate);
         const actualDate = new Date(data.actualDate);
-
         const generalMatch = data.general.diff === 0;
         const commingeMatch = data.commingle.diff === 0;
         const totalDiff = data.general.diff + data.commingle.diff;
-
         let status;
         if (generalMatch && commingeMatch) {
           status = 'Match';
@@ -2953,12 +2794,10 @@
         } else {
           status = 'Under Invoiced';
         }
-
         if (data.general.invoice === 0 && data.commingle.invoice === 0 &&
           data.general.actual === 0 && data.commingle.actual === 0) {
           return;
         }
-
         const row = [
           date.toLocaleDateString('en-AU'),
           actualDate.toLocaleDateString('en-AU'),
@@ -2970,15 +2809,12 @@
           data.commingle.invoice,
           data.commingle.diff
         ];
-
         rows.push(row);
       });
-
       const csvContent = rows.map(row => row.join(',')).join('\n');
       const blob = new Blob([csvContent], {
         type: 'text/csv;charset=utf-8;'
       });
-
       const link = document.createElement('a');
       const url = URL.createObjectURL(blob);
       const timestamp = new Date().toISOString().split('T')[0];
@@ -2989,11 +2825,9 @@
       link.click();
       document.body.removeChild(link);
     }
-
     // Event Listeners
     document.addEventListener('DOMContentLoaded', () => {
       loadData(false);
-
       document.querySelectorAll('.view-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.view-btn').forEach(b => b.classList.remove('active'));
@@ -3005,7 +2839,6 @@
           displayCurrentView();
         });
       });
-
       document.querySelectorAll('.filter-btn').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
@@ -3014,12 +2847,10 @@
           displayBins();
         });
       });
-
       document.getElementById('searchBox').addEventListener('input', (e) => {
         searchTerm = e.target.value;
         displayBins();
       });
-
       document.getElementById('prevBtn').addEventListener('click', () => {
         if (currentView === 'month') {
           currentDate.setMonth(currentDate.getMonth() - 1);
@@ -3030,7 +2861,6 @@
         }
         displayCalendar();
       });
-
       document.getElementById('nextBtn').addEventListener('click', () => {
         if (currentView === 'month') {
           currentDate.setMonth(currentDate.getMonth() + 1);
@@ -3041,17 +2871,14 @@
         }
         displayCalendar();
       });
-
       document.getElementById('todayBtn').addEventListener('click', () => {
         currentDate = new Date();
         displayCalendar();
       });
-
       document.getElementById('binSelector').addEventListener('change', (e) => {
         selectedBin = e.target.value;
         displayCalendar();
       });
-
       document.querySelectorAll('[data-invoice-filter]').forEach(btn => {
         btn.addEventListener('click', () => {
           document.querySelectorAll('[data-invoice-filter]').forEach(b => b.classList.remove('active'));
@@ -3061,15 +2888,12 @@
         });
       });
     });
-
     // Auto-refresh every 60 seconds
     setInterval(() => loadData(true), 60000);
-
     // Update heartbeat display every 5 seconds
     setInterval(() => {
       updateHeartbeatDisplay();
     }, 5000);
-
     // Refresh heartbeat data every 30 seconds
     setInterval(() => {
       loadHeartbeat();
