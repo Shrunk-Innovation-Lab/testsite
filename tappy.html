@@ -2,11 +2,14 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <!-- Use viewport-fit=cover + dvh-safe sizing; keep zoom locked -->
+    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
     <title>AR TAP ATTACK - Neural Hand Training</title>
+
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+
     <style>
         :root {
             --cyber-bg: #0a0a0a;
@@ -26,14 +29,19 @@
             box-sizing: border-box;
         }
 
+        html, body {
+            width: 100%;
+            height: 100%;
+            overflow: hidden;            /* ✅ prevent page scroll */
+            overscroll-behavior: none;   /* ✅ prevent iOS bounce */
+            touch-action: manipulation;
+        }
+
         body {
             font-family: 'Rajdhani', sans-serif;
             background: var(--cyber-bg);
             color: var(--cyber-text);
-            overflow: hidden;
             position: relative;
-            height: 100vh;
-            width: 100vw;
         }
 
         /* Animated background grid */
@@ -43,7 +51,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image: 
+            background-image:
                 linear-gradient(var(--cyber-border) 1px, transparent 1px),
                 linear-gradient(90deg, var(--cyber-border) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -103,28 +111,32 @@
             pointer-events: auto;
         }
 
-        /* Menu overlay */
+        /* Menu overlay (✅ NON-SCROLLING) */
         .menu-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 95%;
-            max-width: 900px;
-            max-height: 90vh;
+
+            width: min(95vw, 900px);
+            height: min(90dvh, 700px);
+
             background: rgba(26, 26, 26, 0.95);
             border: 2px solid var(--cyber-border);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             padding: 1.5rem;
             animation: menuAppear 0.5s ease-out;
-            overflow-y: auto;
+
+            overflow: hidden; /* ✅ menu itself never scrolls */
+            display: flex;
+            flex-direction: column;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
             .menu-overlay {
                 padding: 0.5rem;
-                max-height: 98vh;
-                width: 98%;
+                height: 98dvh;
+                width: 98vw;
             }
         }
 
@@ -143,6 +155,7 @@
             text-align: center;
             margin-bottom: 1rem;
             position: relative;
+            flex: 0 0 auto;
         }
 
         .menu-logo {
@@ -161,6 +174,7 @@
             margin-bottom: 0.25rem;
         }
 
+        /* ✅ keep single definition (you had duplicates) */
         .menu-subtitle {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.75rem;
@@ -173,31 +187,25 @@
                 max-width: 80px;
                 margin-bottom: 0.15rem;
             }
-            
+
             .menu-title {
                 font-size: 1rem;
                 margin-bottom: 0.1rem;
             }
-            
+
             .menu-subtitle {
                 font-size: 0.65rem;
             }
-            
+
             .menu-header {
                 margin-bottom: 0.4rem;
             }
         }
 
-        .menu-subtitle {
-            font-family: 'Share Tech Mono', monospace;
-            font-size: 0.9rem;
-            color: var(--cyber-dim);
-            letter-spacing: 0.15em;
-        }
-
         /* Form elements */
         .form-group {
             margin-bottom: 1rem;
+            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -217,7 +225,7 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 1.5rem;
             }
-            
+
             .menu-content .form-group:first-child,
             .menu-content .instructions,
             .menu-content .ai-analysis {
@@ -258,7 +266,7 @@
                 font-size: 0.7rem;
                 margin-bottom: 0.25rem;
             }
-            
+
             .form-input {
                 padding: 0.4rem 0.6rem;
                 font-size: 0.85rem;
@@ -325,6 +333,7 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
             margin-bottom: 1rem;
+            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (min-width: 568px) {
@@ -396,6 +405,7 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
+            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -462,14 +472,12 @@
             margin-bottom: 1rem;
             font-size: 0.85rem;
             line-height: 1.5;
+            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
             .instructions {
-                padding: 0.4rem;
-                margin-bottom: 0.4rem;
-                font-size: 0.75rem;
-                line-height: 1.3;
+                display: none; /* ✅ ensures menu never needs to scroll in small landscape */
             }
         }
 
@@ -482,13 +490,6 @@
             font-size: 0.85rem;
         }
 
-        @media (orientation: landscape) and (max-height: 500px) {
-            .instructions-title {
-                font-size: 0.75rem;
-                margin-bottom: 0.2rem;
-            }
-        }
-
         .instructions-list {
             list-style: none;
             padding-left: 0;
@@ -498,13 +499,6 @@
             padding-left: 1.25rem;
             position: relative;
             margin-bottom: 0.2rem;
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .instructions-list li {
-                padding-left: 1rem;
-                margin-bottom: 0.1rem;
-            }
         }
 
         .instructions-list li::before {
@@ -557,13 +551,6 @@
             width: 22px;
             height: 22px;
             fill: var(--cyber-text);
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .icon-btn svg {
-                width: 20px;
-                height: 20px;
-            }
         }
 
         .icon-btn:hover {
@@ -685,7 +672,7 @@
 
         .target-timer-bar {
             height: 100%;
-            background: var(--cyber-cyan);
+            background: var(--cyber-text);
             width: 100%;
             animation: timerDrain linear;
         }
@@ -749,28 +736,11 @@
             font-size: 0.85rem;
         }
 
-        @media (orientation: landscape) and (max-height: 500px) {
-            .hud-item {
-                margin-bottom: 0.3rem;
-                font-size: 0.8rem;
-            }
-            
-            .hud-item:last-child {
-                margin-bottom: 0;
-            }
-        }
-
         .hud-label {
             color: var(--cyber-dim);
             text-transform: uppercase;
             font-size: 0.7rem;
             letter-spacing: 0.05em;
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .hud-label {
-                font-size: 0.65rem;
-            }
         }
 
         .hud-value {
@@ -800,14 +770,6 @@
             transition: all 0.3s ease;
         }
 
-        @media (orientation: landscape) and (max-height: 500px) {
-            .stop-btn {
-                bottom: 0.75rem;
-                padding: 0.65rem 1.25rem;
-                font-size: 0.85rem;
-            }
-        }
-
         .stop-btn:hover {
             background: #888888;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
@@ -821,24 +783,12 @@
             padding: 0.85rem;
             margin-bottom: 1rem;
             animation: analysisAppear 0.5s ease-out;
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .ai-analysis {
-                padding: 0.4rem;
-                margin-bottom: 0.4rem;
-            }
+            flex: 0 0 auto;
         }
 
         @keyframes analysisAppear {
-            from {
-                opacity: 0;
-                transform: translateY(-10px);
-            }
-            to {
-                opacity: 1;
-                transform: translateY(0);
-            }
+            from { opacity: 0; transform: translateY(-10px); }
+            to { opacity: 1; transform: translateY(0); }
         }
 
         .ai-analysis-header {
@@ -853,23 +803,9 @@
             letter-spacing: 0.05em;
         }
 
-        @media (orientation: landscape) and (max-height: 500px) {
-            .ai-analysis-header {
-                font-size: 0.7rem;
-                margin-bottom: 0.3rem;
-            }
-        }
-
         .ai-analysis-icon {
             width: 16px;
             height: 16px;
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .ai-analysis-icon {
-                width: 12px;
-                height: 12px;
-            }
         }
 
         .ai-analysis-icon svg {
@@ -880,13 +816,6 @@
             line-height: 1.5;
             font-size: 0.9rem;
             color: var(--cyber-text);
-        }
-
-        @media (orientation: landscape) and (max-height: 500px) {
-            .ai-analysis-text {
-                font-size: 0.75rem;
-                line-height: 1.3;
-            }
         }
 
         /* Loading state */
@@ -900,26 +829,16 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin {
-            to { transform: rotate(360deg); }
-        }
-
-        .target-timer-bar {
-            height: 100%;
-            background: var(--cyber-text);
-            width: 100%;
-            animation: timerDrain linear;
-        }
+        @keyframes spin { to { transform: rotate(360deg); } }
 
         /* Hidden class */
-        .hidden {
-            display: none !important;
-        }
+        .hidden { display: none !important; }
 
         /* Responsive */
         @media (max-width: 640px) and (orientation: portrait) {
             .menu-overlay {
-                width: 95%;
+                width: 95vw;
+                height: 90dvh;
                 padding: 1.5rem;
             }
 
@@ -977,7 +896,7 @@
             <div class="menu-header">
                 <img src="https://i.imgur.com/kG2dDb7.png" alt="Logo" class="menu-logo">
                 <h1 class="menu-title">AR TAP ATTACK</h1>
-                <p class="menu-subtitle">Hand Response Training System</p>
+                <p class="menu-subtitle">Hand Speed Training System</p>
             </div>
 
             <!-- AI Analysis (shown after game) -->
@@ -995,7 +914,7 @@
 
             <!-- Player Name -->
             <div class="form-group">
-                <label class="form-label" for="playerName">Operator ID</label>
+                <label class="form-label" for="playerName">Player ID</label>
                 <input type="text" id="playerName" class="form-input" placeholder="Enter your name" value="">
             </div>
 
@@ -1044,7 +963,7 @@
 
             <!-- Instructions -->
             <div class="instructions">
-                <div class="instructions-title">Mission Briefing</div>
+                <div class="instructions-title">Training Briefing</div>
                 <ul class="instructions-list">
                     <li><strong style="color: var(--cyber-green)">GREEN</strong> targets → Use hand on LEFT side of screen</li>
                     <li><strong style="color: var(--cyber-purple)">PURPLE</strong> targets → Use hand on RIGHT side of screen</li>
@@ -1132,14 +1051,14 @@
 
         // MediaPipe Hands setup
         let hands, camera;
-        
+
         // Audio context for sound effects - better mobile support
         let audioContext = null;
         let audioUnlocked = false;
-        
+
         function initAudio() {
             if (audioContext) return;
-            
+
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 audioContext = new AudioContext();
@@ -1148,37 +1067,37 @@
                 console.error('Failed to create audio context:', e);
             }
         }
-        
+
         // Unlock audio with a test sound
         async function unlockAudio() {
             if (audioUnlocked || !audioContext) return;
-            
+
             try {
                 // Resume the context
                 if (audioContext.state === 'suspended') {
                     await audioContext.resume();
                 }
-                
+
                 // Play a silent sound to unlock
                 const buffer = audioContext.createBuffer(1, 1, 22050);
                 const source = audioContext.createBufferSource();
                 source.buffer = buffer;
                 source.connect(audioContext.destination);
                 source.start(0);
-                
+
                 audioUnlocked = true;
                 console.log('Audio unlocked! State:', audioContext.state);
             } catch (e) {
                 console.error('Failed to unlock audio:', e);
             }
         }
-        
+
         function playDingSound() {
             if (!audioContext) {
                 console.log('No audio context');
                 return;
             }
-            
+
             if (audioContext.state === 'suspended') {
                 console.log('Audio context suspended, attempting resume...');
                 audioContext.resume().then(() => {
@@ -1189,32 +1108,32 @@
                 actuallyPlayDing();
             }
         }
-        
+
         function actuallyPlayDing() {
             try {
                 const now = audioContext.currentTime;
-                
+
                 // Create oscillator
                 const osc = audioContext.createOscillator();
                 const gain = audioContext.createGain();
-                
+
                 // Connect
                 osc.connect(gain);
                 gain.connect(audioContext.destination);
-                
+
                 // Ding sound - high to low
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(1000, now);
                 osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
-                
+
                 // Envelope
                 gain.gain.setValueAtTime(0.5, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-                
+
                 // Play
                 osc.start(now);
                 osc.stop(now + 0.2);
-                
+
                 console.log('Ding played!');
             } catch (e) {
                 console.error('Error playing ding:', e);
@@ -1260,7 +1179,7 @@
             fullscreenBtn.addEventListener('click', toggleFullscreen);
             cameraToggleBtn.addEventListener('click', toggleCamera);
             videoToggleBtn.addEventListener('click', toggleVideo);
-            
+
             // Initialize audio on first touch/click (critical for mobile)
             const initAudioOnInteraction = async () => {
                 if (!audioContext) {
@@ -1268,7 +1187,7 @@
                     await unlockAudio();
                 }
             };
-            
+
             // Add listeners to common interactions
             startBtn.addEventListener('click', initAudioOnInteraction, { once: true });
             document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
@@ -1286,7 +1205,7 @@
 
         async function toggleCamera() {
             gameState.cameraFacing = gameState.cameraFacing === 'user' ? 'environment' : 'user';
-            
+
             // Update video, canvas, and target orientation (flip front camera, don't flip rear)
             if (gameState.cameraFacing === 'environment') {
                 cameraFeed.classList.add('rear-camera');
@@ -1297,7 +1216,7 @@
                 gameCanvas.classList.remove('rear-camera');
                 document.querySelectorAll('.target').forEach(t => t.classList.remove('rear-camera'));
             }
-            
+
             await setupCamera();
         }
 
@@ -1346,7 +1265,7 @@
         function onHandsResults(results) {
             // Clear canvas
             canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-            
+
             // Get video bounds
             const bounds = getVideoBounds();
 
@@ -1357,12 +1276,12 @@
                 for (let i = 0; i < results.multiHandLandmarks.length; i++) {
                     const landmarks = results.multiHandLandmarks[i];
                     let handedness = results.multiHandedness[i].label.toLowerCase();
-                    
+
                     // IMPORTANT: When front camera is mirrored, swap the hand labels
                     if (gameState.cameraFacing === 'user') {
                         handedness = handedness === 'left' ? 'right' : 'left';
                     }
-                    
+
                     // Calculate palm center from multiple landmarks for better accuracy
                     const palmLandmarks = [
                         landmarks[0],  // Wrist
@@ -1371,11 +1290,11 @@
                         landmarks[13], // Ring base
                         landmarks[17]  // Pinky base
                     ];
-                    
+
                     // Get normalized coordinates (0-1) and transform to video bounds
                     const normX = palmLandmarks.reduce((sum, lm) => sum + lm.x, 0) / palmLandmarks.length;
                     const normY = palmLandmarks.reduce((sum, lm) => sum + lm.y, 0) / palmLandmarks.length;
-                    
+
                     // Transform to actual video coordinates within canvas
                     const palmX = bounds.offsetX + (normX * bounds.width);
                     const palmY = bounds.offsetY + (normY * bounds.height);
@@ -1387,7 +1306,7 @@
                     canvasCtx.beginPath();
                     canvasCtx.arc(palmX, palmY, 40, 0, Math.PI * 2);
                     canvasCtx.fill();
-                    
+
                     // Draw crosshair at detection point
                     canvasCtx.strokeStyle = '#000';
                     canvasCtx.lineWidth = 3;
@@ -1424,7 +1343,7 @@
             await unlockAudio();
 
             gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-            
+
             // Generate sequence: 20 left, 20 right, randomized
             gameState.sequence = [];
             for (let i = 0; i < 20; i++) {
@@ -1476,12 +1395,12 @@
             // Get actual video dimensions and position within canvas
             const video = cameraFeed;
             const canvas = gameCanvas;
-            
+
             const videoAspect = video.videoWidth / video.videoHeight;
             const canvasAspect = canvas.width / canvas.height;
-            
+
             let videoWidth, videoHeight, offsetX, offsetY;
-            
+
             if (canvasAspect > videoAspect) {
                 // Canvas is wider - video will be letterboxed on sides
                 videoHeight = canvas.height;
@@ -1495,7 +1414,7 @@
                 offsetX = 0;
                 offsetY = (canvas.height - videoHeight) / 2;
             }
-            
+
             return { width: videoWidth, height: videoHeight, offsetX, offsetY };
         }
 
@@ -1506,24 +1425,24 @@
             }
 
             const handType = gameState.sequence[gameState.targetIndex];
-            
+
             // Get actual video bounds
             const videoBounds = getVideoBounds();
-            
+
             // Adjust margins and target size based on orientation
             const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
             const margin = isLandscapeMobile ? 80 : 120;
             const targetSize = isLandscapeMobile ? 42 : 50;
             const hitRadius = isLandscapeMobile ? 42 : 50;
-            
+
             // Split screen horizontally - left targets on left half, right targets on right half
             const centerX = videoBounds.offsetX + (videoBounds.width / 2);
-            
+
             let x, y;
             let attempts = 0;
             const maxAttempts = 20;
             let validPosition = false;
-            
+
             // Try to find a position that's not too close to any hand
             while (!validPosition && attempts < maxAttempts) {
                 if (handType === 'left') {
@@ -1533,18 +1452,18 @@
                     // Right targets: from center to right edge
                     x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
                 }
-                
+
                 // Y can be anywhere within video bounds
                 y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
-                
+
                 // Calculate target center
                 const targetCenterX = x + (targetSize / 2);
                 const targetCenterY = y + (targetSize / 2);
-                
+
                 // Check distance from all hands
                 validPosition = true;
                 const minDistance = hitRadius * 2.5; // Keep targets at least 2.5x hit radius away from hands
-                
+
                 for (const hand of Object.values(gameState.hands)) {
                     if (hand) {
                         // Mirror hand X coordinate if using front camera for correct distance calculation
@@ -1552,22 +1471,22 @@
                         if (gameState.cameraFacing === 'user') {
                             handX = gameCanvas.width - hand.x;
                         }
-                        
+
                         const distance = Math.sqrt(
                             Math.pow(handX - targetCenterX, 2) +
                             Math.pow(hand.y - targetCenterY, 2)
                         );
-                        
+
                         if (distance < minDistance) {
                             validPosition = false;
                             break;
                         }
                     }
                 }
-                
+
                 attempts++;
             }
-            
+
             // If we couldn't find a valid position after max attempts, use the last position anyway
             if (!validPosition && attempts >= maxAttempts) {
                 console.log('Could not find position away from hands, spawning anyway');
@@ -1575,12 +1494,12 @@
 
             const targetEl = document.createElement('div');
             targetEl.className = `target target-${handType}`;
-            
+
             // Add rear-camera class if using rear camera
             if (gameState.cameraFacing === 'environment') {
                 targetEl.classList.add('rear-camera');
             }
-            
+
             targetEl.style.left = `${x}px`;
             targetEl.style.top = `${y}px`;
 
@@ -1624,11 +1543,11 @@
                     // Canvas is flipped, so mirror X coordinate
                     handX = gameCanvas.width - hand.x;
                 }
-                
+
                 // Hit radius matches target size
                 const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
                 const hitRadius = isLandscapeMobile ? 42 : 50;
-                
+
                 const distance = Math.sqrt(
                     Math.pow(handX - target.x, 2) +
                     Math.pow(hand.y - target.y, 2)
@@ -1703,7 +1622,7 @@
             document.getElementById('targetCounter').textContent = `${gameState.targetIndex}/40`;
             document.getElementById('hitCounter').textContent = gameState.hits.filter(h => h.hit).length;
             document.getElementById('missCounter').textContent = gameState.misses;
-            
+
             const validHits = gameState.hits.filter(h => h.hit && h.reactionTime);
             if (validHits.length > 0) {
                 const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
@@ -1717,7 +1636,7 @@
 
         async function endGame() {
             gameState.isPlaying = false;
-            
+
             // Clean up
             if (gameState.currentTarget) {
                 clearTimeout(gameState.currentTarget.timeout);
@@ -1755,17 +1674,17 @@
 
             try {
                 const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-                const avgTime = validHits.length > 0 
-                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
+                const avgTime = validHits.length > 0
+                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length
                     : 0;
-                
+
                 const accuracy = ((validHits.length / 40) * 100).toFixed(1);
 
                 // Get previous sessions for context
                 const allSessions = getSessions();
                 const playerSessions = allSessions.filter(s => s.playerName === session.playerName);
 
-                const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session. 
+                const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session.
 
 Session Data:
 - Difficulty: ${gameState.difficultySettings[session.difficulty].name}
@@ -1797,10 +1716,10 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
             } catch (error) {
                 console.error('AI Analysis error:', error);
                 const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-                const avgTime = validHits.length > 0 
-                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
+                const avgTime = validHits.length > 0
+                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length
                     : 0;
-                
+
                 aiAnalysisText.textContent = `Great session! You hit ${validHits.length}/40 targets with an average reaction time of ${Math.round(avgTime)}ms. ${session.misses > 10 ? 'Focus on accuracy in your next session.' : 'Keep up the excellent accuracy!'}`;
             }
         }
@@ -1836,7 +1755,7 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
                 if (!currentBestAvg || avgTime < parseFloat(currentBestAvg)) {
                     localStorage.setItem('arTapAttack_bestAvgTime', avgTime.toString());
                 }
-                
+
                 // Update best single reaction time
                 const fastestHit = Math.min(...validHits.map(h => h.reactionTime));
                 const currentBestSingle = localStorage.getItem('arTapAttack_bestSingleTime');
@@ -1853,7 +1772,7 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
             if (playerSessions.length > 0) {
                 const lastSession = playerSessions[playerSessions.length - 1];
                 const validHits = lastSession.hits.filter(h => h.hit && h.reactionTime);
-                
+
                 if (validHits.length > 0) {
                     const lastAvg = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
                     document.getElementById('lastTime').textContent = `${Math.round(lastAvg)}ms`;
@@ -1867,7 +1786,7 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
             if (bestAvgTime) {
                 document.getElementById('bestAvg').textContent = `${Math.round(parseFloat(bestAvgTime))}ms`;
             }
-            
+
             const bestSingleTime = localStorage.getItem('arTapAttack_bestSingleTime');
             if (bestSingleTime) {
                 document.getElementById('bestSingle').textContent = `${Math.round(parseFloat(bestSingleTime))}ms`;
