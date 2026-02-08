@@ -1,1452 +1,2648 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <!-- viewport-fit=cover for safe-areas; dvh/dvw for iOS dynamic bars -->
-  <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-  <title>AR TAP ATTACK - Hand Speed Training System</title>
-
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
-  <style>
-    :root {
-      --cyber-bg: #0a0a0a;
-      --cyber-surface: #1a1a1a;
-      --cyber-border: #333333;
-      --cyber-primary: #666666;
-      --cyber-purple: #9333ea;
-      --cyber-green: #10b981;
-      --cyber-text: #cccccc;
-      --cyber-dim: #888888;
-      --cyber-danger: #666666;
-    }
-
-    * { margin: 0; padding: 0; box-sizing: border-box; }
-
-    html, body {
-      width: 100%;
-      height: 100%;
-      overflow: hidden;          /* prevent page scroll */
-      overscroll-behavior: none; /* prevent iOS bounce */
-      touch-action: manipulation;
-      background: var(--cyber-bg);
-    }
-
-    body {
-      font-family: 'Rajdhani', sans-serif;
-      color: var(--cyber-text);
-      position: relative;
-    }
-
-    /* Animated background grid */
-    .bg-grid {
-      position: fixed;
-      inset: 0;
-      background-image:
-        linear-gradient(var(--cyber-border) 1px, transparent 1px),
-        linear-gradient(90deg, var(--cyber-border) 1px, transparent 1px);
-      background-size: 50px 50px;
-      opacity: 0.3;
-      z-index: 0;
-      animation: gridMove 20s linear infinite;
-    }
-
-    @keyframes gridMove {
-      0% { transform: translate(0, 0); }
-      100% { transform: translate(50px, 50px); }
-    }
-
-    .scanline { display: none; }
-
-    /* Video container (OFF until Start Training) */
-    #videoContainer {
-      position: fixed;
-      inset: 0;
-      z-index: 1;
-      display: none; /* ✅ start hidden; only show after Start Training */
-      align-items: center;
-      justify-content: center;
-      background: var(--cyber-bg);
-    }
-
-    #cameraFeed {
-      max-width: 100%;
-      max-height: 100%;
-      object-fit: contain;
-      display: block;
-      transform: scaleX(-1);
-    }
-
-    #cameraFeed.rear-camera { transform: scaleX(1); }
-
-    /* Main container */
-    .container {
-      position: fixed;
-      inset: 0;
-      z-index: 10;
-      pointer-events: none;
-    }
-
-    .container > * { pointer-events: auto; }
-
-    /* Orientation gate overlay */
-    .orientation-gate {
-      position: fixed;
-      inset: 0;
-      z-index: 1000;
-      display: none;
-      align-items: center;
-      justify-content: center;
-      padding: 20px;
-      background: rgba(10, 10, 10, 0.92);
-      text-align: center;
-    }
-
-    .orientation-card {
-      width: min(92vw, 520px);
-      border: 2px solid var(--cyber-border);
-      background: rgba(26, 26, 26, 0.95);
-      padding: 18px;
-      box-shadow: 0 10px 40px rgba(0,0,0,0.5);
-    }
-
-    .orientation-title {
-      font-weight: 800;
-      letter-spacing: 0.12em;
-      text-transform: uppercase;
-      margin-bottom: 10px;
-      font-size: 1rem;
-    }
-
-    .orientation-sub {
-      font-family: 'Share Tech Mono', monospace;
-      color: var(--cyber-dim);
-      font-size: 0.85rem;
-      line-height: 1.4;
-    }
-
-    .orientation-icon {
-      margin: 14px auto 0;
-      width: 90px;
-      height: 56px;
-      border: 2px solid var(--cyber-border);
-      border-radius: 10px;
-      position: relative;
-      opacity: 0.9;
-    }
-
-    .orientation-icon::after {
-      content: "";
-      position: absolute;
-      inset: 10px;
-      border: 1px dashed var(--cyber-primary);
-      border-radius: 8px;
-    }
-
-    /* Menu overlay (NON-SCROLLING + safe-area aware + fits landscape mobile) */
-    .menu-overlay {
-      position: absolute;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-
-      /* ✅ avoid clipping on devices w/ safe-areas */
-      width: min(
-        calc(100dvw - env(safe-area-inset-left) - env(safe-area-inset-right) - 24px),
-        900px
-      );
-
-      /* ✅ allow tighter heights while still non-scrolling */
-      height: min(
-        calc(100dvh - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px),
-        720px
-      );
-
-      background: rgba(26, 26, 26, 0.95);
-      border: 2px solid var(--cyber-border);
-      box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-
-      /* ✅ padding respects notches */
-      padding: calc(14px + env(safe-area-inset-top))
-               calc(14px + env(safe-area-inset-right))
-               calc(14px + env(safe-area-inset-bottom))
-               calc(14px + env(safe-area-inset-left));
-
-      animation: menuAppear 0.5s ease-out;
-      overflow: hidden; /* menu itself never scrolls */
-
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-
-      /* ✅ ensure children can shrink without overflow */
-      min-width: 0;
-    }
-
-    @keyframes menuAppear {
-      from { opacity: 0; transform: translate(-50%, -50%) scale(0.9); }
-      to { opacity: 1; transform: translate(-50%, -50%) scale(1); }
-    }
-
-    .menu-header {
-      text-align: center;
-      flex: 0 0 auto;
-    }
-
-    .menu-logo {
-      max-width: 140px;
-      height: auto;
-      margin: 0 auto 6px;
-      display: block;
-    }
-
-    .menu-title {
-      font-size: clamp(1.1rem, 3.6vw, 2rem);
-      font-weight: 700;
-      letter-spacing: 0.1em;
-      text-transform: uppercase;
-      margin-bottom: 2px;
-    }
-
-    .menu-subtitle {
-      font-family: 'Share Tech Mono', monospace;
-      font-size: 0.72rem;
-      color: var(--cyber-dim);
-      letter-spacing: 0.15em;
-    }
-
-    /* Status / errors */
-    .status-box {
-      border: 1px solid var(--cyber-border);
-      background: rgba(0, 0, 0, 0.35);
-      padding: 10px;
-      font-size: 0.9rem;
-      line-height: 1.35;
-      flex: 0 0 auto;
-    }
-
-    .status-title {
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      margin-bottom: 6px;
-    }
-
-    .status-dim { color: var(--cyber-dim); white-space: pre-line; }
-
-    /* Form elements */
-    .form-group {
-      flex: 0 0 auto;
-      min-width: 0; /* ✅ prevent input clipping in flex */
-    }
-
-    .form-label {
-      display: block;
-      font-size: 0.78rem;
-      font-weight: 700;
-      letter-spacing: 0.07em;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-    }
-
-    .form-input {
-      width: 100%;
-      min-width: 0;
-      padding: 10px 12px;
-      background: rgba(0, 0, 0, 0.4);
-      border: 1px solid var(--cyber-border);
-      color: var(--cyber-text);
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 600;
-      transition: all 0.2s ease;
-    }
-
-    .form-input:focus {
-      outline: none;
-      border-color: var(--cyber-primary);
-      box-shadow: 0 0 10px rgba(102, 102, 102, 0.3);
-      background: rgba(0, 0, 0, 0.6);
-    }
-
-    /* Radio buttons */
-    .radio-group {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 8px;
-    }
-
-    .radio-option { position: relative; }
-    .radio-option input { position: absolute; opacity: 0; }
-
-    .radio-label {
-      display: block;
-      padding: 10px 6px;
-      text-align: center;
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--cyber-border);
-      cursor: pointer;
-      transition: all 0.2s ease;
-      font-weight: 800;
-      font-size: 0.85rem;
-      letter-spacing: 0.05em;
-      user-select: none;
-      white-space: nowrap;
-    }
-
-    .radio-option input:checked + .radio-label {
-      background: rgba(102, 102, 102, 0.3);
-      border-color: var(--cyber-primary);
-      box-shadow: 0 0 10px rgba(102, 102, 102, 0.3);
-    }
-
-    /* Stats grid */
-    .stats-grid {
-      display: grid;
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-      gap: 10px;
-      flex: 0 0 auto;
-    }
-
-    .stat-card {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--cyber-border);
-      padding: 10px;
-      text-align: center;
-      min-width: 0;
-    }
-
-    .stat-label {
-      font-size: 0.68rem;
-      color: var(--cyber-dim);
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      margin-bottom: 4px;
-    }
-
-    .stat-value {
-      font-size: 1.15rem;
-      font-weight: 800;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    /* Instructions (keep visible; shrink on short landscape) */
-    .instructions {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--cyber-border);
-      padding: 10px;
-      font-size: 0.85rem;
-      line-height: 1.45;
-      flex: 0 0 auto;
-      min-width: 0;
-    }
-
-    .instructions-title {
-      font-weight: 800;
-      margin-bottom: 6px;
-      text-transform: uppercase;
-      letter-spacing: 0.06em;
-      font-size: 0.8rem;
-    }
-
-    .instructions-list { list-style: none; padding-left: 0; }
-    .instructions-list li { padding-left: 1.1rem; position: relative; margin-bottom: 3px; }
-    .instructions-list li::before { content: '▸'; position: absolute; left: 0; color: var(--cyber-primary); }
-
-    /* Buttons */
-    .btn {
-      width: 100%;
-      padding: 12px;
-      font-family: 'Rajdhani', sans-serif;
-      font-size: 0.95rem;
-      font-weight: 900;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      border: none;
-      cursor: pointer;
-      transition: all 0.2s ease;
-      position: relative;
-      overflow: hidden;
-      flex: 0 0 auto;
-    }
-
-    .btn[disabled] {
-      opacity: 0.55;
-      cursor: not-allowed;
-      transform: none !important;
-      box-shadow: none !important;
-    }
-
-    .btn-primary {
-      background: var(--cyber-text);
-      color: #000;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-    }
-
-    .btn-secondary {
-      background: rgba(0, 0, 0, 0.3);
-      color: var(--cyber-text);
-      border: 1px solid var(--cyber-border);
-    }
-
-    /* Device controls */
-    .device-controls {
-      display: none; /* hidden until training starts */
-      position: fixed;
-      top: calc(10px + env(safe-area-inset-top));
-      right: calc(10px + env(safe-area-inset-right));
-      display: none;
-      flex-direction: row;
-      gap: 8px;
-      z-index: 100;
-    }
-
-    .device-controls.visible { display: flex; }
-
-    .icon-btn {
-      width: 44px;
-      height: 44px;
-      background: rgba(26, 26, 26, 0.9);
-      border: 1px solid var(--cyber-border);
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      transition: all 0.2s ease;
-      padding: 0;
-    }
-
-    .icon-btn svg { width: 22px; height: 22px; fill: var(--cyber-text); }
-    .icon-btn:hover { background: rgba(102, 102, 102, 0.2); border-color: var(--cyber-primary); }
-    .icon-btn.active { background: rgba(102, 102, 102, 0.3); border-color: var(--cyber-primary); }
-
-    /* Game state */
-    #gameCanvas {
-      position: fixed;
-      inset: 0;
-      width: 100%;
-      height: 100%;
-      z-index: 5;
-      pointer-events: none;
-      transform: scaleX(-1);
-    }
-
-    #gameCanvas.rear-camera { transform: scaleX(1); }
-
-    /* Target styling */
-    .target {
-      position: absolute;
-      width: 50px;
-      height: 50px;
-      border-radius: 50%;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      font-weight: 700;
-      font-size: 0.9rem;
-      z-index: 50;
-      animation: targetAppear 0.3s ease-out;
-      pointer-events: none;
-      box-shadow: 0 0 30px currentColor;
-      transform: scaleX(-1);
-    }
-
-    .target.rear-camera { transform: scaleX(1); }
-
-    .target::before {
-      content: '';
-      position: absolute;
-      inset: -5px;
-      border: 2px dashed currentColor;
-      border-radius: 50%;
-      animation: targetRotate 4s linear infinite;
-    }
-
-    .target::after {
-      content: '';
-      position: absolute;
-      inset: 0;
-      border: 2px solid currentColor;
-      border-radius: 50%;
-      opacity: 0.3;
-    }
-
-    @keyframes targetAppear { from { transform: scale(0); opacity: 0; } to { transform: scale(1); opacity: 1; } }
-    @keyframes targetRotate { from { transform: rotate(0deg); } to { transform: rotate(360deg); } }
-
-    .target-left {
-      background: radial-gradient(circle, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.5) 70%);
-      border: 3px solid var(--cyber-green);
-      color: var(--cyber-green);
-    }
-
-    .target-right {
-      background: radial-gradient(circle, rgba(147, 51, 234, 0.9), rgba(147, 51, 234, 0.5) 70%);
-      border: 3px solid var(--cyber-purple);
-      color: var(--cyber-purple);
-    }
-
-    .target-timer {
-      position: absolute;
-      bottom: -20px;
-      left: 50%;
-      transform: translateX(-50%);
-      width: 80%;
-      height: 3px;
-      background: rgba(255, 255, 255, 0.1);
-      overflow: hidden;
-    }
-
-    .target-timer-bar {
-      height: 100%;
-      background: var(--cyber-text);
-      width: 100%;
-      animation: timerDrain linear;
-    }
-
-    @keyframes timerDrain { from { width: 100%; } to { width: 0%; } }
-
-    /* Countdown */
-    .countdown {
-      position: fixed;
-      top: 50%;
-      left: 50%;
-      transform: translate(-50%, -50%);
-      font-size: 8rem;
-      font-weight: 700;
-      color: var(--cyber-text);
-      z-index: 200;
-      text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
-      animation: countdownPulse 1s ease-in-out;
-      font-family: 'Share Tech Mono', monospace;
-    }
-
-    @keyframes countdownPulse {
-      0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
-      50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
-    }
-
-    /* Game HUD */
-    .game-hud {
-      position: fixed;
-      top: calc(10px + env(safe-area-inset-top));
-      left: calc(10px + env(safe-area-inset-left));
-      background: rgba(26, 26, 26, 0.9);
-      border: 1px solid var(--cyber-border);
-      padding: 10px;
-      z-index: 100;
-      min-width: 160px;
-    }
-
-    .hud-item {
-      display: flex;
-      justify-content: space-between;
-      margin-bottom: 6px;
-      font-size: 0.85rem;
-    }
-
-    .hud-item:last-child { margin-bottom: 0; }
-
-    .hud-label { color: var(--cyber-dim); text-transform: uppercase; font-size: 0.7rem; letter-spacing: 0.05em; }
-    .hud-value { color: var(--cyber-text); font-family: 'Share Tech Mono', monospace; font-weight: 700; }
-
-    /* Stop button */
-    .stop-btn {
-      position: fixed;
-      bottom: calc(14px + env(safe-area-inset-bottom));
-      left: 50%;
-      transform: translateX(-50%);
-      padding: 12px 22px;
-      background: var(--cyber-primary);
-      color: #fff;
-      border: none;
-      font-family: 'Rajdhani', sans-serif;
-      font-weight: 900;
-      font-size: 0.95rem;
-      letter-spacing: 0.06em;
-      text-transform: uppercase;
-      cursor: pointer;
-      z-index: 100;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
-      transition: all 0.2s ease;
-    }
-
-    /* AI Analysis */
-    .ai-analysis {
-      background: rgba(0, 0, 0, 0.3);
-      border: 1px solid var(--cyber-border);
-      padding: 10px;
-      animation: analysisAppear 0.5s ease-out;
-      flex: 0 0 auto;
-      min-width: 0;
-    }
-
-    @keyframes analysisAppear { from { opacity: 0; transform: translateY(-10px); } to { opacity: 1; transform: translateY(0); } }
-
-    .ai-analysis-header {
-      display: flex;
-      align-items: center;
-      gap: 8px;
-      margin-bottom: 8px;
-      font-weight: 800;
-      text-transform: uppercase;
-      font-size: 0.8rem;
-      letter-spacing: 0.06em;
-    }
-
-    .ai-analysis-icon { width: 16px; height: 16px; }
-    .ai-analysis-icon svg { fill: var(--cyber-text); }
-    .ai-analysis-text { line-height: 1.4; font-size: 0.9rem; }
-
-    /* Loading state */
-    .loading {
-      display: inline-block;
-      width: 16px;
-      height: 16px;
-      border: 2px solid var(--cyber-primary);
-      border-top-color: transparent;
-      border-radius: 50%;
-      animation: spin 1s linear infinite;
-    }
-
-    @keyframes spin { to { transform: rotate(360deg); } }
-
-    /* Hidden class */
-    .hidden { display: none !important; }
-
-    /* --- Tight landscape tuning to keep briefing visible (no scroll) --- */
-    @media (orientation: landscape) and (max-height: 520px) {
-      .menu-overlay { gap: 8px; }
-      .menu-logo { max-width: 90px; margin-bottom: 3px; }
-      .menu-title { font-size: 1.05rem; }
-      .menu-subtitle { font-size: 0.62rem; }
-
-      .status-box { padding: 8px; font-size: 0.8rem; }
-
-      .form-label { font-size: 0.68rem; margin-bottom: 4px; }
-      .form-input { padding: 8px 10px; font-size: 0.9rem; }
-
-      .radio-label { padding: 8px 4px; font-size: 0.78rem; }
-
-      .stat-card { padding: 8px; }
-      .stat-label { font-size: 0.62rem; }
-      .stat-value { font-size: 1.0rem; }
-
-      .instructions { padding: 8px; font-size: 0.78rem; line-height: 1.35; }
-      .instructions-title { font-size: 0.72rem; margin-bottom: 4px; }
-      .instructions-list li { margin-bottom: 2px; }
-
-      .btn { padding: 10px; font-size: 0.9rem; }
-    }
-
-    @media (max-height: 420px) and (orientation: landscape) {
-      /* ultra-tight: keep briefing but trim a bit more */
-      .stats-grid { gap: 8px; }
-      .instructions { font-size: 0.74rem; }
-    }
-
-    /* Touch-friendly adjustments */
-    @media (hover: none) and (pointer: coarse) {
-      .icon-btn, .btn, .radio-label { -webkit-tap-highlight-color: transparent; touch-action: manipulation; }
-    }
-  </style>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>NXTplay AR TAP ATTACK</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --cyber-bg: #0a0a0a;
+            --cyber-surface: #1a1a1a;
+            --cyber-border: #333333;
+            --cyber-primary: #666666;
+            --cyber-purple: #9333ea;
+            --cyber-green: #10b981;
+            --cyber-red: #ef4444;
+            --cyber-text: #cccccc;
+            --cyber-dim: #888888;
+            --cyber-danger: #666666;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Rajdhani', sans-serif;
+            background: var(--cyber-bg);
+            color: var(--cyber-text);
+            overflow: hidden;
+            position: relative;
+            height: 100vh;
+            width: 100vw;
+        }
+
+        /* Animated background grid */
+        .bg-grid {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background-image: 
+                linear-gradient(var(--cyber-border) 1px, transparent 1px),
+                linear-gradient(90deg, var(--cyber-border) 1px, transparent 1px);
+            background-size: 50px 50px;
+            opacity: 0.3;
+            z-index: 0;
+            animation: gridMove 20s linear infinite;
+        }
+
+        @keyframes gridMove {
+            0% { transform: translate(0, 0); }
+            100% { transform: translate(50px, 50px); }
+        }
+
+        /* Scanline effect */
+        .scanline {
+            display: none;
+        }
+
+        /* Video container */
+        #videoContainer {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 1;
+            display: none;
+            align-items: center;
+            justify-content: center;
+            background: var(--cyber-bg);
+        }
+
+        #videoContainer.active {
+            display: flex;
+        }
+
+        #cameraFeed {
+            max-width: 100%;
+            max-height: 100%;
+            object-fit: contain;
+            display: block;
+            transform: scaleX(-1);
+        }
+
+        #cameraFeed.rear-camera {
+            transform: scaleX(1);
+        }
+
+        /* Main container */
+        .container {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 10;
+            pointer-events: none;
+        }
+
+        .container > * {
+            pointer-events: auto;
+        }
+
+        /* Menu overlay */
+        .menu-overlay {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
+            background: rgba(26, 26, 26, 0.95);
+            border: 2px solid var(--cyber-border);
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
+            padding: 1.5rem;
+            animation: menuAppear 0.5s ease-out;
+            overflow-y: auto;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .menu-overlay {
+                padding: 0.5rem;
+                max-height: 98vh;
+                width: 98%;
+            }
+        }
+
+        @keyframes menuAppear {
+            from {
+                opacity: 0;
+                transform: translate(-50%, -50%) scale(0.9);
+            }
+            to {
+                opacity: 1;
+                transform: translate(-50%, -50%) scale(1);
+            }
+        }
+
+        .menu-header {
+            text-align: center;
+            margin-bottom: 1rem;
+            position: relative;
+        }
+
+        .menu-logo {
+            max-width: 150px;
+            height: auto;
+            margin: 0 auto 0.5rem;
+            display: block;
+        }
+
+        .menu-title {
+            font-size: clamp(1.25rem, 4vw, 2rem);
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            color: var(--cyber-text);
+            text-transform: uppercase;
+            margin-bottom: 0.25rem;
+        }
+
+        .menu-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.75rem;
+            color: var(--cyber-dim);
+            letter-spacing: 0.15em;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .menu-logo {
+                max-width: 80px;
+                margin-bottom: 0.15rem;
+            }
+            
+            .menu-title {
+                font-size: 1rem;
+                margin-bottom: 0.1rem;
+            }
+            
+            .menu-subtitle {
+                font-size: 0.65rem;
+            }
+            
+            .menu-header {
+                margin-bottom: 0.4rem;
+            }
+        }
+
+        .menu-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--cyber-dim);
+            letter-spacing: 0.15em;
+        }
+
+        /* Form elements */
+        .form-group {
+            margin-bottom: 1rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .form-group {
+                margin-bottom: 0.4rem;
+            }
+        }
+
+        .menu-content {
+            display: grid;
+            grid-template-columns: 1fr;
+            gap: 1rem;
+        }
+
+        @media (orientation: landscape) and (min-width: 768px) {
+            .menu-content {
+                grid-template-columns: 1fr 1fr;
+                gap: 1.5rem;
+            }
+            
+            .menu-content .form-group:first-child,
+            .menu-content .instructions,
+            .menu-content .ai-analysis {
+                grid-column: 1 / -1;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .menu-content {
+                gap: 0.4rem;
+            }
+        }
+
+        .form-label {
+            display: block;
+            font-size: 0.8rem;
+            font-weight: 600;
+            letter-spacing: 0.05em;
+            color: var(--cyber-text);
+            margin-bottom: 0.5rem;
+            text-transform: uppercase;
+        }
+
+        .form-input {
+            width: 100%;
+            padding: 0.65rem 0.85rem;
+            background: rgba(0, 0, 0, 0.4);
+            border: 1px solid var(--cyber-border);
+            color: var(--cyber-text);
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .form-label {
+                font-size: 0.7rem;
+                margin-bottom: 0.25rem;
+            }
+            
+            .form-input {
+                padding: 0.4rem 0.6rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--cyber-primary);
+            box-shadow: 0 0 10px rgba(102, 102, 102, 0.3);
+            background: rgba(0, 0, 0, 0.6);
+        }
+
+        /* Radio buttons */
+        .radio-group {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 0.5rem;
+        }
+
+        .radio-option {
+            position: relative;
+        }
+
+        .radio-option input {
+            position: absolute;
+            opacity: 0;
+        }
+
+        .radio-label {
+            display: block;
+            padding: 0.65rem 0.5rem;
+            text-align: center;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--cyber-border);
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-weight: 600;
+            font-size: 0.85rem;
+            letter-spacing: 0.05em;
+            position: relative;
+        }
+
+        .radio-label.locked {
+            opacity: 0.4;
+            cursor: not-allowed;
+            background: rgba(0, 0, 0, 0.2);
+        }
+
+        .radio-label.locked::after {
+            content: '🔒';
+            position: absolute;
+            top: 50%;
+            right: 0.3rem;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+        }
+
+        .radio-label.unlocked::after {
+            content: '✓';
+            position: absolute;
+            top: 50%;
+            right: 0.3rem;
+            transform: translateY(-50%);
+            font-size: 0.75rem;
+            color: var(--cyber-green);
+            opacity: 0;
+            transition: opacity 0.3s ease;
+        }
+
+        .radio-option input:checked + .radio-label.unlocked::after {
+            opacity: 1;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .radio-label {
+                padding: 0.4rem 0.25rem;
+                font-size: 0.75rem;
+            }
+            
+            .radio-label.locked::after,
+            .radio-label.unlocked::after {
+                font-size: 0.65rem;
+                right: 0.2rem;
+            }
+        }
+
+        .radio-option input:checked + .radio-label {
+            background: rgba(102, 102, 102, 0.3);
+            border-color: var(--cyber-primary);
+            color: var(--cyber-text);
+            box-shadow: 0 0 10px rgba(102, 102, 102, 0.3);
+        }
+
+        .radio-label:hover {
+            border-color: var(--cyber-primary);
+        }
+
+        /* Unlock hint */
+        .unlock-hint {
+            margin-top: 0.5rem;
+            padding: 0.5rem;
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid var(--cyber-green);
+            border-radius: 3px;
+            font-size: 0.75rem;
+            color: var(--cyber-green);
+            text-align: center;
+            line-height: 1.4;
+        }
+
+        .unlock-hint.locked-hint {
+            background: rgba(102, 102, 102, 0.1);
+            border-color: var(--cyber-dim);
+            color: var(--cyber-dim);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .unlock-hint {
+                margin-top: 0.3rem;
+                padding: 0.3rem;
+                font-size: 0.65rem;
+                line-height: 1.3;
+            }
+        }
+
+        /* Stats grid */
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 0.75rem;
+            margin-bottom: 1rem;
+        }
+
+        @media (orientation: landscape) and (min-width: 568px) {
+            .stats-grid {
+                grid-template-columns: repeat(4, 1fr);
+                gap: 1rem;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stats-grid {
+                gap: 0.4rem;
+                margin-bottom: 0.4rem;
+            }
+        }
+
+        .stat-card {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--cyber-border);
+            padding: 0.75rem;
+            text-align: center;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stat-card {
+                padding: 0.35rem 0.25rem;
+            }
+        }
+
+        .stat-label {
+            font-size: 0.7rem;
+            color: var(--cyber-dim);
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            margin-bottom: 0.25rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stat-label {
+                font-size: 0.6rem;
+                margin-bottom: 0.15rem;
+            }
+        }
+
+        .stat-value {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: var(--cyber-text);
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stat-value {
+                font-size: 1rem;
+            }
+        }
+
+        /* Buttons */
+        .btn {
+            width: 100%;
+            padding: 0.85rem;
+            font-family: 'Rajdhani', sans-serif;
+            font-size: 0.95rem;
+            font-weight: 700;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            border: none;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .btn {
+                padding: 0.5rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        .btn::before {
+            content: '';
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            width: 0;
+            height: 0;
+            background: rgba(255, 255, 255, 0.1);
+            border-radius: 50%;
+            transform: translate(-50%, -50%);
+            transition: width 0.6s, height 0.6s;
+        }
+
+        .btn:hover::before {
+            width: 300px;
+            height: 300px;
+        }
+
+        .btn-primary {
+            background: var(--cyber-text);
+            color: #000;
+            margin-bottom: 0.5rem;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .btn-primary {
+                margin-bottom: 0.25rem;
+            }
+        }
+
+        .btn-primary:hover {
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            transform: translateY(-2px);
+            background: #ffffff;
+        }
+
+        .btn-secondary {
+            background: rgba(0, 0, 0, 0.3);
+            color: var(--cyber-text);
+            border: 1px solid var(--cyber-border);
+        }
+
+        .btn-secondary:hover {
+            border-color: var(--cyber-primary);
+            color: var(--cyber-text);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        /* Instructions */
+        .instructions {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--cyber-border);
+            padding: 0.85rem;
+            margin-bottom: 1rem;
+            font-size: 0.85rem;
+            line-height: 1.5;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .instructions {
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
+                font-size: 0.75rem;
+                line-height: 1.3;
+            }
+        }
+
+        .instructions-title {
+            font-weight: 600;
+            color: var(--cyber-text);
+            margin-bottom: 0.4rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            font-size: 0.85rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .instructions-title {
+                font-size: 0.75rem;
+                margin-bottom: 0.2rem;
+            }
+        }
+
+        .instructions-list {
+            list-style: none;
+            padding-left: 0;
+        }
+
+        .instructions-list li {
+            padding-left: 1.25rem;
+            position: relative;
+            margin-bottom: 0.2rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .instructions-list li {
+                padding-left: 1rem;
+                margin-bottom: 0.1rem;
+            }
+        }
+
+        .instructions-list li::before {
+            content: '▸';
+            position: absolute;
+            left: 0;
+            color: var(--cyber-primary);
+        }
+
+        /* Device controls */
+        .device-controls {
+            position: fixed;
+            top: 0.75rem;
+            right: 0.75rem;
+            display: flex;
+            gap: 0.4rem;
+            z-index: 100;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .device-controls {
+                top: 0.5rem;
+                right: 0.5rem;
+                gap: 0.3rem;
+            }
+        }
+
+        .icon-btn {
+            width: 44px;
+            height: 44px;
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid var(--cyber-border);
+            color: var(--cyber-text);
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            transition: all 0.3s ease;
+            padding: 0;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .icon-btn {
+                width: 38px;
+                height: 38px;
+            }
+        }
+
+        .icon-btn svg {
+            width: 22px;
+            height: 22px;
+            fill: var(--cyber-text);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .icon-btn svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
+        .icon-btn:hover {
+            background: rgba(102, 102, 102, 0.2);
+            border-color: var(--cyber-primary);
+        }
+
+        .icon-btn:hover svg {
+            fill: #ffffff;
+        }
+
+        .icon-btn.active {
+            background: rgba(102, 102, 102, 0.3);
+            border-color: var(--cyber-primary);
+        }
+
+        /* Game state */
+        #gameCanvas {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            z-index: 5;
+            pointer-events: none;
+            transform: scaleX(-1);
+            display: none;
+        }
+
+        #gameCanvas.active {
+            display: block;
+        }
+
+        #gameCanvas.rear-camera {
+            transform: scaleX(1);
+        }
+
+        /* Target styling */
+        .target {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 0.9rem;
+            z-index: 50;
+            animation: targetAppear 0.3s ease-out;
+            pointer-events: none;
+            box-shadow: 0 0 30px currentColor;
+            transform: scaleX(-1);
+        }
+
+        .target.rear-camera {
+            transform: scaleX(1);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .target {
+                width: 42px;
+                height: 42px;
+                font-size: 0.8rem;
+            }
+        }
+
+        .target::before {
+            content: '';
+            position: absolute;
+            inset: -5px;
+            border: 2px dashed currentColor;
+            border-radius: 50%;
+            animation: targetRotate 4s linear infinite;
+        }
+
+        .target::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
+        @keyframes targetAppear {
+            from {
+                transform: scale(0);
+                opacity: 0;
+            }
+            to {
+                transform: scale(1);
+                opacity: 1;
+            }
+        }
+
+        @keyframes targetRotate {
+            from { transform: rotate(0deg); }
+            to { transform: rotate(360deg); }
+        }
+
+        .target-left {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.5) 70%);
+            border: 3px solid var(--cyber-green);
+            color: var(--cyber-green);
+        }
+
+        .target-right {
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.9), rgba(147, 51, 234, 0.5) 70%);
+            border: 3px solid var(--cyber-purple);
+            color: var(--cyber-purple);
+        }
+
+        .target-obstacle {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.9), rgba(239, 68, 68, 0.5) 70%);
+            border: 3px solid var(--cyber-red);
+            color: var(--cyber-red);
+            animation: obstaclePulse 1s ease-in-out infinite;
+        }
+
+        @keyframes obstaclePulse {
+            0%, 100% { transform: scale(1); opacity: 0.9; }
+            50% { transform: scale(1.05); opacity: 1; }
+        }
+
+        .target-obstacle.rear-camera {
+            animation: obstaclePulseRear 1s ease-in-out infinite;
+        }
+
+        @keyframes obstaclePulseRear {
+            0%, 100% { transform: scaleX(1) scale(1); opacity: 0.9; }
+            50% { transform: scaleX(1) scale(1.05); opacity: 1; }
+        }
+
+        .target-timer {
+            position: absolute;
+            bottom: -20px;
+            left: 50%;
+            transform: translateX(-50%);
+            width: 80%;
+            height: 3px;
+            background: rgba(255, 255, 255, 0.1);
+            overflow: hidden;
+        }
+
+        .target-timer-bar {
+            height: 100%;
+            background: var(--cyber-cyan);
+            width: 100%;
+            animation: timerDrain linear;
+        }
+
+        @keyframes timerDrain {
+            from { width: 100%; }
+            to { width: 0%; }
+        }
+
+        /* Countdown */
+        .countdown {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            font-size: 8rem;
+            font-weight: 700;
+            color: var(--cyber-text);
+            z-index: 200;
+            text-shadow: 0 4px 20px rgba(0, 0, 0, 0.5);
+            animation: countdownPulse 1s ease-in-out;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .countdown {
+                font-size: 5rem;
+            }
+        }
+
+        @keyframes countdownPulse {
+            0%, 100% { transform: translate(-50%, -50%) scale(1); opacity: 1; }
+            50% { transform: translate(-50%, -50%) scale(1.2); opacity: 0.7; }
+        }
+
+        /* Game HUD */
+        .game-hud {
+            position: fixed;
+            top: 0.75rem;
+            left: 0.75rem;
+            background: rgba(26, 26, 26, 0.9);
+            border: 1px solid var(--cyber-border);
+            padding: 0.75rem;
+            z-index: 100;
+            min-width: 160px;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .game-hud {
+                top: 0.5rem;
+                left: 0.5rem;
+                padding: 0.5rem 0.65rem;
+                min-width: 140px;
+            }
+        }
+
+        .hud-item {
+            display: flex;
+            justify-content: space-between;
+            margin-bottom: 0.4rem;
+            font-size: 0.85rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .hud-item {
+                margin-bottom: 0.3rem;
+                font-size: 0.8rem;
+            }
+            
+            .hud-item:last-child {
+                margin-bottom: 0;
+            }
+        }
+
+        .hud-label {
+            color: var(--cyber-dim);
+            text-transform: uppercase;
+            font-size: 0.7rem;
+            letter-spacing: 0.05em;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .hud-label {
+                font-size: 0.65rem;
+            }
+        }
+
+        .hud-value {
+            color: var(--cyber-text);
+            font-family: 'Share Tech Mono', monospace;
+            font-weight: 700;
+        }
+
+        /* Stop button */
+        .stop-btn {
+            position: fixed;
+            bottom: 1.5rem;
+            left: 50%;
+            transform: translateX(-50%);
+            padding: 0.85rem 1.75rem;
+            background: var(--cyber-primary);
+            color: #fff;
+            border: none;
+            font-family: 'Rajdhani', sans-serif;
+            font-weight: 700;
+            font-size: 0.95rem;
+            letter-spacing: 0.05em;
+            text-transform: uppercase;
+            cursor: pointer;
+            z-index: 100;
+            box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+            transition: all 0.3s ease;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stop-btn {
+                bottom: 0.75rem;
+                padding: 0.65rem 1.25rem;
+                font-size: 0.85rem;
+            }
+        }
+
+        .stop-btn:hover {
+            background: #888888;
+            box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
+            transform: translateX(-50%) scale(1.05);
+        }
+
+        /* AI Analysis */
+        .ai-analysis {
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--cyber-border);
+            padding: 0.85rem;
+            margin-bottom: 1rem;
+            animation: analysisAppear 0.5s ease-out;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis {
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
+            }
+        }
+
+        @keyframes analysisAppear {
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        .ai-analysis-header {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            margin-bottom: 0.65rem;
+            color: var(--cyber-text);
+            font-weight: 600;
+            text-transform: uppercase;
+            font-size: 0.8rem;
+            letter-spacing: 0.05em;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis-header {
+                font-size: 0.7rem;
+                margin-bottom: 0.3rem;
+            }
+        }
+
+        .ai-analysis-icon {
+            width: 16px;
+            height: 16px;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis-icon {
+                width: 12px;
+                height: 12px;
+            }
+        }
+
+        .ai-analysis-icon svg {
+            fill: var(--cyber-text);
+        }
+
+        .ai-analysis-text {
+            line-height: 1.5;
+            font-size: 0.9rem;
+            color: var(--cyber-text);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis-text {
+                font-size: 0.75rem;
+                line-height: 1.3;
+            }
+        }
+
+        /* Loading state */
+        .loading {
+            display: inline-block;
+            width: 16px;
+            height: 16px;
+            border: 2px solid var(--cyber-primary);
+            border-top-color: transparent;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        /* Unlock notification */
+        .unlock-notification {
+            position: fixed;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(16, 185, 129, 0.95);
+            border: 3px solid var(--cyber-green);
+            padding: 2rem;
+            border-radius: 8px;
+            z-index: 300;
+            opacity: 0;
+            transition: all 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55);
+            box-shadow: 0 10px 40px rgba(16, 185, 129, 0.5);
+        }
+
+        .unlock-notification.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        .unlock-content {
+            text-align: center;
+        }
+
+        .unlock-icon {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+            animation: unlockPulse 0.6s ease-in-out;
+        }
+
+        @keyframes unlockPulse {
+            0%, 100% { transform: scale(1); }
+            50% { transform: scale(1.2); }
+        }
+
+        .unlock-title {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: #000;
+            margin-bottom: 0.5rem;
+            letter-spacing: 0.1em;
+        }
+
+        .unlock-text {
+            font-size: 1.2rem;
+            font-weight: 600;
+            color: #000;
+            letter-spacing: 0.05em;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .unlock-notification {
+                padding: 1.5rem;
+            }
+            
+            .unlock-icon {
+                font-size: 2rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .unlock-title {
+                font-size: 1.1rem;
+                margin-bottom: 0.3rem;
+            }
+            
+            .unlock-text {
+                font-size: 0.95rem;
+            }
+        }
+
+        /* Penalty message */
+        .penalty-message {
+            position: fixed;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%) scale(0.8);
+            background: rgba(239, 68, 68, 0.95);
+            border: 3px solid var(--cyber-red);
+            padding: 1.5rem 2rem;
+            border-radius: 8px;
+            z-index: 250;
+            opacity: 0;
+            transition: all 0.3s ease;
+            font-size: 1.2rem;
+            font-weight: 700;
+            color: #000;
+            letter-spacing: 0.1em;
+            text-align: center;
+            box-shadow: 0 10px 40px rgba(239, 68, 68, 0.5);
+        }
+
+        .penalty-message.show {
+            opacity: 1;
+            transform: translate(-50%, -50%) scale(1);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .penalty-message {
+                padding: 1rem 1.5rem;
+                font-size: 1rem;
+                top: 25%;
+            }
+        }
+
+        .target-timer-bar {
+            height: 100%;
+            background: var(--cyber-text);
+            width: 100%;
+            animation: timerDrain linear;
+        }
+
+        /* Hidden class */
+        .hidden {
+            display: none !important;
+        }
+
+        /* Portrait mode blocker */
+        .portrait-blocker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cyber-bg);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (orientation: portrait) {
+            .portrait-blocker {
+                display: flex !important;
+            }
+        }
+
+        .portrait-content {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+        }
+
+        .portrait-content svg {
+            color: var(--cyber-text);
+            margin-bottom: 1.5rem;
+            animation: rotatePhone 2s ease-in-out infinite;
+        }
+
+        @keyframes rotatePhone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        .portrait-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--cyber-text);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.1em;
+        }
+
+        .portrait-content p {
+            font-size: 1rem;
+            color: var(--cyber-dim);
+        }
+
+        /* iPhone Pro Max 17 Landscape Optimization */
+        @media (orientation: landscape) and (max-width: 932px) and (max-height: 430px) {
+            .menu-overlay {
+                padding: 0.4rem;
+                max-height: 98vh;
+                width: 98%;
+                font-size: 0.9rem;
+            }
+            
+            .menu-logo {
+                max-width: 70px !important;
+                margin-bottom: 0.15rem !important;
+            }
+            
+            .menu-title {
+                font-size: 0.95rem !important;
+                margin-bottom: 0.1rem !important;
+            }
+            
+            .menu-subtitle {
+                font-size: 0.6rem !important;
+            }
+            
+            .menu-header {
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .form-label {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            
+            .form-input {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .radio-label {
+                padding: 0.35rem 0.2rem !important;
+                font-size: 0.7rem !important;
+            }
+            
+            .unlock-hint {
+                margin-top: 0.25rem !important;
+                padding: 0.25rem !important;
+                font-size: 0.6rem !important;
+                line-height: 1.2 !important;
+            }
+            
+            .stats-grid {
+                gap: 0.35rem !important;
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .stat-card {
+                padding: 0.3rem 0.2rem !important;
+            }
+            
+            .stat-label {
+                font-size: 0.55rem !important;
+                margin-bottom: 0.1rem !important;
+            }
+            
+            .stat-value {
+                font-size: 0.9rem !important;
+            }
+            
+            .btn {
+                padding: 0.45rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .btn-primary {
+                margin-bottom: 0.2rem !important;
+            }
+            
+            .instructions {
+                padding: 0.35rem !important;
+                margin-bottom: 0.35rem !important;
+                font-size: 0.7rem !important;
+                line-height: 1.25 !important;
+            }
+            
+            .instructions-title {
+                font-size: 0.7rem !important;
+                margin-bottom: 0.15rem !important;
+            }
+            
+            .instructions-list li {
+                padding-left: 0.85rem !important;
+                margin-bottom: 0.05rem !important;
+            }
+            
+            .ai-analysis {
+                padding: 0.35rem !important;
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .ai-analysis-header {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            .ai-analysis-icon {
+                width: 11px !important;
+                height: 11px !important;
+            }
+            
+            .ai-analysis-text {
+                font-size: 0.7rem !important;
+                line-height: 1.25 !important;
+            }
+            
+            .menu-content {
+                gap: 0.35rem !important;
+            }
+        }
+
+        /* Responsive */
+        @media (max-width: 640px) and (orientation: portrait) {
+            .menu-overlay {
+                width: 95%;
+                padding: 1.5rem;
+            }
+
+            .stats-grid {
+                grid-template-columns: 1fr;
+                gap: 0.75rem;
+            }
+        }
+
+        /* Touch-friendly adjustments */
+        @media (hover: none) and (pointer: coarse) {
+            .icon-btn,
+            .btn,
+            .radio-label {
+                -webkit-tap-highlight-color: transparent;
+                touch-action: manipulation;
+            }
+        }
+    </style>
 </head>
 <body>
-  <div class="bg-grid"></div>
-  <div class="scanline"></div>
+    <div class="bg-grid"></div>
+    <div class="scanline"></div>
 
-  <!-- Orientation gate (shown until landscape) -->
-  <div id="orientationGate" class="orientation-gate" aria-live="polite">
-    <div class="orientation-card">
-      <div class="orientation-title">Rotate to Landscape</div>
-      <div class="orientation-sub">
-        AR Tap Attack runs in <strong>landscape</strong> mode.
-        <br/>Rotate your device, then the menu will load.
-      </div>
-      <div class="orientation-icon" aria-hidden="true"></div>
-    </div>
-  </div>
-
-  <!-- Video container (hidden until Start Training) -->
-  <div id="videoContainer">
-    <video id="cameraFeed" autoplay playsinline muted></video>
-  </div>
-
-  <!-- Game canvas for hand tracking visualization -->
-  <canvas id="gameCanvas"></canvas>
-
-  <!-- Device controls -->
-  <div class="device-controls"><button class="icon-btn" id="cameraToggleBtn" title="Switch Camera">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 3c1.63 0 3.06.79 3.98 2H12c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H7.1c-.06-.32-.1-.66-.1-1 0-2.76 2.24-5 5-5zm0 10c-1.63 0-3.06-.79-3.98-2H12c1.66 0 3-1.34 3-3 0-.35-.07-.69-.18-1h2.08c.07.32.1.66.1 1 0 2.76-2.24 5-5 5z"/>
-      </svg>
-    </button>
-    <button class="icon-btn" id="videoToggleBtn" title="Toggle Video">
-      <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-        <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-      </svg>
-    </button>
-  </div>
-
-  <div class="container">
-    <!-- Main Menu -->
-    <div id="mainMenu" class="menu-overlay">
-      <div class="menu-header">
-        <img src="https://i.imgur.com/kG2dDb7.png" alt="Logo" class="menu-logo">
-        <h1 class="menu-title">AR TAP ATTACK</h1>
-        <p class="menu-subtitle">Hand Speed Training System</p>
-      </div>
-
-      <div id="aiAnalysisContainer" class="ai-analysis hidden">
-        <div class="ai-analysis-header">
-          <span class="ai-analysis-icon">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-              <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+    <!-- Portrait mode blocker -->
+    <div id="portraitBlocker" class="portrait-blocker">
+        <div class="portrait-content">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <path d="M12 18h.01"></path>
             </svg>
-          </span>
-          <span>PERFORMANCE ANALYSIS</span>
+            <h2>ROTATE DEVICE</h2>
+            <p>Please rotate your phone to landscape mode to continue</p>
         </div>
-        <div class="ai-analysis-text" id="aiAnalysisText">Analyzing performance...</div>
-      </div>
-
-      <!-- Player Name -->
-      <div class="form-group">
-        <label class="form-label" for="playerName">Player ID</label>
-        <input type="text" id="playerName" class="form-input" placeholder="Enter your name" value="">
-      </div>
-
-      <!-- Difficulty Selection -->
-      <div class="form-group">
-        <label class="form-label">Training Mode</label>
-        <div class="radio-group">
-          <div class="radio-option">
-            <input type="radio" id="diffEasy" name="difficulty" value="easy">
-            <label for="diffEasy" class="radio-label">EASY</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" id="diffMedium" name="difficulty" value="medium" checked>
-            <label for="diffMedium" class="radio-label">MEDIUM</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" id="diffHard" name="difficulty" value="hard">
-            <label for="diffHard" class="radio-label">HARD</label>
-          </div>
-          <div class="radio-option">
-            <input type="radio" id="diffPro" name="difficulty" value="pro">
-            <label for="diffPro" class="radio-label" id="diffProLabel">PRO</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- Stats Grid (difficulty-specific) -->
-      <div class="stats-grid">
-        <div class="stat-card">
-          <div class="stat-label">Last Avg</div>
-          <div class="stat-value" id="lastTime">---</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Best Single</div>
-          <div class="stat-value" id="bestSingle">---</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Best Avg</div>
-          <div class="stat-value" id="bestAvg">---</div>
-        </div>
-        <div class="stat-card">
-          <div class="stat-label">Last Acc</div>
-          <div class="stat-value" id="accuracy">---</div>
-        </div>
-      </div>
-
-      <!-- Instructions -->
-      <div class="instructions">
-        <div class="instructions-title">Training Briefing</div>
-        <ul class="instructions-list">
-          <li><strong style="color: var(--cyber-green)">GREEN</strong> targets → Use hand on LEFT side of screen</li>
-          <li><strong style="color: var(--cyber-purple)">PURPLE</strong> targets → Use hand on RIGHT side of screen</li>
-          <li>Move the crosshair in your palm directly over the target</li>
-          <li>Target will grow when you're getting close!</li>
-        </ul>
-      </div>
-
-      <!-- Action Buttons -->
-      <button class="btn btn-primary" id="startBtn">START TRAINING</button>
-      <button class="btn btn-secondary" id="resultsBtn">PERFORMANCE RESULTS</button>
     </div>
 
-    <!-- Game HUD (shown during game) -->
-    <div id="gameHUD" class="game-hud hidden">
-      <div class="hud-item">
-        <span class="hud-label">Target:</span>
-        <span class="hud-value" id="targetCounter">0/40</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">Hits:</span>
-        <span class="hud-value" id="hitCounter">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">Misses:</span>
-        <span class="hud-value" id="missCounter">0</span>
-      </div>
-      <div class="hud-item">
-        <span class="hud-label">Avg Time:</span>
-        <span class="hud-value" id="avgTime">0ms</span>
-      </div>
+    <!-- Video container -->
+    <div id="videoContainer">
+        <video id="cameraFeed" autoplay playsinline></video>
     </div>
 
-    <!-- Stop Button (shown during game) -->
-    <button id="stopBtn" class="stop-btn hidden">ABORT MISSION</button>
-  </div>
-
-  <!-- MediaPipe Hands -->
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
-
-  <script>
-    // Game state
-    const gameState = {
-      isPlaying: false,
-      isPaused: false,
-      currentTarget: null,
-      targetStartTime: 0,
-      hits: [],
-      misses: 0,
-      targetIndex: 0,
-      sequence: [],
-      hands: { left: null, right: null },
-      difficulty: 'medium',
-      playerName: '',
-      cameraFacing: 'user',
-      videoVisible: true,
-      difficultySettings: {
-        easy: { timeout: 5000, name: 'EASY' },
-        medium: { timeout: 3500, name: 'MEDIUM' },
-        hard: { timeout: 2500, name: 'HARD' },
-        pro: { timeout: 1500, name: 'PRO' }
-      },
-      // PRO is locked until the player meets an accuracy threshold on a prerequisite difficulty
-      proUnlock: {
-        requiredDifficulty: 'hard',
-        requiredAccuracyPct: 85
-      }
-    };
-
-    // DOM elements
-    const mainMenu = document.getElementById('mainMenu');
-    const gameHUD = document.getElementById('gameHUD');
-    const stopBtn = document.getElementById('stopBtn');
-    const startBtn = document.getElementById('startBtn');
-    const resultsBtn = document.getElementById('resultsBtn');
-    const playerNameInput = document.getElementById('playerName');
-    const videoContainer = document.getElementById('videoContainer');
-    const cameraFeed = document.getElementById('cameraFeed');
-    const gameCanvas = document.getElementById('gameCanvas');
-    const canvasCtx = gameCanvas.getContext('2d');
-    const aiAnalysisContainer = document.getElementById('aiAnalysisContainer');
-    const aiAnalysisText = document.getElementById('aiAnalysisText');
-
-    const orientationGate = document.getElementById('orientationGate');
-
-    // Device controls
-    const deviceControls = document.querySelector('.device-controls');
-    const cameraToggleBtn = document.getElementById('cameraToggleBtn');
-    const videoToggleBtn = document.getElementById('videoToggleBtn');
-
-    // PRO lock UI
-    const diffProRadio = document.getElementById('diffPro');
-    const diffProLabel = document.getElementById('diffProLabel');
-
-    // MediaPipe Hands
-    let hands = null;
-    let camera = null;
-    let cameraReady = false;
-    let cameraStarting = false;
-
-    // Audio
-    let audioContext = null;
-    let audioUnlocked = false;
-
-    function initAudio() {
-      if (audioContext) return;
-      try {
-        const AudioContext = window.AudioContext || window.webkitAudioContext;
-        audioContext = new AudioContext();
-      } catch (e) {
-        console.error('Failed to create audio context:', e);
-      }
-    }
-
-    async function unlockAudio() {
-      if (audioUnlocked || !audioContext) return;
-      try {
-        if (audioContext.state === 'suspended') await audioContext.resume();
-        const buffer = audioContext.createBuffer(1, 1, 22050);
-        const source = audioContext.createBufferSource();
-        source.buffer = buffer;
-        source.connect(audioContext.destination);
-        source.start(0);
-        audioUnlocked = true;
-      } catch (e) {
-        console.error('Failed to unlock audio:', e);
-      }
-    }
-
-    function playDingSound() {
-      if (!audioContext) return;
-      if (audioContext.state === 'suspended') {
-        audioContext.resume().then(actuallyPlayDing);
-      } else {
-        actuallyPlayDing();
-      }
-    }
-
-    function actuallyPlayDing() {
-      try {
-        const now = audioContext.currentTime;
-        const osc = audioContext.createOscillator();
-        const gain = audioContext.createGain();
-        osc.connect(gain);
-        gain.connect(audioContext.destination);
-        osc.type = 'sine';
-        osc.frequency.setValueAtTime(1000, now);
-        osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
-        gain.gain.setValueAtTime(0.5, now);
-        gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-        osc.start(now);
-        osc.stop(now + 0.2);
-      } catch (e) {
-        console.error('Error playing ding:', e);
-      }
-    }
-
-    function isSecureEnoughForCamera() {
-      return window.isSecureContext || location.hostname === 'localhost' || location.hostname === '127.0.0.1';
-    }
-
-    function isLandscape() {
-      return window.matchMedia('(orientation: landscape)').matches;
-    }
-
-    function updateOrientationGate() {
-      const ok = isLandscape();
-      orientationGate.style.display = ok ? 'none' : 'flex';
-      mainMenu.classList.toggle('hidden', !ok);
-      if (!ok) stopCamera();
-    }
-
-    async function tryLockLandscape() {
-      try {
-        if (screen.orientation && screen.orientation.lock) {
-          await screen.orientation.lock('landscape');
-        }
-      } catch (_) {
-        // ignore
-      }
-    }
-
-    async function ensureCameraReady() {
-      if (cameraReady || cameraStarting) return cameraReady;
-      if (!isSecureEnoughForCamera()) {
-        
-        return false;
-      }
-
-      cameraStarting = true;
-      
-
-      try {
-        if (!hands) {
-          hands = new Hands({ locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}` });
-          hands.setOptions({
-            maxNumHands: 2,
-            modelComplexity: 1,
-            minDetectionConfidence: 0.5,
-            minTrackingConfidence: 0.5
-          });
-          hands.onResults(onHandsResults);
-        }
-
-        await setupCamera();
-
-        cameraReady = true;
-        
-        return true;
-      } catch (err) {
-        console.error('Failed to acquire camera feed:', err);
-        cameraReady = false;
-
-        if (err && (err.name === 'NotAllowedError' || err.name === 'PermissionDeniedError')) {
-          
-        } else if (err && err.name === 'NotFoundError') {
-          
-        } else {
-          
-        }
-        return false;
-      } finally {
-        cameraStarting = false;
-      }
-    }
-
-    async function setupCamera() {
-      videoContainer.style.display = 'flex';
-      videoContainer.style.opacity = gameState.videoVisible ? '1' : '0';
-
-      if (camera) {
-        try { camera.stop(); } catch (_) {}
-        camera = null;
-      }
-
-      camera = new Camera(cameraFeed, {
-        onFrame: async () => {
-          if (hands) await hands.send({ image: cameraFeed });
-        },
-        facingMode: gameState.cameraFacing,
-        width: 1280,
-        height: 720
-      });
-
-      await camera.start();
-
-      if (!cameraFeed.videoWidth || !cameraFeed.videoHeight) {
-        await new Promise((resolve) => {
-          const onLoaded = () => {
-            cameraFeed.removeEventListener('loadedmetadata', onLoaded);
-            resolve();
-          };
-          cameraFeed.addEventListener('loadedmetadata', onLoaded);
-          setTimeout(resolve, 1500);
-        });
-      }
-    }
-
-    function stopCamera() {
-      if (camera) {
-        try { camera.stop(); } catch (_) {}
-        camera = null;
-      }
-      cameraReady = false;
-      videoContainer.style.display = 'none';
-      canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-      gameState.hands = { left: null, right: null };
-      
-    }
-
-    function onHandsResults(results) {
-      canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-      const bounds = getVideoBounds();
-      gameState.hands = { left: null, right: null };
-
-      if (results.multiHandLandmarks && results.multiHandedness) {
-        for (let i = 0; i < results.multiHandLandmarks.length; i++) {
-          const landmarks = results.multiHandLandmarks[i];
-          let handedness = results.multiHandedness[i].label.toLowerCase();
-
-          if (gameState.cameraFacing === 'user') {
-            handedness = handedness === 'left' ? 'right' : 'left';
-          }
-
-          const palmLandmarks = [landmarks[0], landmarks[5], landmarks[9], landmarks[13], landmarks[17]];
-          const normX = palmLandmarks.reduce((sum, lm) => sum + lm.x, 0) / palmLandmarks.length;
-          const normY = palmLandmarks.reduce((sum, lm) => sum + lm.y, 0) / palmLandmarks.length;
-
-          const palmX = bounds.offsetX + (normX * bounds.width);
-          const palmY = bounds.offsetY + (normY * bounds.height);
-
-          gameState.hands[handedness] = { x: palmX, y: palmY };
-
-          canvasCtx.fillStyle = handedness === 'left' ? 'rgba(16, 185, 129, 0.7)' : 'rgba(147, 51, 234, 0.7)';
-          canvasCtx.beginPath();
-          canvasCtx.arc(palmX, palmY, 40, 0, Math.PI * 2);
-          canvasCtx.fill();
-
-          canvasCtx.strokeStyle = '#000';
-          canvasCtx.lineWidth = 3;
-          canvasCtx.beginPath();
-          canvasCtx.moveTo(palmX - 20, palmY);
-          canvasCtx.lineTo(palmX + 20, palmY);
-          canvasCtx.moveTo(palmX, palmY - 20);
-          canvasCtx.lineTo(palmX, palmY + 20);
-          canvasCtx.stroke();
-        }
-      }
-
-      if (gameState.isPlaying && gameState.currentTarget) {
-        checkTargetHit();
-      }
-    }
-
-    // --- UI / device controls ---
-
-    async function toggleCameraFacing() {
-      gameState.cameraFacing = gameState.cameraFacing === 'user' ? 'environment' : 'user';
-
-      if (gameState.cameraFacing === 'environment') {
-        cameraFeed.classList.add('rear-camera');
-        gameCanvas.classList.add('rear-camera');
-        document.querySelectorAll('.target').forEach(t => t.classList.add('rear-camera'));
-      } else {
-        cameraFeed.classList.remove('rear-camera');
-        gameCanvas.classList.remove('rear-camera');
-        document.querySelectorAll('.target').forEach(t => t.classList.remove('rear-camera'));
-      }
-
-      if (cameraReady) {
-        await setupCamera();
-      }
-    }
-
-    function toggleVideo() {
-      gameState.videoVisible = !gameState.videoVisible;
-      videoContainer.style.opacity = gameState.videoVisible ? '1' : '0';
-      videoToggleBtn.classList.toggle('active');
-    }
-
-    // --- Game logic ---
-
-    async function startGame() {
-      // show device controls only during training
-      if (deviceControls) deviceControls.classList.add('visible');
-      if (!isLandscape()) {
-        updateOrientationGate();
-        return;
-      }
-
-      try {
-        if (!document.fullscreenElement) {
-          await document.documentElement.requestFullscreen();
-        }
-      } catch (_) {}
-      await tryLockLandscape();
-
-      if (!gameState.playerName) {
-        playerNameInput.focus();
-        playerNameInput.style.borderColor = 'var(--cyber-danger)';
-        setTimeout(() => { playerNameInput.style.borderColor = ''; }, 1000);
-        return;
-      }
-
-      if (!audioContext) initAudio();
-      await unlockAudio();
-
-      const ok = await ensureCameraReady();
-      if (!ok) return;
-
-      gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-
-      gameState.sequence = [];
-      for (let i = 0; i < 20; i++) {
-        gameState.sequence.push('left');
-        gameState.sequence.push('right');
-      }
-      shuffleArray(gameState.sequence);
-
-      gameState.hits = [];
-      gameState.misses = 0;
-      gameState.targetIndex = 0;
-      gameState.currentTarget = null;
-
-      mainMenu.classList.add('hidden');
-      gameHUD.classList.remove('hidden');
-      stopBtn.classList.remove('hidden');
-      aiAnalysisContainer.classList.add('hidden');
-
-      startCountdown();
-    }
-
-    function startCountdown() {
-      let count = 5;
-      const countdownEl = document.createElement('div');
-      countdownEl.className = 'countdown';
-      countdownEl.textContent = count;
-      document.body.appendChild(countdownEl);
-
-      const countInterval = setInterval(() => {
-        count--;
-        if (count > 0) {
-          countdownEl.textContent = count;
-        } else {
-          countdownEl.textContent = 'GO!';
-          setTimeout(() => {
-            countdownEl.remove();
-            gameState.isPlaying = true;
-            spawnTarget();
-          }, 500);
-          clearInterval(countInterval);
-        }
-      }, 1000);
-    }
-
-    function stopGame() {
-      endGame();
-    }
-
-    async function endGame() {
-      // hide device controls when leaving training
-      if (deviceControls) deviceControls.classList.remove('visible');
-      gameState.isPlaying = false;
-
-      if (gameState.currentTarget) {
-        clearTimeout(gameState.currentTarget.timeout);
-        gameState.currentTarget.element.remove();
-        gameState.currentTarget = null;
-      }
-
-      gameHUD.classList.add('hidden');
-      stopBtn.classList.add('hidden');
-
-      const session = {
-        playerName: gameState.playerName,
-        date: new Date().toISOString(),
-        difficulty: gameState.difficulty,
-        hits: gameState.hits,
-        misses: gameState.misses,
-        totalTargets: 40
-      };
-
-      saveSession(session);
-      maybeUnlockProFromSession(session);
-      refreshProLockUI();
-      updateStatsForDifficulty(gameState.difficulty);
-
-      await getAIAnalysis(session);
-
-      stopCamera();
-
-      mainMenu.classList.remove('hidden');
-    }
-
-    function getVideoBounds() {
-      const video = cameraFeed;
-      const canvas = gameCanvas;
-
-      const vw = video.videoWidth || 1280;
-      const vh = video.videoHeight || 720;
-
-      const videoAspect = vw / vh;
-      const canvasAspect = canvas.width / canvas.height;
-
-      let videoWidth, videoHeight, offsetX, offsetY;
-
-      if (canvasAspect > videoAspect) {
-        videoHeight = canvas.height;
-        videoWidth = videoHeight * videoAspect;
-        offsetX = (canvas.width - videoWidth) / 2;
-        offsetY = 0;
-      } else {
-        videoWidth = canvas.width;
-        videoHeight = videoWidth / videoAspect;
-        offsetX = 0;
-        offsetY = (canvas.height - videoHeight) / 2;
-      }
-
-      return { width: videoWidth, height: videoHeight, offsetX, offsetY };
-    }
-
-    function spawnTarget() {
-      if (gameState.targetIndex >= 40) {
-        endGame();
-        return;
-      }
-
-      const handType = gameState.sequence[gameState.targetIndex];
-      const videoBounds = getVideoBounds();
-
-      const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
-      const margin = isLandscapeMobile ? 70 : 120;
-      const targetSize = isLandscapeMobile ? 42 : 50;
-      const hitRadius = isLandscapeMobile ? 42 : 50;
-
-      const centerX = videoBounds.offsetX + (videoBounds.width / 2);
-
-      let x, y;
-      let attempts = 0;
-      const maxAttempts = 20;
-      let validPosition = false;
-
-      while (!validPosition && attempts < maxAttempts) {
-        if (handType === 'left') {
-          x = videoBounds.offsetX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
-        } else {
-          x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
-        }
-
-        y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
-
-        const targetCenterX = x + (targetSize / 2);
-        const targetCenterY = y + (targetSize / 2);
-
-        validPosition = true;
-        const minDistance = hitRadius * 2.5;
-
-        for (const hand of Object.values(gameState.hands)) {
-          if (hand) {
-            let handX = hand.x;
-            if (gameState.cameraFacing === 'user') {
-              handX = gameCanvas.width - hand.x;
+    <!-- Game canvas for hand tracking visualization -->
+    <canvas id="gameCanvas"></canvas>
+
+    <!-- Device controls -->
+    <div class="device-controls">
+        <button class="icon-btn" id="fullscreenBtn" title="Toggle Fullscreen">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
+            </svg>
+        </button>
+        <button class="icon-btn" id="cameraToggleBtn" title="Switch Camera">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 3c1.63 0 3.06.79 3.98 2H12c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H7.1c-.06-.32-.1-.66-.1-1 0-2.76 2.24-5 5-5zm0 10c-1.63 0-3.06-.79-3.98-2H12c1.66 0 3-1.34 3-3 0-.35-.07-.69-.18-1h2.08c.07.32.1.66.1 1 0 2.76-2.24 5-5 5z"/>
+            </svg>
+        </button>
+        <button class="icon-btn" id="videoToggleBtn" title="Toggle Video">
+            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
+            </svg>
+        </button>
+    </div>
+
+    <div class="container">
+        <!-- Main Menu -->
+        <div id="mainMenu" class="menu-overlay">
+            <div class="menu-header">
+                <img src="https://i.imgur.com/kG2dDb7.png" alt="Logo" class="menu-logo">
+                <h1 class="menu-title">AR TAP ATTACK</h1>
+                <p class="menu-subtitle">Hand Speed Training System</p>
+            </div>
+
+            <!-- AI Analysis (shown after game) -->
+            <div id="aiAnalysisContainer" class="ai-analysis hidden">
+                <div class="ai-analysis-header">
+                    <span class="ai-analysis-icon">
+                        <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
+                            <path d="M20 2H4c-1.1 0-2 .9-2 2v18l4-4h14c1.1 0 2-.9 2-2V4c0-1.1-.9-2-2-2zm-3 12h-2v-2h2v2zm0-4h-2V6h2v4z"/>
+                        </svg>
+                    </span>
+                    <span>PERFORMANCE ANALYSIS</span>
+                </div>
+                <div class="ai-analysis-text" id="aiAnalysisText">Analyzing performance...</div>
+            </div>
+
+            <!-- Player Name -->
+            <div class="form-group">
+                <label class="form-label" for="playerName">Player ID</label>
+                <input type="text" id="playerName" class="form-input" placeholder="Enter your name" value="">
+            </div>
+
+            <!-- Difficulty Selection -->
+            <div class="form-group">
+                <label class="form-label">Training Mode</label>
+                <div class="radio-group">
+                    <div class="radio-option">
+                        <input type="radio" id="diffEasy" name="difficulty" value="easy">
+                        <label for="diffEasy" class="radio-label">EASY</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diffMedium" name="difficulty" value="medium" checked>
+                        <label for="diffMedium" class="radio-label">MEDIUM</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diffHard" name="difficulty" value="hard">
+                        <label for="diffHard" class="radio-label">HARD</label>
+                    </div>
+                    <div class="radio-option">
+                        <input type="radio" id="diffPro" name="difficulty" value="pro">
+                        <label for="diffPro" class="radio-label">PRO</label>
+                    </div>
+                </div>
+                <div id="unlockHint" class="unlock-hint hidden"></div>
+            </div>
+
+            <!-- Stats Grid -->
+            <div class="stats-grid">
+                <div class="stat-card">
+                    <div class="stat-label">Last Avg</div>
+                    <div class="stat-value" id="lastTime">---</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Best Single</div>
+                    <div class="stat-value" id="bestSingle">---</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Best Avg</div>
+                    <div class="stat-value" id="bestAvg">---</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Last Acc</div>
+                    <div class="stat-value" id="accuracy">---</div>
+                </div>
+            </div>
+
+            <!-- Instructions -->
+            <div class="instructions">
+                <div class="instructions-title">Training Briefing</div>
+                <ul class="instructions-list">
+                    <li><strong style="color: var(--cyber-green)">GREEN</strong> targets → Use hand on LEFT side of screen</li>
+                    <li><strong style="color: var(--cyber-purple)">PURPLE</strong> targets → Use hand on RIGHT side of screen</li>
+                    <li>Move the crosshair in your palm directly over the target</li>
+                    <li>Target will grow when you're getting close!</li>
+                </ul>
+            </div>
+
+            <!-- Action Buttons -->
+            <button class="btn btn-primary" id="startBtn">START TRAINING</button>
+            <button class="btn btn-secondary" id="resultsBtn">PERFORMANCE RESULTS</button>
+        </div>
+
+        <!-- Game HUD (shown during game) -->
+        <div id="gameHUD" class="game-hud hidden">
+            <div class="hud-item">
+                <span class="hud-label">Target:</span>
+                <span class="hud-value" id="targetCounter">0/40</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Hits:</span>
+                <span class="hud-value" id="hitCounter">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Misses:</span>
+                <span class="hud-value" id="missCounter">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Penalties:</span>
+                <span class="hud-value" id="penaltyCounter">0</span>
+            </div>
+            <div class="hud-item">
+                <span class="hud-label">Avg Time:</span>
+                <span class="hud-value" id="avgTime">0ms</span>
+            </div>
+        </div>
+
+        <!-- Stop Button (shown during game) -->
+        <button id="stopBtn" class="stop-btn hidden">ABORT MISSION</button>
+    </div>
+
+    <!-- MediaPipe Hands -->
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js" crossorigin="anonymous"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js" crossorigin="anonymous"></script>
+
+    <script>
+        // Game state
+        const gameState = {
+            isPlaying: false,
+            isPaused: false,
+            currentTarget: null,
+            currentTargets: [], // For simultaneous targets in PRO
+            targetStartTime: 0,
+            hits: [],
+            misses: 0,
+            penalties: 0,
+            targetIndex: 0,
+            sequence: [], // Will hold 'left' or 'right' for each target
+            hands: { left: null, right: null },
+            difficulty: 'medium',
+            playerName: '',
+            cameraFacing: 'user', // 'user' or 'environment'
+            videoVisible: true,
+            obstacles: [], // Active obstacle targets
+            wrongHandPenaltyActive: false,
+            difficultySettings: {
+                easy: { 
+                    timeout: 5000, 
+                    name: 'EASY',
+                    wrongHandPenalty: false,
+                    obstacleCount: 0,
+                    simultaneousTargets: false,
+                    colorChange: false
+                },
+                medium: { 
+                    timeout: 3500, 
+                    name: 'MEDIUM',
+                    wrongHandPenalty: false,
+                    obstacleCount: 0,
+                    simultaneousTargets: false,
+                    colorChange: false
+                },
+                hard: { 
+                    timeout: 2500, 
+                    name: 'HARD',
+                    wrongHandPenalty: true, // 2 second penalty
+                    obstacleCount: 2, // 1-2 red obstacles
+                    simultaneousTargets: false,
+                    colorChange: false
+                },
+                pro: { 
+                    timeout: 1500, 
+                    name: 'PRO',
+                    wrongHandPenalty: true, // Instant fail
+                    obstacleCount: 4, // 3-4 red obstacles
+                    simultaneousTargets: true, // 2 targets at once
+                    colorChange: true // Targets switch color after 0.5s
+                }
+            },
+            // Unlock criteria for each difficulty level
+            unlockCriteria: {
+                easy: { locked: false }, // Always unlocked
+                medium: { locked: true, requiredAccuracy: 70, requiredAvgTime: 3000, unlockFrom: 'easy' },
+                hard: { locked: true, requiredAccuracy: 75, requiredAvgTime: 2500, unlockFrom: 'medium' },
+                pro: { locked: true, requiredAccuracy: 80, requiredAvgTime: 2000, unlockFrom: 'hard' }
             }
+        };
 
-            const distance = Math.sqrt(
-              Math.pow(handX - targetCenterX, 2) +
-              Math.pow(hand.y - targetCenterY, 2)
+        // Check if a difficulty level is unlocked
+        function isDifficultyUnlocked(difficulty) {
+            const criteria = gameState.unlockCriteria[difficulty];
+            if (!criteria.locked) return true; // Easy is always unlocked
+            
+            // Check if user has met requirements from previous difficulty
+            const sessions = getSessions();
+            const playerSessions = sessions.filter(s => 
+                s.playerName === gameState.playerName && 
+                s.difficulty === criteria.unlockFrom
             );
-
-            if (distance < minDistance) {
-              validPosition = false;
-              break;
+            
+            if (playerSessions.length === 0) return false;
+            
+            // Check best performance from the prerequisite difficulty
+            let bestAccuracy = 0;
+            let bestAvgTime = Infinity;
+            
+            playerSessions.forEach(session => {
+                const validHits = session.hits.filter(h => h.hit && h.reactionTime);
+                const accuracy = (validHits.length / 40) * 100;
+                
+                if (validHits.length > 0) {
+                    const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
+                    bestAccuracy = Math.max(bestAccuracy, accuracy);
+                    bestAvgTime = Math.min(bestAvgTime, avgTime);
+                }
+            });
+            
+            // Must meet BOTH accuracy AND time requirements
+            return bestAccuracy >= criteria.requiredAccuracy && bestAvgTime <= criteria.requiredAvgTime;
+        }
+        
+        // Update difficulty UI based on unlock status
+        function updateDifficultyLocks() {
+            ['easy', 'medium', 'hard', 'pro'].forEach(diff => {
+                const radio = document.getElementById(`diff${diff.charAt(0).toUpperCase() + diff.slice(1)}`);
+                const label = radio.nextElementSibling;
+                const isUnlocked = isDifficultyUnlocked(diff);
+                
+                if (isUnlocked) {
+                    radio.disabled = false;
+                    label.classList.remove('locked');
+                    label.classList.add('unlocked');
+                } else {
+                    radio.disabled = true;
+                    label.classList.add('locked');
+                    label.classList.remove('unlocked');
+                    
+                    // If this difficulty was selected but is now locked, switch to easy
+                    if (radio.checked) {
+                        document.getElementById('diffEasy').checked = true;
+                        gameState.difficulty = 'easy';
+                    }
+                }
+            });
+            
+            updateUnlockHint();
+        }
+        
+        // Update the hint message showing what's needed to unlock next level
+        function updateUnlockHint() {
+            const unlockHint = document.getElementById('unlockHint');
+            const currentDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || 'easy';
+            
+            // Find the next locked difficulty
+            const nextLocked = ['medium', 'hard', 'pro'].find(diff => !isDifficultyUnlocked(diff));
+            
+            if (!nextLocked) {
+                // All levels unlocked
+                unlockHint.classList.add('hidden');
+                return;
             }
-          }
+            
+            const criteria = gameState.unlockCriteria[nextLocked];
+            const isCurrentPrerequisite = currentDifficulty === criteria.unlockFrom;
+            
+            if (isCurrentPrerequisite) {
+                // Show what's needed to unlock next level
+                unlockHint.innerHTML = `🎯 Unlock <strong>${nextLocked.toUpperCase()}</strong>: Achieve ${criteria.requiredAccuracy}% accuracy AND avg time under ${criteria.requiredAvgTime}ms`;
+                unlockHint.classList.remove('hidden', 'locked-hint');
+            } else {
+                unlockHint.classList.add('hidden');
+            }
         }
 
-        attempts++;
-      }
+        // DOM elements
+        const mainMenu = document.getElementById('mainMenu');
+        const gameHUD = document.getElementById('gameHUD');
+        const stopBtn = document.getElementById('stopBtn');
+        const startBtn = document.getElementById('startBtn');
+        const resultsBtn = document.getElementById('resultsBtn');
+        const playerNameInput = document.getElementById('playerName');
+        const videoContainer = document.getElementById('videoContainer');
+        const cameraFeed = document.getElementById('cameraFeed');
+        const gameCanvas = document.getElementById('gameCanvas');
+        const canvasCtx = gameCanvas.getContext('2d');
+        const aiAnalysisContainer = document.getElementById('aiAnalysisContainer');
+        const aiAnalysisText = document.getElementById('aiAnalysisText');
 
-      const targetEl = document.createElement('div');
-      targetEl.className = `target target-${handType}`;
-      if (gameState.cameraFacing === 'environment') targetEl.classList.add('rear-camera');
+        // Device controls
+        const fullscreenBtn = document.getElementById('fullscreenBtn');
+        const cameraToggleBtn = document.getElementById('cameraToggleBtn');
+        const videoToggleBtn = document.getElementById('videoToggleBtn');
 
-      targetEl.style.left = `${x}px`;
-      targetEl.style.top = `${y}px`;
+        // MediaPipe Hands setup
+        let hands, camera;
+        
+        // Audio context for sound effects - better mobile support
+        let audioContext = null;
+        let audioUnlocked = false;
+        
+        function initAudio() {
+            if (audioContext) return;
+            
+            try {
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                console.log('Audio context created, state:', audioContext.state);
+            } catch (e) {
+                console.error('Failed to create audio context:', e);
+            }
+        }
+        
+        // Unlock audio with a test sound
+        async function unlockAudio() {
+            if (audioUnlocked || !audioContext) return;
+            
+            try {
+                // Resume the context
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+                
+                // Play a silent sound to unlock
+                const buffer = audioContext.createBuffer(1, 1, 22050);
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.start(0);
+                
+                audioUnlocked = true;
+                console.log('Audio unlocked! State:', audioContext.state);
+            } catch (e) {
+                console.error('Failed to unlock audio:', e);
+            }
+        }
+        
+        function playDingSound() {
+            if (!audioContext) {
+                console.log('No audio context');
+                return;
+            }
+            
+            if (audioContext.state === 'suspended') {
+                console.log('Audio context suspended, attempting resume...');
+                audioContext.resume().then(() => {
+                    console.log('Resumed, state:', audioContext.state);
+                    actuallyPlayDing();
+                });
+            } else {
+                actuallyPlayDing();
+            }
+        }
+        
+        function actuallyPlayDing() {
+            try {
+                const now = audioContext.currentTime;
+                
+                // Create oscillator
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                // Connect
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                // Ding sound - high to low
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, now);
+                osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+                
+                // Envelope
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                
+                // Play
+                osc.start(now);
+                osc.stop(now + 0.2);
+                
+                console.log('Ding played!');
+            } catch (e) {
+                console.error('Error playing ding:', e);
+            }
+        }
 
-      const timerBar = document.createElement('div');
-      timerBar.className = 'target-timer';
-      const timerBarFill = document.createElement('div');
-      timerBarFill.className = 'target-timer-bar';
-      const timeout = gameState.difficultySettings[gameState.difficulty].timeout;
-      timerBarFill.style.animationDuration = `${timeout}ms`;
-      timerBar.appendChild(timerBarFill);
-      targetEl.appendChild(timerBar);
+        // Initialize
+        function init() {
+            loadPlayerData();
+            updateStats();
+            updateDifficultyLocks(); // Check which difficulties are unlocked
+            
+            // Set initial difficulty to easy
+            document.getElementById('diffEasy').checked = true;
+            gameState.difficulty = 'easy';
+            
+            setupEventListeners();
+            setupMediaPipe();
+            resizeCanvas();
+            window.addEventListener('resize', resizeCanvas);
+        }
 
-      document.body.appendChild(targetEl);
+        function resizeCanvas() {
+            gameCanvas.width = window.innerWidth;
+            gameCanvas.height = window.innerHeight;
+        }
 
-      gameState.currentTarget = {
-        element: targetEl,
-        hand: handType,
-        x: x + (targetSize / 2),
-        y: y + (targetSize / 2),
-        spawnTime: Date.now(),
-        timeout: setTimeout(() => { missTarget(); }, timeout)
-      };
+        function setupEventListeners() {
+            startBtn.addEventListener('click', startGame);
+            stopBtn.addEventListener('click', stopGame);
+            resultsBtn.addEventListener('click', () => {
+                window.location.href = 'tappyreport.html';
+            });
 
-      gameState.targetStartTime = Date.now();
-      updateHUD();
-    }
+            // Difficulty selection
+            document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
+                radio.addEventListener('change', (e) => {
+                    gameState.difficulty = e.target.value;
+                    updateStats(); // Update stats display for new difficulty level
+                    updateUnlockHint(); // Update unlock hint for current difficulty
+                });
+            });
 
-    function checkTargetHit() {
-      if (!gameState.currentTarget) return;
+            // Player name
+            playerNameInput.addEventListener('change', (e) => {
+                gameState.playerName = e.target.value.trim();
+                savePlayerData();
+            });
 
-      const target = gameState.currentTarget;
-      const hand = gameState.hands[target.hand];
-      if (!hand) return;
+            // Device controls
+            fullscreenBtn.addEventListener('click', toggleFullscreen);
+            cameraToggleBtn.addEventListener('click', toggleCamera);
+            videoToggleBtn.addEventListener('click', toggleVideo);
+            
+            // Initialize audio on first touch/click (critical for mobile)
+            const initAudioOnInteraction = async () => {
+                if (!audioContext) {
+                    initAudio();
+                    await unlockAudio();
+                }
+            };
+            
+            // Add listeners to common interactions
+            startBtn.addEventListener('click', initAudioOnInteraction, { once: true });
+            document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
+        }
 
-      let handX = hand.x;
-      if (gameState.cameraFacing === 'user') {
-        handX = gameCanvas.width - hand.x;
-      }
+        function toggleFullscreen() {
+            if (!document.fullscreenElement) {
+                document.documentElement.requestFullscreen().catch(err => {
+                    console.log('Fullscreen error:', err);
+                });
+            } else {
+                document.exitFullscreen();
+            }
+        }
 
-      const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 520px)').matches;
-      const hitRadius = isLandscapeMobile ? 42 : 50;
+        async function toggleCamera() {
+            gameState.cameraFacing = gameState.cameraFacing === 'user' ? 'environment' : 'user';
+            
+            // Update video, canvas, and target orientation (flip front camera, don't flip rear)
+            if (gameState.cameraFacing === 'environment') {
+                cameraFeed.classList.add('rear-camera');
+                gameCanvas.classList.add('rear-camera');
+                document.querySelectorAll('.target').forEach(t => t.classList.add('rear-camera'));
+            } else {
+                cameraFeed.classList.remove('rear-camera');
+                gameCanvas.classList.remove('rear-camera');
+                document.querySelectorAll('.target').forEach(t => t.classList.remove('rear-camera'));
+            }
+            
+            await setupCamera();
+        }
 
-      const distance = Math.sqrt(
-        Math.pow(handX - target.x, 2) +
-        Math.pow(hand.y - target.y, 2)
-      );
+        function toggleVideo() {
+            gameState.videoVisible = !gameState.videoVisible;
+            videoContainer.style.opacity = gameState.videoVisible ? '1' : '0';
+            videoToggleBtn.classList.toggle('active');
+        }
 
-      if (distance < hitRadius * 1.3) {
-        target.element.style.transform = target.element.classList.contains('rear-camera')
-          ? 'scaleX(1) scale(1.15)'
-          : 'scaleX(-1) scale(1.15)';
-        target.element.style.transition = 'transform 0.1s ease';
-      } else {
-        target.element.style.transform = target.element.classList.contains('rear-camera')
-          ? 'scaleX(1) scale(1)'
-          : 'scaleX(-1) scale(1)';
-      }
+        // MediaPipe setup
+        async function setupMediaPipe() {
+            hands = new Hands({
+                locateFile: (file) => {
+                    return `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`;
+                }
+            });
 
-      if (distance < hitRadius) {
-        hitTarget();
-      }
-    }
+            hands.setOptions({
+                maxNumHands: 2,
+                modelComplexity: 1,
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
+            });
 
-    function hitTarget() {
-      const reactionTime = Date.now() - gameState.targetStartTime;
-      gameState.hits.push({
-        targetIndex: gameState.targetIndex,
-        hand: gameState.currentTarget.hand,
-        reactionTime,
-        hit: true
-      });
+            hands.onResults(onHandsResults);
+            // Camera will be started when game starts, not on page load
+        }
 
-      if (gameState.currentTarget?.element) {
-        gameState.currentTarget.element.style.transform = 'scale(1.5)';
-        gameState.currentTarget.element.style.opacity = '0';
-        gameState.currentTarget.element.style.transition = 'all 0.2s ease-out';
-      }
+        async function setupCamera() {
+            if (camera) {
+                camera.stop();
+            }
 
-      playDingSound();
+            camera = new Camera(cameraFeed, {
+                onFrame: async () => {
+                    await hands.send({ image: cameraFeed });
+                },
+                facingMode: gameState.cameraFacing,
+                width: 1280,
+                height: 720
+            });
 
-      clearTimeout(gameState.currentTarget.timeout);
-      setTimeout(() => {
-        if (gameState.currentTarget?.element) gameState.currentTarget.element.remove();
-      }, 200);
+            await camera.start();
+            
+            // Show video container and canvas when camera starts
+            videoContainer.classList.add('active');
+            gameCanvas.classList.add('active');
+        }
 
-      gameState.currentTarget = null;
-      gameState.targetIndex++;
+        function onHandsResults(results) {
+            // Clear canvas
+            canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Get video bounds
+            const bounds = getVideoBounds();
 
-      updateHUD();
-      setTimeout(() => spawnTarget(), 500);
-    }
+            // Update hand positions
+            gameState.hands = { left: null, right: null };
 
-    function missTarget() {
-      gameState.misses++;
-      gameState.hits.push({
-        targetIndex: gameState.targetIndex,
-        hand: gameState.currentTarget.hand,
-        reactionTime: null,
-        hit: false
-      });
+            if (results.multiHandLandmarks && results.multiHandedness) {
+                for (let i = 0; i < results.multiHandLandmarks.length; i++) {
+                    const landmarks = results.multiHandLandmarks[i];
+                    let handedness = results.multiHandedness[i].label.toLowerCase();
+                    
+                    // IMPORTANT: When front camera is mirrored, swap the hand labels
+                    if (gameState.cameraFacing === 'user') {
+                        handedness = handedness === 'left' ? 'right' : 'left';
+                    }
+                    
+                    // Calculate palm center from multiple landmarks for better accuracy
+                    const palmLandmarks = [
+                        landmarks[0],  // Wrist
+                        landmarks[5],  // Index base
+                        landmarks[9],  // Middle base
+                        landmarks[13], // Ring base
+                        landmarks[17]  // Pinky base
+                    ];
+                    
+                    // Get normalized coordinates (0-1) and transform to video bounds
+                    const normX = palmLandmarks.reduce((sum, lm) => sum + lm.x, 0) / palmLandmarks.length;
+                    const normY = palmLandmarks.reduce((sum, lm) => sum + lm.y, 0) / palmLandmarks.length;
+                    
+                    // Transform to actual video coordinates within canvas
+                    const palmX = bounds.offsetX + (normX * bounds.width);
+                    const palmY = bounds.offsetY + (normY * bounds.height);
 
-      if (gameState.currentTarget) {
-        gameState.currentTarget.element.remove();
-        gameState.currentTarget = null;
-      }
+                    gameState.hands[handedness] = { x: palmX, y: palmY };
 
-      gameState.targetIndex++;
-      updateHUD();
-      setTimeout(() => spawnTarget(), 500);
-    }
+                    // Draw hand indicator - visible circle
+                    canvasCtx.fillStyle = handedness === 'left' ? 'rgba(16, 185, 129, 0.7)' : 'rgba(147, 51, 234, 0.7)';
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(palmX, palmY, 40, 0, Math.PI * 2);
+                    canvasCtx.fill();
+                    
+                    // Draw crosshair at detection point
+                    canvasCtx.strokeStyle = '#000';
+                    canvasCtx.lineWidth = 3;
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(palmX - 20, palmY);
+                    canvasCtx.lineTo(palmX + 20, palmY);
+                    canvasCtx.moveTo(palmX, palmY - 20);
+                    canvasCtx.lineTo(palmX, palmY + 20);
+                    canvasCtx.stroke();
+                }
+            }
 
-    function updateHUD() {
-      document.getElementById('targetCounter').textContent = `${gameState.targetIndex}/40`;
-      document.getElementById('hitCounter').textContent = gameState.hits.filter(h => h.hit).length;
-      document.getElementById('missCounter').textContent = gameState.misses;
+            // Check for target hits
+            if (gameState.isPlaying && !gameState.isPaused && gameState.currentTargets.length > 0) {
+                checkTargetHit();
+            }
+        }
 
-      const validHits = gameState.hits.filter(h => h.hit && h.reactionTime);
-      if (validHits.length > 0) {
-        const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-        document.getElementById('avgTime').textContent = `${Math.round(avgTime)}ms`;
-      }
-    }
+        // Game logic
+        async function startGame() {
+            if (!gameState.playerName) {
+                playerNameInput.focus();
+                playerNameInput.style.borderColor = 'var(--cyber-danger)';
+                setTimeout(() => {
+                    playerNameInput.style.borderColor = '';
+                }, 1000);
+                return;
+            }
 
-    async function getAIAnalysis(session) {
-      aiAnalysisContainer.classList.remove('hidden');
-      aiAnalysisText.innerHTML = '<span class="loading"></span> Analyzing your performance...';
+            // Start camera if not already started
+            if (!camera) {
+                await setupCamera();
+            }
 
-      try {
-        const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-        const avgTime = validHits.length > 0
-          ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length
-          : 0;
+            // Initialize and unlock audio
+            if (!audioContext) {
+                initAudio();
+            }
+            await unlockAudio();
 
-        const accuracy = ((validHits.length / 40) * 100).toFixed(1);
+            gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
+            
+            // Generate sequence: 20 left, 20 right, randomized
+            gameState.sequence = [];
+            for (let i = 0; i < 20; i++) {
+                gameState.sequence.push('left');
+                gameState.sequence.push('right');
+            }
+            shuffleArray(gameState.sequence);
 
-        const allSessions = getSessions();
-        const playerSessionsSameDiff = allSessions.filter(s => s.playerName === session.playerName && s.difficulty === session.difficulty);
+            // Reset game state
+            gameState.hits = [];
+            gameState.misses = 0;
+            gameState.penalties = 0;
+            gameState.targetIndex = 0;
+            gameState.currentTarget = null;
+            gameState.currentTargets = [];
+            gameState.obstacles = [];
+            gameState.wrongHandPenaltyActive = false;
 
-        const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session.
+            // Hide menu, show HUD
+            mainMenu.classList.add('hidden');
+            gameHUD.classList.remove('hidden');
+            stopBtn.classList.remove('hidden');
+            aiAnalysisContainer.classList.add('hidden');
+
+            // Start countdown
+            startCountdown();
+        }
+
+        function startCountdown() {
+            let count = 5;
+            const countdownEl = document.createElement('div');
+            countdownEl.className = 'countdown';
+            countdownEl.textContent = count;
+            document.body.appendChild(countdownEl);
+
+            const countInterval = setInterval(() => {
+                count--;
+                if (count > 0) {
+                    countdownEl.textContent = count;
+                } else {
+                    countdownEl.textContent = 'GO!';
+                    setTimeout(() => {
+                        countdownEl.remove();
+                        gameState.isPlaying = true;
+                        spawnTarget();
+                    }, 500);
+                    clearInterval(countInterval);
+                }
+            }, 1000);
+        }
+
+        function getVideoBounds() {
+            // Get actual video dimensions and position within canvas
+            const video = cameraFeed;
+            const canvas = gameCanvas;
+            
+            const videoAspect = video.videoWidth / video.videoHeight;
+            const canvasAspect = canvas.width / canvas.height;
+            
+            let videoWidth, videoHeight, offsetX, offsetY;
+            
+            if (canvasAspect > videoAspect) {
+                // Canvas is wider - video will be letterboxed on sides
+                videoHeight = canvas.height;
+                videoWidth = videoHeight * videoAspect;
+                offsetX = (canvas.width - videoWidth) / 2;
+                offsetY = 0;
+            } else {
+                // Canvas is taller - video will be letterboxed on top/bottom
+                videoWidth = canvas.width;
+                videoHeight = videoWidth / videoAspect;
+                offsetX = 0;
+                offsetY = (canvas.height - videoHeight) / 2;
+            }
+            
+            return { width: videoWidth, height: videoHeight, offsetX, offsetY };
+        }
+
+        function spawnTarget() {
+            if (gameState.targetIndex >= 40) {
+                endGame();
+                return;
+            }
+
+            const settings = gameState.difficultySettings[gameState.difficulty];
+            const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+            const targetSize = isLandscapeMobile ? 42 : 50;
+            
+            // Clear any existing targets
+            gameState.currentTargets = [];
+            
+            // Spawn obstacle targets first (for HARD and PRO)
+            spawnObstacles(settings);
+            
+            // PRO mode: Spawn 2 simultaneous targets
+            if (settings.simultaneousTargets) {
+                const leftTarget = createTarget('left', targetSize);
+                const rightTarget = createTarget('right', targetSize);
+                gameState.currentTargets.push(leftTarget, rightTarget);
+            } else {
+                // EASY, MEDIUM, HARD: Spawn single target
+                const handType = gameState.sequence[gameState.targetIndex];
+                const target = createTarget(handType, targetSize);
+                gameState.currentTargets.push(target);
+            }
+            
+            gameState.targetStartTime = Date.now();
+            updateHUD();
+        }
+        
+        function createTarget(handType, targetSize) {
+            const settings = gameState.difficultySettings[gameState.difficulty];
+            const videoBounds = getVideoBounds();
+            const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+            const margin = isLandscapeMobile ? 80 : 120;
+            const hitRadius = targetSize;
+            
+            // Split screen horizontally
+            const centerX = videoBounds.offsetX + (videoBounds.width / 2);
+            
+            let x, y;
+            let attempts = 0;
+            const maxAttempts = 20;
+            let validPosition = false;
+            
+            // Find valid position away from hands and other targets
+            while (!validPosition && attempts < maxAttempts) {
+                if (handType === 'left') {
+                    x = videoBounds.offsetX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+                } else {
+                    x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+                }
+                
+                y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
+                
+                const targetCenterX = x + (targetSize / 2);
+                const targetCenterY = y + (targetSize / 2);
+                
+                validPosition = true;
+                const minDistance = hitRadius * 2.5;
+                
+                // Check distance from hands
+                for (const hand of Object.values(gameState.hands)) {
+                    if (hand) {
+                        let handX = hand.x;
+                        if (gameState.cameraFacing === 'user') {
+                            handX = gameCanvas.width - hand.x;
+                        }
+                        
+                        const distance = Math.sqrt(
+                            Math.pow(handX - targetCenterX, 2) +
+                            Math.pow(hand.y - targetCenterY, 2)
+                        );
+                        
+                        if (distance < minDistance) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                }
+                
+                // Check distance from other active targets
+                if (validPosition) {
+                    for (const otherTarget of gameState.currentTargets) {
+                        const dist = Math.sqrt(
+                            Math.pow(targetCenterX - otherTarget.x, 2) +
+                            Math.pow(targetCenterY - otherTarget.y, 2)
+                        );
+                        if (dist < targetSize * 2) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                }
+                
+                // Check distance from obstacles
+                if (validPosition) {
+                    for (const obstacle of gameState.obstacles) {
+                        const dist = Math.sqrt(
+                            Math.pow(targetCenterX - obstacle.x, 2) +
+                            Math.pow(targetCenterY - obstacle.y, 2)
+                        );
+                        if (dist < targetSize * 2) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                }
+                
+                attempts++;
+            }
+
+            const targetEl = document.createElement('div');
+            targetEl.className = `target target-${handType}`;
+            
+            if (gameState.cameraFacing === 'environment') {
+                targetEl.classList.add('rear-camera');
+            }
+            
+            targetEl.style.left = `${x}px`;
+            targetEl.style.top = `${y}px`;
+
+            // Add timer bar
+            const timerBar = document.createElement('div');
+            timerBar.className = 'target-timer';
+            const timerBarFill = document.createElement('div');
+            timerBarFill.className = 'target-timer-bar';
+            const timeout = settings.timeout;
+            timerBarFill.style.animationDuration = `${timeout}ms`;
+            timerBar.appendChild(timerBarFill);
+            targetEl.appendChild(timerBar);
+
+            document.body.appendChild(targetEl);
+
+            const target = {
+                element: targetEl,
+                hand: handType,
+                originalHand: handType, // Store original for color-change
+                x: x + (targetSize / 2),
+                y: y + (targetSize / 2),
+                spawnTime: Date.now(),
+                hit: false,
+                timeout: setTimeout(() => {
+                    if (settings.simultaneousTargets) {
+                        missSimultaneousTargets();
+                    } else {
+                        missTarget();
+                    }
+                }, timeout)
+            };
+            
+            // PRO mode: Color change after 0.5s
+            if (settings.colorChange) {
+                setTimeout(() => {
+                    if (target.element && !target.hit) {
+                        // Switch colors
+                        const newHand = target.hand === 'left' ? 'right' : 'left';
+                        target.hand = newHand;
+                        target.element.className = `target target-${newHand}`;
+                        if (gameState.cameraFacing === 'environment') {
+                            target.element.classList.add('rear-camera');
+                        }
+                    }
+                }, 500);
+            }
+            
+            return target;
+        }
+        
+        function spawnObstacles(settings) {
+            // Clear old obstacles
+            gameState.obstacles.forEach(obs => obs.element.remove());
+            gameState.obstacles = [];
+            
+            if (settings.obstacleCount === 0) return;
+            
+            const videoBounds = getVideoBounds();
+            const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+            const targetSize = isLandscapeMobile ? 42 : 50;
+            const margin = isLandscapeMobile ? 80 : 120;
+            
+            // Spawn 1-2 for HARD, 3-4 for PRO
+            const minObstacles = settings.obstacleCount === 2 ? 1 : 3;
+            const maxObstacles = settings.obstacleCount;
+            const numObstacles = minObstacles + Math.floor(Math.random() * (maxObstacles - minObstacles + 1));
+            
+            for (let i = 0; i < numObstacles; i++) {
+                const x = videoBounds.offsetX + margin + Math.random() * (videoBounds.width - margin * 2);
+                const y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
+                
+                const obstacleEl = document.createElement('div');
+                obstacleEl.className = 'target target-obstacle';
+                obstacleEl.textContent = '✕'; // X mark to indicate avoid
+                obstacleEl.style.fontSize = isLandscapeMobile ? '1.5rem' : '1.8rem';
+                obstacleEl.style.fontWeight = '900';
+                
+                if (gameState.cameraFacing === 'environment') {
+                    obstacleEl.classList.add('rear-camera');
+                }
+                
+                obstacleEl.style.left = `${x}px`;
+                obstacleEl.style.top = `${y}px`;
+                document.body.appendChild(obstacleEl);
+                
+                gameState.obstacles.push({
+                    element: obstacleEl,
+                    x: x + (targetSize / 2),
+                    y: y + (targetSize / 2)
+                });
+            }
+        }
+
+        function checkTargetHit() {
+            if (!gameState.isPlaying || gameState.currentTargets.length === 0) return;
+
+            const settings = gameState.difficultySettings[gameState.difficulty];
+            
+            // Check for obstacle hits first
+            checkObstacleHit();
+            
+            // Check each active target
+            for (const target of gameState.currentTargets) {
+                if (target.hit) continue; // Already hit
+                
+                const hand = gameState.hands[target.hand];
+                
+                if (hand) {
+                    // Mirror hand X coordinate for front camera
+                    let handX = hand.x;
+                    if (gameState.cameraFacing === 'user') {
+                        handX = gameCanvas.width - hand.x;
+                    }
+                    
+                    const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+                    const hitRadius = isLandscapeMobile ? 42 : 50;
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(handX - target.x, 2) +
+                        Math.pow(hand.y - target.y, 2)
+                    );
+
+                    // Visual feedback when close
+                    if (distance < hitRadius * 1.3) {
+                        target.element.style.transform = target.element.classList.contains('rear-camera') ? 'scaleX(1) scale(1.15)' : 'scaleX(-1) scale(1.15)';
+                        target.element.style.transition = 'transform 0.1s ease';
+                    } else {
+                        target.element.style.transform = target.element.classList.contains('rear-camera') ? 'scaleX(1) scale(1)' : 'scaleX(-1) scale(1)';
+                    }
+
+                    if (distance < hitRadius) {
+                        // Check if correct hand hit the target
+                        const correctHandUsed = target.hand === target.hand; // This is always true for correct hand
+                        
+                        // Check if WRONG hand was used (by checking if the OTHER hand is present)
+                        const wrongHand = target.hand === 'left' ? gameState.hands.right : gameState.hands.left;
+                        
+                        if (wrongHand) {
+                            let wrongHandX = wrongHand.x;
+                            if (gameState.cameraFacing === 'user') {
+                                wrongHandX = gameCanvas.width - wrongHand.x;
+                            }
+                            
+                            const wrongDistance = Math.sqrt(
+                                Math.pow(wrongHandX - target.x, 2) +
+                                Math.pow(wrongHand.y - target.y, 2)
+                            );
+                            
+                            // If wrong hand is closer, apply penalty
+                            if (wrongDistance < distance && wrongDistance < hitRadius && settings.wrongHandPenalty) {
+                                applyWrongHandPenalty(target);
+                                return;
+                            }
+                        }
+                        
+                        // Correct hand hit
+                        hitTarget(target);
+                    }
+                }
+            }
+        }
+        
+        function checkObstacleHit() {
+            const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
+            const hitRadius = isLandscapeMobile ? 42 : 50;
+            
+            for (const obstacle of gameState.obstacles) {
+                for (const [handType, hand] of Object.entries(gameState.hands)) {
+                    if (!hand) continue;
+                    
+                    let handX = hand.x;
+                    if (gameState.cameraFacing === 'user') {
+                        handX = gameCanvas.width - hand.x;
+                    }
+                    
+                    const distance = Math.sqrt(
+                        Math.pow(handX - obstacle.x, 2) +
+                        Math.pow(hand.y - obstacle.y, 2)
+                    );
+                    
+                    if (distance < hitRadius) {
+                        hitObstacle(obstacle);
+                        return;
+                    }
+                }
+            }
+        }
+        
+        function applyWrongHandPenalty(target) {
+            const settings = gameState.difficultySettings[gameState.difficulty];
+            
+            if (gameState.difficulty === 'hard') {
+                // HARD: Miss + 2 second penalty
+                gameState.penalties++;
+                gameState.wrongHandPenaltyActive = true;
+                
+                // Flash penalty message
+                showPenaltyMessage('WRONG HAND! +2s PENALTY');
+                
+                // Apply 2 second freeze
+                gameState.isPaused = true;
+                setTimeout(() => {
+                    gameState.isPaused = false;
+                    gameState.wrongHandPenaltyActive = false;
+                }, 2000);
+                
+                missTarget(target);
+                
+            } else if (gameState.difficulty === 'pro') {
+                // PRO: Instant miss + skip to next
+                gameState.penalties++;
+                showPenaltyMessage('WRONG HAND! MISS!');
+                missTarget(target);
+            }
+        }
+        
+        function hitObstacle(obstacle) {
+            gameState.penalties++;
+            
+            // Flash obstacle red
+            obstacle.element.style.background = 'radial-gradient(circle, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0.8))';
+            obstacle.element.style.transform = 'scale(1.3)';
+            
+            showPenaltyMessage('OBSTACLE HIT! -5 POINTS');
+            
+            setTimeout(() => {
+                obstacle.element.style.background = '';
+                obstacle.element.style.transform = '';
+            }, 300);
+            
+            // In PRO mode, hitting obstacle is more severe
+            if (gameState.difficulty === 'pro') {
+                gameState.misses++;
+                updateHUD();
+            }
+        }
+        
+        function showPenaltyMessage(message) {
+            const penaltyMsg = document.createElement('div');
+            penaltyMsg.className = 'penalty-message';
+            penaltyMsg.textContent = message;
+            document.body.appendChild(penaltyMsg);
+            
+            setTimeout(() => penaltyMsg.classList.add('show'), 50);
+            setTimeout(() => {
+                penaltyMsg.classList.remove('show');
+                setTimeout(() => penaltyMsg.remove(), 300);
+            }, 1500);
+        }
+
+        function hitTarget(target) {
+            if (!target) {
+                target = gameState.currentTargets[0];
+            }
+            
+            const reactionTime = Date.now() - gameState.targetStartTime;
+            target.hit = true;
+            
+            // Visual feedback - flash effect
+            if (target && target.element) {
+                target.element.style.transform = 'scale(1.5)';
+                target.element.style.opacity = '0';
+                target.element.style.transition = 'all 0.2s ease-out';
+            }
+
+            // Play ding sound
+            playDingSound();
+
+            clearTimeout(target.timeout);
+            setTimeout(() => {
+                if (target && target.element) {
+                    target.element.remove();
+                }
+            }, 200);
+            
+            // Check if all targets in simultaneous mode are hit
+            const settings = gameState.difficultySettings[gameState.difficulty];
+            if (settings.simultaneousTargets) {
+                const allHit = gameState.currentTargets.every(t => t.hit);
+                if (allHit) {
+                    // Record successful hit
+                    gameState.hits.push({
+                        targetIndex: gameState.targetIndex,
+                        hand: 'both', // Both hands used
+                        reactionTime: reactionTime,
+                        hit: true
+                    });
+                    
+                    gameState.currentTargets = [];
+                    gameState.targetIndex++;
+                    updateHUD();
+                    setTimeout(() => spawnTarget(), 500);
+                }
+            } else {
+                // Single target mode
+                gameState.hits.push({
+                    targetIndex: gameState.targetIndex,
+                    hand: target.hand,
+                    reactionTime: reactionTime,
+                    hit: true
+                });
+                
+                gameState.currentTargets = [];
+                gameState.targetIndex++;
+                updateHUD();
+                setTimeout(() => spawnTarget(), 500);
+            }
+        }
+
+        function missTarget(specificTarget) {
+            gameState.misses++;
+            
+            const targetToMiss = specificTarget || gameState.currentTargets[0];
+            
+            gameState.hits.push({
+                targetIndex: gameState.targetIndex,
+                hand: targetToMiss ? targetToMiss.hand : 'unknown',
+                reactionTime: null,
+                hit: false
+            });
+
+            // Clean up all current targets
+            gameState.currentTargets.forEach(target => {
+                if (target.element) {
+                    clearTimeout(target.timeout);
+                    target.element.remove();
+                }
+            });
+            
+            gameState.currentTargets = [];
+            gameState.targetIndex++;
+
+            updateHUD();
+            setTimeout(() => spawnTarget(), 500);
+        }
+        
+        function missSimultaneousTargets() {
+            // In PRO mode with simultaneous targets, missing timing = miss
+            gameState.misses++;
+            
+            gameState.hits.push({
+                targetIndex: gameState.targetIndex,
+                hand: 'both',
+                reactionTime: null,
+                hit: false
+            });
+
+            // Clean up all targets
+            gameState.currentTargets.forEach(target => {
+                if (target.element) {
+                    clearTimeout(target.timeout);
+                    target.element.remove();
+                }
+            });
+            
+            gameState.currentTargets = [];
+            gameState.targetIndex++;
+
+            updateHUD();
+            setTimeout(() => spawnTarget(), 500);
+        }
+
+        function updateHUD() {
+            document.getElementById('targetCounter').textContent = `${gameState.targetIndex}/40`;
+            document.getElementById('hitCounter').textContent = gameState.hits.filter(h => h.hit).length;
+            document.getElementById('missCounter').textContent = gameState.misses;
+            document.getElementById('penaltyCounter').textContent = gameState.penalties;
+            
+            const validHits = gameState.hits.filter(h => h.hit && h.reactionTime);
+            if (validHits.length > 0) {
+                const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
+                document.getElementById('avgTime').textContent = `${Math.round(avgTime)}ms`;
+            }
+        }
+
+        function stopGame() {
+            endGame();
+        }
+
+        async function endGame() {
+            gameState.isPlaying = false;
+            
+            // Clean up all targets
+            gameState.currentTargets.forEach(target => {
+                if (target.element) {
+                    clearTimeout(target.timeout);
+                    target.element.remove();
+                }
+            });
+            gameState.currentTargets = [];
+            
+            // Clean up obstacles
+            gameState.obstacles.forEach(obs => obs.element.remove());
+            gameState.obstacles = [];
+
+            // Hide game UI
+            gameHUD.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+
+            // Save session
+            const session = {
+                playerName: gameState.playerName,
+                date: new Date().toISOString(),
+                difficulty: gameState.difficulty,
+                hits: gameState.hits,
+                misses: gameState.misses,
+                penalties: gameState.penalties,
+                totalTargets: 40
+            };
+
+            // Check if any new difficulties were unlocked before saving
+            const unlockedBefore = {
+                medium: isDifficultyUnlocked('medium'),
+                hard: isDifficultyUnlocked('hard'),
+                pro: isDifficultyUnlocked('pro')
+            };
+
+            saveSession(session);
+            updateStats();
+
+            // Check if any new difficulties were unlocked after saving
+            const unlockedAfter = {
+                medium: isDifficultyUnlocked('medium'),
+                hard: isDifficultyUnlocked('hard'),
+                pro: isDifficultyUnlocked('pro')
+            };
+
+            // Show notification for newly unlocked difficulties
+            const newlyUnlocked = [];
+            ['medium', 'hard', 'pro'].forEach(diff => {
+                if (!unlockedBefore[diff] && unlockedAfter[diff]) {
+                    newlyUnlocked.push(diff.toUpperCase());
+                }
+            });
+
+            if (newlyUnlocked.length > 0) {
+                showUnlockNotification(newlyUnlocked);
+            }
+
+            // Get AI analysis
+            await getAIAnalysis(session);
+
+            // Show menu
+            mainMenu.classList.remove('hidden');
+        }
+
+        // Show unlock notification
+        function showUnlockNotification(unlockedLevels) {
+            const notification = document.createElement('div');
+            notification.className = 'unlock-notification';
+            notification.innerHTML = `
+                <div class="unlock-content">
+                    <div class="unlock-icon">🔓</div>
+                    <div class="unlock-title">NEW LEVEL UNLOCKED!</div>
+                    <div class="unlock-text">${unlockedLevels.join(', ')} MODE</div>
+                </div>
+            `;
+            document.body.appendChild(notification);
+
+            // Animate in
+            setTimeout(() => notification.classList.add('show'), 100);
+
+            // Remove after 4 seconds
+            setTimeout(() => {
+                notification.classList.remove('show');
+                setTimeout(() => notification.remove(), 500);
+            }, 4000);
+        }
+
+        async function getAIAnalysis(session) {
+            aiAnalysisContainer.classList.remove('hidden');
+            aiAnalysisText.innerHTML = '<span class="loading"></span> Analyzing your performance...';
+
+            try {
+                const validHits = session.hits.filter(h => h.hit && h.reactionTime);
+                const avgTime = validHits.length > 0 
+                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
+                    : 0;
+                
+                const accuracy = ((validHits.length / 40) * 100).toFixed(1);
+
+                // Get previous sessions for context
+                const allSessions = getSessions();
+                const playerSessions = allSessions.filter(s => s.playerName === session.playerName);
+
+                const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session. 
 
 Session Data:
 - Difficulty: ${gameState.difficultySettings[session.difficulty].name}
@@ -1454,313 +2650,140 @@ Session Data:
 - Misses: ${session.misses}
 - Accuracy: ${accuracy}%
 - Average Reaction Time: ${Math.round(avgTime)}ms
-- Previous Sessions (same difficulty): ${playerSessionsSameDiff.length - 1}
+- Previous Sessions: ${playerSessions.length - 1}
 
 Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus on strengths, areas for improvement, and actionable next steps. Be motivating but realistic.`;
 
-        const response = await fetch('https://api.anthropic.com/v1/messages', {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({
-            model: 'claude-sonnet-4-20250514',
-            max_tokens: 1000,
-            messages: [{ role: 'user', content: prompt }]
-          })
-        });
+                const response = await fetch('https://api.anthropic.com/v1/messages', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json',
+                    },
+                    body: JSON.stringify({
+                        model: 'claude-sonnet-4-20250514',
+                        max_tokens: 1000,
+                        messages: [
+                            { role: 'user', content: prompt }
+                        ]
+                    })
+                });
 
-        const data = await response.json();
-        const analysis = data?.content?.[0]?.text || 'Analysis unavailable.';
-        aiAnalysisText.textContent = analysis;
-      } catch (error) {
-        console.error('AI Analysis error:', error);
-        const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-        const avgTime = validHits.length > 0
-          ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length
-          : 0;
-
-        aiAnalysisText.textContent = `Great session! You hit ${validHits.length}/40 targets with an average reaction time of ${Math.round(avgTime)}ms.`;
-      }
-    }
-
-    // --- Difficulty-specific stats persistence ---
-
-    // --- PRO lock ---
-    function proUnlockKey() {
-      const name = gameState.playerName ? encodeURIComponent(gameState.playerName) : 'anon';
-      return `arTapAttack_proUnlocked:${name}`;
-    }
-
-    function computeAccuracyPct(session) {
-      const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-      return (validHits.length / 40) * 100;
-    }
-
-    function isProUnlocked() {
-      if (!gameState.playerName) return false;
-      const explicit = localStorage.getItem(proUnlockKey());
-      if (explicit === '1') return true;
-
-      const { requiredDifficulty, requiredAccuracyPct } = gameState.proUnlock;
-      const sessions = getSessions();
-      const playerSessions = sessions.filter(s => s.playerName === gameState.playerName && s.difficulty === requiredDifficulty);
-      return playerSessions.some(s => computeAccuracyPct(s) >= requiredAccuracyPct);
-    }
-
-    function refreshProLockUI() {
-      const unlocked = isProUnlocked();
-      if (diffProRadio) diffProRadio.disabled = !unlocked;
-      if (diffProLabel) diffProLabel.textContent = unlocked ? 'PRO' : 'PRO (LOCKED)';
-    }
-
-    function flashProLocked() {
-      if (!diffProLabel) return;
-      diffProLabel.style.borderColor = 'var(--cyber-danger)';
-      diffProLabel.style.color = 'var(--cyber-danger)';
-      setTimeout(() => {
-        diffProLabel.style.borderColor = '';
-        diffProLabel.style.color = '';
-      }, 650);
-    }
-
-    function maybeUnlockProFromSession(session) {
-      if (!gameState.playerName) return;
-      const { requiredDifficulty, requiredAccuracyPct } = gameState.proUnlock;
-      if (session.difficulty !== requiredDifficulty) return;
-      const acc = computeAccuracyPct(session);
-      if (acc >= requiredAccuracyPct) {
-        localStorage.setItem(proUnlockKey(), '1');
-      }
-    }
-
-
-    const STORAGE = {
-      playerName: 'arTapAttack_playerName',
-      sessions: 'arTapAttack_sessions'
-    };
-
-    function keyBestAvg(playerName, difficulty) {
-      return `arTapAttack_bestAvgTime:${encodeURIComponent(playerName)}:${difficulty}`;
-    }
-
-    function keyBestSingle(playerName, difficulty) {
-      return `arTapAttack_bestSingleTime:${encodeURIComponent(playerName)}:${difficulty}`;
-    }
-
-    function loadPlayerData() {
-      const saved = localStorage.getItem(STORAGE.playerName);
-      if (saved) {
-        gameState.playerName = saved;
-        playerNameInput.value = saved;
-      }
-    }
-
-    function savePlayerData() {
-      localStorage.setItem(STORAGE.playerName, gameState.playerName);
-    }
-
-    function getSessions() {
-      const saved = localStorage.getItem(STORAGE.sessions);
-      return saved ? JSON.parse(saved) : [];
-    }
-
-    function saveSession(session) {
-      const sessions = getSessions();
-      sessions.push(session);
-      localStorage.setItem(STORAGE.sessions, JSON.stringify(sessions));
-
-      const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-      if (validHits.length === 0) return;
-
-      const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-      const fastestHit = Math.min(...validHits.map(h => h.reactionTime));
-
-      const kAvg = keyBestAvg(session.playerName, session.difficulty);
-      const kSingle = keyBestSingle(session.playerName, session.difficulty);
-
-      const currentBestAvg = localStorage.getItem(kAvg);
-      if (!currentBestAvg || avgTime < parseFloat(currentBestAvg)) {
-        localStorage.setItem(kAvg, avgTime.toString());
-      }
-
-      const currentBestSingle = localStorage.getItem(kSingle);
-      if (!currentBestSingle || fastestHit < parseFloat(currentBestSingle)) {
-        localStorage.setItem(kSingle, fastestHit.toString());
-      }
-    }
-
-    function clearStatUI() {
-      document.getElementById('lastTime').textContent = '---';
-      document.getElementById('accuracy').textContent = '---';
-      document.getElementById('bestAvg').textContent = '---';
-      document.getElementById('bestSingle').textContent = '---';
-    }
-
-    function updateStatsForDifficulty(difficulty) {
-      // If PRO is locked, prevent PRO stats selection and fall back.
-      if (difficulty === 'pro' && !isProUnlocked()) {
-        difficulty = 'medium';
-        const med = document.getElementById('diffMedium');
-        if (med) med.checked = true;
-        gameState.difficulty = 'medium';
-      }
-      if (!gameState.playerName) {
-        clearStatUI();
-        return;
-      }
-
-      const sessions = getSessions();
-      const playerSessions = sessions.filter(s => s.playerName === gameState.playerName && s.difficulty === difficulty);
-
-      clearStatUI();
-
-      if (playerSessions.length > 0) {
-        const lastSession = playerSessions[playerSessions.length - 1];
-        const validHits = lastSession.hits.filter(h => h.hit && h.reactionTime);
-
-        if (validHits.length > 0) {
-          const lastAvg = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-          document.getElementById('lastTime').textContent = `${Math.round(lastAvg)}ms`;
+                const data = await response.json();
+                const analysis = data.content[0].text;
+                aiAnalysisText.textContent = analysis;
+            } catch (error) {
+                console.error('AI Analysis error:', error);
+                const validHits = session.hits.filter(h => h.hit && h.reactionTime);
+                const avgTime = validHits.length > 0 
+                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
+                    : 0;
+                
+                aiAnalysisText.textContent = `Great session! You hit ${validHits.length}/40 targets with an average reaction time of ${Math.round(avgTime)}ms. ${session.misses > 10 ? 'Focus on accuracy in your next session.' : 'Keep up the excellent accuracy!'}`;
+            }
         }
 
-        const lastAccuracy = ((validHits.length / 40) * 100).toFixed(0);
-        document.getElementById('accuracy').textContent = `${lastAccuracy}%`;
-      }
-
-      const bestAvgTime = localStorage.getItem(keyBestAvg(gameState.playerName, difficulty));
-      if (bestAvgTime) {
-        document.getElementById('bestAvg').textContent = `${Math.round(parseFloat(bestAvgTime))}ms`;
-      }
-
-      const bestSingleTime = localStorage.getItem(keyBestSingle(gameState.playerName, difficulty));
-      if (bestSingleTime) {
-        document.getElementById('bestSingle').textContent = `${Math.round(parseFloat(bestSingleTime))}ms`;
-      }
-    }
-
-    // Utility
-    function shuffleArray(array) {
-      for (let i = array.length - 1; i > 0; i--) {
-        const j = Math.floor(Math.random() * (i + 1));
-        [array[i], array[j]] = [array[j], array[i]];
-      }
-    }
-
-    function resizeCanvas() {
-      gameCanvas.width = window.innerWidth;
-      gameCanvas.height = window.innerHeight;
-    }
-
-    function setupEventListeners() {
-      // PRO lock enforcement (tap)
-      if (diffProRadio) {
-        diffProRadio.addEventListener('click', (e) => {
-          if (!isProUnlocked()) {
-            e.preventDefault();
-            const med = document.getElementById('diffMedium');
-            if (med) med.checked = true;
-            gameState.difficulty = 'medium';
-            updateStatsForDifficulty('medium');
-            flashProLocked();
-          }
-        });
-      }
-      startBtn.addEventListener('click', startGame);
-      stopBtn.addEventListener('click', stopGame);
-      resultsBtn.addEventListener('click', () => {
-        window.location.href = 'ar-tap-attack-results.html';
-      });
-
-      document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
-        radio.addEventListener('change', (e) => {
-          const next = e.target.value;
-          if (next === 'pro' && !isProUnlocked()) {
-            const med = document.getElementById('diffMedium');
-            if (med) med.checked = true;
-            gameState.difficulty = 'medium';
-            updateStatsForDifficulty('medium');
-            flashProLocked();
-            return;
-          }
-          gameState.difficulty = next;
-          updateStatsForDifficulty(gameState.difficulty);
-        });
-      });
-      });
-
-      playerNameInput.addEventListener('change', (e) => {
-        gameState.playerName = e.target.value.trim();
-        savePlayerData();
-        refreshProLockUI();
-        updateStatsForDifficulty(gameState.difficulty);
-      });
-      cameraToggleBtn.addEventListener('click', toggleCameraFacing);
-      videoToggleBtn.addEventListener('click', toggleVideo);
-
-      const initAudioOnInteraction = async () => {
-        if (!audioContext) {
-          initAudio();
-          await unlockAudio();
+        // Data persistence
+        function loadPlayerData() {
+            const saved = localStorage.getItem('arTapAttack_playerName');
+            if (saved) {
+                gameState.playerName = saved;
+                playerNameInput.value = saved;
+            }
         }
-      };
-      document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
-      document.addEventListener('mousedown', initAudioOnInteraction, { once: true });
-    }
 
-    // Lightweight test cases (run only with ?test=1)
-    function runSelfTestsIfRequested() {
-      const params = new URLSearchParams(location.search);
-      if (params.get('test') !== '1') return;
+        function savePlayerData() {
+            localStorage.setItem('arTapAttack_playerName', gameState.playerName);
+        }
 
-      const tests = [];
-      const assert = (name, condition) => tests.push({ name, pass: !!condition });
+        function getSessions() {
+            const saved = localStorage.getItem('arTapAttack_sessions');
+            return saved ? JSON.parse(saved) : [];
+        }
 
-      assert('isLandscape returns boolean', typeof isLandscape() === 'boolean');
-      assert('isSecureEnoughForCamera returns boolean', typeof isSecureEnoughForCamera() === 'boolean');
+        function saveSession(session) {
+            const sessions = getSessions();
+            sessions.push(session);
+            localStorage.setItem('arTapAttack_sessions', JSON.stringify(sessions));
 
-      // getVideoBounds always returns finite numbers
-      const b = getVideoBounds();
-      assert('getVideoBounds width finite', Number.isFinite(b.width) && b.width > 0);
-      assert('getVideoBounds height finite', Number.isFinite(b.height) && b.height > 0);
-      assert('getVideoBounds offsetX finite', Number.isFinite(b.offsetX));
-      assert('getVideoBounds offsetY finite', Number.isFinite(b.offsetY));
+            // Update best average time for this difficulty level
+            const validHits = session.hits.filter(h => h.hit && h.reactionTime);
+            if (validHits.length > 0) {
+                const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
+                const bestAvgKey = `arTapAttack_bestAvgTime_${session.difficulty}`;
+                const currentBestAvg = localStorage.getItem(bestAvgKey);
+                if (!currentBestAvg || avgTime < parseFloat(currentBestAvg)) {
+                    localStorage.setItem(bestAvgKey, avgTime.toString());
+                }
+                
+                // Update best single reaction time for this difficulty level
+                const fastestHit = Math.min(...validHits.map(h => h.reactionTime));
+                const bestSingleKey = `arTapAttack_bestSingleTime_${session.difficulty}`;
+                const currentBestSingle = localStorage.getItem(bestSingleKey);
+                if (!currentBestSingle || fastestHit < parseFloat(currentBestSingle)) {
+                    localStorage.setItem(bestSingleKey, fastestHit.toString());
+                }
+            }
+        }
 
-      // stats keys include difficulty
-      assert('stats key includes difficulty', keyBestAvg('Scott', 'medium').includes(':medium'));
+        function updateStats() {
+            // Get current selected difficulty
+            const currentDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || gameState.difficulty;
+            
+            const sessions = getSessions();
+            const playerSessions = sessions.filter(s => 
+                s.playerName === gameState.playerName && 
+                s.difficulty === currentDifficulty
+            );
 
-      console.log('[SelfTests]', tests);
-      const failed = tests.filter(t => !t.pass);
-      if (failed.length) {
-        alert('Self-tests FAILED:\n' + failed.map(f => '• ' + f.name).join('\n'));
-      } else {
-        alert(`Self-tests passed (${tests.length})`);
-      }
-    }
+            if (playerSessions.length > 0) {
+                const lastSession = playerSessions[playerSessions.length - 1];
+                const validHits = lastSession.hits.filter(h => h.hit && h.reactionTime);
+                
+                if (validHits.length > 0) {
+                    const lastAvg = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
+                    document.getElementById('lastTime').textContent = `${Math.round(lastAvg)}ms`;
+                } else {
+                    document.getElementById('lastTime').textContent = '---';
+                }
 
-    function init() {
-      loadPlayerData();
-      setupEventListeners();
-      resizeCanvas();
-      window.addEventListener('resize', () => {
-        resizeCanvas();
-        updateOrientationGate();
-      });
+                const lastAccuracy = ((validHits.length / 40) * 100).toFixed(0);
+                document.getElementById('accuracy').textContent = `${lastAccuracy}%`;
+            } else {
+                document.getElementById('lastTime').textContent = '---';
+                document.getElementById('accuracy').textContent = '---';
+            }
 
-      // Force landscape gate BEFORE menu use
-      updateOrientationGate();
-      window.addEventListener('orientationchange', updateOrientationGate);
+            // Get best times for current difficulty level
+            const bestAvgKey = `arTapAttack_bestAvgTime_${currentDifficulty}`;
+            const bestAvgTime = localStorage.getItem(bestAvgKey);
+            if (bestAvgTime) {
+                document.getElementById('bestAvg').textContent = `${Math.round(parseFloat(bestAvgTime))}ms`;
+            } else {
+                document.getElementById('bestAvg').textContent = '---';
+            }
+            
+            const bestSingleKey = `arTapAttack_bestSingleTime_${currentDifficulty}`;
+            const bestSingleTime = localStorage.getItem(bestSingleKey);
+            if (bestSingleTime) {
+                document.getElementById('bestSingle').textContent = `${Math.round(parseFloat(bestSingleTime))}ms`;
+            } else {
+                document.getElementById('bestSingle').textContent = '---';
+            }
+            
+            // Update difficulty locks
+            updateDifficultyLocks();
+        }
 
-      // Default stats for current difficulty
-      refreshProLockUI();
+        // Utility functions
+        function shuffleArray(array) {
+            for (let i = array.length - 1; i > 0; i--) {
+                const j = Math.floor(Math.random() * (i + 1));
+                [array[i], array[j]] = [array[j], array[i]];
+            }
+        }
 
-      updateStatsForDifficulty(gameState.difficulty);
-
-      runSelfTestsIfRequested();
-
-      // Ensure camera is OFF on load
-      stopCamera();
-    }
-
-    init();
-  </script>
+        // Initialize on load
+        init();
+    </script>
 </body>
 </html>
