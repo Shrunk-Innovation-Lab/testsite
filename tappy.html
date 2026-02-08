@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AR TAP ATTACK - Neural Hand Training</title>
+    <title>AR TAP ATTACK - Hand Reaction Training</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -555,6 +555,11 @@
             height: 100%;
             z-index: 5;
             pointer-events: none;
+            transform: scaleX(-1);
+        }
+
+        #gameCanvas.rear-camera {
+            transform: scaleX(1);
         }
 
         /* Target styling */
@@ -572,6 +577,11 @@
             animation: targetAppear 0.3s ease-out;
             pointer-events: none;
             box-shadow: 0 0 30px currentColor;
+            transform: scaleX(-1);
+        }
+
+        .target.rear-camera {
+            transform: scaleX(1);
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -972,20 +982,20 @@
             <!-- Stats Grid -->
             <div class="stats-grid">
                 <div class="stat-card">
-                    <div class="stat-label">Last Time</div>
+                    <div class="stat-label">Last Avg</div>
                     <div class="stat-value" id="lastTime">---</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Best Time</div>
-                    <div class="stat-value" id="bestTime">---</div>
+                    <div class="stat-label">Best Single</div>
+                    <div class="stat-value" id="bestSingle">---</div>
                 </div>
                 <div class="stat-card">
-                    <div class="stat-label">Accuracy</div>
+                    <div class="stat-label">Best Avg</div>
+                    <div class="stat-value" id="bestAvg">---</div>
+                </div>
+                <div class="stat-card">
+                    <div class="stat-label">Last Acc</div>
                     <div class="stat-value" id="accuracy">---</div>
-                </div>
-                <div class="stat-card">
-                    <div class="stat-label">Misses</div>
-                    <div class="stat-value" id="misses">---</div>
                 </div>
             </div>
 
@@ -1134,11 +1144,15 @@
         async function toggleCamera() {
             gameState.cameraFacing = gameState.cameraFacing === 'user' ? 'environment' : 'user';
             
-            // Update video orientation (flip front camera, don't flip rear)
+            // Update video, canvas, and target orientation (flip front camera, don't flip rear)
             if (gameState.cameraFacing === 'environment') {
                 cameraFeed.classList.add('rear-camera');
+                gameCanvas.classList.add('rear-camera');
+                document.querySelectorAll('.target').forEach(t => t.classList.add('rear-camera'));
             } else {
                 cameraFeed.classList.remove('rear-camera');
+                gameCanvas.classList.remove('rear-camera');
+                document.querySelectorAll('.target').forEach(t => t.classList.remove('rear-camera'));
             }
             
             await setupCamera();
@@ -1198,25 +1212,26 @@
                     const landmarks = results.multiHandLandmarks[i];
                     const handedness = results.multiHandedness[i].label.toLowerCase();
                     
-                    // Get palm center (landmark 0 is wrist, use average of palm base points)
-                    const palmLandmark = landmarks[9]; // Middle finger base
+                    // Use wrist (landmark 0) as the palm center for better detection
+                    const palmLandmark = landmarks[0]; // Wrist
                     
-                    // Mirror X coordinate if using front camera
-                    let palmX = palmLandmark.x * gameCanvas.width;
-                    if (gameState.cameraFacing === 'user') {
-                        palmX = gameCanvas.width - palmX;
-                    }
+                    // Get coordinates directly - MediaPipe handles mirroring for front camera
+                    const palmX = palmLandmark.x * gameCanvas.width;
                     const palmY = palmLandmark.y * gameCanvas.height;
 
                     gameState.hands[handedness] = { x: palmX, y: palmY };
 
-                    // Draw hand indicator (optional - for debugging)
-                    if (!gameState.isPlaying) {
-                        canvasCtx.fillStyle = handedness === 'left' ? 'rgba(226, 232, 240, 0.5)' : 'rgba(147, 51, 234, 0.5)';
-                        canvasCtx.beginPath();
-                        canvasCtx.arc(palmX, palmY, 20, 0, Math.PI * 2);
-                        canvasCtx.fill();
-                    }
+                    // Draw hand indicator for debugging
+                    canvasCtx.fillStyle = handedness === 'left' ? 'rgba(226, 232, 240, 0.7)' : 'rgba(147, 51, 234, 0.7)';
+                    canvasCtx.beginPath();
+                    canvasCtx.arc(palmX, palmY, 30, 0, Math.PI * 2);
+                    canvasCtx.fill();
+                    
+                    // Draw hand label
+                    canvasCtx.fillStyle = '#fff';
+                    canvasCtx.font = 'bold 16px Rajdhani';
+                    canvasCtx.textAlign = 'center';
+                    canvasCtx.fillText(handedness.toUpperCase(), palmX, palmY + 5);
                 }
             }
 
@@ -1304,6 +1319,12 @@
 
             const targetEl = document.createElement('div');
             targetEl.className = `target target-${handType}`;
+            
+            // Add rear-camera class if using rear camera
+            if (gameState.cameraFacing === 'environment') {
+                targetEl.classList.add('rear-camera');
+            }
+            
             targetEl.textContent = handType === 'left' ? 'L' : 'R';
             targetEl.style.left = `${x}px`;
             targetEl.style.top = `${y}px`;
@@ -1342,16 +1363,16 @@
             const hand = gameState.hands[target.hand];
 
             if (hand) {
-                // Adjust hit radius based on target size
+                // Increased hit radius for easier detection
                 const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-                const hitRadius = isLandscapeMobile ? 65 : 75;
+                const hitRadius = isLandscapeMobile ? 100 : 120;
                 
                 const distance = Math.sqrt(
                     Math.pow(hand.x - target.x, 2) +
                     Math.pow(hand.y - target.y, 2)
                 );
 
-                if (distance < hitRadius) { // Hit radius
+                if (distance < hitRadius) {
                     hitTarget();
                 }
             }
@@ -1523,13 +1544,20 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
             sessions.push(session);
             localStorage.setItem('arTapAttack_sessions', JSON.stringify(sessions));
 
-            // Update best time
+            // Update best average time
             const validHits = session.hits.filter(h => h.hit && h.reactionTime);
             if (validHits.length > 0) {
                 const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-                const currentBest = localStorage.getItem('arTapAttack_bestTime');
-                if (!currentBest || avgTime < parseFloat(currentBest)) {
-                    localStorage.setItem('arTapAttack_bestTime', avgTime.toString());
+                const currentBestAvg = localStorage.getItem('arTapAttack_bestAvgTime');
+                if (!currentBestAvg || avgTime < parseFloat(currentBestAvg)) {
+                    localStorage.setItem('arTapAttack_bestAvgTime', avgTime.toString());
+                }
+                
+                // Update best single reaction time
+                const fastestHit = Math.min(...validHits.map(h => h.reactionTime));
+                const currentBestSingle = localStorage.getItem('arTapAttack_bestSingleTime');
+                if (!currentBestSingle || fastestHit < parseFloat(currentBestSingle)) {
+                    localStorage.setItem('arTapAttack_bestSingleTime', fastestHit.toString());
                 }
             }
         }
@@ -1549,12 +1577,16 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
 
                 const lastAccuracy = ((validHits.length / 40) * 100).toFixed(0);
                 document.getElementById('accuracy').textContent = `${lastAccuracy}%`;
-                document.getElementById('misses').textContent = lastSession.misses;
             }
 
-            const bestTime = localStorage.getItem('arTapAttack_bestTime');
-            if (bestTime) {
-                document.getElementById('bestTime').textContent = `${Math.round(parseFloat(bestTime))}ms`;
+            const bestAvgTime = localStorage.getItem('arTapAttack_bestAvgTime');
+            if (bestAvgTime) {
+                document.getElementById('bestAvg').textContent = `${Math.round(parseFloat(bestAvgTime))}ms`;
+            }
+            
+            const bestSingleTime = localStorage.getItem('arTapAttack_bestSingleTime');
+            if (bestSingleTime) {
+                document.getElementById('bestSingle').textContent = `${Math.round(parseFloat(bestSingleTime))}ms`;
             }
         }
 
