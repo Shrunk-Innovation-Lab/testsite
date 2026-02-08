@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>AR TAP ATTACK - Hand Reaction Training</title>
+    <title>AR TAP ATTACK - Neural Hand Training</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -601,6 +601,15 @@
             animation: targetRotate 4s linear infinite;
         }
 
+        .target::after {
+            content: '';
+            position: absolute;
+            inset: 0;
+            border: 2px solid currentColor;
+            border-radius: 50%;
+            opacity: 0.3;
+        }
+
         @keyframes targetAppear {
             from {
                 transform: scale(0);
@@ -618,15 +627,15 @@
         }
 
         .target-left {
-            background: radial-gradient(circle, rgba(226, 232, 240, 0.3), transparent 70%);
+            background: radial-gradient(circle, rgba(226, 232, 240, 0.9), rgba(226, 232, 240, 0.5) 70%);
             border: 3px solid var(--cyber-silver);
             color: var(--cyber-silver);
         }
 
         .target-right {
-            background: radial-gradient(circle, rgba(147, 51, 234, 0.3), transparent 70%);
-            border: 3px solid var(--cyber-magenta);
-            color: var(--cyber-magenta);
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.9), rgba(147, 51, 234, 0.5) 70%);
+            border: 3px solid var(--cyber-purple);
+            color: var(--cyber-purple);
         }
 
         .target-timer {
@@ -1003,10 +1012,10 @@
             <div class="instructions">
                 <div class="instructions-title">Mission Briefing</div>
                 <ul class="instructions-list">
-                    <li><strong style="color: var(--cyber-silver)">SILVER targets</strong> → Use LEFT hand</li>
-                    <li><strong style="color: var(--cyber-magenta)">PURPLE targets</strong> → Use RIGHT hand</li>
-                    <li>Tap targets with your palm as fast as possible</li>
-                    <li>40 targets per session - Beat the timer!</li>
+                    <li><strong style="color: var(--cyber-silver)">SILVER</strong> targets → Use hand on LEFT side of screen</li>
+                    <li><strong style="color: var(--cyber-purple)">PURPLE</strong> targets → Use hand on RIGHT side of screen</li>
+                    <li>Move the crosshair in your palm directly over the target</li>
+                    <li>Target will grow when you're getting close!</li>
                 </ul>
             </div>
 
@@ -1175,8 +1184,8 @@
             hands.setOptions({
                 maxNumHands: 2,
                 modelComplexity: 1,
-                minDetectionConfidence: 0.7,
-                minTrackingConfidence: 0.7
+                minDetectionConfidence: 0.5,
+                minTrackingConfidence: 0.5
             });
 
             hands.onResults(onHandsResults);
@@ -1203,6 +1212,9 @@
         function onHandsResults(results) {
             // Clear canvas
             canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+            
+            // Get video bounds
+            const bounds = getVideoBounds();
 
             // Update hand positions
             gameState.hands = { left: null, right: null };
@@ -1210,28 +1222,47 @@
             if (results.multiHandLandmarks && results.multiHandedness) {
                 for (let i = 0; i < results.multiHandLandmarks.length; i++) {
                     const landmarks = results.multiHandLandmarks[i];
-                    const handedness = results.multiHandedness[i].label.toLowerCase();
+                    let handedness = results.multiHandedness[i].label.toLowerCase();
                     
-                    // Use wrist (landmark 0) as the palm center for better detection
-                    const palmLandmark = landmarks[0]; // Wrist
+                    // IMPORTANT: When front camera is mirrored, swap the hand labels
+                    if (gameState.cameraFacing === 'user') {
+                        handedness = handedness === 'left' ? 'right' : 'left';
+                    }
                     
-                    // Get coordinates directly - MediaPipe handles mirroring for front camera
-                    const palmX = palmLandmark.x * gameCanvas.width;
-                    const palmY = palmLandmark.y * gameCanvas.height;
+                    // Calculate palm center from multiple landmarks for better accuracy
+                    const palmLandmarks = [
+                        landmarks[0],  // Wrist
+                        landmarks[5],  // Index base
+                        landmarks[9],  // Middle base
+                        landmarks[13], // Ring base
+                        landmarks[17]  // Pinky base
+                    ];
+                    
+                    // Get normalized coordinates (0-1) and transform to video bounds
+                    const normX = palmLandmarks.reduce((sum, lm) => sum + lm.x, 0) / palmLandmarks.length;
+                    const normY = palmLandmarks.reduce((sum, lm) => sum + lm.y, 0) / palmLandmarks.length;
+                    
+                    // Transform to actual video coordinates within canvas
+                    const palmX = bounds.offsetX + (normX * bounds.width);
+                    const palmY = bounds.offsetY + (normY * bounds.height);
 
                     gameState.hands[handedness] = { x: palmX, y: palmY };
 
-                    // Draw hand indicator for debugging
+                    // Draw hand indicator - visible circle
                     canvasCtx.fillStyle = handedness === 'left' ? 'rgba(226, 232, 240, 0.7)' : 'rgba(147, 51, 234, 0.7)';
                     canvasCtx.beginPath();
-                    canvasCtx.arc(palmX, palmY, 30, 0, Math.PI * 2);
+                    canvasCtx.arc(palmX, palmY, 40, 0, Math.PI * 2);
                     canvasCtx.fill();
                     
-                    // Draw hand label
-                    canvasCtx.fillStyle = '#fff';
-                    canvasCtx.font = 'bold 16px Rajdhani';
-                    canvasCtx.textAlign = 'center';
-                    canvasCtx.fillText(handedness.toUpperCase(), palmX, palmY + 5);
+                    // Draw crosshair at detection point
+                    canvasCtx.strokeStyle = '#000';
+                    canvasCtx.lineWidth = 3;
+                    canvasCtx.beginPath();
+                    canvasCtx.moveTo(palmX - 20, palmY);
+                    canvasCtx.lineTo(palmX + 20, palmY);
+                    canvasCtx.moveTo(palmX, palmY - 20);
+                    canvasCtx.lineTo(palmX, palmY + 20);
+                    canvasCtx.stroke();
                 }
             }
 
@@ -1301,6 +1332,33 @@
             }, 1000);
         }
 
+        function getVideoBounds() {
+            // Get actual video dimensions and position within canvas
+            const video = cameraFeed;
+            const canvas = gameCanvas;
+            
+            const videoAspect = video.videoWidth / video.videoHeight;
+            const canvasAspect = canvas.width / canvas.height;
+            
+            let videoWidth, videoHeight, offsetX, offsetY;
+            
+            if (canvasAspect > videoAspect) {
+                // Canvas is wider - video will be letterboxed on sides
+                videoHeight = canvas.height;
+                videoWidth = videoHeight * videoAspect;
+                offsetX = (canvas.width - videoWidth) / 2;
+                offsetY = 0;
+            } else {
+                // Canvas is taller - video will be letterboxed on top/bottom
+                videoWidth = canvas.width;
+                videoHeight = videoWidth / videoAspect;
+                offsetX = 0;
+                offsetY = (canvas.height - videoHeight) / 2;
+            }
+            
+            return { width: videoWidth, height: videoHeight, offsetX, offsetY };
+        }
+
         function spawnTarget() {
             if (gameState.targetIndex >= 40) {
                 endGame();
@@ -1309,13 +1367,28 @@
 
             const handType = gameState.sequence[gameState.targetIndex];
             
-            // Adjust margins based on orientation and screen size
+            // Get actual video bounds
+            const videoBounds = getVideoBounds();
+            
+            // Adjust margins and target size based on orientation
             const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-            const margin = isLandscapeMobile ? 60 : 100;
+            const margin = isLandscapeMobile ? 80 : 120;
             const targetSize = isLandscapeMobile ? 85 : 100;
             
-            const x = margin + Math.random() * (gameCanvas.width - margin * 2);
-            const y = margin + Math.random() * (gameCanvas.height - margin * 2);
+            // Split screen horizontally - left targets on left half, right targets on right half
+            const centerX = videoBounds.offsetX + (videoBounds.width / 2);
+            
+            let x, y;
+            if (handType === 'left') {
+                // Left targets: from left edge to center
+                x = videoBounds.offsetX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+            } else {
+                // Right targets: from center to right edge
+                x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+            }
+            
+            // Y can be anywhere within video bounds
+            y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
 
             const targetEl = document.createElement('div');
             targetEl.className = `target target-${handType}`;
@@ -1325,7 +1398,6 @@
                 targetEl.classList.add('rear-camera');
             }
             
-            targetEl.textContent = handType === 'left' ? 'L' : 'R';
             targetEl.style.left = `${x}px`;
             targetEl.style.top = `${y}px`;
 
@@ -1363,14 +1435,29 @@
             const hand = gameState.hands[target.hand];
 
             if (hand) {
-                // Increased hit radius for easier detection
+                // When canvas is flipped, mirror the hand X coordinate to match target coordinate system
+                let handX = hand.x;
+                if (gameState.cameraFacing === 'user') {
+                    // Canvas is flipped, so mirror X coordinate
+                    handX = gameCanvas.width - hand.x;
+                }
+                
+                // Reasonable hit radius - slightly larger than target size
                 const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-                const hitRadius = isLandscapeMobile ? 100 : 120;
+                const hitRadius = isLandscapeMobile ? 85 : 100;
                 
                 const distance = Math.sqrt(
-                    Math.pow(hand.x - target.x, 2) +
+                    Math.pow(handX - target.x, 2) +
                     Math.pow(hand.y - target.y, 2)
                 );
+
+                // Visual feedback when close
+                if (distance < hitRadius * 1.3) {
+                    target.element.style.transform = target.element.classList.contains('rear-camera') ? 'scaleX(1) scale(1.15)' : 'scaleX(-1) scale(1.15)';
+                    target.element.style.transition = 'transform 0.1s ease';
+                } else {
+                    target.element.style.transform = target.element.classList.contains('rear-camera') ? 'scaleX(1) scale(1)' : 'scaleX(-1) scale(1)';
+                }
 
                 if (distance < hitRadius) {
                     hitTarget();
