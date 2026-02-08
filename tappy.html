@@ -122,8 +122,9 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .menu-overlay {
-                padding: 1rem;
-                max-height: 95vh;
+                padding: 0.5rem;
+                max-height: 98vh;
+                width: 98%;
             }
         }
 
@@ -169,21 +170,21 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .menu-logo {
-                max-width: 120px;
-                margin-bottom: 0.25rem;
+                max-width: 80px;
+                margin-bottom: 0.15rem;
             }
             
             .menu-title {
-                font-size: 1.25rem;
-                margin-bottom: 0.25rem;
+                font-size: 1rem;
+                margin-bottom: 0.1rem;
             }
             
             .menu-subtitle {
-                font-size: 0.7rem;
+                font-size: 0.65rem;
             }
             
             .menu-header {
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.4rem;
             }
         }
 
@@ -201,7 +202,7 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .form-group {
-                margin-bottom: 0.75rem;
+                margin-bottom: 0.4rem;
             }
         }
 
@@ -221,6 +222,12 @@
             .menu-content .instructions,
             .menu-content .ai-analysis {
                 grid-column: 1 / -1;
+            }
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .menu-content {
+                gap: 0.4rem;
             }
         }
 
@@ -248,13 +255,13 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .form-label {
-                font-size: 0.75rem;
-                margin-bottom: 0.35rem;
+                font-size: 0.7rem;
+                margin-bottom: 0.25rem;
             }
             
             .form-input {
-                padding: 0.5rem 0.75rem;
-                font-size: 0.9rem;
+                padding: 0.4rem 0.6rem;
+                font-size: 0.85rem;
             }
         }
 
@@ -296,8 +303,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .radio-label {
-                padding: 0.5rem 0.35rem;
-                font-size: 0.8rem;
+                padding: 0.4rem 0.25rem;
+                font-size: 0.75rem;
             }
         }
 
@@ -327,6 +334,13 @@
             }
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stats-grid {
+                gap: 0.4rem;
+                margin-bottom: 0.4rem;
+            }
+        }
+
         .stat-card {
             background: rgba(0, 0, 0, 0.3);
             border: 1px solid var(--cyber-border);
@@ -336,7 +350,7 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .stat-card {
-                padding: 0.5rem;
+                padding: 0.35rem 0.25rem;
             }
         }
 
@@ -348,11 +362,24 @@
             margin-bottom: 0.25rem;
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stat-label {
+                font-size: 0.6rem;
+                margin-bottom: 0.15rem;
+            }
+        }
+
         .stat-value {
             font-size: 1.25rem;
             font-weight: 700;
             color: var(--cyber-text);
             font-family: 'Share Tech Mono', monospace;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stat-value {
+                font-size: 1rem;
+            }
         }
 
         /* Buttons */
@@ -373,8 +400,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .btn {
-                padding: 0.65rem;
-                font-size: 0.9rem;
+                padding: 0.5rem;
+                font-size: 0.85rem;
             }
         }
 
@@ -405,7 +432,7 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .btn-primary {
-                margin-bottom: 0.35rem;
+                margin-bottom: 0.25rem;
             }
         }
 
@@ -439,10 +466,10 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .instructions {
-                padding: 0.65rem;
-                margin-bottom: 0.75rem;
-                font-size: 0.8rem;
-                line-height: 1.4;
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
+                font-size: 0.75rem;
+                line-height: 1.3;
             }
         }
 
@@ -457,8 +484,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .instructions-title {
-                font-size: 0.8rem;
-                margin-bottom: 0.3rem;
+                font-size: 0.75rem;
+                margin-bottom: 0.2rem;
             }
         }
 
@@ -471,6 +498,13 @@
             padding-left: 1.25rem;
             position: relative;
             margin-bottom: 0.2rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .instructions-list li {
+                padding-left: 1rem;
+                margin-bottom: 0.1rem;
+            }
         }
 
         .instructions-list li::before {
@@ -791,8 +825,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .ai-analysis {
-                padding: 0.65rem;
-                margin-bottom: 0.75rem;
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
             }
         }
 
@@ -821,8 +855,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .ai-analysis-header {
-                font-size: 0.75rem;
-                margin-bottom: 0.5rem;
+                font-size: 0.7rem;
+                margin-bottom: 0.3rem;
             }
         }
 
@@ -833,8 +867,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .ai-analysis-icon {
-                width: 14px;
-                height: 14px;
+                width: 12px;
+                height: 12px;
             }
         }
 
@@ -850,8 +884,8 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .ai-analysis-text {
-                font-size: 0.85rem;
-                line-height: 1.4;
+                font-size: 0.75rem;
+                line-height: 1.3;
             }
         }
 
