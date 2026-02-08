@@ -2,14 +2,11 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <!-- Use viewport-fit=cover + dvh-safe sizing; keep zoom locked -->
-    <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover, maximum-scale=1.0, user-scalable=no">
-    <title>AR TAP ATTACK - Neural Hand Training</title>
-
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+    <title>AR TAP ATTACK - Hand Speed Training</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
-
     <style>
         :root {
             --cyber-bg: #0a0a0a;
@@ -29,19 +26,14 @@
             box-sizing: border-box;
         }
 
-        html, body {
-            width: 100%;
-            height: 100%;
-            overflow: hidden;            /* ✅ prevent page scroll */
-            overscroll-behavior: none;   /* ✅ prevent iOS bounce */
-            touch-action: manipulation;
-        }
-
         body {
             font-family: 'Rajdhani', sans-serif;
             background: var(--cyber-bg);
             color: var(--cyber-text);
+            overflow: hidden;
             position: relative;
+            height: 100vh;
+            width: 100vw;
         }
 
         /* Animated background grid */
@@ -51,7 +43,7 @@
             left: 0;
             width: 100%;
             height: 100%;
-            background-image:
+            background-image: 
                 linear-gradient(var(--cyber-border) 1px, transparent 1px),
                 linear-gradient(90deg, var(--cyber-border) 1px, transparent 1px);
             background-size: 50px 50px;
@@ -78,10 +70,14 @@
             width: 100%;
             height: 100%;
             z-index: 1;
-            display: flex;
+            display: none;
             align-items: center;
             justify-content: center;
             background: var(--cyber-bg);
+        }
+
+        #videoContainer.active {
+            display: flex;
         }
 
         #cameraFeed {
@@ -111,32 +107,28 @@
             pointer-events: auto;
         }
 
-        /* Menu overlay (✅ NON-SCROLLING) */
+        /* Menu overlay */
         .menu-overlay {
             position: absolute;
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-
-            width: min(95vw, 900px);
-            height: min(90dvh, 700px);
-
+            width: 95%;
+            max-width: 900px;
+            max-height: 90vh;
             background: rgba(26, 26, 26, 0.95);
             border: 2px solid var(--cyber-border);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
             padding: 1.5rem;
             animation: menuAppear 0.5s ease-out;
-
-            overflow: hidden; /* ✅ menu itself never scrolls */
-            display: flex;
-            flex-direction: column;
+            overflow-y: auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
             .menu-overlay {
                 padding: 0.5rem;
-                height: 98dvh;
-                width: 98vw;
+                max-height: 98vh;
+                width: 98%;
             }
         }
 
@@ -155,7 +147,6 @@
             text-align: center;
             margin-bottom: 1rem;
             position: relative;
-            flex: 0 0 auto;
         }
 
         .menu-logo {
@@ -174,7 +165,6 @@
             margin-bottom: 0.25rem;
         }
 
-        /* ✅ keep single definition (you had duplicates) */
         .menu-subtitle {
             font-family: 'Share Tech Mono', monospace;
             font-size: 0.75rem;
@@ -187,25 +177,31 @@
                 max-width: 80px;
                 margin-bottom: 0.15rem;
             }
-
+            
             .menu-title {
                 font-size: 1rem;
                 margin-bottom: 0.1rem;
             }
-
+            
             .menu-subtitle {
                 font-size: 0.65rem;
             }
-
+            
             .menu-header {
                 margin-bottom: 0.4rem;
             }
         }
 
+        .menu-subtitle {
+            font-family: 'Share Tech Mono', monospace;
+            font-size: 0.9rem;
+            color: var(--cyber-dim);
+            letter-spacing: 0.15em;
+        }
+
         /* Form elements */
         .form-group {
             margin-bottom: 1rem;
-            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -225,7 +221,7 @@
                 grid-template-columns: 1fr 1fr;
                 gap: 1.5rem;
             }
-
+            
             .menu-content .form-group:first-child,
             .menu-content .instructions,
             .menu-content .ai-analysis {
@@ -266,7 +262,7 @@
                 font-size: 0.7rem;
                 margin-bottom: 0.25rem;
             }
-
+            
             .form-input {
                 padding: 0.4rem 0.6rem;
                 font-size: 0.85rem;
@@ -333,7 +329,6 @@
             grid-template-columns: repeat(2, 1fr);
             gap: 0.75rem;
             margin-bottom: 1rem;
-            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (min-width: 568px) {
@@ -405,7 +400,6 @@
             transition: all 0.3s ease;
             position: relative;
             overflow: hidden;
-            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
@@ -472,12 +466,14 @@
             margin-bottom: 1rem;
             font-size: 0.85rem;
             line-height: 1.5;
-            flex: 0 0 auto;
         }
 
         @media (orientation: landscape) and (max-height: 500px) {
             .instructions {
-                display: none; /* ✅ ensures menu never needs to scroll in small landscape */
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
+                font-size: 0.75rem;
+                line-height: 1.3;
             }
         }
 
@@ -490,6 +486,13 @@
             font-size: 0.85rem;
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .instructions-title {
+                font-size: 0.75rem;
+                margin-bottom: 0.2rem;
+            }
+        }
+
         .instructions-list {
             list-style: none;
             padding-left: 0;
@@ -499,6 +502,13 @@
             padding-left: 1.25rem;
             position: relative;
             margin-bottom: 0.2rem;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .instructions-list li {
+                padding-left: 1rem;
+                margin-bottom: 0.1rem;
+            }
         }
 
         .instructions-list li::before {
@@ -553,6 +563,13 @@
             fill: var(--cyber-text);
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .icon-btn svg {
+                width: 20px;
+                height: 20px;
+            }
+        }
+
         .icon-btn:hover {
             background: rgba(102, 102, 102, 0.2);
             border-color: var(--cyber-primary);
@@ -577,6 +594,11 @@
             z-index: 5;
             pointer-events: none;
             transform: scaleX(-1);
+            display: none;
+        }
+
+        #gameCanvas.active {
+            display: block;
         }
 
         #gameCanvas.rear-camera {
@@ -672,7 +694,7 @@
 
         .target-timer-bar {
             height: 100%;
-            background: var(--cyber-text);
+            background: var(--cyber-cyan);
             width: 100%;
             animation: timerDrain linear;
         }
@@ -736,11 +758,28 @@
             font-size: 0.85rem;
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .hud-item {
+                margin-bottom: 0.3rem;
+                font-size: 0.8rem;
+            }
+            
+            .hud-item:last-child {
+                margin-bottom: 0;
+            }
+        }
+
         .hud-label {
             color: var(--cyber-dim);
             text-transform: uppercase;
             font-size: 0.7rem;
             letter-spacing: 0.05em;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .hud-label {
+                font-size: 0.65rem;
+            }
         }
 
         .hud-value {
@@ -770,6 +809,14 @@
             transition: all 0.3s ease;
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .stop-btn {
+                bottom: 0.75rem;
+                padding: 0.65rem 1.25rem;
+                font-size: 0.85rem;
+            }
+        }
+
         .stop-btn:hover {
             background: #888888;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
@@ -783,12 +830,24 @@
             padding: 0.85rem;
             margin-bottom: 1rem;
             animation: analysisAppear 0.5s ease-out;
-            flex: 0 0 auto;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis {
+                padding: 0.4rem;
+                margin-bottom: 0.4rem;
+            }
         }
 
         @keyframes analysisAppear {
-            from { opacity: 0; transform: translateY(-10px); }
-            to { opacity: 1; transform: translateY(0); }
+            from {
+                opacity: 0;
+                transform: translateY(-10px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
         }
 
         .ai-analysis-header {
@@ -803,9 +862,23 @@
             letter-spacing: 0.05em;
         }
 
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis-header {
+                font-size: 0.7rem;
+                margin-bottom: 0.3rem;
+            }
+        }
+
         .ai-analysis-icon {
             width: 16px;
             height: 16px;
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis-icon {
+                width: 12px;
+                height: 12px;
+            }
         }
 
         .ai-analysis-icon svg {
@@ -816,6 +889,13 @@
             line-height: 1.5;
             font-size: 0.9rem;
             color: var(--cyber-text);
+        }
+
+        @media (orientation: landscape) and (max-height: 500px) {
+            .ai-analysis-text {
+                font-size: 0.75rem;
+                line-height: 1.3;
+            }
         }
 
         /* Loading state */
@@ -829,16 +909,191 @@
             animation: spin 1s linear infinite;
         }
 
-        @keyframes spin { to { transform: rotate(360deg); } }
+        @keyframes spin {
+            to { transform: rotate(360deg); }
+        }
+
+        .target-timer-bar {
+            height: 100%;
+            background: var(--cyber-text);
+            width: 100%;
+            animation: timerDrain linear;
+        }
 
         /* Hidden class */
-        .hidden { display: none !important; }
+        .hidden {
+            display: none !important;
+        }
+
+        /* Portrait mode blocker */
+        .portrait-blocker {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--cyber-bg);
+            z-index: 10000;
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        @media (orientation: portrait) {
+            .portrait-blocker {
+                display: flex !important;
+            }
+        }
+
+        .portrait-content {
+            text-align: center;
+            padding: 2rem;
+            max-width: 400px;
+        }
+
+        .portrait-content svg {
+            color: var(--cyber-text);
+            margin-bottom: 1.5rem;
+            animation: rotatePhone 2s ease-in-out infinite;
+        }
+
+        @keyframes rotatePhone {
+            0%, 100% { transform: rotate(0deg); }
+            50% { transform: rotate(90deg); }
+        }
+
+        .portrait-content h2 {
+            font-size: 1.5rem;
+            font-weight: 700;
+            color: var(--cyber-text);
+            margin-bottom: 0.75rem;
+            letter-spacing: 0.1em;
+        }
+
+        .portrait-content p {
+            font-size: 1rem;
+            color: var(--cyber-dim);
+        }
+
+        /* iPhone Pro Max 17 Landscape Optimization */
+        @media (orientation: landscape) and (max-width: 932px) and (max-height: 430px) {
+            .menu-overlay {
+                padding: 0.4rem;
+                max-height: 98vh;
+                width: 98%;
+                font-size: 0.9rem;
+            }
+            
+            .menu-logo {
+                max-width: 70px !important;
+                margin-bottom: 0.15rem !important;
+            }
+            
+            .menu-title {
+                font-size: 0.95rem !important;
+                margin-bottom: 0.1rem !important;
+            }
+            
+            .menu-subtitle {
+                font-size: 0.6rem !important;
+            }
+            
+            .menu-header {
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .form-group {
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .form-label {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.2rem !important;
+            }
+            
+            .form-input {
+                padding: 0.35rem 0.5rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .radio-label {
+                padding: 0.35rem 0.2rem !important;
+                font-size: 0.7rem !important;
+            }
+            
+            .stats-grid {
+                gap: 0.35rem !important;
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .stat-card {
+                padding: 0.3rem 0.2rem !important;
+            }
+            
+            .stat-label {
+                font-size: 0.55rem !important;
+                margin-bottom: 0.1rem !important;
+            }
+            
+            .stat-value {
+                font-size: 0.9rem !important;
+            }
+            
+            .btn {
+                padding: 0.45rem !important;
+                font-size: 0.8rem !important;
+            }
+            
+            .btn-primary {
+                margin-bottom: 0.2rem !important;
+            }
+            
+            .instructions {
+                padding: 0.35rem !important;
+                margin-bottom: 0.35rem !important;
+                font-size: 0.7rem !important;
+                line-height: 1.25 !important;
+            }
+            
+            .instructions-title {
+                font-size: 0.7rem !important;
+                margin-bottom: 0.15rem !important;
+            }
+            
+            .instructions-list li {
+                padding-left: 0.85rem !important;
+                margin-bottom: 0.05rem !important;
+            }
+            
+            .ai-analysis {
+                padding: 0.35rem !important;
+                margin-bottom: 0.35rem !important;
+            }
+            
+            .ai-analysis-header {
+                font-size: 0.65rem !important;
+                margin-bottom: 0.25rem !important;
+            }
+            
+            .ai-analysis-icon {
+                width: 11px !important;
+                height: 11px !important;
+            }
+            
+            .ai-analysis-text {
+                font-size: 0.7rem !important;
+                line-height: 1.25 !important;
+            }
+            
+            .menu-content {
+                gap: 0.35rem !important;
+            }
+        }
 
         /* Responsive */
         @media (max-width: 640px) and (orientation: portrait) {
             .menu-overlay {
-                width: 95vw;
-                height: 90dvh;
+                width: 95%;
                 padding: 1.5rem;
             }
 
@@ -862,6 +1117,18 @@
 <body>
     <div class="bg-grid"></div>
     <div class="scanline"></div>
+
+    <!-- Portrait mode blocker -->
+    <div id="portraitBlocker" class="portrait-blocker">
+        <div class="portrait-content">
+            <svg width="80" height="80" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <rect x="5" y="2" width="14" height="20" rx="2" ry="2"></rect>
+                <path d="M12 18h.01"></path>
+            </svg>
+            <h2>ROTATE DEVICE</h2>
+            <p>Please rotate your phone to landscape mode to continue</p>
+        </div>
+    </div>
 
     <!-- Video container -->
     <div id="videoContainer">
@@ -1051,14 +1318,14 @@
 
         // MediaPipe Hands setup
         let hands, camera;
-
+        
         // Audio context for sound effects - better mobile support
         let audioContext = null;
         let audioUnlocked = false;
-
+        
         function initAudio() {
             if (audioContext) return;
-
+            
             try {
                 const AudioContext = window.AudioContext || window.webkitAudioContext;
                 audioContext = new AudioContext();
@@ -1067,37 +1334,37 @@
                 console.error('Failed to create audio context:', e);
             }
         }
-
+        
         // Unlock audio with a test sound
         async function unlockAudio() {
             if (audioUnlocked || !audioContext) return;
-
+            
             try {
                 // Resume the context
                 if (audioContext.state === 'suspended') {
                     await audioContext.resume();
                 }
-
+                
                 // Play a silent sound to unlock
                 const buffer = audioContext.createBuffer(1, 1, 22050);
                 const source = audioContext.createBufferSource();
                 source.buffer = buffer;
                 source.connect(audioContext.destination);
                 source.start(0);
-
+                
                 audioUnlocked = true;
                 console.log('Audio unlocked! State:', audioContext.state);
             } catch (e) {
                 console.error('Failed to unlock audio:', e);
             }
         }
-
+        
         function playDingSound() {
             if (!audioContext) {
                 console.log('No audio context');
                 return;
             }
-
+            
             if (audioContext.state === 'suspended') {
                 console.log('Audio context suspended, attempting resume...');
                 audioContext.resume().then(() => {
@@ -1108,32 +1375,32 @@
                 actuallyPlayDing();
             }
         }
-
+        
         function actuallyPlayDing() {
             try {
                 const now = audioContext.currentTime;
-
+                
                 // Create oscillator
                 const osc = audioContext.createOscillator();
                 const gain = audioContext.createGain();
-
+                
                 // Connect
                 osc.connect(gain);
                 gain.connect(audioContext.destination);
-
+                
                 // Ding sound - high to low
                 osc.type = 'sine';
                 osc.frequency.setValueAtTime(1000, now);
                 osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
-
+                
                 // Envelope
                 gain.gain.setValueAtTime(0.5, now);
                 gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
-
+                
                 // Play
                 osc.start(now);
                 osc.stop(now + 0.2);
-
+                
                 console.log('Ding played!');
             } catch (e) {
                 console.error('Error playing ding:', e);
@@ -1166,6 +1433,7 @@
             document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
                 radio.addEventListener('change', (e) => {
                     gameState.difficulty = e.target.value;
+                    updateStats(); // Update stats display for new difficulty level
                 });
             });
 
@@ -1179,7 +1447,7 @@
             fullscreenBtn.addEventListener('click', toggleFullscreen);
             cameraToggleBtn.addEventListener('click', toggleCamera);
             videoToggleBtn.addEventListener('click', toggleVideo);
-
+            
             // Initialize audio on first touch/click (critical for mobile)
             const initAudioOnInteraction = async () => {
                 if (!audioContext) {
@@ -1187,7 +1455,7 @@
                     await unlockAudio();
                 }
             };
-
+            
             // Add listeners to common interactions
             startBtn.addEventListener('click', initAudioOnInteraction, { once: true });
             document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
@@ -1205,7 +1473,7 @@
 
         async function toggleCamera() {
             gameState.cameraFacing = gameState.cameraFacing === 'user' ? 'environment' : 'user';
-
+            
             // Update video, canvas, and target orientation (flip front camera, don't flip rear)
             if (gameState.cameraFacing === 'environment') {
                 cameraFeed.classList.add('rear-camera');
@@ -1216,7 +1484,7 @@
                 gameCanvas.classList.remove('rear-camera');
                 document.querySelectorAll('.target').forEach(t => t.classList.remove('rear-camera'));
             }
-
+            
             await setupCamera();
         }
 
@@ -1242,7 +1510,7 @@
             });
 
             hands.onResults(onHandsResults);
-            await setupCamera();
+            // Camera will be started when game starts, not on page load
         }
 
         async function setupCamera() {
@@ -1260,12 +1528,16 @@
             });
 
             await camera.start();
+            
+            // Show video container and canvas when camera starts
+            videoContainer.classList.add('active');
+            gameCanvas.classList.add('active');
         }
 
         function onHandsResults(results) {
             // Clear canvas
             canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
-
+            
             // Get video bounds
             const bounds = getVideoBounds();
 
@@ -1276,12 +1548,12 @@
                 for (let i = 0; i < results.multiHandLandmarks.length; i++) {
                     const landmarks = results.multiHandLandmarks[i];
                     let handedness = results.multiHandedness[i].label.toLowerCase();
-
+                    
                     // IMPORTANT: When front camera is mirrored, swap the hand labels
                     if (gameState.cameraFacing === 'user') {
                         handedness = handedness === 'left' ? 'right' : 'left';
                     }
-
+                    
                     // Calculate palm center from multiple landmarks for better accuracy
                     const palmLandmarks = [
                         landmarks[0],  // Wrist
@@ -1290,11 +1562,11 @@
                         landmarks[13], // Ring base
                         landmarks[17]  // Pinky base
                     ];
-
+                    
                     // Get normalized coordinates (0-1) and transform to video bounds
                     const normX = palmLandmarks.reduce((sum, lm) => sum + lm.x, 0) / palmLandmarks.length;
                     const normY = palmLandmarks.reduce((sum, lm) => sum + lm.y, 0) / palmLandmarks.length;
-
+                    
                     // Transform to actual video coordinates within canvas
                     const palmX = bounds.offsetX + (normX * bounds.width);
                     const palmY = bounds.offsetY + (normY * bounds.height);
@@ -1306,7 +1578,7 @@
                     canvasCtx.beginPath();
                     canvasCtx.arc(palmX, palmY, 40, 0, Math.PI * 2);
                     canvasCtx.fill();
-
+                    
                     // Draw crosshair at detection point
                     canvasCtx.strokeStyle = '#000';
                     canvasCtx.lineWidth = 3;
@@ -1336,6 +1608,11 @@
                 return;
             }
 
+            // Start camera if not already started
+            if (!camera) {
+                await setupCamera();
+            }
+
             // Initialize and unlock audio
             if (!audioContext) {
                 initAudio();
@@ -1343,7 +1620,7 @@
             await unlockAudio();
 
             gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-
+            
             // Generate sequence: 20 left, 20 right, randomized
             gameState.sequence = [];
             for (let i = 0; i < 20; i++) {
@@ -1395,12 +1672,12 @@
             // Get actual video dimensions and position within canvas
             const video = cameraFeed;
             const canvas = gameCanvas;
-
+            
             const videoAspect = video.videoWidth / video.videoHeight;
             const canvasAspect = canvas.width / canvas.height;
-
+            
             let videoWidth, videoHeight, offsetX, offsetY;
-
+            
             if (canvasAspect > videoAspect) {
                 // Canvas is wider - video will be letterboxed on sides
                 videoHeight = canvas.height;
@@ -1414,7 +1691,7 @@
                 offsetX = 0;
                 offsetY = (canvas.height - videoHeight) / 2;
             }
-
+            
             return { width: videoWidth, height: videoHeight, offsetX, offsetY };
         }
 
@@ -1425,24 +1702,24 @@
             }
 
             const handType = gameState.sequence[gameState.targetIndex];
-
+            
             // Get actual video bounds
             const videoBounds = getVideoBounds();
-
+            
             // Adjust margins and target size based on orientation
             const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
             const margin = isLandscapeMobile ? 80 : 120;
             const targetSize = isLandscapeMobile ? 42 : 50;
             const hitRadius = isLandscapeMobile ? 42 : 50;
-
+            
             // Split screen horizontally - left targets on left half, right targets on right half
             const centerX = videoBounds.offsetX + (videoBounds.width / 2);
-
+            
             let x, y;
             let attempts = 0;
             const maxAttempts = 20;
             let validPosition = false;
-
+            
             // Try to find a position that's not too close to any hand
             while (!validPosition && attempts < maxAttempts) {
                 if (handType === 'left') {
@@ -1452,18 +1729,18 @@
                     // Right targets: from center to right edge
                     x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
                 }
-
+                
                 // Y can be anywhere within video bounds
                 y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
-
+                
                 // Calculate target center
                 const targetCenterX = x + (targetSize / 2);
                 const targetCenterY = y + (targetSize / 2);
-
+                
                 // Check distance from all hands
                 validPosition = true;
                 const minDistance = hitRadius * 2.5; // Keep targets at least 2.5x hit radius away from hands
-
+                
                 for (const hand of Object.values(gameState.hands)) {
                     if (hand) {
                         // Mirror hand X coordinate if using front camera for correct distance calculation
@@ -1471,22 +1748,22 @@
                         if (gameState.cameraFacing === 'user') {
                             handX = gameCanvas.width - hand.x;
                         }
-
+                        
                         const distance = Math.sqrt(
                             Math.pow(handX - targetCenterX, 2) +
                             Math.pow(hand.y - targetCenterY, 2)
                         );
-
+                        
                         if (distance < minDistance) {
                             validPosition = false;
                             break;
                         }
                     }
                 }
-
+                
                 attempts++;
             }
-
+            
             // If we couldn't find a valid position after max attempts, use the last position anyway
             if (!validPosition && attempts >= maxAttempts) {
                 console.log('Could not find position away from hands, spawning anyway');
@@ -1494,12 +1771,12 @@
 
             const targetEl = document.createElement('div');
             targetEl.className = `target target-${handType}`;
-
+            
             // Add rear-camera class if using rear camera
             if (gameState.cameraFacing === 'environment') {
                 targetEl.classList.add('rear-camera');
             }
-
+            
             targetEl.style.left = `${x}px`;
             targetEl.style.top = `${y}px`;
 
@@ -1543,11 +1820,11 @@
                     // Canvas is flipped, so mirror X coordinate
                     handX = gameCanvas.width - hand.x;
                 }
-
+                
                 // Hit radius matches target size
                 const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
                 const hitRadius = isLandscapeMobile ? 42 : 50;
-
+                
                 const distance = Math.sqrt(
                     Math.pow(handX - target.x, 2) +
                     Math.pow(hand.y - target.y, 2)
@@ -1622,7 +1899,7 @@
             document.getElementById('targetCounter').textContent = `${gameState.targetIndex}/40`;
             document.getElementById('hitCounter').textContent = gameState.hits.filter(h => h.hit).length;
             document.getElementById('missCounter').textContent = gameState.misses;
-
+            
             const validHits = gameState.hits.filter(h => h.hit && h.reactionTime);
             if (validHits.length > 0) {
                 const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
@@ -1636,7 +1913,7 @@
 
         async function endGame() {
             gameState.isPlaying = false;
-
+            
             // Clean up
             if (gameState.currentTarget) {
                 clearTimeout(gameState.currentTarget.timeout);
@@ -1674,17 +1951,17 @@
 
             try {
                 const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-                const avgTime = validHits.length > 0
-                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length
+                const avgTime = validHits.length > 0 
+                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
                     : 0;
-
+                
                 const accuracy = ((validHits.length / 40) * 100).toFixed(1);
 
                 // Get previous sessions for context
                 const allSessions = getSessions();
                 const playerSessions = allSessions.filter(s => s.playerName === session.playerName);
 
-                const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session.
+                const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session. 
 
 Session Data:
 - Difficulty: ${gameState.difficultySettings[session.difficulty].name}
@@ -1716,10 +1993,10 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
             } catch (error) {
                 console.error('AI Analysis error:', error);
                 const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-                const avgTime = validHits.length > 0
-                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length
+                const avgTime = validHits.length > 0 
+                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
                     : 0;
-
+                
                 aiAnalysisText.textContent = `Great session! You hit ${validHits.length}/40 targets with an average reaction time of ${Math.round(avgTime)}ms. ${session.misses > 10 ? 'Focus on accuracy in your next session.' : 'Keep up the excellent accuracy!'}`;
             }
         }
@@ -1747,49 +2024,69 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
             sessions.push(session);
             localStorage.setItem('arTapAttack_sessions', JSON.stringify(sessions));
 
-            // Update best average time
+            // Update best average time for this difficulty level
             const validHits = session.hits.filter(h => h.hit && h.reactionTime);
             if (validHits.length > 0) {
                 const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-                const currentBestAvg = localStorage.getItem('arTapAttack_bestAvgTime');
+                const bestAvgKey = `arTapAttack_bestAvgTime_${session.difficulty}`;
+                const currentBestAvg = localStorage.getItem(bestAvgKey);
                 if (!currentBestAvg || avgTime < parseFloat(currentBestAvg)) {
-                    localStorage.setItem('arTapAttack_bestAvgTime', avgTime.toString());
+                    localStorage.setItem(bestAvgKey, avgTime.toString());
                 }
-
-                // Update best single reaction time
+                
+                // Update best single reaction time for this difficulty level
                 const fastestHit = Math.min(...validHits.map(h => h.reactionTime));
-                const currentBestSingle = localStorage.getItem('arTapAttack_bestSingleTime');
+                const bestSingleKey = `arTapAttack_bestSingleTime_${session.difficulty}`;
+                const currentBestSingle = localStorage.getItem(bestSingleKey);
                 if (!currentBestSingle || fastestHit < parseFloat(currentBestSingle)) {
-                    localStorage.setItem('arTapAttack_bestSingleTime', fastestHit.toString());
+                    localStorage.setItem(bestSingleKey, fastestHit.toString());
                 }
             }
         }
 
         function updateStats() {
+            // Get current selected difficulty
+            const currentDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || gameState.difficulty;
+            
             const sessions = getSessions();
-            const playerSessions = sessions.filter(s => s.playerName === gameState.playerName);
+            const playerSessions = sessions.filter(s => 
+                s.playerName === gameState.playerName && 
+                s.difficulty === currentDifficulty
+            );
 
             if (playerSessions.length > 0) {
                 const lastSession = playerSessions[playerSessions.length - 1];
                 const validHits = lastSession.hits.filter(h => h.hit && h.reactionTime);
-
+                
                 if (validHits.length > 0) {
                     const lastAvg = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
                     document.getElementById('lastTime').textContent = `${Math.round(lastAvg)}ms`;
+                } else {
+                    document.getElementById('lastTime').textContent = '---';
                 }
 
                 const lastAccuracy = ((validHits.length / 40) * 100).toFixed(0);
                 document.getElementById('accuracy').textContent = `${lastAccuracy}%`;
+            } else {
+                document.getElementById('lastTime').textContent = '---';
+                document.getElementById('accuracy').textContent = '---';
             }
 
-            const bestAvgTime = localStorage.getItem('arTapAttack_bestAvgTime');
+            // Get best times for current difficulty level
+            const bestAvgKey = `arTapAttack_bestAvgTime_${currentDifficulty}`;
+            const bestAvgTime = localStorage.getItem(bestAvgKey);
             if (bestAvgTime) {
                 document.getElementById('bestAvg').textContent = `${Math.round(parseFloat(bestAvgTime))}ms`;
+            } else {
+                document.getElementById('bestAvg').textContent = '---';
             }
-
-            const bestSingleTime = localStorage.getItem('arTapAttack_bestSingleTime');
+            
+            const bestSingleKey = `arTapAttack_bestSingleTime_${currentDifficulty}`;
+            const bestSingleTime = localStorage.getItem(bestSingleKey);
             if (bestSingleTime) {
                 document.getElementById('bestSingle').textContent = `${Math.round(parseFloat(bestSingleTime))}ms`;
+            } else {
+                document.getElementById('bestSingle').textContent = '---';
             }
         }
 
