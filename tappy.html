@@ -1133,38 +1133,92 @@
         // MediaPipe Hands setup
         let hands, camera;
         
-        // Audio context for sound effects
-        let audioContext;
+        // Audio context for sound effects - better mobile support
+        let audioContext = null;
+        let audioUnlocked = false;
         
         function initAudio() {
+            if (audioContext) return;
+            
             try {
-                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+                const AudioContext = window.AudioContext || window.webkitAudioContext;
+                audioContext = new AudioContext();
+                console.log('Audio context created, state:', audioContext.state);
             } catch (e) {
-                console.log('Web Audio API not supported');
+                console.error('Failed to create audio context:', e);
+            }
+        }
+        
+        // Unlock audio with a test sound
+        async function unlockAudio() {
+            if (audioUnlocked || !audioContext) return;
+            
+            try {
+                // Resume the context
+                if (audioContext.state === 'suspended') {
+                    await audioContext.resume();
+                }
+                
+                // Play a silent sound to unlock
+                const buffer = audioContext.createBuffer(1, 1, 22050);
+                const source = audioContext.createBufferSource();
+                source.buffer = buffer;
+                source.connect(audioContext.destination);
+                source.start(0);
+                
+                audioUnlocked = true;
+                console.log('Audio unlocked! State:', audioContext.state);
+            } catch (e) {
+                console.error('Failed to unlock audio:', e);
             }
         }
         
         function playDingSound() {
-            if (!audioContext) return;
+            if (!audioContext) {
+                console.log('No audio context');
+                return;
+            }
             
-            // Create oscillator for the ding sound
-            const oscillator = audioContext.createOscillator();
-            const gainNode = audioContext.createGain();
-            
-            oscillator.connect(gainNode);
-            gainNode.connect(audioContext.destination);
-            
-            // Higher frequency for a pleasant "ding"
-            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
-            
-            // Volume envelope - quick attack and decay
-            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
-            
-            // Play the sound
-            oscillator.start(audioContext.currentTime);
-            oscillator.stop(audioContext.currentTime + 0.15);
+            if (audioContext.state === 'suspended') {
+                console.log('Audio context suspended, attempting resume...');
+                audioContext.resume().then(() => {
+                    console.log('Resumed, state:', audioContext.state);
+                    actuallyPlayDing();
+                });
+            } else {
+                actuallyPlayDing();
+            }
+        }
+        
+        function actuallyPlayDing() {
+            try {
+                const now = audioContext.currentTime;
+                
+                // Create oscillator
+                const osc = audioContext.createOscillator();
+                const gain = audioContext.createGain();
+                
+                // Connect
+                osc.connect(gain);
+                gain.connect(audioContext.destination);
+                
+                // Ding sound - high to low
+                osc.type = 'sine';
+                osc.frequency.setValueAtTime(1000, now);
+                osc.frequency.exponentialRampToValueAtTime(500, now + 0.1);
+                
+                // Envelope
+                gain.gain.setValueAtTime(0.5, now);
+                gain.gain.exponentialRampToValueAtTime(0.01, now + 0.2);
+                
+                // Play
+                osc.start(now);
+                osc.stop(now + 0.2);
+                
+                console.log('Ding played!');
+            } catch (e) {
+                console.error('Error playing ding:', e);
+            }
         }
 
         // Initialize
@@ -1173,7 +1227,6 @@
             updateStats();
             setupEventListeners();
             setupMediaPipe();
-            initAudio();
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
         }
@@ -1207,6 +1260,18 @@
             fullscreenBtn.addEventListener('click', toggleFullscreen);
             cameraToggleBtn.addEventListener('click', toggleCamera);
             videoToggleBtn.addEventListener('click', toggleVideo);
+            
+            // Initialize audio on first touch/click (critical for mobile)
+            const initAudioOnInteraction = async () => {
+                if (!audioContext) {
+                    initAudio();
+                    await unlockAudio();
+                }
+            };
+            
+            // Add listeners to common interactions
+            startBtn.addEventListener('click', initAudioOnInteraction, { once: true });
+            document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
         }
 
         function toggleFullscreen() {
@@ -1342,7 +1407,7 @@
         }
 
         // Game logic
-        function startGame() {
+        async function startGame() {
             if (!gameState.playerName) {
                 playerNameInput.focus();
                 playerNameInput.style.borderColor = 'var(--cyber-danger)';
@@ -1352,10 +1417,11 @@
                 return;
             }
 
-            // Resume audio context (required by some browsers)
-            if (audioContext && audioContext.state === 'suspended') {
-                audioContext.resume();
+            // Initialize and unlock audio
+            if (!audioContext) {
+                initAudio();
             }
+            await unlockAudio();
 
             gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
             
@@ -1591,11 +1657,22 @@
                 hit: true
             });
 
+            // Visual feedback - flash effect
+            if (gameState.currentTarget && gameState.currentTarget.element) {
+                gameState.currentTarget.element.style.transform = 'scale(1.5)';
+                gameState.currentTarget.element.style.opacity = '0';
+                gameState.currentTarget.element.style.transition = 'all 0.2s ease-out';
+            }
+
             // Play ding sound
             playDingSound();
 
             clearTimeout(gameState.currentTarget.timeout);
-            gameState.currentTarget.element.remove();
+            setTimeout(() => {
+                if (gameState.currentTarget && gameState.currentTarget.element) {
+                    gameState.currentTarget.element.remove();
+                }
+            }, 200);
             gameState.currentTarget = null;
             gameState.targetIndex++;
 
