@@ -565,14 +565,14 @@
         /* Target styling */
         .target {
             position: absolute;
-            width: 100px;
-            height: 100px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             display: flex;
             align-items: center;
             justify-content: center;
             font-weight: 700;
-            font-size: 1.75rem;
+            font-size: 0.9rem;
             z-index: 50;
             animation: targetAppear 0.3s ease-out;
             pointer-events: none;
@@ -586,16 +586,16 @@
 
         @media (orientation: landscape) and (max-height: 500px) {
             .target {
-                width: 85px;
-                height: 85px;
-                font-size: 1.5rem;
+                width: 42px;
+                height: 42px;
+                font-size: 0.8rem;
             }
         }
 
         .target::before {
             content: '';
             position: absolute;
-            inset: -10px;
+            inset: -5px;
             border: 2px dashed currentColor;
             border-radius: 50%;
             animation: targetRotate 4s linear infinite;
@@ -640,11 +640,11 @@
 
         .target-timer {
             position: absolute;
-            bottom: -30px;
+            bottom: -20px;
             left: 50%;
             transform: translateX(-50%);
             width: 80%;
-            height: 4px;
+            height: 3px;
             background: rgba(255, 255, 255, 0.1);
             overflow: hidden;
         }
@@ -1098,6 +1098,40 @@
 
         // MediaPipe Hands setup
         let hands, camera;
+        
+        // Audio context for sound effects
+        let audioContext;
+        
+        function initAudio() {
+            try {
+                audioContext = new (window.AudioContext || window.webkitAudioContext)();
+            } catch (e) {
+                console.log('Web Audio API not supported');
+            }
+        }
+        
+        function playDingSound() {
+            if (!audioContext) return;
+            
+            // Create oscillator for the ding sound
+            const oscillator = audioContext.createOscillator();
+            const gainNode = audioContext.createGain();
+            
+            oscillator.connect(gainNode);
+            gainNode.connect(audioContext.destination);
+            
+            // Higher frequency for a pleasant "ding"
+            oscillator.frequency.setValueAtTime(800, audioContext.currentTime);
+            oscillator.frequency.exponentialRampToValueAtTime(400, audioContext.currentTime + 0.1);
+            
+            // Volume envelope - quick attack and decay
+            gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.15);
+            
+            // Play the sound
+            oscillator.start(audioContext.currentTime);
+            oscillator.stop(audioContext.currentTime + 0.15);
+        }
 
         // Initialize
         function init() {
@@ -1105,6 +1139,7 @@
             updateStats();
             setupEventListeners();
             setupMediaPipe();
+            initAudio();
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
         }
@@ -1283,6 +1318,11 @@
                 return;
             }
 
+            // Resume audio context (required by some browsers)
+            if (audioContext && audioContext.state === 'suspended') {
+                audioContext.resume();
+            }
+
             gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
             
             // Generate sequence: 20 left, 20 right, randomized
@@ -1373,22 +1413,65 @@
             // Adjust margins and target size based on orientation
             const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
             const margin = isLandscapeMobile ? 80 : 120;
-            const targetSize = isLandscapeMobile ? 85 : 100;
+            const targetSize = isLandscapeMobile ? 42 : 50;
+            const hitRadius = isLandscapeMobile ? 42 : 50;
             
             // Split screen horizontally - left targets on left half, right targets on right half
             const centerX = videoBounds.offsetX + (videoBounds.width / 2);
             
             let x, y;
-            if (handType === 'left') {
-                // Left targets: from left edge to center
-                x = videoBounds.offsetX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
-            } else {
-                // Right targets: from center to right edge
-                x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+            let attempts = 0;
+            const maxAttempts = 20;
+            let validPosition = false;
+            
+            // Try to find a position that's not too close to any hand
+            while (!validPosition && attempts < maxAttempts) {
+                if (handType === 'left') {
+                    // Left targets: from left edge to center
+                    x = videoBounds.offsetX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+                } else {
+                    // Right targets: from center to right edge
+                    x = centerX + margin + Math.random() * ((videoBounds.width / 2) - margin * 2);
+                }
+                
+                // Y can be anywhere within video bounds
+                y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
+                
+                // Calculate target center
+                const targetCenterX = x + (targetSize / 2);
+                const targetCenterY = y + (targetSize / 2);
+                
+                // Check distance from all hands
+                validPosition = true;
+                const minDistance = hitRadius * 2.5; // Keep targets at least 2.5x hit radius away from hands
+                
+                for (const hand of Object.values(gameState.hands)) {
+                    if (hand) {
+                        // Mirror hand X coordinate if using front camera for correct distance calculation
+                        let handX = hand.x;
+                        if (gameState.cameraFacing === 'user') {
+                            handX = gameCanvas.width - hand.x;
+                        }
+                        
+                        const distance = Math.sqrt(
+                            Math.pow(handX - targetCenterX, 2) +
+                            Math.pow(hand.y - targetCenterY, 2)
+                        );
+                        
+                        if (distance < minDistance) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+                }
+                
+                attempts++;
             }
             
-            // Y can be anywhere within video bounds
-            y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
+            // If we couldn't find a valid position after max attempts, use the last position anyway
+            if (!validPosition && attempts >= maxAttempts) {
+                console.log('Could not find position away from hands, spawning anyway');
+            }
 
             const targetEl = document.createElement('div');
             targetEl.className = `target target-${handType}`;
@@ -1442,9 +1525,9 @@
                     handX = gameCanvas.width - hand.x;
                 }
                 
-                // Reasonable hit radius - slightly larger than target size
+                // Hit radius matches target size
                 const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-                const hitRadius = isLandscapeMobile ? 85 : 100;
+                const hitRadius = isLandscapeMobile ? 42 : 50;
                 
                 const distance = Math.sqrt(
                     Math.pow(handX - target.x, 2) +
@@ -1473,6 +1556,9 @@
                 reactionTime: reactionTime,
                 hit: true
             });
+
+            // Play ding sound
+            playDingSound();
 
             clearTimeout(gameState.currentTarget.timeout);
             gameState.currentTarget.element.remove();
