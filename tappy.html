@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+\<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -33,7 +33,11 @@
             color: var(--cyber-text);
             overflow: hidden;
             position: relative;
+            /* iOS address-bar friendly viewport sizing */
+            min-height: 100vh;
             height: 100vh;
+            min-height: 100svh;
+            height: 100svh;
             width: 100vw;
         }
 
@@ -120,7 +124,7 @@
             background: rgba(26, 26, 26, 0.95);
             border: 2px solid var(--cyber-border);
             box-shadow: 0 10px 40px rgba(0, 0, 0, 0.5);
-            padding: 1.5rem;
+            padding: calc(1.5rem + env(safe-area-inset-top)) calc(1.5rem + env(safe-area-inset-right)) calc(1.5rem + env(safe-area-inset-bottom)) calc(1.5rem + env(safe-area-inset-left));
             animation: menuAppear 0.5s ease-out;
             overflow-y: auto;
         }
@@ -613,6 +617,10 @@
             z-index: 100;
         }
 
+        .device-controls.hidden {
+            display: none !important;
+        }
+
         @media (orientation: landscape) and (max-height: 500px) {
             .device-controls {
                 top: 0.5rem;
@@ -901,7 +909,7 @@
             left: 50%;
             transform: translateX(-50%);
             padding: 0.85rem 1.75rem;
-            background: var(--cyber-primary);
+            background: var(--cyber-red);
             color: #fff;
             border: none;
             font-family: 'Rajdhani', sans-serif;
@@ -924,7 +932,7 @@
         }
 
         .stop-btn:hover {
-            background: #888888;
+            background: #dc2626;
             box-shadow: 0 6px 20px rgba(0, 0, 0, 0.5);
             transform: translateX(-50%) scale(1.05);
         }
@@ -1136,7 +1144,7 @@
             display: none !important;
         }
 
-        /* Portrait mode blocker */
+        /* Portrait mode blocker (only shown when training requires landscape) */
         .portrait-blocker {
             position: fixed;
             top: 0;
@@ -1150,10 +1158,8 @@
             justify-content: center;
         }
 
-        @media (orientation: portrait) {
-            .portrait-blocker {
-                display: flex !important;
-            }
+        .portrait-blocker.active {
+            display: flex !important;
         }
 
         .portrait-content {
@@ -1189,7 +1195,7 @@
         /* iPhone Pro Max 17 Landscape Optimization */
         @media (orientation: landscape) and (max-width: 932px) and (max-height: 430px) {
             .menu-overlay {
-                padding: 0.4rem;
+                padding: calc(0.4rem + env(safe-area-inset-top)) calc(0.4rem + env(safe-area-inset-right)) calc(0.4rem + env(safe-area-inset-bottom)) calc(0.4rem + env(safe-area-inset-left));
                 max-height: 98vh;
                 width: 98%;
                 font-size: 0.9rem;
@@ -1361,25 +1367,6 @@
     <!-- Game canvas for hand tracking visualization -->
     <canvas id="gameCanvas"></canvas>
 
-    <!-- Device controls -->
-    <div class="device-controls">
-        <button class="icon-btn" id="fullscreenBtn" title="Toggle Fullscreen">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M7 14H5v5h5v-2H7v-3zm-2-4h2V7h3V5H5v5zm12 7h-3v2h5v-5h-2v3zM14 5v2h3v3h2V5h-5z"/>
-            </svg>
-        </button>
-        <button class="icon-btn" id="cameraToggleBtn" title="Switch Camera">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm-8 3c1.63 0 3.06.79 3.98 2H12c-1.66 0-3 1.34-3 3 0 .35.07.69.18 1H7.1c-.06-.32-.1-.66-.1-1 0-2.76 2.24-5 5-5zm0 10c-1.63 0-3.06-.79-3.98-2H12c1.66 0 3-1.34 3-3 0-.35-.07-.69-.18-1h2.08c.07.32.1.66.1 1 0 2.76-2.24 5-5 5z"/>
-            </svg>
-        </button>
-        <button class="icon-btn" id="videoToggleBtn" title="Toggle Video">
-            <svg viewBox="0 0 24 24" xmlns="http://www.w3.org/2000/svg">
-                <path d="M12 4.5C7 4.5 2.73 7.61 1 12c1.73 4.39 6 7.5 11 7.5s9.27-3.11 11-7.5c-1.73-4.39-6-7.5-11-7.5zM12 17c-2.76 0-5-2.24-5-5s2.24-5 5-5 5 2.24 5 5-2.24 5-5 5zm0-8c-1.66 0-3 1.34-3 3s1.34 3 3 3 3-1.34 3-3-1.34-3-3-3z"/>
-            </svg>
-        </button>
-    </div>
-
     <div class="container">
         <!-- Main Menu -->
         <div id="mainMenu" class="menu-overlay">
@@ -1510,6 +1497,9 @@
         const gameState = {
             isPlaying: false,
             isPaused: false,
+            requiresLandscape: false,
+            pendingStartRequested: false,
+            timers: { countdownInterval: null, countdownGoTimeout: null, nextSpawnTimeout: null },
             currentTarget: null,
             currentTargets: [], // For simultaneous targets in PRO
             targetStartTime: 0,
@@ -1676,11 +1666,7 @@
         const canvasCtx = gameCanvas.getContext('2d');
         const aiAnalysisContainer = document.getElementById('aiAnalysisContainer');
         const aiAnalysisText = document.getElementById('aiAnalysisText');
-
-        // Device controls
-        const fullscreenBtn = document.getElementById('fullscreenBtn');
-        const cameraToggleBtn = document.getElementById('cameraToggleBtn');
-        const videoToggleBtn = document.getElementById('videoToggleBtn');
+        const portraitBlocker = document.getElementById('portraitBlocker');
 
         // MediaPipe Hands setup
         let hands, camera;
@@ -1786,7 +1772,9 @@
             setupEventListeners();
             setupMediaPipe();
             resizeCanvas();
-            window.addEventListener('resize', resizeCanvas);
+            window.addEventListener('resize', () => { resizeCanvas(); updateOrientationUI(); if (gameState.pendingStartRequested && !isPortrait()) { gameState.pendingStartRequested = false; startGame(); } });
+            window.addEventListener('orientationchange', () => { updateOrientationUI(); if (gameState.pendingStartRequested && !isPortrait()) { gameState.pendingStartRequested = false; startGame(); } });
+            updateOrientationUI();
         }
 
         function resizeCanvas() {
@@ -1794,8 +1782,37 @@
             gameCanvas.height = window.innerHeight;
         }
 
-        function setupEventListeners() {
-            startBtn.addEventListener('click', startGame);
+        
+        function isPortrait() {
+            return window.matchMedia('(orientation: portrait)').matches;
+        }
+
+        function updateOrientationUI() {
+            // Only block portrait once the user has requested to start training
+            if (gameState.requiresLandscape && isPortrait()) {
+                portraitBlocker.classList.add('active');
+            } else {
+                portraitBlocker.classList.remove('active');
+            }
+        }
+
+        async function handleStartTraining() {
+            // User is asking to start training: from here on, we require landscape
+            gameState.requiresLandscape = true;
+            gameState.pendingStartRequested = true;
+
+            updateOrientationUI();
+
+            // If still portrait, wait for rotation; we'll start automatically on rotate
+            if (isPortrait()) return;
+
+            // Landscape now: proceed
+            gameState.pendingStartRequested = false;
+            await startGame();
+        }
+
+function setupEventListeners() {
+            startBtn.addEventListener('click', handleStartTraining);
             stopBtn.addEventListener('click', stopGame);
             resultsBtn.addEventListener('click', () => {
                 window.location.href = 'tappyreport.html';
@@ -1815,11 +1832,6 @@
                 gameState.playerName = e.target.value.trim();
                 savePlayerData();
             });
-
-            // Device controls
-            fullscreenBtn.addEventListener('click', toggleFullscreen);
-            cameraToggleBtn.addEventListener('click', toggleCamera);
-            videoToggleBtn.addEventListener('click', toggleVideo);
             
             // Initialize audio on first touch/click (critical for mobile)
             const initAudioOnInteraction = async () => {
@@ -1832,39 +1844,6 @@
             // Add listeners to common interactions
             startBtn.addEventListener('click', initAudioOnInteraction, { once: true });
             document.addEventListener('touchstart', initAudioOnInteraction, { once: true });
-        }
-
-        function toggleFullscreen() {
-            if (!document.fullscreenElement) {
-                document.documentElement.requestFullscreen().catch(err => {
-                    console.log('Fullscreen error:', err);
-                });
-            } else {
-                document.exitFullscreen();
-            }
-        }
-
-        async function toggleCamera() {
-            gameState.cameraFacing = gameState.cameraFacing === 'user' ? 'environment' : 'user';
-            
-            // Update video, canvas, and target orientation (flip front camera, don't flip rear)
-            if (gameState.cameraFacing === 'environment') {
-                cameraFeed.classList.add('rear-camera');
-                gameCanvas.classList.add('rear-camera');
-                document.querySelectorAll('.target').forEach(t => t.classList.add('rear-camera'));
-            } else {
-                cameraFeed.classList.remove('rear-camera');
-                gameCanvas.classList.remove('rear-camera');
-                document.querySelectorAll('.target').forEach(t => t.classList.remove('rear-camera'));
-            }
-            
-            await setupCamera();
-        }
-
-        function toggleVideo() {
-            gameState.videoVisible = !gameState.videoVisible;
-            videoContainer.style.opacity = gameState.videoVisible ? '1' : '0';
-            videoToggleBtn.classList.toggle('active');
         }
 
         // MediaPipe setup
@@ -2023,24 +2002,40 @@
         }
 
         function startCountdown() {
+            // Clear any previous countdown timers
+            if (gameState.timers.countdownInterval) { clearInterval(gameState.timers.countdownInterval); gameState.timers.countdownInterval = null; }
+            if (gameState.timers.countdownGoTimeout) { clearTimeout(gameState.timers.countdownGoTimeout); gameState.timers.countdownGoTimeout = null; }
+            if (gameState.timers.nextSpawnTimeout) { clearTimeout(gameState.timers.nextSpawnTimeout); gameState.timers.nextSpawnTimeout = null; }
+
             let count = 5;
             const countdownEl = document.createElement('div');
             countdownEl.className = 'countdown';
             countdownEl.textContent = count;
             document.body.appendChild(countdownEl);
 
-            const countInterval = setInterval(() => {
+            gameState.timers.countdownInterval = setInterval(() => {
+                // If the game was stopped mid-countdown, abort cleanly
+                if (!gameState.requiresLandscape || mainMenu.classList.contains('hidden') === false) {
+                    // menu visible means we're not in active training flow
+                }
+
                 count--;
                 if (count > 0) {
                     countdownEl.textContent = count;
                 } else {
                     countdownEl.textContent = 'GO!';
-                    setTimeout(() => {
+                    clearInterval(gameState.timers.countdownInterval);
+                    gameState.timers.countdownInterval = null;
+
+                    gameState.timers.countdownGoTimeout = setTimeout(() => {
                         countdownEl.remove();
+
+                        // Don't start if user hit STOP or we left training flow
+                        if (!gameState.requiresLandscape) return;
+
                         gameState.isPlaying = true;
                         spawnTarget();
                     }, 500);
-                    clearInterval(countInterval);
                 }
             }, 1000);
         }
@@ -2072,7 +2067,20 @@
             return { width: videoWidth, height: videoHeight, offsetX, offsetY };
         }
 
+        function scheduleNextTarget(delayMs = 500) {
+            if (gameState.timers.nextSpawnTimeout) {
+                clearTimeout(gameState.timers.nextSpawnTimeout);
+                gameState.timers.nextSpawnTimeout = null;
+            }
+            gameState.timers.nextSpawnTimeout = setTimeout(() => {
+                gameState.timers.nextSpawnTimeout = null;
+                if (!gameState.isPlaying) return;
+                spawnTarget();
+            }, delayMs);
+        }
+
         function spawnTarget() {
+            if (!gameState.isPlaying) return;
             if (gameState.targetIndex >= 40) {
                 endGame();
                 return;
@@ -2247,14 +2255,14 @@
             // Clear old obstacles
             gameState.obstacles.forEach(obs => obs.element.remove());
             gameState.obstacles = [];
-            
+
             if (settings.obstacleCount === 0) return;
-            
+
             const videoBounds = getVideoBounds();
             const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
             const targetSize = isLandscapeMobile ? 42 : 50;
             const margin = isLandscapeMobile ? 80 : 120;
-            
+
             // Determine number of obstacles based on settings
             let numObstacles;
             if (settings.obstacleCount === 1) {
@@ -2267,25 +2275,91 @@
                 // PRO: 3-4 obstacles
                 numObstacles = 3 + Math.floor(Math.random() * 2);
             }
-            
+
+            const minDistanceFromHand = targetSize * 2.5;
+            const minDistanceFromOther = targetSize * 2;
+
             for (let i = 0; i < numObstacles; i++) {
-                const x = videoBounds.offsetX + margin + Math.random() * (videoBounds.width - margin * 2);
-                const y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
-                
+                let x, y;
+                let attempts = 0;
+                const maxAttempts = 30;
+                let validPosition = false;
+
+                while (!validPosition && attempts < maxAttempts) {
+                    x = videoBounds.offsetX + margin + Math.random() * (videoBounds.width - margin * 2);
+                    y = videoBounds.offsetY + margin + Math.random() * (videoBounds.height - margin * 2);
+
+                    const centerX = x + (targetSize / 2);
+                    const centerY = y + (targetSize / 2);
+
+                    validPosition = true;
+
+                    // ✅ Don't spawn on/near current hand positions (what the player sees on-screen)
+                    for (const hand of Object.values(gameState.hands)) {
+                        if (!hand) continue;
+
+                        let handX = hand.x;
+                        if (gameState.cameraFacing === 'user') {
+                            handX = gameCanvas.width - hand.x;
+                        }
+
+                        const dist = Math.sqrt(
+                            Math.pow(handX - centerX, 2) +
+                            Math.pow(hand.y - centerY, 2)
+                        );
+
+                        if (dist < minDistanceFromHand) {
+                            validPosition = false;
+                            break;
+                        }
+                    }
+
+                    // Avoid overlapping active targets
+                    if (validPosition) {
+                        for (const t of gameState.currentTargets) {
+                            const dist = Math.sqrt(
+                                Math.pow(centerX - t.x, 2) +
+                                Math.pow(centerY - t.y, 2)
+                            );
+                            if (dist < minDistanceFromOther) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    // Avoid overlapping already-placed obstacles
+                    if (validPosition) {
+                        for (const o of gameState.obstacles) {
+                            const dist = Math.sqrt(
+                                Math.pow(centerX - o.x, 2) +
+                                Math.pow(centerY - o.y, 2)
+                            );
+                            if (dist < minDistanceFromOther) {
+                                validPosition = false;
+                                break;
+                            }
+                        }
+                    }
+
+                    attempts++;
+                }
+
+                // If we couldn't find a perfect spot, fall back to the last sampled position
                 const obstacleEl = document.createElement('div');
                 obstacleEl.className = 'target target-obstacle';
                 obstacleEl.textContent = '✕'; // X mark to indicate avoid
                 obstacleEl.style.fontSize = isLandscapeMobile ? '1.5rem' : '1.8rem';
                 obstacleEl.style.fontWeight = '900';
-                
+
                 if (gameState.cameraFacing === 'environment') {
                     obstacleEl.classList.add('rear-camera');
                 }
-                
+
                 obstacleEl.style.left = `${x}px`;
                 obstacleEl.style.top = `${y}px`;
                 document.body.appendChild(obstacleEl);
-                
+
                 gameState.obstacles.push({
                     element: obstacleEl,
                     x: x + (targetSize / 2),
@@ -2492,7 +2566,7 @@
                     gameState.currentTargets = [];
                     gameState.targetIndex++;
                     updateHUD();
-                    setTimeout(() => spawnTarget(), 500);
+                    scheduleNextTarget(500);
                 }
             } else {
                 // Single target mode
@@ -2506,7 +2580,7 @@
                 gameState.currentTargets = [];
                 gameState.targetIndex++;
                 updateHUD();
-                setTimeout(() => spawnTarget(), 500);
+                scheduleNextTarget(500);
             }
         }
 
@@ -2534,7 +2608,7 @@
             gameState.targetIndex++;
 
             updateHUD();
-            setTimeout(() => spawnTarget(), 500);
+            scheduleNextTarget(500);
         }
         
         function missSimultaneousTargets() {
@@ -2560,7 +2634,7 @@
             gameState.targetIndex++;
 
             updateHUD();
-            setTimeout(() => spawnTarget(), 500);
+            scheduleNextTarget(500);
         }
 
         function updateHUD() {
@@ -2582,6 +2656,12 @@
 
         async function endGame() {
             gameState.isPlaying = false;
+            gameState.isPaused = false;
+
+            // Stop any pending timers (countdown / next spawn)
+            if (gameState.timers.countdownInterval) { clearInterval(gameState.timers.countdownInterval); gameState.timers.countdownInterval = null; }
+            if (gameState.timers.countdownGoTimeout) { clearTimeout(gameState.timers.countdownGoTimeout); gameState.timers.countdownGoTimeout = null; }
+            if (gameState.timers.nextSpawnTimeout) { clearTimeout(gameState.timers.nextSpawnTimeout); gameState.timers.nextSpawnTimeout = null; }
             
             // Clean up all targets
             gameState.currentTargets.forEach(target => {
@@ -2646,6 +2726,9 @@
             await getAIAnalysis(session);
 
             // Show menu
+            gameState.requiresLandscape = false;
+            gameState.pendingStartRequested = false;
+            updateOrientationUI();
             mainMenu.classList.remove('hidden');
         }
 
