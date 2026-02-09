@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>NXTplay AR TAP ATTACK</title>
+    <title>NXTplay AR TRAINING</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@300;400;500;600;700&family=Share+Tech+Mono&display=swap" rel="stylesheet">
@@ -16,6 +16,10 @@
             --cyber-purple: #9333ea;
             --cyber-green: #10b981;
             --cyber-red: #ef4444;
+            --cyber-blue: #3b82f6;
+            --cyber-yellow: #eab308;
+            --cyber-orange: #f97316;
+            --cyber-pink: #ec4899;
             --cyber-text: #cccccc;
             --cyber-dim: #888888;
             --cyber-danger: #666666;
@@ -34,7 +38,6 @@
             overflow: hidden;
             position: relative;
             width: 100vw;
-            /* iOS address-bar friendly viewport sizing */
             min-height: 100vh;
             height: 100vh;
             min-height: 100svh;
@@ -47,7 +50,6 @@
             touch-action: manipulation;
         }
 
-        /* Animated background grid */
         .bg-grid {
             position: fixed;
             top: 0;
@@ -68,7 +70,6 @@
             100% { transform: translate(-50px, -50px); }
         }
 
-        /* Main container */
         .container {
             position: relative;
             z-index: 1;
@@ -78,14 +79,12 @@
             justify-content: center;
             align-items: center;
             padding: 16px;
-            /* Safe-area for iPhone notch / rounded corners */
             padding-top: calc(env(safe-area-inset-top) + 12px);
             padding-right: calc(env(safe-area-inset-right) + 12px);
             padding-bottom: calc(env(safe-area-inset-bottom) + 12px);
             padding-left: calc(env(safe-area-inset-left) + 12px);
         }
 
-        /* Game canvas */
         #gameCanvas {
             position: absolute;
             top: 0;
@@ -96,7 +95,6 @@
             touch-action: none;
         }
 
-        /* Camera feed */
         #cameraFeed {
             position: absolute;
             top: 0;
@@ -108,7 +106,6 @@
             transform: scaleX(-1);
         }
 
-        /* UI Overlay */
         .ui-overlay {
             position: absolute;
             top: 0;
@@ -123,7 +120,6 @@
             pointer-events: auto;
         }
 
-        /* Main Menu */
         .main-menu {
             background: rgba(26, 26, 26, 0.95);
             border: 2px solid var(--cyber-border);
@@ -134,25 +130,170 @@
             text-align: center;
             box-shadow: 0 0 30px rgba(147, 51, 234, 0.2);
             backdrop-filter: blur(10px);
-            /* Mobile: prevent content from being cut off */
             max-height: calc(var(--vh, 1vh) * 100 - env(safe-area-inset-top) - env(safe-area-inset-bottom) - 24px);
             overflow: auto;
             -webkit-overflow-scrolling: touch;
         }
 
         .logo {
-            font-size: 32px;
-            font-weight: 700;
-            color: var(--cyber-purple);
-            margin-bottom: 10px;
-            text-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin-bottom: 8px;
+        }
+
+        .logo img {
+            max-width: 100px;
+            width: 100%;
+            height: auto;
+            object-fit: contain;
         }
 
         .subtitle {
             font-size: 14px;
             color: var(--cyber-dim);
-            margin-bottom: 30px;
+            margin-bottom: 20px;
             font-family: 'Share Tech Mono', monospace;
+        }
+
+        /* Game Mode Selection */
+        .game-mode-section {
+            margin-bottom: 20px;
+        }
+
+        .game-mode-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 10px;
+            margin-top: 10px;
+        }
+
+        .game-mode-option {
+            position: relative;
+        }
+
+        .game-mode-option input {
+            display: none;
+        }
+
+        .game-mode-option label {
+            display: block;
+            padding: 14px 8px;
+            min-height: 60px;
+            background: rgba(0, 0, 0, 0.2);
+            border: 1px solid var(--cyber-border);
+            border-radius: 12px;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+            user-select: none;
+            -webkit-tap-highlight-color: transparent;
+            font-size: 12px;
+            line-height: 1.3;
+        }
+
+        .game-mode-option input:checked + label {
+            border-color: var(--cyber-purple);
+            background: rgba(147, 51, 234, 0.1);
+            box-shadow: 0 0 15px rgba(147, 51, 234, 0.3);
+        }
+
+        .game-mode-option label .mode-emoji {
+            display: block;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+
+        /* Instructions Section */
+        .instructions-section {
+            margin-bottom: 20px;
+        }
+
+        .instructions-toggle {
+            width: 100%;
+            padding: 12px 16px;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid var(--cyber-border);
+            border-radius: 12px;
+            color: var(--cyber-text);
+            font-size: 14px;
+            font-weight: 500;
+            font-family: 'Rajdhani', sans-serif;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            -webkit-tap-highlight-color: transparent;
+        }
+
+        .instructions-toggle:hover {
+            border-color: var(--cyber-purple);
+            background: rgba(147, 51, 234, 0.1);
+        }
+
+        .instructions-toggle .icon {
+            transition: transform 0.3s ease;
+            display: inline-flex;
+            margin-left: 8px;
+        }
+
+        .instructions-toggle.active .icon {
+            transform: rotate(180deg);
+        }
+
+        .instructions-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.3s ease;
+            text-align: left;
+            padding: 0 4px;
+        }
+
+        .instructions-content.active {
+            max-height: 400px;
+            padding: 12px 4px;
+        }
+
+        .instructions-content h4 {
+            font-size: 13px;
+            color: var(--cyber-purple);
+            margin-top: 12px;
+            margin-bottom: 6px;
+            font-family: 'Share Tech Mono', monospace;
+        }
+
+        .instructions-content h4:first-child {
+            margin-top: 0;
+        }
+
+        .instructions-content p {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--cyber-dim);
+            margin-bottom: 8px;
+        }
+
+        .instructions-content ul {
+            list-style: none;
+            padding-left: 0;
+            margin-bottom: 8px;
+        }
+
+        .instructions-content li {
+            font-size: 12px;
+            line-height: 1.5;
+            color: var(--cyber-dim);
+            padding-left: 16px;
+            position: relative;
+            margin-bottom: 4px;
+        }
+
+        .instructions-content li:before {
+            content: "→";
+            position: absolute;
+            left: 0;
+            color: var(--cyber-purple);
         }
 
         .input-group {
@@ -175,7 +316,6 @@
             border: 1px solid var(--cyber-border);
             border-radius: 12px;
             color: var(--cyber-text);
-            /* iOS: keep >=16px to prevent auto-zoom */
             font-size: 16px;
             line-height: 1.2;
             font-family: 'Rajdhani', sans-serif;
@@ -231,11 +371,6 @@
             box-shadow: 0 0 15px rgba(147, 51, 234, 0.3);
         }
 
-        .difficulty-option.locked label {
-            opacity: 0.5;
-            cursor: not-allowed;
-        }
-
         .start-btn {
             width: 100%;
             padding: 16px;
@@ -265,7 +400,6 @@
             transform: translateY(0);
         }
 
-        /* Game HUD */
         .game-hud {
             position: absolute;
             top: 20px;
@@ -307,7 +441,6 @@
             font-weight: 600;
         }
 
-        /* Stop button */
         .stop-btn {
             position: absolute;
             bottom: calc(env(safe-area-inset-bottom) + 14px);
@@ -341,7 +474,7 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Target */
+        /* Game Elements */
         .target {
             position: absolute;
             width: 80px;
@@ -373,11 +506,74 @@
             box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
         }
 
+        /* Color variations */
+        .target.color-red {
+            background: radial-gradient(circle, rgba(239, 68, 68, 0.8), rgba(239, 68, 68, 0.3));
+            border-color: var(--cyber-red);
+            box-shadow: 0 0 20px rgba(239, 68, 68, 0.5);
+        }
+
+        .target.color-blue {
+            background: radial-gradient(circle, rgba(59, 130, 246, 0.8), rgba(59, 130, 246, 0.3));
+            border-color: var(--cyber-blue);
+            box-shadow: 0 0 20px rgba(59, 130, 246, 0.5);
+        }
+
+        .target.color-yellow {
+            background: radial-gradient(circle, rgba(234, 179, 8, 0.8), rgba(234, 179, 8, 0.3));
+            border-color: var(--cyber-yellow);
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.5);
+        }
+
+        .target.color-green {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.8), rgba(16, 185, 129, 0.3));
+            border-color: var(--cyber-green);
+            box-shadow: 0 0 20px rgba(16, 185, 129, 0.5);
+        }
+
+        .target.color-purple {
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.8), rgba(147, 51, 234, 0.3));
+            border-color: var(--cyber-purple);
+            box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
+        }
+
+        .target.color-orange {
+            background: radial-gradient(circle, rgba(249, 115, 22, 0.8), rgba(249, 115, 22, 0.3));
+            border-color: var(--cyber-orange);
+            box-shadow: 0 0 20px rgba(249, 115, 22, 0.5);
+        }
+
+        .target.color-pink {
+            background: radial-gradient(circle, rgba(236, 72, 153, 0.8), rgba(236, 72, 153, 0.3));
+            border-color: var(--cyber-pink);
+            box-shadow: 0 0 20px rgba(236, 72, 153, 0.5);
+        }
+
         .target:hover {
             transform: scale(1.1);
         }
 
-        /* Obstacle */
+        /* Whack-a-mole animation */
+        .target.whack {
+            animation: whackPop 0.3s ease-out;
+        }
+
+        @keyframes whackPop {
+            0% { transform: scale(0) translateY(20px); }
+            50% { transform: scale(1.1) translateY(-5px); }
+            100% { transform: scale(1) translateY(0); }
+        }
+
+        /* Bubble style */
+        .target.bubble {
+            animation: bubbleFloat 3s ease-in-out infinite;
+        }
+
+        @keyframes bubbleFloat {
+            0%, 100% { transform: translateY(0) scale(1); }
+            50% { transform: translateY(-10px) scale(1.05); }
+        }
+
         .obstacle {
             position: absolute;
             width: 60px;
@@ -389,7 +585,18 @@
             z-index: 14;
         }
 
-        /* Hand indicators */
+        /* Tennis ball */
+        .tennis-ball {
+            position: absolute;
+            width: 50px;
+            height: 50px;
+            border-radius: 50%;
+            background: radial-gradient(circle, rgba(234, 179, 8, 0.9), rgba(234, 179, 8, 0.6));
+            border: 3px solid var(--cyber-yellow);
+            box-shadow: 0 0 20px rgba(234, 179, 8, 0.6);
+            z-index: 15;
+        }
+
         .hand-indicator {
             position: absolute;
             width: 20px;
@@ -408,7 +615,40 @@
             box-shadow: 0 0 15px rgba(147, 51, 234, 0.6);
         }
 
-        /* Countdown */
+        /* Simon Says instruction */
+        .simon-instruction {
+            position: absolute;
+            top: 30%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            background: rgba(26, 26, 26, 0.95);
+            border: 2px solid var(--cyber-purple);
+            border-radius: 20px;
+            padding: 30px 40px;
+            font-size: 32px;
+            font-weight: 700;
+            color: var(--cyber-purple);
+            text-align: center;
+            z-index: 50;
+            font-family: 'Share Tech Mono', monospace;
+            box-shadow: 0 0 40px rgba(147, 51, 234, 0.5);
+        }
+
+        /* Pattern guide */
+        .pattern-guide {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px;
+            height: 300px;
+            border: 2px dashed var(--cyber-purple);
+            border-radius: 50%;
+            opacity: 0.5;
+            z-index: 5;
+            pointer-events: none;
+        }
+
         .countdown {
             position: absolute;
             top: 50%;
@@ -428,7 +668,6 @@
             50% { transform: translate(-50%, -50%) scale(1.1); }
         }
 
-        /* Rotate overlay */
         .rotate-overlay {
             position: fixed;
             top: 0;
@@ -450,9 +689,17 @@
         }
 
         .rotate-icon {
-            font-size: 80px;
-            margin-bottom: 20px;
+            width: 80px;
+            height: 80px;
+            margin: 0 auto 20px;
+            color: var(--cyber-text);
             animation: rotate 2s linear infinite;
+        }
+
+        .rotate-icon svg {
+            width: 100%;
+            height: 100%;
+            display: block;
         }
 
         @keyframes rotate {
@@ -472,46 +719,6 @@
             color: var(--cyber-dim);
         }
 
-        /* AI Analysis */
-        .ai-analysis {
-            margin-top: 20px;
-            padding: 15px;
-            background: rgba(0, 0, 0, 0.3);
-            border: 1px solid var(--cyber-border);
-            border-radius: 12px;
-            text-align: left;
-        }
-
-        .ai-analysis h3 {
-            font-size: 14px;
-            color: var(--cyber-purple);
-            margin-bottom: 8px;
-            font-family: 'Share Tech Mono', monospace;
-        }
-
-        .ai-analysis p {
-            font-size: 13px;
-            line-height: 1.4;
-            color: var(--cyber-text);
-        }
-
-        .loading {
-            display: inline-block;
-            width: 12px;
-            height: 12px;
-            border: 2px solid var(--cyber-border);
-            border-top: 2px solid var(--cyber-purple);
-            border-radius: 50%;
-            animation: spin 1s linear infinite;
-            margin-right: 8px;
-        }
-
-        @keyframes spin {
-            0% { transform: rotate(0deg); }
-            100% { transform: rotate(360deg); }
-        }
-
-        /* Penalty message */
         .penalty-message {
             position: fixed;
             top: 20%;
@@ -534,67 +741,73 @@
             transform: translateX(-50%) translateY(0);
         }
 
-        /* Unlock notification */
-        .unlock-notification {
-            position: fixed;
-            top: 50%;
+        .penalty-message.success {
+            background: rgba(16, 185, 129, 0.9);
+        }
+
+        /* Color indicator for Color Match game */
+        .color-indicator {
+            position: absolute;
+            top: calc(env(safe-area-inset-top) + 20px);
             left: 50%;
-            transform: translate(-50%, -50%) scale(0.8);
-            background: rgba(26, 26, 26, 0.95);
-            border: 2px solid var(--cyber-green);
+            transform: translateX(-50%);
+            background: rgba(26, 26, 26, 0.9);
+            border: 3px solid var(--cyber-purple);
             border-radius: 20px;
-            padding: 25px;
-            text-align: center;
-            opacity: 0;
-            transition: all 0.5s ease;
-            z-index: 200;
-            backdrop-filter: blur(10px);
-        }
-
-        .unlock-notification.show {
-            opacity: 1;
-            transform: translate(-50%, -50%) scale(1);
-        }
-
-        .unlock-icon {
-            font-size: 50px;
-            margin-bottom: 15px;
-        }
-
-        .unlock-title {
-            font-size: 20px;
+            padding: 20px 40px;
+            font-size: 24px;
             font-weight: 700;
-            color: var(--cyber-green);
-            margin-bottom: 8px;
+            text-align: center;
+            z-index: 50;
+            font-family: 'Share Tech Mono', monospace;
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.5);
         }
 
-        .unlock-text {
-            font-size: 16px;
-            color: var(--cyber-text);
-            font-family: 'Share Tech Mono', monospace;
+        /* Clear canvas button for painting */
+        .clear-canvas-btn {
+            position: absolute;
+            top: calc(env(safe-area-inset-top) + 20px);
+            right: 20px;
+            padding: 12px 20px;
+            background: rgba(239, 68, 68, 0.9);
+            border: none;
+            border-radius: 12px;
+            color: white;
+            font-size: 14px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Rajdhani', sans-serif;
+            text-transform: uppercase;
+            z-index: 25;
         }
 
         .hidden {
             display: none !important;
         }
 
-        /* Mobile optimizations */
         @media (max-width: 480px) {
             .main-menu {
                 padding: 18px;
                 border-radius: 16px;
             }
 
-            .logo {
-                font-size: 28px;
+            .logo img {
+                max-width: 80px;
             }
 
-            .subtitle {
-                margin-bottom: 18px;
-            }
-
-            .difficulty-grid {
+            .game-mode-grid {
                 gap: 8px;
+            }
+
+            .game-mode-option label {
+                padding: 10px 6px;
+                min-height: 55px;
+                font-size: 11px;
+            }
+
+            .game-mode-option label .mode-emoji {
+                font-size: 18px;
             }
 
             .countdown {
@@ -607,7 +820,6 @@
                 font-size: 20px;
             }
 
-            /* HUD stacks nicer in portrait */
             .game-hud {
                 left: 12px;
                 right: 12px;
@@ -616,58 +828,7 @@
                 gap: 10px;
             }
         }
-
-        /* iPhone Pro Max portrait (430x932 CSS px class) */
-        @media (max-width: 430px) and (min-height: 800px) and (orientation: portrait) {
-            .main-menu {
-                max-width: 100%;
-                padding: 22px;
-            }
-
-            .logo {
-                font-size: 30px;
-            }
-
-            .subtitle {
-                font-size: 13px;
-            }
-
-            .start-btn {
-                font-size: 19px;
-                min-height: 56px;
-            }
-
-            .difficulty-option label {
-                min-height: 52px;
-            }
-        }
-
-        /* Landscape mobile (iPhone Pro Max etc.) */
-        @media (orientation: landscape) and (max-height: 500px) {
-            .main-menu {
-                max-width: 520px;
-                padding: 18px;
-            }
-
-            .logo {
-                font-size: 24px;
-                margin-bottom: 6px;
-            }
-
-            .subtitle {
-                margin-bottom: 12px;
-            }
-
-            .difficulty-grid {
-                gap: 8px;
-            }
-
-            .start-btn {
-                padding: 14px;
-            }
-        }
     </style>
-    <!-- MediaPipe dependencies (REQUIRED) -->
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.js"></script>
@@ -681,98 +842,136 @@
         <div class="container">
             <div id="mainMenu" class="main-menu">
                 <div class="logo">
-                    <img src="https://i.imgur.com/kG2dDb7.png" alt="NXTplay logo" style="max-width:100%;height:auto;" />
+                    <img src="https://i.imgur.com/kG2dDb7.png" alt="NXTplay logo" />
                 </div>
-                <div class="subtitle">AR TAP ATTACK TRAINING</div>
+                <div class="subtitle">AR TRAINING SYSTEM</div>
+
+                <!-- Game Mode Selection -->
+                <div class="game-mode-section">
+                    <div class="input-group">
+                        <label>SELECT GAME MODE</label>
+                    </div>
+                    <div class="game-mode-grid">
+                        <div class="game-mode-option">
+                            <input type="radio" id="tapAttack" name="gameMode" value="tapAttack" checked>
+                            <label for="tapAttack"><span class="mode-emoji">🎯</span>TAP ATTACK</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="colorMatch" name="gameMode" value="colorMatch">
+                            <label for="colorMatch"><span class="mode-emoji">🌈</span>COLOR MATCH</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="whackAMole" name="gameMode" value="whackAMole">
+                            <label for="whackAMole"><span class="mode-emoji">🔨</span>WHACK-A-MOLE</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="handPatterns" name="gameMode" value="handPatterns">
+                            <label for="handPatterns"><span class="mode-emoji">🤹</span>HAND PATTERNS</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="bubblePop" name="gameMode" value="bubblePop">
+                            <label for="bubblePop"><span class="mode-emoji">🫧</span>BUBBLE POP</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="tennis" name="gameMode" value="tennis">
+                            <label for="tennis"><span class="mode-emoji">🏓</span>AR TENNIS</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="simonSays" name="gameMode" value="simonSays">
+                            <label for="simonSays"><span class="mode-emoji">🗣️</span>SIMON SAYS</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="targetSwipe" name="gameMode" value="targetSwipe">
+                            <label for="targetSwipe"><span class="mode-emoji">👆</span>TARGET SWIPE</label>
+                        </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="arPainting" name="gameMode" value="arPainting">
+                            <label for="arPainting"><span class="mode-emoji">🎨</span>AR PAINTING</label>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Instructions Section -->
+                <div class="instructions-section">
+                    <button class="instructions-toggle" id="instructionsToggle">
+                        <span>HOW TO PLAY</span>
+                        <span class="icon">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                                <polyline points="6 9 12 15 18 9"></polyline>
+                            </svg>
+                        </span>
+                    </button>
+                    <div class="instructions-content" id="instructionsContent">
+                        <!-- Instructions will be dynamically updated based on game mode -->
+                    </div>
+                </div>
 
                 <div class="input-group">
                     <label for="playerName">PLAYER NAME</label>
                     <input type="text" id="playerName" placeholder="Enter your name" maxlength="20">
                 </div>
 
-                <div class="difficulty-selector">
+                <div id="difficultySelector" class="difficulty-selector">
                     <div class="input-group">
                         <label>DIFFICULTY LEVEL</label>
                     </div>
                     <div class="difficulty-grid">
                         <div class="difficulty-option">
+                            <input type="radio" id="easy" name="difficulty" value="easy">
+                            <label for="easy">EASY</label>
+                        </div>
+                        <div class="difficulty-option">
                             <input type="radio" id="medium" name="difficulty" value="medium" checked>
                             <label for="medium">MEDIUM</label>
                         </div>
-                        <div class="difficulty-option locked" data-difficulty="advanced">
-                            <input type="radio" id="advanced" name="difficulty" value="advanced" disabled>
-                            <label for="advanced">ADVANCED 🔒</label>
+                        <div class="difficulty-option">
+                            <input type="radio" id="hard" name="difficulty" value="hard">
+                            <label for="hard">HARD</label>
                         </div>
-                        <div class="difficulty-option locked" data-difficulty="hard">
-                            <input type="radio" id="hard" name="difficulty" value="hard" disabled>
-                            <label for="hard">HARD 🔒</label>
-                        </div>
-                        <div class="difficulty-option locked" data-difficulty="pro">
-                            <input type="radio" id="pro" name="difficulty" value="pro" disabled>
-                            <label for="pro">PRO 🔒</label>
+                        <div class="difficulty-option">
+                            <input type="radio" id="pro" name="difficulty" value="pro">
+                            <label for="pro">PRO</label>
                         </div>
                     </div>
                 </div>
 
                 <button id="startBtn" class="start-btn">START TRAINING</button>
-
-                <div id="aiAnalysis" class="ai-analysis hidden">
-                    <h3>AI COACH ANALYSIS</h3>
-                    <p id="aiAnalysisText">Complete a session to get analysis</p>
-                </div>
             </div>
         </div>
 
         <div id="gameHUD" class="game-hud hidden">
             <div class="hud-panel">
                 <div class="hud-item">
-                    <span class="hud-label">TARGET</span>
-                    <span class="hud-value" id="targetCounter">0/40</span>
+                    <span class="hud-label" id="hudLabel1">SCORE</span>
+                    <span class="hud-value" id="hudValue1">0</span>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-label">HITS</span>
-                    <span class="hud-value" id="hitCounter">0</span>
+                    <span class="hud-label" id="hudLabel2">COMBO</span>
+                    <span class="hud-value" id="hudValue2">0</span>
                 </div>
                 <div class="hud-item">
-                    <span class="hud-label">MISSES</span>
-                    <span class="hud-value" id="missCounter">0</span>
-                </div>
-                <div class="hud-item">
-                    <span class="hud-label">PENALTIES</span>
-                    <span class="hud-value" id="penaltyCounter">0</span>
-                </div>
-                <div class="hud-item">
-                    <span class="hud-label">ACCURACY</span>
-                    <span class="hud-value" id="accuracy">---</span>
-                </div>
-            </div>
-
-            <div class="hud-panel">
-                <div class="hud-item">
-                    <span class="hud-label">AVG TIME</span>
-                    <span class="hud-value" id="avgTime">---</span>
-                </div>
-                <div class="hud-item">
-                    <span class="hud-label">LAST</span>
-                    <span class="hud-value" id="lastTime">---</span>
-                </div>
-                <div class="hud-item">
-                    <span class="hud-label">BEST AVG</span>
-                    <span class="hud-value" id="bestAvg">---</span>
-                </div>
-                <div class="hud-item">
-                    <span class="hud-label">BEST</span>
-                    <span class="hud-value" id="bestSingle">---</span>
+                    <span class="hud-label" id="hudLabel3">TIME</span>
+                    <span class="hud-value" id="hudValue3">0:00</span>
                 </div>
             </div>
         </div>
 
         <button id="stopBtn" class="stop-btn hidden">STOP GAME</button>
+        <button id="clearCanvasBtn" class="clear-canvas-btn hidden">CLEAR</button>
     </div>
 
     <div id="rotateOverlay" class="rotate-overlay hidden">
         <div class="rotate-content">
-            <div class="rotate-icon">📱</div>
+            <div class="rotate-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <rect x="7" y="2" width="10" height="20" rx="2" />
+                    <path d="M12 18h.01" />
+                    <path d="M4 12a8 8 0 0 1 8-8" />
+                    <path d="M4 12l2-2" />
+                    <path d="M20 12a8 8 0 0 1-8 8" />
+                    <path d="M20 12l-2 2" />
+                </svg>
+            </div>
             <div class="rotate-title">ROTATE TO LANDSCAPE</div>
             <div class="rotate-text">Turn your device sideways to start training</div>
         </div>
@@ -787,50 +986,166 @@
         const gameHUD = document.getElementById('gameHUD');
         const startBtn = document.getElementById('startBtn');
         const stopBtn = document.getElementById('stopBtn');
+        const clearCanvasBtn = document.getElementById('clearCanvasBtn');
         const playerNameInput = document.getElementById('playerName');
         const rotateOverlay = document.getElementById('rotateOverlay');
-        const aiAnalysisContainer = document.getElementById('aiAnalysis');
-        const aiAnalysisText = document.getElementById('aiAnalysisText');
+        const instructionsToggle = document.getElementById('instructionsToggle');
+        const instructionsContent = document.getElementById('instructionsContent');
+        const difficultySelector = document.getElementById('difficultySelector');
 
-        // Game state
+        // Instructions toggle
+        instructionsToggle.addEventListener('click', () => {
+            instructionsToggle.classList.toggle('active');
+            instructionsContent.classList.toggle('active');
+        });
+
+        // Game instructions for each mode
+        const gameInstructions = {
+            tapAttack: `
+                <h4>OBJECTIVE</h4>
+                <p>Tap 40 targets as quickly as possible using the correct hand while avoiding red obstacles.</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Use LEFT hand (green) for L targets</li>
+                    <li>Use RIGHT hand (purple) for R targets</li>
+                    <li>Avoid touching red obstacles</li>
+                </ul>
+            `,
+            colorMatch: `
+                <h4>OBJECTIVE</h4>
+                <p>Only tap targets that match the displayed color. Wrong colors count as misses!</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Watch the color indicator at the top</li>
+                    <li>Tap only matching colored targets</li>
+                    <li>Speed increases as you progress</li>
+                </ul>
+            `,
+            whackAMole: `
+                <h4>OBJECTIVE</h4>
+                <p>Hit targets as they pop up, but they'll disappear quickly! Classic arcade action.</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Targets appear and retract randomly</li>
+                    <li>Quick reflexes required</li>
+                    <li>Some are fake-outs that disappear fast</li>
+                </ul>
+            `,
+            handPatterns: `
+                <h4>OBJECTIVE</h4>
+                <p>Trace patterns with your hands following the guide. Accuracy matters!</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Follow the circular guide with your hand</li>
+                    <li>Stay inside the pattern boundary</li>
+                    <li>Complete full rotations smoothly</li>
+                </ul>
+            `,
+            bubblePop: `
+                <h4>OBJECTIVE</h4>
+                <p>Zen mode - pop floating bubbles at your own pace. No time pressure, just relax!</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Gently touch floating bubbles</li>
+                    <li>No penalties for missing</li>
+                    <li>Focus on accuracy and steadiness</li>
+                </ul>
+            `,
+            tennis: `
+                <h4>OBJECTIVE</h4>
+                <p>Deflect the ball back with your hand movements. Don't let it pass you!</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Position hand to hit the ball</li>
+                    <li>Ball bounces off your hand</li>
+                    <li>Rally continues until you miss</li>
+                </ul>
+            `,
+            simonSays: `
+                <h4>OBJECTIVE</h4>
+                <p>Follow voice instructions - place the correct hand on the specified target!</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Listen to the instruction</li>
+                    <li>Use the correct hand</li>
+                    <li>Hit the correct colored target</li>
+                    <li>Memory and coordination test</li>
+                </ul>
+            `,
+            targetSwipe: `
+                <h4>OBJECTIVE</h4>
+                <p>Drag targets to matching colored zones. Sorting challenge!</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Touch and hold targets</li>
+                    <li>Drag to matching colored zone</li>
+                    <li>Release to drop</li>
+                </ul>
+            `,
+            arPainting: `
+                <h4>OBJECTIVE</h4>
+                <p>Use your finger to paint in AR space! Free creative mode.</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Point with your index finger to draw</li>
+                    <li>Move your hand to paint trails</li>
+                    <li>Use CLEAR button to reset canvas</li>
+                    <li>Different hands = different colors</li>
+                </ul>
+            `
+        };
+
+        // Update instructions when game mode changes
+        document.querySelectorAll('input[name="gameMode"]').forEach(radio => {
+            radio.addEventListener('change', (e) => {
+                instructionsContent.innerHTML = gameInstructions[e.target.value];
+                
+                // Hide difficulty selector for games that don't use it
+                if (['bubblePop', 'arPainting'].includes(e.target.value)) {
+                    difficultySelector.classList.add('hidden');
+                } else {
+                    difficultySelector.classList.remove('hidden');
+                }
+            });
+        });
+
+        // Initialize with default instructions
+        instructionsContent.innerHTML = gameInstructions.tapAttack;
+
+        // Global game state
         const gameState = {
             isPlaying: false,
             isPaused: false,
             requiresLandscape: false,
             pendingStartRequested: false,
-            trainingFlowActive: false,
+            currentGameMode: 'tapAttack',
             runId: 0,
-            timers: { countdownInterval: null, countdownGoTimeout: null, nextSpawnTimeout: null, countdownEl: null },
-            currentTarget: null,
-            currentTargets: [], // For simultaneous targets in PRO
-            targetStartTime: 0,
-            hits: [],
-            misses: 0,
-            penalties: 0,
-            targetIndex: 0,
-            sequence: [], // Will hold 'left' or 'right' for each target
+            score: 0,
+            combo: 0,
+            time: 0,
+            targets: [],
+            obstacles: [],
             hands: { left: null, right: null },
             difficulty: 'medium',
             playerName: '',
-            cameraFacing: 'user', // 'user' or 'environment'
-            videoVisible: true,
-            obstacles: [], // Active red obstacles
-            difficultySettings: {
-                medium: { name: 'MEDIUM', targetTimeout: 2000, wrongHandPenalty: false, obstacleCount: 2, simultaneousTargets: false },
-                advanced: { name: 'ADVANCED', targetTimeout: 1500, wrongHandPenalty: false, obstacleCount: 3, simultaneousTargets: false },
-                hard: { name: 'HARD', targetTimeout: 1200, wrongHandPenalty: true, obstacleCount: 4, simultaneousTargets: false },
-                pro: { name: 'PRO', targetTimeout: 1000, wrongHandPenalty: true, obstacleCount: 5, simultaneousTargets: true }
+            cameraFacing: 'user',
+            
+            // Game-specific state
+            colorMatch: { targetColor: 'red', colors: ['red', 'blue', 'green', 'yellow', 'purple', 'orange', 'pink'] },
+            tennis: { ball: null, ballVx: 3, ballVy: 3 },
+            simonSays: { currentInstruction: null, instructionTimeout: null },
+            targetSwipe: { dragging: null, zones: [] },
+            arPainting: { paths: [], currentPath: null },
+            handPatterns: { patternAngle: 0, patternRadius: 150, inPattern: false, rotations: 0 },
+            
+            timers: {
+                gameLoop: null,
+                spawnInterval: null
             }
         };
 
-        // MediaPipe Hands
-        let hands;
-        let camera;
+        let hands, camera, audioContext;
 
-        // Audio
-        let audioContext;
-
-        // Initialize
         async function init() {
             resizeCanvas();
             window.addEventListener('resize', resizeCanvas);
@@ -841,32 +1156,19 @@
                 }, 250);
             });
 
-            // Load saved player name
             loadPlayerData();
-
-            // Update stats on load
-            updateStats();
-
-            // Setup MediaPipe Hands
             setupHands();
 
-            // Setup event listeners
             startBtn.addEventListener('click', handleStartPressed);
             stopBtn.addEventListener('click', stopGame);
+            clearCanvasBtn.addEventListener('click', clearPaintingCanvas);
+            
             playerNameInput.addEventListener('input', (e) => {
                 gameState.playerName = e.target.value.trim();
                 savePlayerData();
             });
 
-            // Difficulty radio change updates stats
-            document.querySelectorAll('input[name="difficulty"]').forEach(radio => {
-                radio.addEventListener('change', updateStats);
-            });
-
-            // Initial orientation UI (menu is portrait-first)
             updateOrientationUI();
-
-            // Start draw loop
             requestAnimationFrame(draw);
         }
 
@@ -882,8 +1184,6 @@
 
             if (isLandscape()) {
                 rotateOverlay.classList.add('hidden');
-
-                // If user tapped start and is now in landscape, start immediately
                 if (gameState.pendingStartRequested) {
                     gameState.pendingStartRequested = false;
                     startGame();
@@ -894,23 +1194,19 @@
         }
 
         function handleStartPressed() {
-            // After pressing Start, we require landscape to continue
             gameState.requiresLandscape = true;
             gameState.pendingStartRequested = true;
             updateOrientationUI();
 
             if (isLandscape()) {
-                // already landscape, start immediately
                 gameState.pendingStartRequested = false;
                 startGame();
             }
         }
 
         function resizeCanvas() {
-            // iOS: use innerHeight to avoid address bar jumps
             const vh = window.innerHeight * 0.01;
             document.documentElement.style.setProperty('--vh', `${vh}px`);
-
             gameCanvas.width = window.innerWidth;
             gameCanvas.height = window.innerHeight;
         }
@@ -954,29 +1250,26 @@
             }
         }
 
-        function playDingSound() {
+        function playSound(frequency = 880, duration = 0.1, type = 'sine') {
             if (!audioContext) return;
 
             const oscillator = audioContext.createOscillator();
             const gainNode = audioContext.createGain();
 
-            oscillator.type = 'sine';
-            oscillator.frequency.setValueAtTime(880, audioContext.currentTime);
-            oscillator.frequency.exponentialRampToValueAtTime(440, audioContext.currentTime + 0.1);
+            oscillator.type = type;
+            oscillator.frequency.setValueAtTime(frequency, audioContext.currentTime);
 
             gainNode.gain.setValueAtTime(0.3, audioContext.currentTime);
-            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + 0.1);
+            gainNode.gain.exponentialRampToValueAtTime(0.01, audioContext.currentTime + duration);
 
             oscillator.connect(gainNode);
             gainNode.connect(audioContext.destination);
 
             oscillator.start();
-            oscillator.stop(audioContext.currentTime + 0.1);
+            oscillator.stop(audioContext.currentTime + duration);
         }
 
-        // MediaPipe results
         function onHandsResults(results) {
-            // Clear previous hand positions
             gameState.hands.left = null;
             gameState.hands.right = null;
 
@@ -984,23 +1277,40 @@
                 results.multiHandLandmarks.forEach((landmarks, index) => {
                     const handedness = results.multiHandedness[index].label.toLowerCase();
                     const wrist = landmarks[0];
+                    const indexTip = landmarks[8];
 
                     const x = wrist.x * gameCanvas.width;
                     const y = wrist.y * gameCanvas.height;
+                    
+                    const tipX = indexTip.x * gameCanvas.width;
+                    const tipY = indexTip.y * gameCanvas.height;
 
                     if (handedness === 'left') {
-                        gameState.hands.left = { x, y };
+                        gameState.hands.left = { x, y, tipX, tipY, landmarks };
                     } else {
-                        gameState.hands.right = { x, y };
+                        gameState.hands.right = { x, y, tipX, tipY, landmarks };
                     }
                 });
             }
         }
 
-        // Main draw loop
         function draw() {
-            // Clear canvas
             canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+            // Draw game-specific elements
+            if (gameState.isPlaying) {
+                switch (gameState.currentGameMode) {
+                    case 'handPatterns':
+                        drawHandPatterns();
+                        break;
+                    case 'arPainting':
+                        drawPaintingPaths();
+                        break;
+                    case 'tennis':
+                        drawTennisBall();
+                        break;
+                }
+            }
 
             // Draw hand indicators
             for (const [handType, hand] of Object.entries(gameState.hands)) {
@@ -1020,128 +1330,270 @@
                 }
             }
 
-            // Check for target hits
-            if (gameState.isPlaying && !gameState.isPaused && gameState.currentTargets.length > 0) {
-                checkTargetHit();
+            if (gameState.isPlaying && !gameState.isPaused) {
+                checkInteractions();
             }
 
             requestAnimationFrame(draw);
         }
 
-        // Game logic
         async function startGame() {
-            // Create a new run token to cancel any in-flight starts/countdowns
             gameState.runId = (gameState.runId || 0) + 1;
             const myRunId = gameState.runId;
-            gameState.trainingFlowActive = true;
 
             if (!gameState.playerName) {
                 playerNameInput.focus();
                 playerNameInput.style.borderColor = 'var(--cyber-danger)';
-                setTimeout(() => {
-                    playerNameInput.style.borderColor = '';
-                }, 1000);
+                setTimeout(() => playerNameInput.style.borderColor = '', 1000);
                 return;
             }
 
-            // Start camera if not already started
-            if (!camera) {
-                await setupCamera();
-            }
-
-            // Initialize and unlock audio
-            if (!audioContext) {
-                initAudio();
-            }
+            if (!camera) await setupCamera();
+            if (!audioContext) initAudio();
             await unlockAudio();
 
-            // If STOP was pressed while we were awaiting camera/audio, abort
-            if (gameState.runId !== myRunId || !gameState.trainingFlowActive) return;
+            if (gameState.runId !== myRunId) return;
 
+            gameState.currentGameMode = document.querySelector('input[name="gameMode"]:checked').value;
             gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-
-            // Generate sequence: 20 left, 20 right, randomized
-            gameState.sequence = [];
-            for (let i = 0; i < 20; i++) {
-                gameState.sequence.push('left');
-                gameState.sequence.push('right');
-            }
-            shuffleArray(gameState.sequence);
-
-            // Reset game state
-            gameState.hits = [];
-            gameState.misses = 0;
-            gameState.penalties = 0;
-            gameState.targetIndex = 0;
-            gameState.currentTarget = null;
-            gameState.currentTargets = [];
+            gameState.isPlaying = true;
+            gameState.score = 0;
+            gameState.combo = 0;
+            gameState.time = 0;
+            gameState.targets = [];
             gameState.obstacles = [];
-            gameState.wrongHandPenaltyActive = false;
 
-            // Hide menu, show HUD
             mainMenu.classList.add('hidden');
             gameHUD.classList.remove('hidden');
             stopBtn.classList.remove('hidden');
-            aiAnalysisContainer.classList.add('hidden');
 
-            // Start countdown
-            startCountdown(myRunId);
-        }
-
-        function startCountdown(runId) {
-            // Clear any previous countdown timers
-            if (gameState.timers.countdownInterval) { clearInterval(gameState.timers.countdownInterval); gameState.timers.countdownInterval = null; }
-            if (gameState.timers.countdownGoTimeout) { clearTimeout(gameState.timers.countdownGoTimeout); gameState.timers.countdownGoTimeout = null; }
-            if (gameState.timers.nextSpawnTimeout) { clearTimeout(gameState.timers.nextSpawnTimeout); gameState.timers.nextSpawnTimeout = null; }
-
-            // Remove any old countdown element
-            if (gameState.timers && gameState.timers.countdownEl) {
-                try { gameState.timers.countdownEl.remove(); } catch (e) {}
-                gameState.timers.countdownEl = null;
+            // Show clear button for painting mode
+            if (gameState.currentGameMode === 'arPainting') {
+                clearCanvasBtn.classList.remove('hidden');
             }
 
-            let count = 5;
-            const countdownEl = document.createElement('div');
-            countdownEl.className = 'countdown';
-            gameState.timers.countdownEl = countdownEl;
-            countdownEl.textContent = count;
-            document.body.appendChild(countdownEl);
+            updateHUD();
+            initializeGameMode();
+            startGameLoop();
+        }
 
-            gameState.timers.countdownInterval = setInterval(() => {
-                // If STOP was pressed mid-countdown (or a new run started), abort cleanly
-                if (gameState.runId !== runId || !gameState.trainingFlowActive) {
-                    clearInterval(gameState.timers.countdownInterval);
-                    gameState.timers.countdownInterval = null;
-                    if (gameState.timers.countdownGoTimeout) { clearTimeout(gameState.timers.countdownGoTimeout); gameState.timers.countdownGoTimeout = null; }
-                    if (gameState.timers.countdownEl) { try { gameState.timers.countdownEl.remove(); } catch(e) {} gameState.timers.countdownEl = null; }
+        function initializeGameMode() {
+            switch (gameState.currentGameMode) {
+                case 'tapAttack':
+                    initTapAttack();
+                    break;
+                case 'colorMatch':
+                    initColorMatch();
+                    break;
+                case 'whackAMole':
+                    initWhackAMole();
+                    break;
+                case 'handPatterns':
+                    initHandPatterns();
+                    break;
+                case 'bubblePop':
+                    initBubblePop();
+                    break;
+                case 'tennis':
+                    initTennis();
+                    break;
+                case 'simonSays':
+                    initSimonSays();
+                    break;
+                case 'targetSwipe':
+                    initTargetSwipe();
+                    break;
+                case 'arPainting':
+                    initArPainting();
+                    break;
+            }
+        }
+
+        function startGameLoop() {
+            let lastTime = Date.now();
+            
+            gameState.timers.gameLoop = setInterval(() => {
+                if (!gameState.isPlaying) return;
+                
+                const now = Date.now();
+                const delta = (now - lastTime) / 1000;
+                lastTime = now;
+                
+                gameState.time += delta;
+                updateGameMode(delta);
+                updateHUD();
+            }, 16); // ~60fps
+        }
+
+        function updateGameMode(delta) {
+            switch (gameState.currentGameMode) {
+                case 'tennis':
+                    updateTennis(delta);
+                    break;
+                case 'handPatterns':
+                    updateHandPatterns(delta);
+                    break;
+                case 'arPainting':
+                    updateArPainting(delta);
+                    break;
+            }
+        }
+
+        function stopGame() {
+            gameState.isPlaying = false;
+            gameState.isPaused = false;
+            
+            if (gameState.timers.gameLoop) {
+                clearInterval(gameState.timers.gameLoop);
+                gameState.timers.gameLoop = null;
+            }
+            
+            if (gameState.timers.spawnInterval) {
+                clearInterval(gameState.timers.spawnInterval);
+                gameState.timers.spawnInterval = null;
+            }
+
+            if (gameState.simonSays.instructionTimeout) {
+                clearTimeout(gameState.simonSays.instructionTimeout);
+                gameState.simonSays.instructionTimeout = null;
+            }
+
+            // Stop camera
+            if (camera) {
+                camera.stop();
+                camera = null;
+            }
+
+            // Stop video stream
+            if (cameraFeed.srcObject) {
+                const tracks = cameraFeed.srcObject.getTracks();
+                tracks.forEach(track => track.stop());
+                cameraFeed.srcObject = null;
+            }
+
+            // Clean up all DOM elements
+            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide').forEach(el => el.remove());
+            
+            gameState.targets = [];
+            gameState.obstacles = [];
+
+            // Clear painting canvas
+            canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
+
+            gameHUD.classList.add('hidden');
+            stopBtn.classList.add('hidden');
+            clearCanvasBtn.classList.add('hidden');
+
+            gameState.requiresLandscape = false;
+            gameState.pendingStartRequested = false;
+            updateOrientationUI();
+            mainMenu.classList.remove('hidden');
+        }
+
+        function checkInteractions() {
+            switch (gameState.currentGameMode) {
+                case 'tapAttack':
+                case 'colorMatch':
+                case 'whackAMole':
+                case 'bubblePop':
+                    checkTargetHits();
+                    break;
+                case 'simonSays':
+                    checkSimonSaysHit();
+                    break;
+            }
+        }
+
+        function checkTargetHits() {
+            const hitRadius = 50;
+
+            for (let i = gameState.targets.length - 1; i >= 0; i--) {
+                const target = gameState.targets[i];
+                if (target.hit) continue;
+
+                for (const [handType, hand] of Object.entries(gameState.hands)) {
+                    if (!hand) continue;
+
+                    let handX = hand.x;
+                    if (gameState.cameraFacing === 'user') {
+                        handX = gameCanvas.width - hand.x;
+                    }
+
+                    const distance = Math.hypot(handX - target.x, hand.y - target.y);
+
+                    if (distance < hitRadius) {
+                        hitTarget(target, handType);
+                        break;
+                    }
+                }
+            }
+        }
+
+        function hitTarget(target, handType) {
+            if (target.hit) return;
+
+            // Game-specific validation
+            if (gameState.currentGameMode === 'colorMatch') {
+                if (target.color !== gameState.colorMatch.targetColor) {
+                    gameState.combo = 0;
+                    showMessage('WRONG COLOR!', false);
+                    removeTarget(target);
                     return;
                 }
+            }
 
-                count--;
-                if (count > 0) {
-                    countdownEl.textContent = count;
-                } else {
-                    countdownEl.textContent = 'GO!';
-                    clearInterval(gameState.timers.countdownInterval);
-                    gameState.timers.countdownInterval = null;
+            target.hit = true;
+            gameState.score += 10 + (gameState.combo * 5);
+            gameState.combo++;
 
-                    gameState.timers.countdownGoTimeout = setTimeout(() => {
-                        if (gameState.timers.countdownEl) { try { gameState.timers.countdownEl.remove(); } catch(e) {} gameState.timers.countdownEl = null; }
+            playSound(880 + (gameState.combo * 50), 0.1);
 
-                        // Don't start if user hit STOP, a new run started, or we left training flow
-                        if (gameState.runId !== runId || !gameState.trainingFlowActive) return;
+            if (target.element) {
+                target.element.style.transform = 'scale(1.5)';
+                target.element.style.opacity = '0';
+            }
 
-                        gameState.isPlaying = true;
-                        spawnTarget();
-                    }, 500);
-                }
-            }, 1000);
+            setTimeout(() => removeTarget(target), 200);
+        }
+
+        function removeTarget(target) {
+            if (target.element) {
+                target.element.remove();
+            }
+            const index = gameState.targets.indexOf(target);
+            if (index > -1) {
+                gameState.targets.splice(index, 1);
+            }
+        }
+
+        function updateHUD() {
+            document.getElementById('hudLabel1').textContent = 'SCORE';
+            document.getElementById('hudValue1').textContent = gameState.score;
+            document.getElementById('hudLabel2').textContent = 'COMBO';
+            document.getElementById('hudValue2').textContent = gameState.combo + 'x';
+            document.getElementById('hudLabel3').textContent = 'TIME';
+            
+            const minutes = Math.floor(gameState.time / 60);
+            const seconds = Math.floor(gameState.time % 60);
+            document.getElementById('hudValue3').textContent = `${minutes}:${seconds.toString().padStart(2, '0')}`;
+        }
+
+        function showMessage(text, success = true) {
+            const msg = document.createElement('div');
+            msg.className = 'penalty-message' + (success ? ' success' : '');
+            msg.textContent = text;
+            document.body.appendChild(msg);
+
+            setTimeout(() => msg.classList.add('show'), 50);
+            setTimeout(() => {
+                msg.classList.remove('show');
+                setTimeout(() => msg.remove(), 300);
+            }, 1500);
         }
 
         function getVideoBounds() {
             const video = cameraFeed;
             const canvas = gameCanvas;
-
             const videoAspect = video.videoWidth / video.videoHeight;
             const canvasAspect = canvas.width / canvas.height;
 
@@ -1162,11 +1614,236 @@
             return { width: videoWidth, height: videoHeight, offsetX, offsetY };
         }
 
-        function isValidSpawnPosition(x, y, minDistance) {
-            // Keep away from both hands (current tracked positions)
-            const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-            const handMin = isLandscapeMobile ? 90 : 110;
+        function spawnTarget(options = {}) {
+            const bounds = getVideoBounds();
+            const size = options.size || 80;
+            const padding = 60;
 
+            const x = bounds.offsetX + padding + Math.random() * (bounds.width - 2 * padding - size);
+            const y = bounds.offsetY + padding + Math.random() * (bounds.height - 2 * padding - size);
+
+            const target = document.createElement('div');
+            target.className = 'target ' + (options.className || '');
+            target.textContent = options.text || '';
+            target.style.left = `${x}px`;
+            target.style.top = `${y}px`;
+            
+            if (options.size) {
+                target.style.width = `${size}px`;
+                target.style.height = `${size}px`;
+                target.style.fontSize = `${size * 0.3}px`;
+            }
+            
+            document.body.appendChild(target);
+
+            const targetObj = {
+                x, y,
+                element: target,
+                hit: false,
+                timeout: options.timeout,
+                ...options.data
+            };
+
+            if (options.timeout) {
+                setTimeout(() => {
+                    if (!targetObj.hit) {
+                        removeTarget(targetObj);
+                        gameState.combo = 0;
+                    }
+                }, options.timeout);
+            }
+
+            gameState.targets.push(targetObj);
+            return targetObj;
+        }
+
+        // ========== TAP ATTACK ==========
+        function initTapAttack() {
+            gameState.timers.spawnInterval = setInterval(() => {
+                const hand = Math.random() > 0.5 ? 'left' : 'right';
+                const timeouts = { easy: 3000, medium: 2000, hard: 1500, pro: 1000 };
+                spawnTarget({
+                    className: hand,
+                    text: hand === 'left' ? 'L' : 'R',
+                    timeout: timeouts[gameState.difficulty],
+                    data: { hand }
+                });
+            }, 1500);
+        }
+
+        // ========== COLOR MATCH ==========
+        function initColorMatch() {
+            changeTargetColor();
+            
+            gameState.timers.spawnInterval = setInterval(() => {
+                const color = gameState.colorMatch.colors[Math.floor(Math.random() * gameState.colorMatch.colors.length)];
+                const timeouts = { easy: 3000, medium: 2000, hard: 1500, pro: 1000 };
+                
+                spawnTarget({
+                    className: 'color-' + color,
+                    timeout: timeouts[gameState.difficulty],
+                    data: { color }
+                });
+
+                if (Math.random() > 0.7) {
+                    changeTargetColor();
+                }
+            }, 1200);
+        }
+
+        function changeTargetColor() {
+            const colors = gameState.colorMatch.colors;
+            gameState.colorMatch.targetColor = colors[Math.floor(Math.random() * colors.length)];
+            
+            let indicator = document.querySelector('.color-indicator');
+            if (!indicator) {
+                indicator = document.createElement('div');
+                indicator.className = 'color-indicator';
+                document.body.appendChild(indicator);
+            }
+            
+            indicator.textContent = `TAP ${gameState.colorMatch.targetColor.toUpperCase()} ONLY`;
+            indicator.style.color = `var(--cyber-${gameState.colorMatch.targetColor})`;
+            indicator.style.borderColor = `var(--cyber-${gameState.colorMatch.targetColor})`;
+        }
+
+        // ========== WHACK-A-MOLE ==========
+        function initWhackAMole() {
+            gameState.timers.spawnInterval = setInterval(() => {
+                const target = spawnTarget({
+                    className: 'whack',
+                    text: '🔨',
+                    timeout: Math.random() > 0.3 ? 1500 : 500 // Some are fake-outs
+                });
+            }, 800);
+        }
+
+        // ========== HAND PATTERNS ==========
+        function initHandPatterns() {
+            const guide = document.createElement('div');
+            guide.className = 'pattern-guide';
+            document.body.appendChild(guide);
+            
+            gameState.handPatterns.rotations = 0;
+            gameState.handPatterns.patternAngle = 0;
+        }
+
+        function updateHandPatterns(delta) {
+            const hand = gameState.hands.right || gameState.hands.left;
+            if (!hand) return;
+
+            let handX = hand.x;
+            if (gameState.cameraFacing === 'user') {
+                handX = gameCanvas.width - hand.x;
+            }
+
+            const centerX = gameCanvas.width / 2;
+            const centerY = gameCanvas.height / 2;
+            
+            const dx = handX - centerX;
+            const dy = hand.y - centerY;
+            const distance = Math.hypot(dx, dy);
+            const angle = Math.atan2(dy, dx);
+
+            const targetRadius = gameState.handPatterns.patternRadius;
+            
+            if (Math.abs(distance - targetRadius) < 40) {
+                if (!gameState.handPatterns.inPattern) {
+                    gameState.handPatterns.inPattern = true;
+                    gameState.handPatterns.lastAngle = angle;
+                }
+
+                const angleDiff = angle - gameState.handPatterns.lastAngle;
+                if (Math.abs(angleDiff) > 0.1) {
+                    gameState.score += 1;
+                    gameState.handPatterns.patternAngle += angleDiff;
+                    
+                    if (Math.abs(gameState.handPatterns.patternAngle) > Math.PI * 2) {
+                        gameState.handPatterns.rotations++;
+                        gameState.handPatterns.patternAngle = 0;
+                        gameState.combo++;
+                        showMessage('ROTATION COMPLETE! +50', true);
+                        gameState.score += 50;
+                        playSound(1200, 0.2);
+                    }
+                }
+                
+                gameState.handPatterns.lastAngle = angle;
+            } else {
+                gameState.handPatterns.inPattern = false;
+            }
+        }
+
+        function drawHandPatterns() {
+            // Visual feedback is provided by the pattern-guide div
+        }
+
+        // ========== BUBBLE POP ==========
+        function initBubblePop() {
+            for (let i = 0; i < 8; i++) {
+                setTimeout(() => {
+                    spawnTarget({
+                        className: 'bubble color-' + ['blue', 'pink', 'purple', 'green'][Math.floor(Math.random() * 4)],
+                        size: 60 + Math.random() * 40
+                    });
+                }, i * 500);
+            }
+
+            gameState.timers.spawnInterval = setInterval(() => {
+                if (gameState.targets.length < 10) {
+                    spawnTarget({
+                        className: 'bubble color-' + ['blue', 'pink', 'purple', 'green'][Math.floor(Math.random() * 4)],
+                        size: 60 + Math.random() * 40
+                    });
+                }
+            }, 2000);
+        }
+
+        // ========== TENNIS ==========
+        function initTennis() {
+            const bounds = getVideoBounds();
+            gameState.tennis.ball = {
+                x: bounds.offsetX + bounds.width / 2,
+                y: bounds.offsetY + 100,
+                vx: 3,
+                vy: 3,
+                radius: 25
+            };
+
+            const ballEl = document.createElement('div');
+            ballEl.className = 'tennis-ball';
+            ballEl.id = 'tennisBall';
+            document.body.appendChild(ballEl);
+        }
+
+        function updateTennis(delta) {
+            const ball = gameState.tennis.ball;
+            if (!ball) return;
+
+            const bounds = getVideoBounds();
+            
+            ball.x += ball.vx;
+            ball.y += ball.vy;
+
+            // Wall bounces
+            if (ball.x - ball.radius < bounds.offsetX || ball.x + ball.radius > bounds.offsetX + bounds.width) {
+                ball.vx *= -1;
+                playSound(440, 0.05);
+            }
+            
+            if (ball.y - ball.radius < bounds.offsetY) {
+                ball.vy *= -1;
+                playSound(440, 0.05);
+            }
+
+            // Bottom miss
+            if (ball.y + ball.radius > bounds.offsetY + bounds.height) {
+                showMessage('MISS! Game Over', false);
+                stopGame();
+                return;
+            }
+
+            // Hand collision
             for (const hand of Object.values(gameState.hands)) {
                 if (!hand) continue;
 
@@ -1175,154 +1852,86 @@
                     handX = gameCanvas.width - hand.x;
                 }
 
-                const d = Math.hypot(handX - x, hand.y - y);
-                if (d < handMin) return false;
+                const distance = Math.hypot(handX - ball.x, hand.y - ball.y);
+                
+                if (distance < ball.radius + 30) {
+                    ball.vy *= -1;
+                    ball.vx += (ball.x - handX) * 0.1; // Add spin
+                    ball.vx = Math.max(-8, Math.min(8, ball.vx)); // Limit speed
+                    gameState.score += 10;
+                    gameState.combo++;
+                    playSound(660, 0.1);
+                    break;
+                }
             }
 
-            // Avoid overlapping existing targets
-            for (const t of gameState.currentTargets) {
-                const d = Math.hypot(t.x - x, t.y - y);
-                if (d < minDistance) return false;
-            }
-
-            // Avoid overlapping obstacles
-            for (const o of gameState.obstacles) {
-                const d = Math.hypot(o.x - x, o.y - y);
-                if (d < minDistance) return false;
-            }
-
-            return true;
-        }
-
-        function spawnObstacles() {
-            // Clear old obstacles
-            gameState.obstacles.forEach(obs => obs.element.remove());
-            gameState.obstacles = [];
-
-            const settings = gameState.difficultySettings[gameState.difficulty];
-            const bounds = getVideoBounds();
-
-            const obstacleSize = 60;
-            const padding = 50;
-            const minDistance = 90;
-
-            for (let i = 0; i < settings.obstacleCount; i++) {
-                let x, y;
-                let attempts = 0;
-
-                do {
-                    x = bounds.offsetX + padding + Math.random() * (bounds.width - 2 * padding - obstacleSize);
-                    y = bounds.offsetY + padding + Math.random() * (bounds.height - 2 * padding - obstacleSize);
-                    attempts++;
-                } while (!isValidSpawnPosition(x, y, minDistance) && attempts < 50);
-
-                const obstacle = document.createElement('div');
-                obstacle.className = 'obstacle';
-                obstacle.style.left = `${x}px`;
-                obstacle.style.top = `${y}px`;
-                document.body.appendChild(obstacle);
-
-                gameState.obstacles.push({ x, y, element: obstacle });
+            const ballEl = document.getElementById('tennisBall');
+            if (ballEl) {
+                ballEl.style.left = `${ball.x - ball.radius}px`;
+                ballEl.style.top = `${ball.y - ball.radius}px`;
             }
         }
 
-        function scheduleNextTarget(delayMs = 500) {
-            if (gameState.timers.nextSpawnTimeout) {
-                clearTimeout(gameState.timers.nextSpawnTimeout);
-                gameState.timers.nextSpawnTimeout = null;
-            }
-            gameState.timers.nextSpawnTimeout = setTimeout(() => {
-                gameState.timers.nextSpawnTimeout = null;
-                if (!gameState.isPlaying) return;
-                spawnTarget();
-            }, delayMs);
+        function drawTennisBall() {
+            // Ball is drawn via DOM element
         }
 
-        function spawnTarget() {
+        // ========== SIMON SAYS ==========
+        function initSimonSays() {
+            nextSimonInstruction();
+        }
+
+        function nextSimonInstruction() {
             if (!gameState.isPlaying) return;
 
-            if (gameState.targetIndex >= 40) {
-                endGame();
-                return;
+            const hands = ['LEFT', 'RIGHT'];
+            const colors = ['RED', 'BLUE', 'GREEN', 'YELLOW', 'PURPLE'];
+            
+            const hand = hands[Math.floor(Math.random() * hands.length)];
+            const color = colors[Math.floor(Math.random() * colors.length)];
+            
+            gameState.simonSays.currentInstruction = { hand: hand.toLowerCase(), color: color.toLowerCase() };
+            
+            let instruction = document.querySelector('.simon-instruction');
+            if (!instruction) {
+                instruction = document.createElement('div');
+                instruction.className = 'simon-instruction';
+                document.body.appendChild(instruction);
+            }
+            
+            instruction.textContent = `${hand} HAND\n${color} TARGET`;
+            
+            // Spawn target
+            spawnTarget({
+                className: 'color-' + color.toLowerCase(),
+                timeout: 5000,
+                data: { color: color.toLowerCase(), requiredHand: hand.toLowerCase() }
+            });
+
+            // Spawn some decoy targets
+            for (let i = 0; i < 2; i++) {
+                const decoyColor = colors[Math.floor(Math.random() * colors.length)].toLowerCase();
+                if (decoyColor !== color.toLowerCase()) {
+                    spawnTarget({
+                        className: 'color-' + decoyColor,
+                        timeout: 5000,
+                        data: { color: decoyColor, isDecoy: true }
+                    });
+                }
             }
 
-            const settings = gameState.difficultySettings[gameState.difficulty];
-
-            // Spawn obstacles per target
-            spawnObstacles();
-
-            const bounds = getVideoBounds();
-
-            const targetSize = 80;
-            const padding = 60;
-            const minDistance = 100;
-
-            const spawnSingle = (hand, index) => {
-                let x, y;
-                let attempts = 0;
-
-                do {
-                    x = bounds.offsetX + padding + Math.random() * (bounds.width - 2 * padding - targetSize);
-                    y = bounds.offsetY + padding + Math.random() * (bounds.height - 2 * padding - targetSize);
-                    attempts++;
-                } while (!isValidSpawnPosition(x, y, minDistance) && attempts < 50);
-
-                const target = document.createElement('div');
-                target.className = `target ${hand}`;
-                target.textContent = hand === 'left' ? 'L' : 'R';
-                target.style.left = `${x}px`;
-                target.style.top = `${y}px`;
-                document.body.appendChild(target);
-
-                const targetObj = {
-                    x,
-                    y,
-                    hand,
-                    element: target,
-                    hit: false,
-                    timeout: null
-                };
-
-                target.addEventListener('click', () => {
-                    if (!gameState.isPlaying || gameState.isPaused) return;
-                    hitTarget(targetObj);
-                });
-
-                targetObj.timeout = setTimeout(() => {
-                    if (!targetObj.hit && gameState.isPlaying) {
-                        if (settings.simultaneousTargets) {
-                            missSimultaneousTargets();
-                        } else {
-                            missTarget(targetObj);
-                        }
-                    }
-                }, settings.targetTimeout);
-
-                return targetObj;
-            };
-
-            gameState.targetStartTime = Date.now();
-
-            if (settings.simultaneousTargets) {
-                // PRO: spawn both left and right simultaneously
-                const leftTarget = spawnSingle('left', 0);
-                const rightTarget = spawnSingle('right', 1);
-                gameState.currentTargets = [leftTarget, rightTarget];
-            } else {
-                const hand = gameState.sequence[gameState.targetIndex];
-                const t = spawnSingle(hand, 0);
-                gameState.currentTargets = [t];
-            }
-
-            updateHUD();
+            gameState.simonSays.instructionTimeout = setTimeout(() => {
+                nextSimonInstruction();
+            }, 6000);
         }
 
-        function checkTargetHit() {
-            const isLandscapeMobile = window.matchMedia('(orientation: landscape) and (max-height: 500px)').matches;
-            const hitRadius = isLandscapeMobile ? 42 : 50;
+        function checkSimonSaysHit() {
+            const hitRadius = 50;
 
-            // Targets
-            for (const target of gameState.currentTargets) {
+            for (let i = gameState.targets.length - 1; i >= 0; i--) {
+                const target = gameState.targets[i];
+                if (target.hit) continue;
+
                 for (const [handType, hand] of Object.entries(gameState.hands)) {
                     if (!hand) continue;
 
@@ -1334,424 +1943,127 @@
                     const distance = Math.hypot(handX - target.x, hand.y - target.y);
 
                     if (distance < hitRadius) {
-                        // Wrong hand rules
-                        const settings = gameState.difficultySettings[gameState.difficulty];
-                        if (settings.wrongHandPenalty && !settings.simultaneousTargets) {
-                            if (handType !== target.hand) {
-                                applyWrongHandPenalty(target);
-                                return;
-                            }
+                        if (target.isDecoy || handType !== target.requiredHand || target.color !== gameState.simonSays.currentInstruction.color) {
+                            showMessage('WRONG! -10 POINTS', false);
+                            gameState.score = Math.max(0, gameState.score - 10);
+                            gameState.combo = 0;
+                        } else {
+                            showMessage('CORRECT! +50', true);
+                            gameState.score += 50;
+                            gameState.combo++;
+                            playSound(880, 0.1);
+                            
+                            clearTimeout(gameState.simonSays.instructionTimeout);
+                            nextSimonInstruction();
                         }
-
-                        hitTarget(target);
-                        return;
-                    }
-                }
-            }
-
-            // Obstacles
-            for (const obstacle of gameState.obstacles) {
-                for (const [handType, hand] of Object.entries(gameState.hands)) {
-                    if (!hand) continue;
-
-                    let handX = hand.x;
-                    if (gameState.cameraFacing === 'user') {
-                        handX = gameCanvas.width - hand.x;
-                    }
-
-                    const distance = Math.hypot(handX - obstacle.x, hand.y - obstacle.y);
-
-                    if (distance < hitRadius) {
-                        hitObstacle(obstacle);
-                        return;
+                        
+                        removeTarget(target);
+                        break;
                     }
                 }
             }
         }
 
-        function applyWrongHandPenalty(target) {
-            if (gameState.difficulty === 'hard') {
-                gameState.penalties++;
-                gameState.wrongHandPenaltyActive = true;
-                showPenaltyMessage('WRONG HAND! +2s PENALTY');
-                gameState.isPaused = true;
-                setTimeout(() => {
-                    gameState.isPaused = false;
-                    gameState.wrongHandPenaltyActive = false;
-                }, 2000);
-                missTarget(target);
-            } else if (gameState.difficulty === 'pro') {
-                gameState.penalties++;
-                showPenaltyMessage('WRONG HAND! MISS!');
-                missTarget(target);
-            }
-        }
+        // ========== TARGET SWIPE ==========
+        function initTargetSwipe() {
+            // Create drop zones
+            const colors = ['red', 'blue', 'green', 'yellow'];
+            const zoneWidth = gameCanvas.width / colors.length;
+            
+            colors.forEach((color, i) => {
+                const zone = {
+                    x: i * zoneWidth,
+                    y: gameCanvas.height - 100,
+                    width: zoneWidth,
+                    height: 100,
+                    color: color
+                };
+                gameState.targetSwipe.zones.push(zone);
+                
+                // Visual zone indicator
+                canvasCtx.fillStyle = `var(--cyber-${color})`;
+                canvasCtx.globalAlpha = 0.2;
+                canvasCtx.fillRect(zone.x, zone.y, zone.width, zone.height);
+                canvasCtx.globalAlpha = 1;
+            });
 
-        function hitObstacle(obstacle) {
-            gameState.penalties++;
-            obstacle.element.style.background = 'radial-gradient(circle, rgba(255, 0, 0, 1), rgba(255, 0, 0, 0.8))';
-            obstacle.element.style.transform = 'scale(1.3)';
-            showPenaltyMessage('OBSTACLE HIT! -5 POINTS');
-            setTimeout(() => {
-                obstacle.element.style.background = '';
-                obstacle.element.style.transform = '';
-            }, 300);
-
-            if (gameState.difficulty === 'pro') {
-                gameState.misses++;
-                updateHUD();
-            }
-        }
-
-        function showPenaltyMessage(message) {
-            const penaltyMsg = document.createElement('div');
-            penaltyMsg.className = 'penalty-message';
-            penaltyMsg.textContent = message;
-            document.body.appendChild(penaltyMsg);
-
-            setTimeout(() => penaltyMsg.classList.add('show'), 50);
-            setTimeout(() => {
-                penaltyMsg.classList.remove('show');
-                setTimeout(() => penaltyMsg.remove(), 300);
-            }, 1500);
-        }
-
-        function hitTarget(target) {
-            if (!target) {
-                target = gameState.currentTargets[0];
-            }
-
-            const reactionTime = Date.now() - gameState.targetStartTime;
-            target.hit = true;
-
-            if (target && target.element) {
-                target.element.style.transform = 'scale(1.5)';
-                target.element.style.opacity = '0';
-                target.element.style.transition = 'all 0.2s ease-out';
-            }
-
-            playDingSound();
-
-            clearTimeout(target.timeout);
-            setTimeout(() => {
-                if (target && target.element) {
-                    target.element.remove();
-                }
-            }, 200);
-
-            const settings = gameState.difficultySettings[gameState.difficulty];
-            if (settings.simultaneousTargets) {
-                const allHit = gameState.currentTargets.every(t => t.hit);
-                if (allHit) {
-                    gameState.hits.push({
-                        targetIndex: gameState.targetIndex,
-                        hand: 'both',
-                        reactionTime: reactionTime,
-                        hit: true
+            // Spawn targets to sort
+            gameState.timers.spawnInterval = setInterval(() => {
+                if (gameState.targets.length < 6) {
+                    const color = colors[Math.floor(Math.random() * colors.length)];
+                    spawnTarget({
+                        className: 'color-' + color,
+                        data: { color, draggable: true }
                     });
-
-                    gameState.currentTargets = [];
-                    gameState.targetIndex++;
-                    updateHUD();
-                    scheduleNextTarget(500);
                 }
-            } else {
-                gameState.hits.push({
-                    targetIndex: gameState.targetIndex,
-                    hand: target.hand,
-                    reactionTime: reactionTime,
-                    hit: true
-                });
-
-                gameState.currentTargets = [];
-                gameState.targetIndex++;
-                updateHUD();
-                scheduleNextTarget(500);
-            }
+            }, 2000);
         }
 
-        function missTarget(specificTarget) {
-            gameState.misses++;
+        // ========== AR PAINTING ==========
+        function initArPainting() {
+            gameState.arPainting.paths = [];
+            gameState.arPainting.currentPath = null;
+        }
 
-            const targetToMiss = specificTarget || gameState.currentTargets[0];
+        function updateArPainting(delta) {
+            for (const [handType, hand] of Object.entries(gameState.hands)) {
+                if (!hand) continue;
 
-            gameState.hits.push({
-                targetIndex: gameState.targetIndex,
-                hand: targetToMiss ? targetToMiss.hand : 'unknown',
-                reactionTime: null,
-                hit: false
-            });
-
-            gameState.currentTargets.forEach(target => {
-                if (target.element) {
-                    clearTimeout(target.timeout);
-                    target.element.remove();
+                let tipX = hand.tipX;
+                if (gameState.cameraFacing === 'user') {
+                    tipX = gameCanvas.width - hand.tipX;
                 }
-            });
 
-            gameState.currentTargets = [];
-            gameState.targetIndex++;
-
-            updateHUD();
-            scheduleNextTarget(500);
-        }
-
-        function missSimultaneousTargets() {
-            gameState.misses++;
-
-            gameState.hits.push({
-                targetIndex: gameState.targetIndex,
-                hand: 'both',
-                reactionTime: null,
-                hit: false
-            });
-
-            gameState.currentTargets.forEach(target => {
-                if (target.element) {
-                    clearTimeout(target.timeout);
-                    target.element.remove();
+                if (!gameState.arPainting.currentPath) {
+                    gameState.arPainting.currentPath = {
+                        points: [],
+                        color: handType === 'left' ? 'rgba(16, 185, 129, 0.8)' : 'rgba(147, 51, 234, 0.8)'
+                    };
+                    gameState.arPainting.paths.push(gameState.arPainting.currentPath);
                 }
-            });
 
-            gameState.currentTargets = [];
-            gameState.targetIndex++;
+                gameState.arPainting.currentPath.points.push({ x: tipX, y: hand.tipY });
 
-            updateHUD();
-            scheduleNextTarget(500);
-        }
-
-        function updateHUD() {
-            const setText = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = val;
-            };
-
-            setText('targetCounter', `${gameState.targetIndex}/40`);
-            setText('hitCounter', gameState.hits.filter(h => h.hit).length);
-            setText('missCounter', gameState.misses);
-            setText('penaltyCounter', gameState.penalties);
-
-            const validHits = gameState.hits.filter(h => h.hit && h.reactionTime);
-            if (validHits.length > 0) {
-                const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-                setText('avgTime', `${Math.round(avgTime)}ms`);
-            } else {
-                setText('avgTime', '---');
-            }
-
-            const accuracy = (validHits.length / 40) * 100;
-            setText('accuracy', `${Math.round(accuracy)}%`);
-        }
-
-        function stopGame() {
-
-            endGame();
-        }
-
-        async function endGame() {
-            // Cancel any in-flight start/countdown
-            gameState.trainingFlowActive = false;
-            gameState.runId = (gameState.runId || 0) + 1;
-
-            gameState.isPlaying = false;
-            gameState.isPaused = false;
-
-            // Stop any pending timers (countdown / next spawn)
-            if (gameState.timers.countdownInterval) { clearInterval(gameState.timers.countdownInterval); gameState.timers.countdownInterval = null; }
-            if (gameState.timers.countdownGoTimeout) { clearTimeout(gameState.timers.countdownGoTimeout); gameState.timers.countdownGoTimeout = null; }
-            if (gameState.timers.nextSpawnTimeout) { clearTimeout(gameState.timers.nextSpawnTimeout); gameState.timers.nextSpawnTimeout = null; }
-            if (gameState.timers.countdownEl) { try { gameState.timers.countdownEl.remove(); } catch (e) {} gameState.timers.countdownEl = null; }
-
-            // Clean up all targets
-            gameState.currentTargets.forEach(target => {
-                if (target.element) {
-                    clearTimeout(target.timeout);
-                    target.element.remove();
+                // Limit path length
+                if (gameState.arPainting.currentPath.points.length > 50) {
+                    gameState.arPainting.currentPath.points.shift();
                 }
-            });
-            gameState.currentTargets = [];
+            }
 
-            // Clean up obstacles
-            gameState.obstacles.forEach(obs => obs.element.remove());
-            gameState.obstacles = [];
+            if (!gameState.hands.left && !gameState.hands.right) {
+                gameState.arPainting.currentPath = null;
+            }
+        }
 
-            // Hide game UI
-            gameHUD.classList.add('hidden');
-            stopBtn.classList.add('hidden');
+        function drawPaintingPaths() {
+            gameState.arPainting.paths.forEach(path => {
+                if (path.points.length < 2) return;
 
-            // Save session
-            const session = {
-                playerName: gameState.playerName,
-                date: new Date().toISOString(),
-                difficulty: gameState.difficulty,
-                hits: gameState.hits,
-                misses: gameState.misses,
-                penalties: gameState.penalties,
-                totalTargets: 40
-            };
+                canvasCtx.strokeStyle = path.color;
+                canvasCtx.lineWidth = 8;
+                canvasCtx.lineCap = 'round';
+                canvasCtx.lineJoin = 'round';
 
-            const unlockedBefore = {
-                medium: isDifficultyUnlocked('medium'),
-                advanced: isDifficultyUnlocked('advanced'),
-                hard: isDifficultyUnlocked('hard'),
-                pro: isDifficultyUnlocked('pro')
-            };
-
-            saveSession(session);
-            updateStats();
-
-            const unlockedAfter = {
-                medium: isDifficultyUnlocked('medium'),
-                advanced: isDifficultyUnlocked('advanced'),
-                hard: isDifficultyUnlocked('hard'),
-                pro: isDifficultyUnlocked('pro')
-            };
-
-            const newlyUnlocked = [];
-            ['medium', 'advanced', 'hard', 'pro'].forEach(diff => {
-                if (!unlockedBefore[diff] && unlockedAfter[diff]) {
-                    newlyUnlocked.push(diff.toUpperCase());
+                canvasCtx.beginPath();
+                canvasCtx.moveTo(path.points[0].x, path.points[0].y);
+                
+                for (let i = 1; i < path.points.length; i++) {
+                    canvasCtx.lineTo(path.points[i].x, path.points[i].y);
                 }
-            });
-
-            if (newlyUnlocked.length > 0) {
-                showUnlockNotification(newlyUnlocked);
-            }
-
-            // Get AI analysis
-            await getAIAnalysis(session);
-
-            // Show menu
-            gameState.requiresLandscape = false;
-            gameState.pendingStartRequested = false;
-            updateOrientationUI();
-            mainMenu.classList.remove('hidden');
-        }
-
-        function isDifficultyUnlocked(difficulty) {
-            // Medium always unlocked
-            if (difficulty === 'medium') return true;
-
-            const sessions = getSessions();
-            const playerSessions = sessions.filter(s => s.playerName === gameState.playerName);
-
-            // Unlock rules
-            const hasCompletedMedium = playerSessions.some(s => s.difficulty === 'medium');
-            const hasCompletedAdvanced = playerSessions.some(s => s.difficulty === 'advanced');
-            const hasCompletedHard = playerSessions.some(s => s.difficulty === 'hard');
-
-            if (difficulty === 'advanced') {
-                return hasCompletedMedium;
-            }
-            if (difficulty === 'hard') {
-                return hasCompletedAdvanced;
-            }
-            if (difficulty === 'pro') {
-                return hasCompletedHard;
-            }
-
-            return false;
-        }
-
-        function updateDifficultyLocks() {
-            document.querySelectorAll('.difficulty-option.locked').forEach(opt => {
-                const diff = opt.getAttribute('data-difficulty');
-                const unlocked = isDifficultyUnlocked(diff);
-
-                const input = opt.querySelector('input');
-                const label = opt.querySelector('label');
-
-                if (unlocked) {
-                    opt.classList.remove('locked');
-                    input.disabled = false;
-                    label.textContent = diff.toUpperCase();
-                } else {
-                    opt.classList.add('locked');
-                    input.disabled = true;
-                    label.textContent = diff.toUpperCase() + ' 🔒';
-                }
+                
+                canvasCtx.stroke();
             });
         }
 
-        // Show unlock notification
-        function showUnlockNotification(unlockedLevels) {
-            const notification = document.createElement('div');
-            notification.className = 'unlock-notification';
-            notification.innerHTML = `
-                <div class="unlock-content">
-                    <div class="unlock-icon">🔓</div>
-                    <div class="unlock-title">NEW LEVEL UNLOCKED!</div>
-                    <div class="unlock-text">${unlockedLevels.join(', ')} MODE</div>
-                </div>
-            `;
-            document.body.appendChild(notification);
-
-            setTimeout(() => notification.classList.add('show'), 100);
-
-            setTimeout(() => {
-                notification.classList.remove('show');
-                setTimeout(() => notification.remove(), 500);
-            }, 4000);
-        }
-
-        async function getAIAnalysis(session) {
-            aiAnalysisContainer.classList.remove('hidden');
-            aiAnalysisText.innerHTML = '<span class="loading"></span> Analyzing your performance...';
-
-            try {
-                const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-                const avgTime = validHits.length > 0 
-                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
-                    : 0;
-
-                const accuracy = ((validHits.length / 40) * 100).toFixed(1);
-
-                const allSessions = getSessions();
-                const playerSessions = allSessions.filter(s => s.playerName === session.playerName);
-
-                const prompt = `You are an AI performance coach analyzing a hand-eye coordination training session.
-
-Session Data:
-- Difficulty: ${gameState.difficultySettings[session.difficulty].name}
-- Hits: ${validHits.length}/40
-- Misses: ${session.misses}
-- Accuracy: ${accuracy}%
-- Average Reaction Time: ${Math.round(avgTime)}ms
-- Previous Sessions: ${playerSessions.length - 1}
-
-Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus on strengths, areas for improvement, and actionable next steps. Be motivating but realistic.`;
-
-                const response = await fetch('https://api.anthropic.com/v1/messages', {
-                    method: 'POST',
-                    headers: {
-                        'Content-Type': 'application/json',
-                    },
-                    body: JSON.stringify({
-                        model: 'claude-sonnet-4-20250514',
-                        max_tokens: 1000,
-                        messages: [
-                            { role: 'user', content: prompt }
-                        ]
-                    })
-                });
-
-                const data = await response.json();
-                const analysis = data.content[0].text;
-                aiAnalysisText.textContent = analysis;
-            } catch (error) {
-                console.error('AI Analysis error:', error);
-                const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-                const avgTime = validHits.length > 0 
-                    ? validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length 
-                    : 0;
-
-                aiAnalysisText.textContent = `Great session! You hit ${validHits.length}/40 targets with an average reaction time of ${Math.round(avgTime)}ms. ${session.misses > 10 ? 'Focus on accuracy in your next session.' : 'Keep up the excellent accuracy!'}`;
-            }
+        function clearPaintingCanvas() {
+            gameState.arPainting.paths = [];
+            gameState.arPainting.currentPath = null;
+            canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         }
 
         // Data persistence
         function loadPlayerData() {
-            const saved = localStorage.getItem('arTapAttack_playerName');
+            const saved = localStorage.getItem('arTraining_playerName');
             if (saved) {
                 gameState.playerName = saved;
                 playerNameInput.value = saved;
@@ -1759,89 +2071,9 @@ Provide a concise, encouraging 2-4 sentence analysis of this performance. Focus 
         }
 
         function savePlayerData() {
-            localStorage.setItem('arTapAttack_playerName', gameState.playerName);
+            localStorage.setItem('arTraining_playerName', gameState.playerName);
         }
 
-        function getSessions() {
-            const saved = localStorage.getItem('arTapAttack_sessions');
-            return saved ? JSON.parse(saved) : [];
-        }
-
-        function saveSession(session) {
-            const sessions = getSessions();
-            sessions.push(session);
-            localStorage.setItem('arTapAttack_sessions', JSON.stringify(sessions));
-
-            const validHits = session.hits.filter(h => h.hit && h.reactionTime);
-            if (validHits.length > 0) {
-                const avgTime = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-                const bestAvgKey = `arTapAttack_bestAvgTime_${session.difficulty}`;
-                const currentBestAvg = localStorage.getItem(bestAvgKey);
-                if (!currentBestAvg || avgTime < parseFloat(currentBestAvg)) {
-                    localStorage.setItem(bestAvgKey, avgTime.toString());
-                }
-
-                const fastestHit = Math.min(...validHits.map(h => h.reactionTime));
-                const bestSingleKey = `arTapAttack_bestSingleTime_${session.difficulty}`;
-                const currentBestSingle = localStorage.getItem(bestSingleKey);
-                if (!currentBestSingle || fastestHit < parseFloat(currentBestSingle)) {
-                    localStorage.setItem(bestSingleKey, fastestHit.toString());
-                }
-            }
-        }
-
-        function updateStats() {
-            const setText = (id, val) => {
-                const el = document.getElementById(id);
-                if (el) el.textContent = val;
-            };
-
-            const currentDifficulty = document.querySelector('input[name="difficulty"]:checked')?.value || gameState.difficulty;
-
-            const sessions = getSessions();
-            const playerSessions = sessions.filter(s => 
-                s.playerName === gameState.playerName && 
-                s.difficulty === currentDifficulty
-            );
-
-            if (playerSessions.length > 0) {
-                const lastSession = playerSessions[playerSessions.length - 1];
-                const validHits = lastSession.hits.filter(h => h.hit && h.reactionTime);
-
-                if (validHits.length > 0) {
-                    const lastAvg = validHits.reduce((sum, h) => sum + h.reactionTime, 0) / validHits.length;
-                    setText('lastTime', `${Math.round(lastAvg)}ms`);
-                } else {
-                    setText('lastTime', '---');
-                }
-
-                const lastAccuracy = ((validHits.length / 40) * 100);
-                setText('accuracy', `${Math.round(lastAccuracy)}%`);
-            } else {
-                setText('lastTime', '---');
-                setText('accuracy', '---');
-            }
-
-            const bestAvgKey = `arTapAttack_bestAvgTime_${currentDifficulty}`;
-            const bestAvgTime = localStorage.getItem(bestAvgKey);
-            setText('bestAvg', bestAvgTime ? `${Math.round(parseFloat(bestAvgTime))}ms` : '---');
-
-            const bestSingleKey = `arTapAttack_bestSingleTime_${currentDifficulty}`;
-            const bestSingleTime = localStorage.getItem(bestSingleKey);
-            setText('bestSingle', bestSingleTime ? `${Math.round(parseFloat(bestSingleTime))}ms` : '---');
-
-            updateDifficultyLocks();
-        }
-
-        // Utility functions
-        function shuffleArray(array) {
-            for (let i = array.length - 1; i > 0; i--) {
-                const j = Math.floor(Math.random() * (i + 1));
-                [array[i], array[j]] = [array[j], array[i]];
-            }
-        }
-
-        // Initialize on load
         init();
     </script>
 </body>
