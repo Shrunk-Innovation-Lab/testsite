@@ -1033,12 +1033,13 @@
             `,
             handPatterns: `
                 <h4>OBJECTIVE</h4>
-                <p>Trace patterns with your hands following the guide. Accuracy matters!</p>
+                <p>Move your hand in a circle following the purple guide ring. Complete rotations for points!</p>
                 <h4>CONTROLS</h4>
                 <ul>
-                    <li>Follow the circular guide with your hand</li>
-                    <li>Stay inside the pattern boundary</li>
-                    <li>Complete full rotations smoothly</li>
+                    <li>Keep your hand on the dashed circle guide</li>
+                    <li>Move clockwise or counter-clockwise</li>
+                    <li>Complete full rotations for bonus points</li>
+                    <li>Green glow = you're on the path!</li>
                 </ul>
             `,
             bubblePop: `
@@ -1053,12 +1054,14 @@
             `,
             tennis: `
                 <h4>OBJECTIVE</h4>
-                <p>Deflect the ball back with your hand movements. Don't let it pass you!</p>
+                <p>Keep the yellow ball bouncing! Hit it with your hand to deflect it back up.</p>
                 <h4>CONTROLS</h4>
                 <ul>
-                    <li>Position hand to hit the ball</li>
-                    <li>Ball bounces off your hand</li>
-                    <li>Rally continues until you miss</li>
+                    <li>Position your hand under the falling ball</li>
+                    <li>Ball bounces off your palm</li>
+                    <li>Move hand left/right to add spin</li>
+                    <li>Don't let it fall off the bottom!</li>
+                    <li>Rally continues - how long can you last?</li>
                 </ul>
             `,
             simonSays: `
@@ -1084,13 +1087,13 @@
             `,
             arPainting: `
                 <h4>OBJECTIVE</h4>
-                <p>Use your finger to paint in AR space! Free creative mode.</p>
+                <p>Trace the displayed shape or draw freely! Challenge yourself to follow the guide.</p>
                 <h4>CONTROLS</h4>
                 <ul>
-                    <li>Point with your index finger to draw</li>
+                    <li>Hold your palm over the shape to draw</li>
                     <li>Move your hand to paint trails</li>
-                    <li>Use CLEAR button to reset canvas</li>
-                    <li>Different hands = different colors</li>
+                    <li>Use CLEAR button to reset and try again</li>
+                    <li>Left hand = green, Right hand = purple</li>
                 </ul>
             `
         };
@@ -1275,12 +1278,18 @@
 
             if (results.multiHandLandmarks && results.multiHandedness) {
                 results.multiHandLandmarks.forEach((landmarks, index) => {
-                    const handedness = results.multiHandedness[index].label.toLowerCase();
-                    const wrist = landmarks[0];
+                    let handedness = results.multiHandedness[index].label.toLowerCase();
+                    
+                    // Swap hands when using front camera (mirrored view)
+                    if (gameState.cameraFacing === 'user') {
+                        handedness = handedness === 'left' ? 'right' : 'left';
+                    }
+                    
+                    const palmCenter = landmarks[9]; // Middle finger base (palm center)
                     const indexTip = landmarks[8];
 
-                    const x = wrist.x * gameCanvas.width;
-                    const y = wrist.y * gameCanvas.height;
+                    const x = palmCenter.x * gameCanvas.width;
+                    const y = palmCenter.y * gameCanvas.height;
                     
                     const tipX = indexTip.x * gameCanvas.width;
                     const tipY = indexTip.y * gameCanvas.height;
@@ -1312,7 +1321,7 @@
                 }
             }
 
-            // Draw hand indicators
+            // Draw hand indicators with crosshairs
             for (const [handType, hand] of Object.entries(gameState.hands)) {
                 if (hand) {
                     let drawX = hand.x;
@@ -1320,12 +1329,37 @@
                         drawX = gameCanvas.width - hand.x;
                     }
 
+                    // Draw circle
                     canvasCtx.beginPath();
                     canvasCtx.arc(drawX, hand.y, 10, 0, Math.PI * 2);
                     canvasCtx.fillStyle = handType === 'left' ? 'rgba(16, 185, 129, 0.8)' : 'rgba(147, 51, 234, 0.8)';
                     canvasCtx.fill();
                     canvasCtx.strokeStyle = handType === 'left' ? 'rgba(16, 185, 129, 1)' : 'rgba(147, 51, 234, 1)';
                     canvasCtx.lineWidth = 2;
+                    canvasCtx.stroke();
+
+                    // Draw crosshairs - black outline
+                    canvasCtx.strokeStyle = 'rgba(0, 0, 0, 1)';
+                    canvasCtx.lineWidth = 4;
+                    canvasCtx.beginPath();
+                    // Horizontal line
+                    canvasCtx.moveTo(drawX - 8, hand.y);
+                    canvasCtx.lineTo(drawX + 8, hand.y);
+                    // Vertical line
+                    canvasCtx.moveTo(drawX, hand.y - 8);
+                    canvasCtx.lineTo(drawX, hand.y + 8);
+                    canvasCtx.stroke();
+                    
+                    // Draw crosshairs - white center
+                    canvasCtx.strokeStyle = 'rgba(255, 255, 255, 1)';
+                    canvasCtx.lineWidth = 2;
+                    canvasCtx.beginPath();
+                    // Horizontal line
+                    canvasCtx.moveTo(drawX - 8, hand.y);
+                    canvasCtx.lineTo(drawX + 8, hand.y);
+                    // Vertical line
+                    canvasCtx.moveTo(drawX, hand.y - 8);
+                    canvasCtx.lineTo(drawX, hand.y + 8);
                     canvasCtx.stroke();
                 }
             }
@@ -1472,7 +1506,7 @@
             }
 
             // Clean up all DOM elements
-            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide').forEach(el => el.remove());
+            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide, #patternInstruction, #patternGuide, #paintingInstruction, #tennisInstruction, #tennisBall').forEach(el => el.remove());
             
             gameState.targets = [];
             gameState.obstacles = [];
@@ -1567,11 +1601,26 @@
         }
 
         function updateHUD() {
-            document.getElementById('hudLabel1').textContent = 'SCORE';
-            document.getElementById('hudValue1').textContent = gameState.score;
-            document.getElementById('hudLabel2').textContent = 'COMBO';
-            document.getElementById('hudValue2').textContent = gameState.combo + 'x';
-            document.getElementById('hudLabel3').textContent = 'TIME';
+            // Customize HUD based on game mode
+            if (gameState.currentGameMode === 'handPatterns') {
+                document.getElementById('hudLabel1').textContent = 'SCORE';
+                document.getElementById('hudValue1').textContent = gameState.score;
+                document.getElementById('hudLabel2').textContent = 'ROTATIONS';
+                document.getElementById('hudValue2').textContent = gameState.handPatterns.rotations;
+                document.getElementById('hudLabel3').textContent = 'TIME';
+            } else if (gameState.currentGameMode === 'tennis') {
+                document.getElementById('hudLabel1').textContent = 'SCORE';
+                document.getElementById('hudValue1').textContent = gameState.score;
+                document.getElementById('hudLabel2').textContent = 'RALLY';
+                document.getElementById('hudValue2').textContent = gameState.combo;
+                document.getElementById('hudLabel3').textContent = 'TIME';
+            } else {
+                document.getElementById('hudLabel1').textContent = 'SCORE';
+                document.getElementById('hudValue1').textContent = gameState.score;
+                document.getElementById('hudLabel2').textContent = 'COMBO';
+                document.getElementById('hudValue2').textContent = gameState.combo + 'x';
+                document.getElementById('hudLabel3').textContent = 'TIME';
+            }
             
             const minutes = Math.floor(gameState.time / 60);
             const seconds = Math.floor(gameState.time % 60);
@@ -1722,15 +1771,31 @@
         function initHandPatterns() {
             const guide = document.createElement('div');
             guide.className = 'pattern-guide';
+            guide.id = 'patternGuide';
             document.body.appendChild(guide);
+            
+            // Add instruction text
+            const instruction = document.createElement('div');
+            instruction.className = 'simon-instruction';
+            instruction.style.top = '15%';
+            instruction.style.fontSize = '20px';
+            instruction.style.padding = '15px 25px';
+            instruction.textContent = 'Move your hand in circles along the ring!';
+            instruction.id = 'patternInstruction';
+            document.body.appendChild(instruction);
             
             gameState.handPatterns.rotations = 0;
             gameState.handPatterns.patternAngle = 0;
+            gameState.handPatterns.inPattern = false;
         }
 
         function updateHandPatterns(delta) {
             const hand = gameState.hands.right || gameState.hands.left;
-            if (!hand) return;
+            if (!hand) {
+                gameState.handPatterns.inPattern = false;
+                updatePatternGuide(false);
+                return;
+            }
 
             let handX = hand.x;
             if (gameState.cameraFacing === 'user') {
@@ -1747,35 +1812,72 @@
 
             const targetRadius = gameState.handPatterns.patternRadius;
             
-            if (Math.abs(distance - targetRadius) < 40) {
+            // Check if hand is on the pattern
+            if (Math.abs(distance - targetRadius) < 50) {
                 if (!gameState.handPatterns.inPattern) {
                     gameState.handPatterns.inPattern = true;
                     gameState.handPatterns.lastAngle = angle;
+                    updatePatternGuide(true);
+                    showMessage('ON TRACK!', true);
                 }
 
                 const angleDiff = angle - gameState.handPatterns.lastAngle;
-                if (Math.abs(angleDiff) > 0.1) {
-                    gameState.score += 1;
-                    gameState.handPatterns.patternAngle += angleDiff;
+                
+                // Handle angle wraparound
+                let normalizedDiff = angleDiff;
+                if (angleDiff > Math.PI) normalizedDiff -= 2 * Math.PI;
+                if (angleDiff < -Math.PI) normalizedDiff += 2 * Math.PI;
+                
+                if (Math.abs(normalizedDiff) > 0.05) {
+                    gameState.score += 2;
+                    gameState.handPatterns.patternAngle += normalizedDiff;
                     
+                    // Check for full rotation
                     if (Math.abs(gameState.handPatterns.patternAngle) > Math.PI * 2) {
                         gameState.handPatterns.rotations++;
                         gameState.handPatterns.patternAngle = 0;
                         gameState.combo++;
-                        showMessage('ROTATION COMPLETE! +50', true);
-                        gameState.score += 50;
+                        showMessage('ROTATION COMPLETE! +100', true);
+                        gameState.score += 100;
                         playSound(1200, 0.2);
                     }
                 }
                 
                 gameState.handPatterns.lastAngle = angle;
             } else {
+                if (gameState.handPatterns.inPattern) {
+                    updatePatternGuide(false);
+                }
                 gameState.handPatterns.inPattern = false;
             }
         }
 
+        function updatePatternGuide(active) {
+            const guide = document.getElementById('patternGuide');
+            if (guide) {
+                if (active) {
+                    guide.style.borderColor = 'var(--cyber-green)';
+                    guide.style.boxShadow = '0 0 30px rgba(16, 185, 129, 0.6)';
+                } else {
+                    guide.style.borderColor = 'var(--cyber-purple)';
+                    guide.style.boxShadow = 'none';
+                }
+            }
+        }
+
         function drawHandPatterns() {
-            // Visual feedback is provided by the pattern-guide div
+            // Draw progress arc if in pattern
+            if (gameState.handPatterns.inPattern) {
+                const centerX = gameCanvas.width / 2;
+                const centerY = gameCanvas.height / 2;
+                const radius = gameState.handPatterns.patternRadius;
+                
+                canvasCtx.strokeStyle = 'rgba(16, 185, 129, 0.8)';
+                canvasCtx.lineWidth = 6;
+                canvasCtx.beginPath();
+                canvasCtx.arc(centerX, centerY, radius, -Math.PI / 2, -Math.PI / 2 + gameState.handPatterns.patternAngle);
+                canvasCtx.stroke();
+            }
         }
 
         // ========== BUBBLE POP ==========
@@ -1805,15 +1907,27 @@
             gameState.tennis.ball = {
                 x: bounds.offsetX + bounds.width / 2,
                 y: bounds.offsetY + 100,
-                vx: 3,
-                vy: 3,
+                vx: 4,
+                vy: 4,
                 radius: 25
             };
 
             const ballEl = document.createElement('div');
             ballEl.className = 'tennis-ball';
             ballEl.id = 'tennisBall';
+            ballEl.style.width = '50px';
+            ballEl.style.height = '50px';
             document.body.appendChild(ballEl);
+            
+            // Add instruction
+            const instruction = document.createElement('div');
+            instruction.className = 'simon-instruction';
+            instruction.style.top = '12%';
+            instruction.style.fontSize = '18px';
+            instruction.style.padding = '12px 20px';
+            instruction.textContent = 'Keep the ball bouncing with your palm!';
+            instruction.id = 'tennisInstruction';
+            document.body.appendChild(instruction);
         }
 
         function updateTennis(delta) {
@@ -1825,25 +1939,29 @@
             ball.x += ball.vx;
             ball.y += ball.vy;
 
-            // Wall bounces
+            // Wall bounces (left and right)
             if (ball.x - ball.radius < bounds.offsetX || ball.x + ball.radius > bounds.offsetX + bounds.width) {
                 ball.vx *= -1;
+                ball.x = Math.max(bounds.offsetX + ball.radius, Math.min(bounds.offsetX + bounds.width - ball.radius, ball.x));
                 playSound(440, 0.05);
             }
             
+            // Top bounce
             if (ball.y - ball.radius < bounds.offsetY) {
                 ball.vy *= -1;
+                ball.y = bounds.offsetY + ball.radius;
                 playSound(440, 0.05);
             }
 
-            // Bottom miss
-            if (ball.y + ball.radius > bounds.offsetY + bounds.height) {
-                showMessage('MISS! Game Over', false);
-                stopGame();
+            // Bottom miss - game over
+            if (ball.y - ball.radius > bounds.offsetY + bounds.height) {
+                showMessage('MISS! Final Score: ' + gameState.score, false);
+                setTimeout(() => stopGame(), 2000);
                 return;
             }
 
-            // Hand collision
+            // Hand collision detection - more generous hit zone
+            let ballHit = false;
             for (const hand of Object.values(gameState.hands)) {
                 if (!hand) continue;
 
@@ -1854,13 +1972,26 @@
 
                 const distance = Math.hypot(handX - ball.x, hand.y - ball.y);
                 
-                if (distance < ball.radius + 30) {
-                    ball.vy *= -1;
-                    ball.vx += (ball.x - handX) * 0.1; // Add spin
-                    ball.vx = Math.max(-8, Math.min(8, ball.vx)); // Limit speed
-                    gameState.score += 10;
-                    gameState.combo++;
-                    playSound(660, 0.1);
+                // Larger hit radius for easier gameplay
+                if (distance < ball.radius + 40) {
+                    if (ball.vy > 0) { // Only bounce when ball is moving down
+                        ball.vy *= -1.1; // Slightly increase speed
+                        ball.vy = Math.max(ball.vy, -12); // Cap speed
+                        
+                        // Add horizontal momentum based on hand position
+                        const offset = (ball.x - handX) * 0.15;
+                        ball.vx += offset;
+                        ball.vx = Math.max(-10, Math.min(10, ball.vx)); // Limit horizontal speed
+                        
+                        // Move ball above hand to prevent multiple hits
+                        ball.y = hand.y - ball.radius - 5;
+                        
+                        gameState.score += 10;
+                        gameState.combo++;
+                        playSound(660 + (gameState.combo * 30), 0.1);
+                        showMessage('+10', true);
+                        ballHit = true;
+                    }
                     break;
                 }
             }
@@ -1873,7 +2004,14 @@
         }
 
         function drawTennisBall() {
-            // Ball is drawn via DOM element
+            // Ball is drawn via DOM element, but let's add a trail effect
+            const ball = gameState.tennis.ball;
+            if (ball) {
+                canvasCtx.beginPath();
+                canvasCtx.arc(ball.x, ball.y, ball.radius + 5, 0, Math.PI * 2);
+                canvasCtx.fillStyle = 'rgba(234, 179, 8, 0.2)';
+                canvasCtx.fill();
+            }
         }
 
         // ========== SIMON SAYS ==========
@@ -2003,15 +2141,25 @@
         function initArPainting() {
             gameState.arPainting.paths = [];
             gameState.arPainting.currentPath = null;
+            
+            // Add instruction
+            const instruction = document.createElement('div');
+            instruction.className = 'simon-instruction';
+            instruction.style.top = '10%';
+            instruction.style.fontSize = '20px';
+            instruction.style.padding = '15px 25px';
+            instruction.textContent = 'Trace the STAR with your palm! Move your hand slowly.';
+            instruction.id = 'paintingInstruction';
+            document.body.appendChild(instruction);
         }
 
         function updateArPainting(delta) {
             for (const [handType, hand] of Object.entries(gameState.hands)) {
                 if (!hand) continue;
 
-                let tipX = hand.tipX;
+                let handX = hand.x;
                 if (gameState.cameraFacing === 'user') {
-                    tipX = gameCanvas.width - hand.tipX;
+                    handX = gameCanvas.width - hand.x;
                 }
 
                 if (!gameState.arPainting.currentPath) {
@@ -2022,10 +2170,10 @@
                     gameState.arPainting.paths.push(gameState.arPainting.currentPath);
                 }
 
-                gameState.arPainting.currentPath.points.push({ x: tipX, y: hand.tipY });
+                gameState.arPainting.currentPath.points.push({ x: handX, y: hand.y });
 
-                // Limit path length
-                if (gameState.arPainting.currentPath.points.length > 50) {
+                // Limit path length to keep performance good
+                if (gameState.arPainting.currentPath.points.length > 100) {
                     gameState.arPainting.currentPath.points.shift();
                 }
             }
@@ -2036,6 +2184,35 @@
         }
 
         function drawPaintingPaths() {
+            // Draw guide star shape
+            const centerX = gameCanvas.width / 2;
+            const centerY = gameCanvas.height / 2;
+            const outerRadius = 150;
+            const innerRadius = 60;
+            
+            canvasCtx.strokeStyle = 'rgba(147, 51, 234, 0.3)';
+            canvasCtx.lineWidth = 3;
+            canvasCtx.setLineDash([10, 10]);
+            canvasCtx.beginPath();
+            
+            for (let i = 0; i < 10; i++) {
+                const radius = i % 2 === 0 ? outerRadius : innerRadius;
+                const angle = (i * Math.PI / 5) - Math.PI / 2;
+                const x = centerX + radius * Math.cos(angle);
+                const y = centerY + radius * Math.sin(angle);
+                
+                if (i === 0) {
+                    canvasCtx.moveTo(x, y);
+                } else {
+                    canvasCtx.lineTo(x, y);
+                }
+            }
+            
+            canvasCtx.closePath();
+            canvasCtx.stroke();
+            canvasCtx.setLineDash([]);
+
+            // Draw user's painting paths
             gameState.arPainting.paths.forEach(path => {
                 if (path.points.length < 2) return;
 
@@ -2058,7 +2235,6 @@
         function clearPaintingCanvas() {
             gameState.arPainting.paths = [];
             gameState.arPainting.currentPath = null;
-            canvasCtx.clearRect(0, 0, gameCanvas.width, gameCanvas.height);
         }
 
         // Data persistence
