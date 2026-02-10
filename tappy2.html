@@ -31,6 +31,32 @@
             box-sizing: border-box;
         }
 
+        /* Custom scrollbar styling */
+        * {
+            scrollbar-width: thin;
+            scrollbar-color: var(--cyber-purple) var(--cyber-surface);
+        }
+
+        *::-webkit-scrollbar {
+            width: 8px;
+            height: 8px;
+        }
+
+        *::-webkit-scrollbar-track {
+            background: var(--cyber-surface);
+            border-radius: 4px;
+        }
+
+        *::-webkit-scrollbar-thumb {
+            background: var(--cyber-purple);
+            border-radius: 4px;
+            border: 1px solid var(--cyber-border);
+        }
+
+        *::-webkit-scrollbar-thumb:hover {
+            background: #7c3aed;
+        }
+
         body {
             font-family: 'Rajdhani', sans-serif;
             background: var(--cyber-bg);
@@ -1272,6 +1298,39 @@
             oscillator.stop(audioContext.currentTime + duration);
         }
 
+        function playBubblePopSound() {
+            if (!audioContext) return;
+
+            // Create a satisfying "pop" sound with multiple oscillators
+            const now = audioContext.currentTime;
+            
+            // Main pop (quick frequency drop)
+            const osc1 = audioContext.createOscillator();
+            const gain1 = audioContext.createGain();
+            osc1.type = 'sine';
+            osc1.frequency.setValueAtTime(800, now);
+            osc1.frequency.exponentialRampToValueAtTime(200, now + 0.1);
+            gain1.gain.setValueAtTime(0.4, now);
+            gain1.gain.exponentialRampToValueAtTime(0.01, now + 0.15);
+            osc1.connect(gain1);
+            gain1.connect(audioContext.destination);
+            osc1.start(now);
+            osc1.stop(now + 0.15);
+
+            // Add a subtle high-frequency "sparkle"
+            const osc2 = audioContext.createOscillator();
+            const gain2 = audioContext.createGain();
+            osc2.type = 'sine';
+            osc2.frequency.setValueAtTime(2400, now);
+            osc2.frequency.exponentialRampToValueAtTime(1200, now + 0.08);
+            gain2.gain.setValueAtTime(0.15, now);
+            gain2.gain.exponentialRampToValueAtTime(0.01, now + 0.08);
+            osc2.connect(gain2);
+            gain2.connect(audioContext.destination);
+            osc2.start(now);
+            osc2.stop(now + 0.08);
+        }
+
         function onHandsResults(results) {
             gameState.hands.left = null;
             gameState.hands.right = null;
@@ -1390,7 +1449,7 @@
 
             gameState.currentGameMode = document.querySelector('input[name="gameMode"]:checked').value;
             gameState.difficulty = document.querySelector('input[name="difficulty"]:checked').value;
-            gameState.isPlaying = true;
+            gameState.isPlaying = false; // Start paused during countdown
             gameState.score = 0;
             gameState.combo = 0;
             gameState.time = 0;
@@ -1407,8 +1466,50 @@
             }
 
             updateHUD();
+            
+            // Start countdown before initializing game
+            await startCountdown(myRunId);
+            
+            if (gameState.runId !== myRunId) return; // Check if game was stopped during countdown
+            
+            gameState.isPlaying = true;
             initializeGameMode();
             startGameLoop();
+        }
+
+        async function startCountdown(runId) {
+            return new Promise((resolve) => {
+                let count = 5;
+                const countdownEl = document.createElement('div');
+                countdownEl.className = 'countdown';
+                countdownEl.textContent = count;
+                document.body.appendChild(countdownEl);
+
+                const countdownInterval = setInterval(() => {
+                    // If game was stopped, clean up and exit
+                    if (gameState.runId !== runId) {
+                        clearInterval(countdownInterval);
+                        countdownEl.remove();
+                        resolve();
+                        return;
+                    }
+
+                    count--;
+                    if (count > 0) {
+                        countdownEl.textContent = count;
+                        playSound(600, 0.1);
+                    } else {
+                        countdownEl.textContent = 'GO!';
+                        playSound(880, 0.2);
+                        clearInterval(countdownInterval);
+
+                        setTimeout(() => {
+                            countdownEl.remove();
+                            resolve();
+                        }, 500);
+                    }
+                }, 1000);
+            });
         }
 
         function initializeGameMode() {
@@ -1505,8 +1606,8 @@
                 cameraFeed.srcObject = null;
             }
 
-            // Clean up all DOM elements
-            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide, #patternInstruction, #patternGuide, #paintingInstruction, #tennisInstruction, #tennisBall').forEach(el => el.remove());
+            // Clean up all DOM elements including countdown
+            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide, .countdown, #patternInstruction, #patternGuide, #paintingInstruction, #tennisInstruction, #tennisBall').forEach(el => el.remove());
             
             gameState.targets = [];
             gameState.obstacles = [];
@@ -1539,7 +1640,8 @@
         }
 
         function checkTargetHits() {
-            const hitRadius = 50;
+            // Larger hit radius for bubble pop game
+            const hitRadius = gameState.currentGameMode === 'bubblePop' ? 70 : 50;
 
             for (let i = gameState.targets.length - 1; i >= 0; i--) {
                 const target = gameState.targets[i];
@@ -1553,9 +1655,14 @@
                         handX = gameCanvas.width - hand.x;
                     }
 
+                    // Calculate distance from palm center to target center
                     const distance = Math.hypot(handX - target.x, hand.y - target.y);
 
-                    if (distance < hitRadius) {
+                    // For bubbles, also account for their variable size
+                    const targetRadius = target.size ? target.size / 2 : 40;
+                    const effectiveHitRadius = hitRadius + (targetRadius * 0.5);
+
+                    if (distance < effectiveHitRadius) {
                         hitTarget(target, handType);
                         break;
                     }
@@ -1580,11 +1687,23 @@
             gameState.score += 10 + (gameState.combo * 5);
             gameState.combo++;
 
-            playSound(880 + (gameState.combo * 50), 0.1);
-
-            if (target.element) {
-                target.element.style.transform = 'scale(1.5)';
-                target.element.style.opacity = '0';
+            // Use special bubble pop sound for bubble pop game
+            if (gameState.currentGameMode === 'bubblePop') {
+                playBubblePopSound();
+                
+                // Special bubble pop animation
+                if (target.element) {
+                    target.element.style.transform = 'scale(1.8)';
+                    target.element.style.opacity = '0';
+                    target.element.style.transition = 'all 0.15s ease-out';
+                }
+            } else {
+                playSound(880 + (gameState.combo * 50), 0.1);
+                
+                if (target.element) {
+                    target.element.style.transform = 'scale(1.5)';
+                    target.element.style.opacity = '0';
+                }
             }
 
             setTimeout(() => removeTarget(target), 200);
@@ -1690,6 +1809,7 @@
                 element: target,
                 hit: false,
                 timeout: options.timeout,
+                size: size,  // Store size for hit detection
                 ...options.data
             };
 
@@ -1774,7 +1894,7 @@
             guide.id = 'patternGuide';
             document.body.appendChild(guide);
             
-            // Add instruction text
+            // Add instruction text that auto-hides after 5 seconds
             const instruction = document.createElement('div');
             instruction.className = 'simon-instruction';
             instruction.style.top = '15%';
@@ -1783,6 +1903,15 @@
             instruction.textContent = 'Move your hand in circles along the ring!';
             instruction.id = 'patternInstruction';
             document.body.appendChild(instruction);
+            
+            // Auto-hide instruction after 5 seconds
+            setTimeout(() => {
+                if (instruction && instruction.parentNode) {
+                    instruction.style.transition = 'opacity 0.5s';
+                    instruction.style.opacity = '0';
+                    setTimeout(() => instruction.remove(), 500);
+                }
+            }, 5000);
             
             gameState.handPatterns.rotations = 0;
             gameState.handPatterns.patternAngle = 0;
@@ -1919,7 +2048,7 @@
             ballEl.style.height = '50px';
             document.body.appendChild(ballEl);
             
-            // Add instruction
+            // Add instruction that auto-hides after 5 seconds
             const instruction = document.createElement('div');
             instruction.className = 'simon-instruction';
             instruction.style.top = '12%';
@@ -1928,6 +2057,15 @@
             instruction.textContent = 'Keep the ball bouncing with your palm!';
             instruction.id = 'tennisInstruction';
             document.body.appendChild(instruction);
+            
+            // Auto-hide instruction after 5 seconds
+            setTimeout(() => {
+                if (instruction && instruction.parentNode) {
+                    instruction.style.transition = 'opacity 0.5s';
+                    instruction.style.opacity = '0';
+                    setTimeout(() => instruction.remove(), 500);
+                }
+            }, 5000);
         }
 
         function updateTennis(delta) {
@@ -1960,7 +2098,7 @@
                 return;
             }
 
-            // Hand collision detection - more generous hit zone
+            // Hand collision detection - VERY generous hit zone for better responsiveness
             let ballHit = false;
             for (const hand of Object.values(gameState.hands)) {
                 if (!hand) continue;
@@ -1972,8 +2110,8 @@
 
                 const distance = Math.hypot(handX - ball.x, hand.y - ball.y);
                 
-                // Larger hit radius for easier gameplay
-                if (distance < ball.radius + 40) {
+                // Much larger hit radius (100px) for easier gameplay
+                if (distance < 100) {
                     if (ball.vy > 0) { // Only bounce when ball is moving down
                         ball.vy *= -1.1; // Slightly increase speed
                         ball.vy = Math.max(ball.vy, -12); // Cap speed
@@ -1984,7 +2122,7 @@
                         ball.vx = Math.max(-10, Math.min(10, ball.vx)); // Limit horizontal speed
                         
                         // Move ball above hand to prevent multiple hits
-                        ball.y = hand.y - ball.radius - 5;
+                        ball.y = hand.y - ball.radius - 10;
                         
                         gameState.score += 10;
                         gameState.combo++;
@@ -2142,7 +2280,7 @@
             gameState.arPainting.paths = [];
             gameState.arPainting.currentPath = null;
             
-            // Add instruction
+            // Add instruction that auto-hides after 5 seconds
             const instruction = document.createElement('div');
             instruction.className = 'simon-instruction';
             instruction.style.top = '10%';
@@ -2151,6 +2289,15 @@
             instruction.textContent = 'Trace the STAR with your palm! Move your hand slowly.';
             instruction.id = 'paintingInstruction';
             document.body.appendChild(instruction);
+            
+            // Auto-hide instruction after 5 seconds
+            setTimeout(() => {
+                if (instruction && instruction.parentNode) {
+                    instruction.style.transition = 'opacity 0.5s';
+                    instruction.style.opacity = '0';
+                    setTimeout(() => instruction.remove(), 500);
+                }
+            }, 5000);
         }
 
         function updateArPainting(delta) {
