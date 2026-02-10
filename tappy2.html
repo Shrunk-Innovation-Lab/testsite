@@ -579,6 +579,36 @@
             box-shadow: 0 0 20px rgba(147, 51, 234, 0.5);
         }
 
+        /* AFL Handball targets */
+        .target.handball {
+            font-size: 32px;
+            font-weight: bold;
+            animation: punchPulse 0.8s ease-in-out infinite;
+        }
+
+        .target.handball.left {
+            background: radial-gradient(circle, rgba(16, 185, 129, 0.9), rgba(16, 185, 129, 0.4));
+            border: 3px solid var(--cyber-green);
+            box-shadow: 0 0 30px rgba(16, 185, 129, 0.6);
+        }
+
+        .target.handball.right {
+            background: radial-gradient(circle, rgba(147, 51, 234, 0.9), rgba(147, 51, 234, 0.4));
+            border: 3px solid var(--cyber-purple);
+            box-shadow: 0 0 30px rgba(147, 51, 234, 0.6);
+        }
+
+        @keyframes punchPulse {
+            0%, 100% { 
+                transform: scale(1); 
+                box-shadow: 0 0 30px rgba(147, 51, 234, 0.6);
+            }
+            50% { 
+                transform: scale(1.1); 
+                box-shadow: 0 0 40px rgba(147, 51, 234, 0.8);
+            }
+        }
+
         /* Color variations */
         .target.color-red {
             background: radial-gradient(circle, rgba(239, 68, 68, 0.8), rgba(239, 68, 68, 0.3));
@@ -1043,6 +1073,10 @@
                             <input type="radio" id="arPainting" name="gameMode" value="arPainting">
                             <label for="arPainting"><span class="mode-emoji">🎨</span>AR PAINTING</label>
                         </div>
+                        <div class="game-mode-option">
+                            <input type="radio" id="aflHandball" name="gameMode" value="aflHandball">
+                            <label for="aflHandball"><span class="mode-emoji">🏉</span>AFL HANDBALL</label>
+                        </div>
                     </div>
                 </div>
 
@@ -1265,6 +1299,26 @@
                     <li>Use CLEAR button to reset and try again</li>
                     <li>Left hand = green, Right hand = purple</li>
                 </ul>
+            `,
+            aflHandball: `
+                <h4>OBJECTIVE</h4>
+                <p>Perfect your AFL handball technique with punch-motion training! Hit targets with quick, sharp fist movements.</p>
+                <h4>CONTROLS</h4>
+                <ul>
+                    <li>Make a <strong>CLOSED FIST</strong> (fingers curled in)</li>
+                    <li>PUNCH forward with quick, sharp motion</li>
+                    <li>Hit 👊L targets with LEFT fist</li>
+                    <li>Hit 👊R targets with RIGHT fist</li>
+                    <li>POWER is tracked - harder punches = more points!</li>
+                    <li>Chain handballs for combo bonuses</li>
+                </ul>
+                <h4>AFL SKILLS</h4>
+                <ul>
+                    <li>Quick hands development</li>
+                    <li>Left/right balance training</li>
+                    <li>Reaction speed (critical in-game)</li>
+                    <li>Decision making under pressure</li>
+                </ul>
             `
         };
 
@@ -1310,6 +1364,13 @@
             targetSwipe: { dragging: null, zones: [] },
             arPainting: { paths: [], currentPath: null },
             handPatterns: { patternAngle: 0, patternRadius: 150, inPattern: false, rotations: 0 },
+            aflHandball: { 
+                leftFist: { isClosed: false, lastPosition: null, velocity: 0, lastVelocity: 0 },
+                rightFist: { isClosed: false, lastPosition: null, velocity: 0, lastVelocity: 0 },
+                powerThreshold: 300, // Minimum velocity for valid handball
+                hits: 0,
+                misses: 0
+            },
             
             timers: {
                 gameLoop: null,
@@ -1706,6 +1767,9 @@
                 case 'arPainting':
                     initArPainting();
                     break;
+                case 'aflHandball':
+                    initAflHandball();
+                    break;
             }
         }
 
@@ -1735,6 +1799,9 @@
                     break;
                 case 'arPainting':
                     updateArPainting(delta);
+                    break;
+                case 'aflHandball':
+                    updateAflHandball(delta);
                     break;
             }
         }
@@ -1780,7 +1847,7 @@
             }
 
             // Clean up all DOM elements including countdown and particles
-            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide, .countdown, .bubble-particle, #patternInstruction, #patternGuide, #paintingInstruction, #tennisInstruction, #tennisBall').forEach(el => el.remove());
+            document.querySelectorAll('.target, .obstacle, .tennis-ball, .simon-instruction, .color-indicator, .pattern-guide, .countdown, .bubble-particle, #patternInstruction, #patternGuide, #paintingInstruction, #tennisInstruction, #tennisBall, #powerMeter').forEach(el => el.remove());
             
             gameState.targets = [];
             gameState.obstacles = [];
@@ -1976,6 +2043,15 @@
                 document.getElementById('hudLabel2').textContent = 'RALLY';
                 document.getElementById('hudValue2').textContent = gameState.combo;
                 document.getElementById('hudLabel3').textContent = 'TIME';
+            } else if (gameState.currentGameMode === 'aflHandball') {
+                const totalDisposals = gameState.aflHandball.hits + gameState.aflHandball.misses;
+                const efficiency = totalDisposals > 0 ? Math.round((gameState.aflHandball.hits / totalDisposals) * 100) : 100;
+                
+                document.getElementById('hudLabel1').textContent = 'SCORE';
+                document.getElementById('hudValue1').textContent = gameState.score;
+                document.getElementById('hudLabel2').textContent = 'EFFICIENCY';
+                document.getElementById('hudValue2').textContent = efficiency + '%';
+                document.getElementById('hudLabel3').textContent = 'TIME';
             } else {
                 document.getElementById('hudLabel1').textContent = 'SCORE';
                 document.getElementById('hudValue1').textContent = gameState.score;
@@ -2029,9 +2105,36 @@
             const bounds = getVideoBounds();
             const size = options.size || 80;
             const padding = 60;
-
-            const x = bounds.offsetX + padding + Math.random() * (bounds.width - 2 * padding - size);
-            const y = bounds.offsetY + padding + Math.random() * (bounds.height - 2 * padding - size);
+            const minDistanceFromHands = 150; // Minimum distance from hand positions
+            
+            let x, y;
+            let attempts = 0;
+            const maxAttempts = 20;
+            
+            // Try to find a position away from hands
+            do {
+                x = bounds.offsetX + padding + Math.random() * (bounds.width - 2 * padding - size);
+                y = bounds.offsetY + padding + Math.random() * (bounds.height - 2 * padding - size);
+                
+                // Check distance from both hands
+                let tooCloseToHand = false;
+                for (const hand of Object.values(gameState.hands)) {
+                    if (hand) {
+                        let handX = hand.x;
+                        if (gameState.cameraFacing === 'user') {
+                            handX = gameCanvas.width - hand.x;
+                        }
+                        const distance = Math.hypot(handX - x, hand.y - y);
+                        if (distance < minDistanceFromHands) {
+                            tooCloseToHand = true;
+                            break;
+                        }
+                    }
+                }
+                
+                if (!tooCloseToHand) break;
+                attempts++;
+            } while (attempts < maxAttempts);
 
             const target = document.createElement('div');
             target.className = 'target ' + (options.className || '');
@@ -2625,6 +2728,190 @@
         function clearPaintingCanvas() {
             gameState.arPainting.paths = [];
             gameState.arPainting.currentPath = null;
+        }
+
+        // ========== AFL HANDBALL ==========
+        function initAflHandball() {
+            // Reset AFL handball state
+            gameState.aflHandball.leftFist = { isClosed: false, lastPosition: null, velocity: 0, lastVelocity: 0 };
+            gameState.aflHandball.rightFist = { isClosed: false, lastPosition: null, velocity: 0, lastVelocity: 0 };
+            gameState.aflHandball.hits = 0;
+            gameState.aflHandball.misses = 0;
+
+            // Start spawning targets
+            gameState.timers.spawnInterval = setInterval(() => {
+                const hand = Math.random() > 0.5 ? 'left' : 'right';
+                const timeouts = { easy: 3000, medium: 2000, hard: 1500, pro: 1000, brownlow: 800, legend: 600 };
+                
+                spawnTarget({
+                    className: 'handball ' + hand,
+                    text: hand === 'left' ? '👊L' : '👊R',
+                    timeout: timeouts[gameState.difficulty],
+                    data: { hand, requiresPunch: true }
+                });
+            }, 1500);
+
+            // Add power meter display
+            const powerMeter = document.createElement('div');
+            powerMeter.id = 'powerMeter';
+            powerMeter.style.position = 'fixed';
+            powerMeter.style.bottom = '120px';
+            powerMeter.style.left = '50%';
+            powerMeter.style.transform = 'translateX(-50%)';
+            powerMeter.style.width = '200px';
+            powerMeter.style.textAlign = 'center';
+            powerMeter.style.color = '#fff';
+            powerMeter.style.fontSize = '16px';
+            powerMeter.style.fontWeight = 'bold';
+            powerMeter.style.zIndex = '100';
+            powerMeter.style.padding = '10px';
+            powerMeter.style.background = 'rgba(0, 0, 0, 0.5)';
+            powerMeter.style.borderRadius = '8px';
+            powerMeter.innerHTML = 'MAKE A FIST & PUNCH!';
+            document.body.appendChild(powerMeter);
+        }
+
+        function updateAflHandball(delta) {
+            // Detect fist closure and velocity for both hands
+            for (const [handType, hand] of Object.entries(gameState.hands)) {
+                if (!hand) {
+                    gameState.aflHandball[handType + 'Fist'].isClosed = false;
+                    gameState.aflHandball[handType + 'Fist'].lastPosition = null;
+                    continue;
+                }
+
+                const fistData = gameState.aflHandball[handType + 'Fist'];
+                
+                // Check if fist is closed by measuring finger curl
+                const isClosed = detectFistClosure(hand.landmarks);
+                fistData.isClosed = isClosed;
+
+                // Calculate velocity (how fast the fist is moving forward)
+                let handX = hand.x;
+                if (gameState.cameraFacing === 'user') {
+                    handX = gameCanvas.width - hand.x;
+                }
+
+                if (fistData.lastPosition) {
+                    const dx = handX - fistData.lastPosition.x;
+                    const dy = hand.y - fistData.lastPosition.y;
+                    const distance = Math.hypot(dx, dy);
+                    const velocity = distance / delta; // pixels per second
+                    
+                    fistData.lastVelocity = fistData.velocity;
+                    fistData.velocity = velocity;
+                } else {
+                    fistData.velocity = 0;
+                }
+
+                fistData.lastPosition = { x: handX, y: hand.y };
+
+                // Check for handball punch (fist is closed AND moving fast)
+                if (isClosed && fistData.velocity > gameState.aflHandball.powerThreshold) {
+                    // Look for targets to hit
+                    checkHandballHits(handType, handX, hand.y, fistData.velocity);
+                }
+            }
+
+            // Update power meter display
+            updatePowerMeter();
+        }
+
+        function detectFistClosure(landmarks) {
+            // Check if fingers are curled in (fist is closed)
+            // Compare fingertip positions to palm base
+            const wrist = landmarks[0];
+            const palmBase = landmarks[9]; // Middle finger base (center of palm)
+            
+            // Check all fingertips (index, middle, ring, pinky) - excluding thumb
+            const fingerTips = [8, 12, 16, 20]; // Index, Middle, Ring, Pinky tips
+            const fingerBases = [5, 9, 13, 17]; // Their respective bases
+            
+            let closedCount = 0;
+            
+            for (let i = 0; i < fingerTips.length; i++) {
+                const tip = landmarks[fingerTips[i]];
+                const base = landmarks[fingerBases[i]];
+                
+                // If fingertip is closer to wrist than base, finger is curled
+                const tipDistance = Math.hypot(tip.x - wrist.x, tip.y - wrist.y);
+                const baseDistance = Math.hypot(base.x - wrist.x, base.y - wrist.y);
+                
+                if (tipDistance < baseDistance * 0.9) { // Finger is curled
+                    closedCount++;
+                }
+            }
+            
+            // If 3 or more fingers are curled, consider it a fist
+            return closedCount >= 3;
+        }
+
+        function checkHandballHits(handType, handX, handY, velocity) {
+            const hitRadius = 80;
+            
+            for (let i = gameState.targets.length - 1; i >= 0; i--) {
+                const target = gameState.targets[i];
+                if (target.hit || !target.requiresPunch) continue;
+
+                // Check if this target requires this hand
+                if (target.hand !== handType) continue;
+
+                const distance = Math.hypot(handX - target.x, handY - target.y);
+
+                if (distance < hitRadius) {
+                    // Hit! Calculate power bonus
+                    const powerMultiplier = Math.min(velocity / gameState.aflHandball.powerThreshold, 3);
+                    const basePoints = 10 + (gameState.combo * 5);
+                    const powerBonus = Math.floor(basePoints * (powerMultiplier - 1));
+                    
+                    target.hit = true;
+                    gameState.score += basePoints + powerBonus;
+                    gameState.combo++;
+                    gameState.aflHandball.hits++;
+
+                    playSound(880 + (gameState.combo * 50), 0.1);
+                    showMessage(`+${basePoints + powerBonus} POWER: ${Math.floor(velocity)}`, true);
+
+                    if (target.element) {
+                        target.element.style.transform = 'scale(1.5) rotate(360deg)';
+                        target.element.style.opacity = '0';
+                        target.element.style.transition = 'all 0.3s ease-out';
+                    }
+
+                    setTimeout(() => removeTarget(target), 300);
+                    break;
+                }
+            }
+        }
+
+        function updatePowerMeter() {
+            const powerMeter = document.getElementById('powerMeter');
+            if (!powerMeter) return;
+
+            const leftFist = gameState.aflHandball.leftFist;
+            const rightFist = gameState.aflHandball.rightFist;
+
+            let leftStatus = leftFist.isClosed ? '✓ FIST' : '○ OPEN';
+            let rightStatus = rightFist.isClosed ? '✓ FIST' : '○ OPEN';
+
+            const maxVelocity = Math.max(leftFist.velocity, rightFist.velocity);
+            const powerPercent = Math.min((maxVelocity / gameState.aflHandball.powerThreshold) * 100, 150);
+
+            let powerColor = '#666';
+            if (powerPercent >= 100) powerColor = '#10b981';
+            else if (powerPercent >= 60) powerColor = '#eab308';
+            else if (powerPercent >= 30) powerColor = '#f97316';
+
+            powerMeter.innerHTML = `
+                <div style="display: flex; justify-content: space-between; margin-bottom: 5px;">
+                    <span style="color: ${leftFist.isClosed ? '#10b981' : '#666'}">L ${leftStatus}</span>
+                    <span style="color: ${rightFist.isClosed ? '#9333ea' : '#666'}">R ${rightStatus}</span>
+                </div>
+                <div style="font-size: 12px; margin-bottom: 5px;">POWER: ${Math.floor(powerPercent)}%</div>
+                <div style="width: 100%; height: 8px; background: rgba(255,255,255,0.1); border-radius: 4px; overflow: hidden;">
+                    <div style="width: ${powerPercent}%; height: 100%; background: ${powerColor}; transition: all 0.1s;"></div>
+                </div>
+            `;
         }
 
         // Data persistence
