@@ -1307,8 +1307,8 @@
                 <ul>
                     <li>Make a <strong>CLOSED FIST</strong> (fingers curled in)</li>
                     <li>PUNCH forward with quick, sharp motion</li>
-                    <li>Hit 👊L targets with LEFT fist</li>
-                    <li>Hit 👊R targets with RIGHT fist</li>
+                    <li><strong style="color: #10b981;">Match GREEN targets with your LEFT fist</strong> (green tracking dot)</li>
+                    <li><strong style="color: #9333ea;">Match PURPLE targets with your RIGHT fist</strong> (purple tracking dot)</li>
                     <li>POWER is tracked - harder punches = more points!</li>
                     <li>Chain handballs for combo bonuses</li>
                 </ul>
@@ -2743,9 +2743,10 @@
                 const hand = Math.random() > 0.5 ? 'left' : 'right';
                 const timeouts = { easy: 3000, medium: 2000, hard: 1500, pro: 1000, brownlow: 800, legend: 600 };
                 
+                // Swap labels to match user's physical hands (left hand hits L, right hand hits R)
                 spawnTarget({
                     className: 'handball ' + hand,
-                    text: hand === 'left' ? '👊L' : '👊R',
+                    text: hand === 'left' ? '👊R' : '👊L',  // Swapped
                     timeout: timeouts[gameState.difficulty],
                     data: { hand, requiresPunch: true }
                 });
