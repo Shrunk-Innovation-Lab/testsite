@@ -427,7 +427,88 @@
   }
   #toast.show { opacity: 1; }
 
-  /* ═══════════════ LOADING SCREEN ═══════════════ */
+  /* ═══════════════ STICKER TRAY ═══════════════ */
+  #sticker-toggle {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--white);
+    min-width: 44px; min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.08em;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.18s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #sticker-toggle:active { background: rgba(255,255,255,0.22); }
+
+  #sticker-tray {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 150;
+    background: rgba(10,10,10,0.97);
+    backdrop-filter: blur(20px);
+    -webkit-backdrop-filter: blur(20px);
+    border-top: 1px solid rgba(255,255,255,0.1);
+    border-radius: 24px 24px 0 0;
+    padding: 16px 20px calc(var(--sab) + 16px);
+    transform: translateY(100%);
+    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+  }
+  #sticker-tray.open { transform: translateY(0); }
+
+  .tray-handle {
+    width: 36px; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.2);
+    margin: 0 auto 14px;
+  }
+  .tray-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 12px; text-align: center;
+  }
+  .sticker-grid {
+    display: grid;
+    grid-template-columns: repeat(8, 1fr);
+    gap: 8px;
+  }
+  .sticker-btn {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 12px;
+    font-size: 1.6rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+    min-height: 48px;
+  }
+  .sticker-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.9); }
+
+  /* Selected sticker delete ring */
+  #sticker-delete {
+    position: fixed;
+    z-index: 149;
+    background: rgba(220,53,53,0.85);
+    backdrop-filter: blur(8px);
+    color: #fff;
+    border: none;
+    border-radius: 50px;
+    padding: 9px 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.1em;
+    cursor: pointer;
+    display: none;
+    align-items: center; gap: 6px;
+    pointer-events: auto;
+    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
+  }
+  #sticker-delete.show {
+    display: flex;
+    top: calc(var(--di-top) + 64px);
+    left: 50%; transform: translateX(-50%);
+  }
+
   #loading-screen {
     position: fixed; inset: 0; z-index: 500;
     background: var(--black);
@@ -570,13 +651,12 @@
 'use strict';
 
 // ─── CONFIG ───────────────────────────────────────────────────────────────────
-const BASE = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/bc2b5798f18446561f490e2c89b9025f3ef8f75b/Selfies/';
 const LOGO_URL = 'https://i.imgur.com/kG2dDb7.png';
 
 const IMAGE_SRCS = {
-  both: BASE + 'NXTplay.png',
-  nick: BASE + 'NXTnick.png',
-  josh: BASE + 'NXTjosh.png'
+  both: 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/bc2b5798f18446561f490e2c89b9025f3ef8f75b/Selfies/NXTplay.png',
+  nick: 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/8705665d927c2104ee39a2a2b13d9c11c17eb94f/Selfies/NXTnick.png',
+  josh: 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/853204ff259210f8074be89cd57911eb9b97bdbd/Selfies/NXTjosh.png'
 };
 
 // ─── STATE ────────────────────────────────────────────────────────────────────
