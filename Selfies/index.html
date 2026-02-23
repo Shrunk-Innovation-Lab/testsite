@@ -2,7 +2,10 @@
 <html lang="en">
 <head>
 <meta charset="UTF-8">
-<meta name="viewport" content="width=device-width, initial-scale=1.0, user-scalable=no">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
 <title>Selfie with the Daicos Bros</title>
 <style>
   @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
@@ -10,359 +13,524 @@
   *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
   :root {
-    --black: #0a0a0a;
-    --white: #f5f5f0;
+    --black:  #0a0a0a;
+    --white:  #f5f5f0;
     --accent: #c8a84b;
     --blue:   #64b5f6;
-    --green:  #4caf50;
+    --green:  #3ddc84;
+
+    /* iPhone safe areas — fallback for non-notch devices */
+    --sat: env(safe-area-inset-top,    0px);
+    --sar: env(safe-area-inset-right,  0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left,   0px);
+
+    /* Dynamic Island clearance on iPhone 17 Pro Max ≈ 59pt logical */
+    --di-top: max(var(--sat), 16px);
   }
 
   html, body {
-    height: 100%; background: var(--black);
-    color: var(--white); font-family: 'Barlow', sans-serif;
-    overflow: hidden; touch-action: none;
+    height: 100%; width: 100%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    overflow: hidden;
+    /* Disable rubber-band scroll & double-tap zoom */
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
   }
 
-  /* ── HEADER ── */
-  header {
-    position: fixed; top: 0; left: 0; right: 0; z-index: 100;
-    display: flex; align-items: center; justify-content: space-between;
-    padding: 12px 18px;
-    background: linear-gradient(to bottom, rgba(10,10,10,0.95), transparent);
+  /* ═══════════════ VIEWFINDER ═══════════════ */
+  #viewfinder {
+    position: fixed; inset: 0;
+    /* Extend under Dynamic Island & home bar */
+    padding: 0;
   }
-  .logo { font-family: 'Bebas Neue', sans-serif; font-size: 1.5rem; letter-spacing: 0.08em; line-height: 1; }
-  .logo span { color: var(--accent); }
-  .tagline { font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; letter-spacing: 0.15em; text-transform: uppercase; color: rgba(245,245,240,0.45); margin-top: 2px; }
-  .flip-btn {
-    background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.2);
-    color: var(--white); padding: 8px 14px; border-radius: 50px;
-    font-family: 'Barlow Condensed', sans-serif; font-size: 0.8rem; letter-spacing: 0.1em;
-    cursor: pointer; backdrop-filter: blur(8px); transition: background 0.2s;
+  #canvas {
+    width: 100%; height: 100%;
+    display: block;
+    /* Prevent blurry canvas on Retina */
+    image-rendering: -webkit-optimize-contrast;
   }
-  .flip-btn:hover { background: rgba(255,255,255,0.2); }
-
-  /* ── CANVAS ── */
-  #viewfinder { position: fixed; inset: 0; }
-  #canvas { width: 100%; height: 100%; display: block; }
   video { display: none; }
 
-  /* ── START SCREEN ── */
-  #start-screen {
-    position: fixed; inset: 0; z-index: 200;
-    background: var(--black); display: flex; flex-direction: column;
-    align-items: center; justify-content: center; padding: 28px 20px 20px; gap: 0; overflow-y: auto;
+  /* ═══════════════ HEADER ═══════════════ */
+  #ar-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    /* Sit below Dynamic Island */
+    padding: calc(var(--di-top) + 8px) 20px 12px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.88) 60%, transparent);
   }
-  .big-title { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.8rem, 15vw, 5.5rem); letter-spacing: 0.03em; line-height: 0.9; text-align: center; }
-  .big-title em { color: var(--accent); font-style: normal; display: block; font-size: 0.6em; }
-  .stripe-divider { width: 100%; height: 5px; background: repeating-linear-gradient(90deg, var(--white) 0px, var(--white) 18px, var(--black) 18px, var(--black) 36px); margin: 14px 0; }
-
-  /* ── MODE SELECTOR ── */
-  .section-block { width: 100%; max-width: 440px; margin-top: 12px; }
-  .section-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.38); margin-bottom: 7px; }
-  .mode-grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 7px; }
-  .mode-card {
-    background: #141414; border: 2px solid #222; border-radius: 10px;
-    padding: 11px 6px; display: flex; flex-direction: column; align-items: center; gap: 5px;
-    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+  .header-logo {
+    height: 32px; width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.7));
   }
-  .mode-card:hover { border-color: rgba(200,168,75,0.45); background: #1b1910; }
-  .mode-card.active { border-color: var(--accent); background: #1b1910; }
-  .mode-icon { font-size: 1.5rem; line-height: 1; }
-  .mode-name { font-family: 'Barlow Condensed', sans-serif; font-size: 0.72rem; font-weight: 700; letter-spacing: 0.08em; text-transform: uppercase; text-align: center; }
-  .mode-desc { font-family: 'Barlow Condensed', sans-serif; font-size: 0.6rem; color: rgba(255,255,255,0.38); text-align: center; line-height: 1.3; }
-
-  /* ── UPLOAD GRID ── */
-  /* 3 cards: Both (full width top), Nick + Josh (side by side bottom) */
-  .upload-grid {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    grid-template-rows: auto auto;
-    gap: 8px;
-    width: 100%; max-width: 440px;
-    margin-top: 10px;
+  .flip-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: var(--white);
+    /* min 44pt touch target */
+    min-width: 44px; min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.1em;
+    cursor: pointer;
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    transition: background 0.2s;
+    display: flex; align-items: center; gap: 6px;
   }
-  .player-card {
-    background: #141414; border: 1px solid #272727; border-radius: 10px;
-    padding: 11px 12px; display: flex; flex-direction: column; align-items: center; gap: 6px;
-    transition: border-color 0.25s;
-  }
-  /* "Both" card spans full width */
-  .player-card.both-card {
-    grid-column: 1 / -1;
-    flex-direction: row; justify-content: space-between; align-items: center;
-    padding: 12px 16px;
-  }
-  .player-card.active-card { border-color: rgba(200,168,75,0.5); }
+  .flip-btn:active { background: rgba(255,255,255,0.26); }
 
-  .card-left { display: flex; align-items: center; gap: 10px; }
-  .card-nums { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; color: var(--accent); line-height: 1; }
-  .card-nums .slash { color: rgba(255,255,255,0.2); margin: 0 2px; font-size: 1.2rem; }
-  .card-name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
-  .card-sub { font-family: 'Barlow Condensed', sans-serif; font-size: 0.62rem; color: rgba(255,255,255,0.35); margin-top: 1px; }
-
-  .player-card .num { font-family: 'Bebas Neue', sans-serif; font-size: 2rem; color: var(--accent); line-height: 1; }
-  .player-card .name { font-family: 'Barlow Condensed', sans-serif; font-weight: 700; font-size: 0.75rem; letter-spacing: 0.1em; text-transform: uppercase; }
-
-  .upload-label {
-    display: flex; align-items: center; gap: 5px; cursor: pointer;
-    background: rgba(255,255,255,0.05); border: 1px dashed rgba(255,255,255,0.2);
-    border-radius: 7px; padding: 7px 10px;
-    font-family: 'Barlow Condensed', sans-serif; font-size: 0.7rem; letter-spacing: 0.07em;
-    color: rgba(255,255,255,0.5); transition: all 0.2s; justify-content: center; white-space: nowrap;
-  }
-  .upload-label:hover { border-color: var(--accent); color: var(--accent); }
-  .upload-label.loaded { border-color: var(--green); color: var(--green); border-style: solid; }
-  input[type=file] { display: none; }
-
-  .start-btn {
-    margin-top: 13px; background: var(--white); color: var(--black); border: none;
-    padding: 14px 44px; font-family: 'Bebas Neue', sans-serif; font-size: 1.3rem;
-    letter-spacing: 0.1em; border-radius: 50px; cursor: pointer; transition: transform 0.15s, background 0.2s;
-  }
-  .start-btn:hover { background: var(--accent); transform: scale(1.03); }
-  .hint { font-size: 0.66rem; color: rgba(255,255,255,0.27); text-align: center; margin-top: 7px; line-height: 1.5; font-family: 'Barlow Condensed', sans-serif; letter-spacing: 0.05em; }
-
-  /* ── MODE BADGE ── */
+  /* ═══════════════ MODE BADGE ═══════════════ */
   #mode-badge {
-    position: fixed; top: 68px; left: 50%; transform: translateX(-50%);
-    z-index: 99; background: rgba(10,10,10,0.78); backdrop-filter: blur(10px);
-    border: 1px solid rgba(200,168,75,0.4); border-radius: 50px;
-    padding: 5px 14px; font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.72rem; letter-spacing: 0.12em; text-transform: uppercase;
-    color: var(--accent); pointer-events: none; display: none;
+    position: fixed;
+    top: calc(var(--di-top) + 60px);
+    left: 50%; transform: translateX(-50%);
+    z-index: 99;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(200,168,75,0.45);
+    border-radius: 50px;
+    padding: 5px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent);
+    pointer-events: none;
+    display: none;
+    white-space: nowrap;
   }
 
-  /* ── TOOLBAR ── */
+  /* ═══════════════ DRAG HINT ═══════════════ */
+  #drag-hint {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.68);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.88rem; letter-spacing: 0.1em;
+    padding: 10px 20px; border-radius: 50px;
+    pointer-events: none;
+    opacity: 1; transition: opacity 0.8s;
+    z-index: 99; white-space: nowrap;
+  }
+  #drag-hint.hidden { opacity: 0; }
+
+  /* ═══════════════ TOOLBAR ═══════════════ */
   #toolbar {
-    position: fixed; bottom: 0; left: 0; right: 0; z-index: 100;
-    padding: 12px 16px 28px;
-    background: linear-gradient(to top, rgba(10,10,10,0.97) 70%, transparent);
-    display: flex; flex-direction: column; gap: 8px;
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    /* Respect home indicator */
+    padding: 14px 20px calc(var(--sab) + 18px);
+    background: linear-gradient(to top, rgba(0,0,0,0.96) 65%, transparent);
+    display: none;
+    flex-direction: column;
+    gap: 10px;
   }
-  #ctrl-area { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-  .ctrl-group {
-    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 10px; padding: 9px 11px; display: flex; flex-direction: column; gap: 5px;
+
+  /* Scale control */
+  #ctrl-area {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.11);
+    border-radius: 14px;
+    padding: 11px 14px;
+    display: flex; flex-direction: column; gap: 7px;
   }
-  .ctrl-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.67rem; letter-spacing: 0.12em; text-transform: uppercase; color: rgba(255,255,255,0.45); display: flex; align-items: center; gap: 5px; }
-  .ctrl-label .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
-  .dot-nick { background: var(--accent); }
-  .dot-josh { background: var(--blue); }
+  .ctrl-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
   .dot-both { background: linear-gradient(90deg, var(--accent), var(--blue)); }
-  .toggle-vis { margin-left: auto; cursor: pointer; font-size: 0.82rem; opacity: 0.7; transition: opacity 0.15s; }
-  .toggle-vis:hover { opacity: 1; }
-  .scale-slider { -webkit-appearance: none; appearance: none; width: 100%; height: 3px; border-radius: 2px; background: rgba(255,255,255,0.12); outline: none; }
-  .scale-slider.s-nick::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--accent); cursor: pointer; }
-  .scale-slider.s-josh::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--blue); cursor: pointer; }
-  .scale-slider.s-both::-webkit-slider-thumb { -webkit-appearance: none; width: 17px; height: 17px; border-radius: 50%; background: var(--white); cursor: pointer; }
-
-  .bottom-actions { display: flex; align-items: center; justify-content: center; gap: 12px; }
-  .snap-btn {
-    width: 68px; height: 68px; border-radius: 50%; background: var(--white);
-    border: 4px solid rgba(255,255,255,0.25); cursor: pointer;
+  .dot-nick  { background: var(--accent); }
+  .dot-josh  { background: var(--blue); }
+  .toggle-vis {
+    margin-left: auto; cursor: pointer;
+    font-size: 1rem; opacity: 0.7;
+    transition: opacity 0.15s;
+    min-width: 36px; min-height: 36px;
     display: flex; align-items: center; justify-content: center;
-    transition: transform 0.12s, background 0.15s; flex-shrink: 0;
   }
-  .snap-btn:active { transform: scale(0.91); background: var(--accent); }
-  .snap-btn svg { width: 26px; height: 26px; fill: var(--black); }
-  .action-btn {
-    background: rgba(255,255,255,0.09); border: 1px solid rgba(255,255,255,0.16);
-    color: var(--white); padding: 10px 14px; border-radius: 50px;
-    font-family: 'Barlow Condensed', sans-serif; font-size: 0.78rem; letter-spacing: 0.08em;
-    cursor: pointer; transition: background 0.2s; white-space: nowrap;
-  }
-  .action-btn:hover { background: rgba(255,255,255,0.18); }
+  .toggle-vis:active { opacity: 1; }
 
-  /* ── FLASH ── */
-  #flash { position: fixed; inset: 0; background: white; opacity: 0; pointer-events: none; z-index: 300; transition: opacity 0.05s; }
+  /* Slider — large thumb for 17 Pro Max */
+  .scale-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.14); outline: none;
+  }
+  .scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .s-both::-webkit-slider-thumb { background: var(--white); }
+  .s-nick::-webkit-slider-thumb { background: var(--accent); }
+  .s-josh::-webkit-slider-thumb { background: var(--blue); }
+
+  /* Bottom action row */
+  .bottom-actions {
+    display: flex; align-items: center;
+    justify-content: center; gap: 16px;
+  }
+  .snap-btn {
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 5px solid rgba(255,255,255,0.28);
+    cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.1s, background 0.15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .snap-btn:active { transform: scale(0.88); background: var(--accent); }
+  .snap-btn svg { width: 30px; height: 30px; fill: var(--black); }
+
+  .action-btn {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--white);
+    min-width: 44px; min-height: 44px;
+    padding: 11px 18px;
+    border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.08em;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.18s;
+  }
+  .action-btn:active { background: rgba(255,255,255,0.22); }
+
+  /* ═══════════════ FLASH ═══════════════ */
+  #flash {
+    position: fixed; inset: 0;
+    background: white; opacity: 0;
+    pointer-events: none; z-index: 300;
+    transition: opacity 0.04s;
+  }
   #flash.active { opacity: 1; }
 
-  /* ── DRAG HINT ── */
-  .drag-hint {
-    position: fixed; top: 50%; left: 50%; transform: translate(-50%, -50%);
-    background: rgba(0,0,0,0.65); backdrop-filter: blur(8px);
-    color: var(--white); font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.82rem; letter-spacing: 0.1em;
-    padding: 9px 16px; border-radius: 50px; pointer-events: none;
-    opacity: 1; transition: opacity 1s; z-index: 99; white-space: nowrap;
+  /* ═══════════════ START SCREEN ═══════════════ */
+  #start-screen {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--black);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center;
+    /* Respect safe areas */
+    padding: calc(var(--di-top) + 12px) 24px calc(var(--sab) + 20px);
+    overflow-y: auto;
+    gap: 0;
   }
-  .drag-hint.hidden { opacity: 0; }
 
-  /* ── PREVIEW OVERLAY ── */
+  .start-logo {
+    height: 56px; width: auto;
+    object-fit: contain;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.7));
+  }
+  .big-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 14vw, 5.5rem);
+    letter-spacing: 0.03em; line-height: 0.88;
+    text-align: center;
+  }
+  .big-title em { color: var(--accent); font-style: normal; display: block; font-size: 0.58em; }
+
+  .stripe-divider {
+    width: 100%; height: 5px;
+    background: repeating-linear-gradient(90deg, var(--white) 0, var(--white) 18px, var(--black) 18px, var(--black) 36px);
+    margin: 14px 0;
+  }
+
+  /* Mode cards */
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 8px; align-self: flex-start;
+    width: 100%; max-width: 440px;
+  }
+  .mode-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    width: 100%; max-width: 440px;
+  }
+  .mode-card {
+    background: #141414; border: 2px solid #242424;
+    border-radius: 14px; padding: 14px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    /* Generous touch targets */
+    min-height: 90px;
+  }
+  .mode-card:active { background: #1e1c14; }
+  .mode-card.active { border-color: var(--accent); background: #1b1910; }
+  .mode-icon { font-size: 1.6rem; line-height: 1; }
+  .mode-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: center;
+  }
+  .mode-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem; color: rgba(255,255,255,0.35); text-align: center; line-height: 1.3;
+  }
+
+  /* Player image previews on start screen */
+  .preview-strip {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    width: 100%; max-width: 440px; margin-top: 10px;
+  }
+  .preview-cell {
+    background: #141414; border: 1px solid #262626;
+    border-radius: 12px; overflow: hidden;
+    aspect-ratio: 9/16; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .preview-cell img {
+    width: 100%; height: 100%; object-fit: contain;
+    padding: 4px;
+  }
+  .preview-cell .preview-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7); text-align: center; padding: 8px 4px 5px;
+  }
+  .preview-cell .loading-dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .launch-btn {
+    margin-top: 14px;
+    background: var(--white); color: var(--black);
+    border: none; width: 100%; max-width: 440px;
+    padding: 17px; border-radius: 50px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem; letter-spacing: 0.12em;
+    cursor: pointer; transition: transform 0.12s, background 0.18s;
+    min-height: 56px;
+  }
+  .launch-btn:active { background: var(--accent); transform: scale(0.98); }
+
+  /* ═══════════════ PREVIEW / SHARE OVERLAY ═══════════════ */
   #preview-overlay {
     position: fixed; inset: 0; z-index: 400;
-    background: rgba(0,0,0,0.95); display: none;
-    flex-direction: column; align-items: center; justify-content: flex-start;
-    padding: 28px 20px 24px; overflow-y: auto;
+    background: rgba(0,0,0,0.96);
+    display: none; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding: calc(var(--di-top) + 16px) 20px calc(var(--sab) + 20px);
+    overflow-y: auto; gap: 0;
   }
   #preview-overlay.show { display: flex; }
-  .preview-header { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.1em; margin-bottom: 14px; flex-shrink: 0; }
-  .preview-header span { color: var(--accent); }
-  #preview-img { max-width: 100%; max-height: 44vh; border-radius: 12px; box-shadow: 0 20px 60px rgba(0,0,0,0.9); flex-shrink: 0; }
-  .preview-save-row { display: flex; gap: 10px; margin-top: 14px; flex-shrink: 0; }
-  .preview-btn { padding: 13px 26px; border-radius: 50px; font-family: 'Bebas Neue', sans-serif; font-size: 1.05rem; letter-spacing: 0.1em; cursor: pointer; border: none; transition: transform 0.12s; }
-  .preview-btn:active { transform: scale(0.95); }
-  .preview-btn.save { background: var(--accent); color: var(--black); }
-  .preview-btn.retake { background: rgba(255,255,255,0.12); color: var(--white); }
 
-  /* ── SHARE SHEET ── */
-  .share-section { margin-top: 14px; width: 100%; max-width: 380px; flex-shrink: 0; }
-  .share-label { font-family: 'Barlow Condensed', sans-serif; font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase; color: rgba(255,255,255,0.35); text-align: center; margin-bottom: 10px; }
-  .native-share-btn {
-    width: 100%; margin-bottom: 10px; padding: 14px;
-    background: rgba(200,168,75,0.13); border: 1px solid rgba(200,168,75,0.38);
-    color: var(--accent); border-radius: 12px; cursor: pointer;
-    font-family: 'Barlow Condensed', sans-serif; font-size: 0.9rem;
-    letter-spacing: 0.12em; text-transform: uppercase;
-    display: flex; align-items: center; justify-content: center; gap: 8px;
-    transition: background 0.2s;
+  .preview-header {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.5rem; letter-spacing: 0.1em; margin-bottom: 14px; flex-shrink: 0;
   }
-  .native-share-btn:hover { background: rgba(200,168,75,0.22); }
+  .preview-header span { color: var(--accent); }
+
+  #preview-img {
+    max-width: 100%; max-height: 46vh;
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.9);
+    flex-shrink: 0;
+  }
+
+  .preview-save-row {
+    display: flex; gap: 10px; margin-top: 14px; flex-shrink: 0;
+  }
+  .preview-btn {
+    padding: 14px 28px; border-radius: 50px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.1em;
+    cursor: pointer; border: none; min-height: 50px;
+    transition: transform 0.1s;
+  }
+  .preview-btn:active { transform: scale(0.94); }
+  .preview-btn.save { background: var(--accent); color: var(--black); }
+  .preview-btn.retake { background: rgba(255,255,255,0.13); color: var(--white); }
+
+  /* Share section */
+  .share-section { margin-top: 16px; width: 100%; max-width: 400px; flex-shrink: 0; }
+  .share-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.32); text-align: center; margin-bottom: 10px;
+  }
+
+  .native-share-btn {
+    width: 100%; margin-bottom: 10px; padding: 15px;
+    background: rgba(200,168,75,0.14); border: 1px solid rgba(200,168,75,0.4);
+    color: var(--accent); border-radius: 14px; cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.92rem; letter-spacing: 0.12em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 52px; transition: background 0.18s;
+  }
+  .native-share-btn:active { background: rgba(200,168,75,0.26); }
   .native-share-btn.hidden { display: none; }
+
   .share-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
   .share-tile {
     display: flex; flex-direction: column; align-items: center; gap: 5px;
-    cursor: pointer; padding: 10px 4px; border-radius: 12px;
-    background: rgba(255,255,255,0.05); border: 1px solid rgba(255,255,255,0.08);
-    transition: background 0.2s, border-color 0.2s; text-decoration: none; color: var(--white);
+    cursor: pointer; padding: 12px 4px; border-radius: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09);
+    text-decoration: none; color: var(--white);
+    min-height: 64px;
+    transition: background 0.18s;
   }
-  .share-tile:hover { background: rgba(255,255,255,0.12); border-color: rgba(255,255,255,0.2); }
+  .share-tile:active { background: rgba(255,255,255,0.16); }
   .share-tile svg { width: 26px; height: 26px; }
-  .share-tile span { font-family: 'Barlow Condensed', sans-serif; font-size: 0.58rem; letter-spacing: 0.05em; text-transform: uppercase; color: rgba(255,255,255,0.4); }
-  .share-footnote { font-family: 'Barlow Condensed', sans-serif; font-size: 0.61rem; color: rgba(255,255,255,0.2); text-align: center; margin-top: 10px; line-height: 1.5; }
+  .share-tile span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.58rem; letter-spacing: 0.04em;
+    text-transform: uppercase; color: rgba(255,255,255,0.38);
+  }
 
-  /* ── TOAST ── */
+  .share-footnote {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.61rem; color: rgba(255,255,255,0.2);
+    text-align: center; margin-top: 10px; line-height: 1.5;
+  }
+
+  /* ═══════════════ TOAST ═══════════════ */
   #toast {
-    position: fixed; bottom: 90px; left: 50%; transform: translateX(-50%);
-    background: #2e7d32; color: #fff; padding: 10px 20px;
-    border-radius: 50px; font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.85rem; letter-spacing: 0.1em;
-    opacity: 0; transition: opacity 0.3s; pointer-events: none; z-index: 500; white-space: nowrap;
+    position: fixed;
+    bottom: calc(var(--sab) + 100px);
+    left: 50%; transform: translateX(-50%);
+    background: #1b5e20; color: #fff;
+    padding: 11px 22px; border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.88rem; letter-spacing: 0.1em;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; z-index: 500; white-space: nowrap;
   }
   #toast.show { opacity: 1; }
+
+  /* ═══════════════ LOADING SCREEN ═══════════════ */
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 500;
+    background: var(--black);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 20px;
+  }
+  #loading-screen.hidden { display: none; }
+  .loading-ring {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 3px solid rgba(200,168,75,0.2);
+    border-top-color: var(--accent);
+    animation: spin 0.7s linear infinite;
+  }
+  .loading-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
 </style>
 </head>
 <body>
 
-<video id="video" autoplay playsinline muted></video>
+<video id="video" autoplay playsinline muted playsinline></video>
 <div id="viewfinder"><canvas id="canvas"></canvas></div>
 <div id="flash"></div>
-<div id="toast">✓ Done</div>
+<div id="toast"></div>
 
-<!-- ═══════════════════════ START SCREEN ═══════════════════════ -->
-<div id="start-screen">
+<!-- ═══════════ LOADING ═══════════ -->
+<div id="loading-screen">
+  <img src="https://i.imgur.com/kG2dDb7.png" style="height:52px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6))" onerror="this.style.display='none'" alt="Logo">
+  <div class="loading-ring"></div>
+  <div class="loading-text">Loading players…</div>
+</div>
+
+<!-- ═══════════ START SCREEN ═══════════ -->
+<div id="start-screen" style="display:none">
+  <img src="https://i.imgur.com/kG2dDb7.png" class="start-logo" alt="Logo" onerror="this.style.display='none'">
   <div class="big-title">SELFIE<br>WITH THE<br><em>DAICOS BROS</em></div>
   <div class="stripe-divider"></div>
 
-  <!-- AR MODE -->
-  <div class="section-block">
-    <div class="section-label">Choose AR Mode</div>
-    <div class="mode-grid">
-      <div class="mode-card active" data-mode="both" onclick="selectMode('both')">
-        <div class="mode-icon">👥</div>
-        <div class="mode-name">Both Bros</div>
-        <div class="mode-desc">Nick &amp; Josh together</div>
-      </div>
-      <div class="mode-card" data-mode="nick" onclick="selectMode('nick')">
-        <div class="mode-icon">⭐</div>
-        <div class="mode-name">Nick Only</div>
-        <div class="mode-desc">#7 Daicos</div>
-      </div>
-      <div class="mode-card" data-mode="josh" onclick="selectMode('josh')">
-        <div class="mode-icon">🏆</div>
-        <div class="mode-name">Josh Only</div>
-        <div class="mode-desc">#35 Daicos</div>
-      </div>
+  <div class="section-label">Choose your AR mode</div>
+  <div class="mode-grid">
+    <div class="mode-card active" data-mode="both" onclick="selectMode('both')">
+      <div class="mode-icon">👥</div>
+      <div class="mode-name">Both Bros</div>
+    </div>
+    <div class="mode-card" data-mode="nick" onclick="selectMode('nick')">
+      <div class="mode-icon">⭐</div>
+      <div class="mode-name">Nick</div>
+    </div>
+    <div class="mode-card" data-mode="josh" onclick="selectMode('josh')">
+      <div class="mode-icon">🏆</div>
+      <div class="mode-name">Josh</div>
     </div>
   </div>
 
-  <!-- UPLOAD — 3 separate images -->
-  <div class="section-block" style="margin-top:14px">
-    <div class="section-label">Upload Player Images (PNG recommended)</div>
-    <div class="upload-grid">
 
-      <!-- BOTH card — full width -->
-      <div class="player-card both-card" id="card-both">
-        <div class="card-left">
-          <div class="card-nums">7 <span class="slash">/</span> 35</div>
-          <div>
-            <div class="card-name">Nick &amp; Josh Together</div>
-            <div class="card-sub">Used in Both Bros mode</div>
-          </div>
-        </div>
-        <label class="upload-label" id="both-label" for="both-upload">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          Add PNG
-        </label>
-        <input type="file" id="both-upload" accept="image/png,image/jpeg,image/webp">
-      </div>
 
-      <!-- NICK card -->
-      <div class="player-card" id="card-nick">
-        <div class="num">#7</div>
-        <div class="name">Nick Daicos</div>
-        <label class="upload-label" id="nick-label" for="nick-upload">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          Add PNG
-        </label>
-        <input type="file" id="nick-upload" accept="image/png,image/jpeg,image/webp">
-      </div>
-
-      <!-- JOSH card -->
-      <div class="player-card" id="card-josh">
-        <div class="num" style="color:var(--blue)">#35</div>
-        <div class="name">Josh Daicos</div>
-        <label class="upload-label" id="josh-label" for="josh-upload">
-          <svg width="13" height="13" viewBox="0 0 24 24" fill="currentColor"><path d="M19 13h-6v6h-2v-6H5v-2h6V5h2v6h6v2z"/></svg>
-          Add PNG
-        </label>
-        <input type="file" id="josh-upload" accept="image/png,image/jpeg,image/webp">
-      </div>
-
-    </div>
-  </div>
-
-  <button class="start-btn" id="start-btn">LAUNCH CAMERA</button>
-  <p class="hint">Each mode uses its own image. Use remove.bg for transparent PNGs.<br>Placeholders used for any missing images.</p>
+  <button class="launch-btn" id="launch-btn">LAUNCH CAMERA</button>
 </div>
 
-<!-- ═══════════════════════ AR VIEW ═══════════════════════ -->
-<header id="ar-header" style="display:none">
-  <div>
-    <div class="logo">DAICOS <span>AR</span></div>
-    <div class="tagline">Magpies for life</div>
-  </div>
-  <button class="flip-btn" id="flip-btn">🔄 Flip</button>
+<!-- ═══════════ AR HEADER ═══════════ -->
+<header id="ar-header">
+  <img src="https://i.imgur.com/kG2dDb7.png" class="header-logo" alt="Logo" onerror="this.style.display='none'">
+  <button class="flip-btn" id="flip-btn">
+    <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4v2l-4-3 4-3v2h18v6h-2V5zM4 19h16v-2l4 3-4 3v-2H2v-6h2v4z"/></svg>
+    Flip
+  </button>
 </header>
 
 <div id="mode-badge"></div>
-<div class="drag-hint" id="drag-hint">👆 Drag to position</div>
+<div id="drag-hint">👆 Drag to position</div>
 
-<div id="toolbar" style="display:none">
+<!-- ═══════════ TOOLBAR ═══════════ -->
+<div id="toolbar">
   <div id="ctrl-area"></div>
   <div class="bottom-actions">
-    <button class="action-btn" id="reset-btn">Reset</button>
-    <button class="snap-btn" id="snap-btn">
-      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="6"/><path d="M20 4h-3.17L15 2H9L7.17 4H4c-1.1 0-2 .9-2 2v12c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" opacity="0.35"/></svg>
+    <button class="action-btn" id="reset-btn">↺ Reset</button>
+    <button class="snap-btn" id="snap-btn" aria-label="Take photo">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.5"/><path d="M20 4h-3.17L15 2H9L7.17 4H4C2.9 4 2 4.9 2 6v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" opacity="0.3"/></svg>
     </button>
     <button class="action-btn" id="back-btn">↩ Back</button>
   </div>
 </div>
 
-<!-- ═══════════════════════ PREVIEW + SHARE ═══════════════════════ -->
+<!-- ═══════════ PREVIEW + SHARE ═══════════ -->
 <div id="preview-overlay">
   <div class="preview-header">YOUR <span>SELFIE</span></div>
-  <img id="preview-img" src="" alt="Selfie">
+  <img id="preview-img" src="" alt="Your selfie">
+
   <div class="preview-save-row">
-    <button class="preview-btn save" id="save-btn">💾 Save Photo</button>
+    <button class="preview-btn save" id="save-btn">💾 Save</button>
     <button class="preview-btn retake" id="retake-btn">✕ Retake</button>
   </div>
+
   <div class="share-section">
     <div class="share-label">Share your selfie</div>
+
     <button class="native-share-btn hidden" id="native-share-btn">
       <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
-      📤 Share via your device apps
+      📤 Share via Apps
     </button>
+
     <div class="share-grid">
       <a class="share-tile" id="share-fb" href="#" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
@@ -370,159 +538,164 @@
       </a>
       <div class="share-tile" id="share-ig">
         <svg viewBox="0 0 24 24">
-          <defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="25%" style="stop-color:#e6683c"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="75%" style="stop-color:#cc2366"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs>
+          <defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%">
+            <stop offset="0%"   style="stop-color:#f09433"/>
+            <stop offset="25%"  style="stop-color:#e6683c"/>
+            <stop offset="50%"  style="stop-color:#dc2743"/>
+            <stop offset="75%"  style="stop-color:#cc2366"/>
+            <stop offset="100%" style="stop-color:#bc1888"/>
+          </linearGradient></defs>
           <path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/>
         </svg>
         <span>Instagram</span>
       </div>
       <a class="share-tile" id="share-x" href="#" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="#e7e9ea"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
-        <span>X / Twitter</span>
+        <span>X</span>
       </a>
       <a class="share-tile" id="share-wa" href="#" target="_blank" rel="noopener">
         <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
         <span>WhatsApp</span>
       </a>
       <div class="share-tile" id="share-copy">
-        <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.72)"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+        <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
         <span>Copy</span>
       </div>
     </div>
-    <p class="share-footnote">Instagram: Save first, then open Instagram to post it.<br>Facebook &amp; X share a link — attach your photo manually if needed.</p>
+    <p class="share-footnote">Instagram: Save first → post from your camera roll.<br>Facebook &amp; X share a link — attach photo if needed.</p>
   </div>
 </div>
 
 <script>
+'use strict';
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const BASE = 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/bc2b5798f18446561f490e2c89b9025f3ef8f75b/Selfies/';
+const LOGO_URL = 'https://i.imgur.com/kG2dDb7.png';
+
+const IMAGE_SRCS = {
+  both: BASE + 'NXTplay.png',
+  nick: BASE + 'NXTnick.png',
+  josh: BASE + 'NXTjosh.png'
+};
+
 // ─── STATE ────────────────────────────────────────────────────────────────────
 let currentMode = 'both';
 let capturedDataUrl = null;
+let animFrame = null;
+let hintHidden = false;
 
-// Three independent images
 const images = { both: null, nick: null, josh: null };
-
-// AR sprite state: each mode has its own position/scale
 const sprites = {
   both: { x: 0, y: 0, scale: 1, visible: true, baseW: 0, baseH: 0 },
   nick: { x: 0, y: 0, scale: 1, visible: true, baseW: 0, baseH: 0 },
   josh: { x: 0, y: 0, scale: 1, visible: true, baseW: 0, baseH: 0 }
 };
 
-const camera = { stream: null, facingMode: 'user' };
-const drag   = { active: false, startX: 0, startY: 0, origX: 0, origY: 0 };
-let animFrame = null, hintHidden = false;
+const cam  = { stream: null, facing: 'user' };
+const drag = { on: false, startX: 0, startY: 0, origX: 0, origY: 0 };
+
+// Watermark
+const wmImg = new Image();
+wmImg.crossOrigin = 'anonymous';
+wmImg.src = LOGO_URL;
 
 // ─── ELEMENTS ─────────────────────────────────────────────────────────────────
-const video       = document.getElementById('video');
-const canvas      = document.getElementById('canvas');
-const ctx         = canvas.getContext('2d');
-const startScreen = document.getElementById('start-screen');
-const arHeader    = document.getElementById('ar-header');
-const toolbar     = document.getElementById('toolbar');
-const flashEl     = document.getElementById('flash');
-const dragHint    = document.getElementById('drag-hint');
-const modeBadge   = document.getElementById('mode-badge');
-const ctrlArea    = document.getElementById('ctrl-area');
+const video          = document.getElementById('video');
+const canvas         = document.getElementById('canvas');
+const ctx            = canvas.getContext('2d');
+const loadingScreen  = document.getElementById('loading-screen');
+const startScreen    = document.getElementById('start-screen');
+const arHeader       = document.getElementById('ar-header');
+const toolbar        = document.getElementById('toolbar');
+const flashEl        = document.getElementById('flash');
+const dragHint       = document.getElementById('drag-hint');
+const modeBadge      = document.getElementById('mode-badge');
+const ctrlArea       = document.getElementById('ctrl-area');
 
-// ─── HIGHLIGHT ACTIVE CARD ON THE START SCREEN ───────────────────────────────
-function highlightCards() {
-  ['both', 'nick', 'josh'].forEach(k => {
-    document.getElementById('card-' + k).classList.toggle('active-card', k === currentMode);
+// ─── LOAD ALL IMAGES UPFRONT ─────────────────────────────────────────────────
+function loadImg(key, src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      images[key] = img;
+      // Update preview cell
+      const cell = document.getElementById('prev-' + key);
+      if (cell) {
+        cell.innerHTML = `<img src="${src}" alt="${key}"><div class="preview-label">${key === 'both' ? 'Both' : key.charAt(0).toUpperCase() + key.slice(1)}</div>`;
+      }
+      resolve();
+    };
+    img.onerror = () => {
+      // Leave null — render loop will skip
+      const cell = document.getElementById('prev-' + key);
+      if (cell) cell.innerHTML = `<span style="font-size:1.5rem;opacity:0.3">?</span><div class="preview-label" style="color:#e66">${key}</div>`;
+      resolve();
+    };
+    img.src = src;
   });
 }
-highlightCards();
 
-// ─── MODE SELECTION ───────────────────────────────────────────────────────────
+async function preloadAll() {
+  await Promise.all([
+    loadImg('both', IMAGE_SRCS.both),
+    loadImg('nick', IMAGE_SRCS.nick),
+    loadImg('josh', IMAGE_SRCS.josh)
+  ]);
+  loadingScreen.classList.add('hidden');
+  startScreen.style.display = 'flex';
+}
+
+// ─── MODE ─────────────────────────────────────────────────────────────────────
 function selectMode(mode) {
   currentMode = mode;
-  document.querySelectorAll('.mode-card').forEach(c => c.classList.toggle('active', c.dataset.mode === mode));
-  highlightCards();
+  document.querySelectorAll('.mode-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.mode === mode)
+  );
 }
 window.selectMode = selectMode;
 
-// ─── PLACEHOLDER IMAGES ───────────────────────────────────────────────────────
-function makePlaceholder(labels, accentColors) {
-  // labels = array of {number, color} objects to draw side by side
-  const count = labels.length;
-  const W = 220 * count, H = 500;
-  const ph = document.createElement('canvas');
-  ph.width = W; ph.height = H;
-  const pc = ph.getContext('2d');
-
-  labels.forEach(({ number, color }, i) => {
-    const ox = i * 220; // x offset per figure
-    pc.fillStyle = '#111';
-    pc.beginPath(); pc.arc(ox + 110, 58, 38, 0, Math.PI * 2); pc.fill();
-    pc.fillRect(ox + 74, 92, 72, 185);
-    pc.save(); pc.translate(ox + 74, 108); pc.rotate(0.28); pc.fillRect(-10, 0, 22, 128); pc.restore();
-    pc.save(); pc.translate(ox + 146, 108); pc.rotate(-0.28); pc.fillRect(-12, 0, 22, 128); pc.restore();
-    pc.save(); pc.translate(ox + 90, 277); pc.rotate(0.08); pc.fillRect(-17, 0, 34, 182); pc.restore();
-    pc.save(); pc.translate(ox + 130, 277); pc.rotate(-0.08); pc.fillRect(-17, 0, 34, 182); pc.restore();
-    pc.fillStyle = color;
-    pc.fillRect(ox + 74, 112, 72, 16); pc.fillRect(ox + 74, 140, 72, 9);
-    pc.fillStyle = '#fff';
-    pc.font = 'bold 32px "Bebas Neue", sans-serif';
-    pc.textAlign = 'center';
-    pc.fillText('#' + number, ox + 110, 182);
-  });
-
-  const img = new Image(); img.src = ph.toDataURL(); return img;
-}
-
-function ensurePlaceholders() {
-  if (!images.both) images.both = makePlaceholder([{ number: 7, color: '#c8a84b' }, { number: 35, color: '#64b5f6' }]);
-  if (!images.nick) images.nick = makePlaceholder([{ number: 7, color: '#c8a84b' }]);
-  if (!images.josh) images.josh = makePlaceholder([{ number: 35, color: '#64b5f6' }]);
-}
-
-// ─── UPLOADS ─────────────────────────────────────────────────────────────────
-function handleUpload(file, key, labelId) {
-  const url = URL.createObjectURL(file);
-  const img = new Image();
-  img.onload = () => {
-    images[key] = img;
-    const lbl = document.getElementById(labelId);
-    lbl.classList.add('loaded');
-    lbl.textContent = '✓ Loaded';
-  };
-  img.src = url;
-}
-document.getElementById('both-upload').addEventListener('change', e => { if (e.target.files[0]) handleUpload(e.target.files[0], 'both', 'both-label'); });
-document.getElementById('nick-upload').addEventListener('change', e => { if (e.target.files[0]) handleUpload(e.target.files[0], 'nick', 'nick-label'); });
-document.getElementById('josh-upload').addEventListener('change', e => { if (e.target.files[0]) handleUpload(e.target.files[0], 'josh', 'josh-label'); });
-
 // ─── CAMERA ──────────────────────────────────────────────────────────────────
 async function startCamera() {
-  if (camera.stream) camera.stream.getTracks().forEach(t => t.stop());
+  if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
   try {
-    camera.stream = await navigator.mediaDevices.getUserMedia({
-      video: { facingMode: camera.facingMode, width: { ideal: 1920 }, height: { ideal: 1080 } }, audio: false
+    // iPhone 17 Pro Max native camera resolution
+    cam.stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: cam.facing,
+        width:  { ideal: 2868 },
+        height: { ideal: 1320 },
+        frameRate: { ideal: 60 }
+      },
+      audio: false
     });
-    video.srcObject = camera.stream;
+    video.srcObject = cam.stream;
     await video.play();
-  } catch (e) { alert('Camera access denied. Allow camera and reload.'); }
+  } catch (e) {
+    alert('Camera access denied. Allow camera in Settings and reload.');
+  }
 }
+
 document.getElementById('flip-btn').addEventListener('click', () => {
-  camera.facingMode = camera.facingMode === 'user' ? 'environment' : 'user';
+  cam.facing = cam.facing === 'user' ? 'environment' : 'user';
   startCamera();
 });
 
-// ─── BUILD CONTROLS ───────────────────────────────────────────────────────────
+// ─── CONTROLS ────────────────────────────────────────────────────────────────
 function buildControls() {
-  ctrlArea.innerHTML = '';
   const sp = sprites[currentMode];
-
   const dotClass = { both: 'dot-both', nick: 'dot-nick', josh: 'dot-josh' }[currentMode];
   const label    = { both: 'Nick & Josh — Scale', nick: 'Nick Daicos #7', josh: 'Josh Daicos #35' }[currentMode];
   const sClass   = { both: 's-both', nick: 's-nick', josh: 's-josh' }[currentMode];
 
   ctrlArea.innerHTML = `
-    <div class="ctrl-group" style="grid-column:1/-1">
-      <div class="ctrl-label">
-        <span class="dot ${dotClass}"></span> ${label}
-        <span class="toggle-vis" id="toggle-sprite">👁</span>
-      </div>
-      <input type="range" class="scale-slider ${sClass}" id="sprite-scale" min="20" max="200" value="${Math.round(sp.scale * 100)}">
-    </div>`;
+    <div class="ctrl-label">
+      <span class="dot ${dotClass}"></span>${label}
+      <span class="toggle-vis" id="toggle-sprite">👁</span>
+    </div>
+    <input type="range" class="scale-slider ${sClass}" id="sprite-scale"
+           min="15" max="200" value="${Math.round(sp.scale * 100)}">`;
 
   document.getElementById('sprite-scale').addEventListener('input', e => {
     sprites[currentMode].scale = e.target.value / 100;
@@ -533,20 +706,23 @@ function buildControls() {
   });
 }
 
-// ─── START ────────────────────────────────────────────────────────────────────
-document.getElementById('start-btn').addEventListener('click', async () => {
-  ensurePlaceholders();
-
+// ─── LAUNCH ──────────────────────────────────────────────────────────────────
+document.getElementById('launch-btn').addEventListener('click', async () => {
   startScreen.style.display = 'none';
-  arHeader.style.display = 'flex';
-  toolbar.style.display = 'flex';
-  modeBadge.style.display = 'block';
-  modeBadge.textContent = { both: '👥 Both Brothers', nick: '⭐ Nick Only', josh: '🏆 Josh Only' }[currentMode];
+  arHeader.style.display    = 'flex';
+  toolbar.style.display     = 'flex';
+  modeBadge.style.display   = 'block';
+  modeBadge.textContent = {
+    both: '👥 Both Brothers',
+    nick: '⭐ Nick Only',
+    josh: '🏆 Josh Only'
+  }[currentMode];
 
   buildControls();
   await startCamera();
   positionSprite();
   animFrame = requestAnimationFrame(renderLoop);
+
   setTimeout(() => { dragHint.classList.add('hidden'); hintHidden = true; }, 3000);
 });
 
@@ -554,23 +730,23 @@ document.getElementById('start-btn').addEventListener('click', async () => {
 function positionSprite() {
   const w = window.innerWidth, h = window.innerHeight;
   const sp = sprites[currentMode];
-  sp.x = w * 0.5; sp.y = h * 0.05; sp.scale = 1; sp.visible = true;
-  const slider = document.getElementById('sprite-scale');
-  if (slider) slider.value = 100;
+  sp.x = w * 0.5; sp.y = h * 0.06; sp.scale = 1; sp.visible = true;
+  const el = document.getElementById('sprite-scale');
+  if (el) el.value = 100;
 }
 document.getElementById('reset-btn').addEventListener('click', positionSprite);
 
-// ─── RENDER ──────────────────────────────────────────────────────────────────
-function drawVideo() {
-  const w = canvas.width, h = canvas.height;
+// ─── RENDER LOOP ─────────────────────────────────────────────────────────────
+function drawVideoFrame(w, h) {
   if (video.readyState < 2) return;
   const vw = video.videoWidth, vh = video.videoHeight;
   if (!vw || !vh) return;
   const cAR = w / h, vAR = vw / vh;
   let sw, sh, sx, sy;
   if (cAR > vAR) { sw = vw; sh = vw / cAR; sx = 0; sy = (vh - sh) / 2; }
-  else { sh = vh; sw = vh * cAR; sx = (vw - sw) / 2; sy = 0; }
-  if (camera.facingMode === 'user') {
+  else           { sh = vh; sw = vh * cAR; sx = (vw - sw) / 2; sy = 0; }
+
+  if (cam.facing === 'user') {
     ctx.save(); ctx.translate(w, 0); ctx.scale(-1, 1);
     ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
     ctx.restore();
@@ -580,71 +756,101 @@ function drawVideo() {
 }
 
 function renderLoop() {
-  const w = window.innerWidth, h = window.innerHeight;
-  canvas.width = w; canvas.height = h;
-  drawVideo();
+  // Use devicePixelRatio for crisp rendering on 460ppi display
+  const dpr = window.devicePixelRatio || 1;
+  const w   = window.innerWidth;
+  const h   = window.innerHeight;
 
+  // Only resize canvas if needed (avoids unnecessary clears)
+  if (canvas.width  !== Math.round(w * dpr) ||
+      canvas.height !== Math.round(h * dpr)) {
+    canvas.width  = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.scale(dpr, dpr);
+  }
+
+  drawVideoFrame(w, h);
+
+  // Draw sprite
   const sp  = sprites[currentMode];
   const img = images[currentMode];
   if (sp.visible && img) {
-    const baseH  = h * 0.76;
-    const ratio  = img.naturalWidth / img.naturalHeight;
+    const baseH   = h * 0.78;
+    const ratio   = img.naturalWidth / img.naturalHeight;
     const scaledH = baseH * sp.scale;
     const scaledW = scaledH * ratio;
     ctx.drawImage(img, sp.x - scaledW / 2, sp.y, scaledW, scaledH);
-    sp.baseW = scaledW; sp.baseH = scaledH;
+    sp.baseW = scaledW;
+    sp.baseH = scaledH;
+  }
+
+  // Watermark — bottom-right, 7% of screen height
+  if (wmImg.complete && wmImg.naturalWidth > 0) {
+    const wmH = h * 0.068;
+    const wmW = wmH * (wmImg.naturalWidth / wmImg.naturalHeight);
+    const pad = 16;
+    ctx.globalAlpha = 0.78;
+    ctx.drawImage(wmImg, w - wmW - pad, h - wmH - pad, wmW, wmH);
+    ctx.globalAlpha = 1;
   }
 
   animFrame = requestAnimationFrame(renderLoop);
 }
 
-// ─── DRAG ────────────────────────────────────────────────────────────────────
+// ─── DRAG — coalesced pointer events for 120Hz ProMotion ────────────────────
 function getPos(e) {
   const rect = canvas.getBoundingClientRect();
   const src  = e.touches ? e.touches[0] : e;
+  // Account for devicePixelRatio scaling
   return {
-    x: (src.clientX - rect.left) * (canvas.width  / rect.width),
-    y: (src.clientY - rect.top)  * (canvas.height / rect.height)
+    x: (src.clientX - rect.left),
+    y: (src.clientY - rect.top)
   };
 }
 
 function hitSprite(x, y) {
   const sp = sprites[currentMode];
-  if (!sp.visible || !images[currentMode]) return false;
-  return x >= sp.x - sp.baseW / 2 && x <= sp.x + sp.baseW / 2 && y >= sp.y && y <= sp.y + sp.baseH;
+  if (!sp.visible || !images[currentMode] || !sp.baseW) return false;
+  // Expand hit target by 20px for fat fingers
+  return x >= sp.x - sp.baseW / 2 - 20 &&
+         x <= sp.x + sp.baseW / 2 + 20 &&
+         y >= sp.y - 20 &&
+         y <= sp.y + sp.baseH + 20;
 }
 
-function onPointerDown(e) {
+canvas.addEventListener('pointerdown', e => {
   if (e.target !== canvas) return;
   const { x, y } = getPos(e);
   if (!hitSprite(x, y)) return;
-  drag.active = true;
+  drag.on = true;
   drag.startX = x; drag.startY = y;
-  drag.origX = sprites[currentMode].x; drag.origY = sprites[currentMode].y;
+  drag.origX = sprites[currentMode].x;
+  drag.origY = sprites[currentMode].y;
+  canvas.setPointerCapture(e.pointerId);
   if (!hintHidden) dragHint.classList.add('hidden');
   e.preventDefault();
-}
-function onPointerMove(e) {
-  if (!drag.active) return;
+}, { passive: false });
+
+canvas.addEventListener('pointermove', e => {
+  if (!drag.on) return;
   const { x, y } = getPos(e);
   sprites[currentMode].x = drag.origX + (x - drag.startX);
   sprites[currentMode].y = drag.origY + (y - drag.startY);
   e.preventDefault();
-}
-function onPointerUp() { drag.active = false; }
+}, { passive: false });
 
-canvas.addEventListener('mousedown', onPointerDown);
-canvas.addEventListener('mousemove', onPointerMove);
-canvas.addEventListener('mouseup', onPointerUp);
-canvas.addEventListener('touchstart', onPointerDown, { passive: false });
-canvas.addEventListener('touchmove', onPointerMove, { passive: false });
-canvas.addEventListener('touchend', onPointerUp);
+canvas.addEventListener('pointerup',     () => { drag.on = false; });
+canvas.addEventListener('pointercancel', () => { drag.on = false; });
 
 // ─── SNAP ─────────────────────────────────────────────────────────────────────
 document.getElementById('snap-btn').addEventListener('click', () => {
   flashEl.classList.add('active');
-  setTimeout(() => flashEl.classList.remove('active'), 120);
-  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.93);
+  setTimeout(() => flashEl.classList.remove('active'), 100);
+
+  // Capture at full DPR resolution
+  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.94);
   document.getElementById('preview-img').src = capturedDataUrl;
   setupShareLinks();
   document.getElementById('preview-overlay').classList.add('show');
@@ -657,22 +863,22 @@ function setupShareLinks() {
 
   document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
   document.getElementById('share-x').href  = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
-  document.getElementById('share-wa').href  = `https://wa.me/?text=${text}%20${url}`;
+  document.getElementById('share-wa').href = `https://wa.me/?text=${text}%20${url}`;
 
   document.getElementById('share-ig').onclick = () => {
     savePhoto();
-    showToast('📸 Saved! Open Instagram and post from your camera roll.');
+    showToast('📸 Saved! Open Instagram to post it.');
   };
 
   document.getElementById('share-copy').onclick = async () => {
     try {
-      const res = await fetch(capturedDataUrl);
+      const res  = await fetch(capturedDataUrl);
       const blob = await res.blob();
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       showToast('✓ Image copied to clipboard!');
     } catch {
       try { await navigator.clipboard.writeText(window.location.href); showToast('✓ Link copied!'); }
-      catch { showToast('Clipboard unavailable — use Save instead'); }
+      catch { showToast('Use Save to download the photo'); }
     }
   };
 
@@ -684,12 +890,14 @@ function setupShareLinks() {
         const res  = await fetch(capturedDataUrl);
         const blob = await res.blob();
         const file = new File([blob], 'daicos-selfie.jpg', { type: 'image/jpeg' });
-        if (navigator.canShare && navigator.canShare({ files: [file] })) {
+        if (navigator.canShare?.({ files: [file] })) {
           await navigator.share({ files: [file], title: 'Daicos Selfie', text: 'Just took a selfie with the Daicos Bros! 🦅 #GoPies' });
         } else {
           await navigator.share({ title: 'Daicos Selfie', text: 'Just took a selfie with the Daicos Bros! 🦅 #GoPies', url: window.location.href });
         }
-      } catch (err) { if (err.name !== 'AbortError') showToast('Sharing unavailable — use Save instead'); }
+      } catch (err) {
+        if (err.name !== 'AbortError') showToast('Use Save to download the photo');
+      }
     };
   } else {
     nativeBtn.classList.add('hidden');
@@ -700,32 +908,41 @@ function setupShareLinks() {
 function savePhoto() {
   if (!capturedDataUrl) return;
   const a = document.createElement('a');
-  a.download = 'daicos-selfie.jpg'; a.href = capturedDataUrl; a.click();
+  a.download = 'daicos-selfie.jpg';
+  a.href = capturedDataUrl;
+  a.click();
 }
-document.getElementById('save-btn').addEventListener('click', () => { savePhoto(); showToast('✓ Saved to your device!'); });
+document.getElementById('save-btn').addEventListener('click', () => {
+  savePhoto();
+  showToast('✓ Saved to your device!');
+});
 document.getElementById('retake-btn').addEventListener('click', () => {
   document.getElementById('preview-overlay').classList.remove('show');
   capturedDataUrl = null;
 });
 
-// ─── TOAST ───────────────────────────────────────────────────────────────────
+// ─── TOAST ────────────────────────────────────────────────────────────────────
 function showToast(msg) {
   const t = document.getElementById('toast');
-  t.textContent = msg; t.classList.add('show');
+  t.textContent = msg;
+  t.classList.add('show');
   setTimeout(() => t.classList.remove('show'), 3000);
 }
 
-// ─── BACK ────────────────────────────────────────────────────────────────────
+// ─── BACK ─────────────────────────────────────────────────────────────────────
 document.getElementById('back-btn').addEventListener('click', () => {
-  if (camera.stream) camera.stream.getTracks().forEach(t => t.stop());
+  if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
   cancelAnimationFrame(animFrame);
-  arHeader.style.display = 'none';
-  toolbar.style.display = 'none';
+  arHeader.style.display  = 'none';
+  toolbar.style.display   = 'none';
   modeBadge.style.display = 'none';
   startScreen.style.display = 'flex';
   dragHint.classList.remove('hidden');
   hintHidden = false;
 });
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+preloadAll();
 </script>
 </body>
 </html>
