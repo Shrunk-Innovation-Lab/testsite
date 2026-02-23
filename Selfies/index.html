@@ -231,12 +231,24 @@
     position: fixed; inset: 0; z-index: 200;
     background: var(--black);
     display: flex; flex-direction: column;
-    align-items: center; justify-content: center;
-    /* Respect safe areas */
-    padding: calc(var(--di-top) + 12px) 24px calc(var(--sab) + 20px);
+    align-items: center; justify-content: flex-start;
+    padding: calc(var(--di-top) + 12px) 24px 0;
     overflow-y: auto;
     gap: 0;
+    /* Leave room for fixed footer */
+    padding-bottom: calc(var(--sab) + 88px);
   }
+
+  /* Fixed footer on start screen */
+  #start-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 201;
+    padding: 12px 24px calc(var(--sab) + 16px);
+    background: linear-gradient(to top, rgba(10,10,10,1) 60%, transparent);
+    display: none;
+  }
+  #start-footer.show { display: block; }
 
   .start-logo {
     height: 56px; width: auto;
@@ -349,12 +361,35 @@
   }
   .preview-header span { color: var(--accent); }
 
-  #preview-img {
-    max-width: 100%; max-height: 46vh;
-    border-radius: 14px;
-    box-shadow: 0 24px 64px rgba(0,0,0,0.9);
+  /* Preview canvas wrapper */
+  .preview-canvas-wrap {
+    position: relative;
+    width: 100%; max-width: 420px;
     flex-shrink: 0;
   }
+  #preview-canvas {
+    width: 100%; max-height: 46vh;
+    border-radius: 14px;
+    box-shadow: 0 24px 64px rgba(0,0,0,0.9);
+    display: block;
+    touch-action: none;
+  }
+  /* Sticker delete pill — floats above preview canvas */
+  #sticker-delete {
+    position: absolute;
+    top: 10px; left: 50%; transform: translateX(-50%);
+    background: rgba(210,40,40,0.88);
+    backdrop-filter: blur(8px);
+    color: #fff; border: none;
+    border-radius: 50px; padding: 8px 18px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.1em;
+    cursor: pointer; display: none;
+    align-items: center; gap: 6px;
+    white-space: nowrap; z-index: 10;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.5);
+  }
+  #sticker-delete.show { display: flex; }
 
   .preview-save-row {
     display: flex; gap: 10px; margin-top: 14px; flex-shrink: 0;
@@ -432,8 +467,7 @@
     background: rgba(255,255,255,0.10);
     border: 1px solid rgba(255,255,255,0.18);
     color: var(--white);
-    min-width: 44px; min-height: 44px;
-    padding: 8px 16px;
+    min-height: 44px; padding: 10px 20px;
     border-radius: 50px;
     font-family: 'Barlow Condensed', sans-serif;
     font-size: 0.82rem; letter-spacing: 0.08em;
@@ -444,70 +478,40 @@
   #sticker-toggle:active { background: rgba(255,255,255,0.22); }
 
   #sticker-tray {
-    position: fixed;
-    bottom: 0; left: 0; right: 0;
-    z-index: 150;
-    background: rgba(10,10,10,0.97);
-    backdrop-filter: blur(20px);
-    -webkit-backdrop-filter: blur(20px);
-    border-top: 1px solid rgba(255,255,255,0.1);
-    border-radius: 24px 24px 0 0;
-    padding: 16px 20px calc(var(--sab) + 16px);
-    transform: translateY(100%);
-    transition: transform 0.32s cubic-bezier(0.32, 0.72, 0, 1);
+    width: 100%; max-width: 420px;
+    background: rgba(20,20,20,0.98);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 18px;
+    padding: 14px 14px 16px;
+    margin-top: 10px;
+    display: none;
+    flex-shrink: 0;
   }
-  #sticker-tray.open { transform: translateY(0); }
+  #sticker-tray.open { display: block; }
 
   .tray-handle {
-    width: 36px; height: 4px; border-radius: 2px;
-    background: rgba(255,255,255,0.2);
-    margin: 0 auto 14px;
+    width: 32px; height: 3px; border-radius: 2px;
+    background: rgba(255,255,255,0.18);
+    margin: 0 auto 12px;
   }
   .tray-title {
     font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.7rem; letter-spacing: 0.18em; text-transform: uppercase;
-    color: rgba(255,255,255,0.35); margin-bottom: 12px; text-align: center;
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); margin-bottom: 10px; text-align: center;
   }
   .sticker-grid {
-    display: grid;
-    grid-template-columns: repeat(8, 1fr);
-    gap: 8px;
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;
   }
   .sticker-btn {
     aspect-ratio: 1;
-    background: rgba(255,255,255,0.07);
-    border: 1px solid rgba(255,255,255,0.1);
-    border-radius: 12px;
-    font-size: 1.6rem;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px; font-size: 1.5rem;
     display: flex; align-items: center; justify-content: center;
     cursor: pointer; transition: background 0.15s, transform 0.1s;
-    min-height: 48px;
+    min-height: 44px;
   }
-  .sticker-btn:active { background: rgba(255,255,255,0.2); transform: scale(0.9); }
-
-  /* Selected sticker delete ring */
-  #sticker-delete {
-    position: fixed;
-    z-index: 149;
-    background: rgba(220,53,53,0.85);
-    backdrop-filter: blur(8px);
-    color: #fff;
-    border: none;
-    border-radius: 50px;
-    padding: 9px 18px;
-    font-family: 'Barlow Condensed', sans-serif;
-    font-size: 0.8rem; letter-spacing: 0.1em;
-    cursor: pointer;
-    display: none;
-    align-items: center; gap: 6px;
-    pointer-events: auto;
-    box-shadow: 0 4px 16px rgba(0,0,0,0.5);
-  }
-  #sticker-delete.show {
-    display: flex;
-    top: calc(var(--di-top) + 64px);
-    left: 50%; transform: translateX(-50%);
-  }
+  .sticker-btn:active { background: rgba(255,255,255,0.18); transform: scale(0.88); }
 
   #loading-screen {
     position: fixed; inset: 0; z-index: 500;
@@ -565,8 +569,10 @@
     </div>
   </div>
 
+</div>
 
-
+<!-- Fixed footer for start screen -->
+<div id="start-footer" class="show">
   <button class="launch-btn" id="launch-btn">LAUNCH CAMERA</button>
 </div>
 
@@ -593,55 +599,57 @@
     <button class="snap-btn" id="snap-btn" aria-label="Take photo">
       <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.5"/><path d="M20 4h-3.17L15 2H9L7.17 4H4C2.9 4 2 4.9 2 6v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" opacity="0.3"/></svg>
     </button>
-    <button id="sticker-toggle">😎 Stickers</button>
+    <div style="width:44px"></div>
   </div>
 </div>
-
-<!-- ═══════════ STICKER TRAY ═══════════ -->
-<div id="sticker-tray">
-  <div class="tray-handle"></div>
-  <div class="tray-title">Add a sticker</div>
-  <div class="sticker-grid">
-    <!-- AFL & celebration -->
-    <div class="sticker-btn" data-sticker="🦅">🦅</div>
-    <div class="sticker-btn" data-sticker="🏆">🏆</div>
-    <div class="sticker-btn" data-sticker="⭐">⭐</div>
-    <div class="sticker-btn" data-sticker="🔥">🔥</div>
-    <div class="sticker-btn" data-sticker="💪">💪</div>
-    <div class="sticker-btn" data-sticker="👊">👊</div>
-    <div class="sticker-btn" data-sticker="🙌">🙌</div>
-    <div class="sticker-btn" data-sticker="🎉">🎉</div>
-    <!-- Faces -->
-    <div class="sticker-btn" data-sticker="😎">😎</div>
-    <div class="sticker-btn" data-sticker="🤩">🤩</div>
-    <div class="sticker-btn" data-sticker="😂">😂</div>
-    <div class="sticker-btn" data-sticker="🥳">🥳</div>
-    <div class="sticker-btn" data-sticker="😍">😍</div>
-    <div class="sticker-btn" data-sticker="🤙">🤙</div>
-    <div class="sticker-btn" data-sticker="👏">👏</div>
-    <div class="sticker-btn" data-sticker="❤️">❤️</div>
-    <!-- Sport -->
-    <div class="sticker-btn" data-sticker="🥇">🥇</div>
-    <div class="sticker-btn" data-sticker="🎯">🎯</div>
-    <div class="sticker-btn" data-sticker="⚡">⚡</div>
-    <div class="sticker-btn" data-sticker="💥">💥</div>
-    <div class="sticker-btn" data-sticker="🏅">🏅</div>
-    <div class="sticker-btn" data-sticker="👑">👑</div>
-    <div class="sticker-btn" data-sticker="✨">✨</div>
-    <div class="sticker-btn" data-sticker="🎊">🎊</div>
-  </div>
-</div>
-
-<button id="sticker-delete">✕ Remove</button>
 
 
 <div id="preview-overlay">
   <div class="preview-header">YOUR <span>SELFIE</span></div>
-  <img id="preview-img" src="" alt="Your selfie">
 
+  <!-- Canvas preview with sticker overlay -->
+  <div class="preview-canvas-wrap">
+    <canvas id="preview-canvas"></canvas>
+    <button id="sticker-delete">✕ Remove Sticker</button>
+  </div>
+
+  <!-- Sticker toggle + save/retake row -->
   <div class="preview-save-row">
+    <button id="sticker-toggle">😎 Stickers</button>
     <button class="preview-btn save" id="save-btn">💾 Save</button>
     <button class="preview-btn retake" id="retake-btn">✕ Retake</button>
+  </div>
+
+  <!-- Sticker tray (inline, not fixed) -->
+  <div id="sticker-tray">
+    <div class="tray-handle"></div>
+    <div class="tray-title">Tap a sticker to add it</div>
+    <div class="sticker-grid">
+      <div class="sticker-btn" data-sticker="🦅">🦅</div>
+      <div class="sticker-btn" data-sticker="🏆">🏆</div>
+      <div class="sticker-btn" data-sticker="⭐">⭐</div>
+      <div class="sticker-btn" data-sticker="🔥">🔥</div>
+      <div class="sticker-btn" data-sticker="💪">💪</div>
+      <div class="sticker-btn" data-sticker="👊">👊</div>
+      <div class="sticker-btn" data-sticker="🙌">🙌</div>
+      <div class="sticker-btn" data-sticker="🎉">🎉</div>
+      <div class="sticker-btn" data-sticker="😎">😎</div>
+      <div class="sticker-btn" data-sticker="🤩">🤩</div>
+      <div class="sticker-btn" data-sticker="😂">😂</div>
+      <div class="sticker-btn" data-sticker="🥳">🥳</div>
+      <div class="sticker-btn" data-sticker="😍">😍</div>
+      <div class="sticker-btn" data-sticker="🤙">🤙</div>
+      <div class="sticker-btn" data-sticker="👏">👏</div>
+      <div class="sticker-btn" data-sticker="❤️">❤️</div>
+      <div class="sticker-btn" data-sticker="🥇">🥇</div>
+      <div class="sticker-btn" data-sticker="🎯">🎯</div>
+      <div class="sticker-btn" data-sticker="⚡">⚡</div>
+      <div class="sticker-btn" data-sticker="💥">💥</div>
+      <div class="sticker-btn" data-sticker="🏅">🏅</div>
+      <div class="sticker-btn" data-sticker="👑">👑</div>
+      <div class="sticker-btn" data-sticker="✨">✨</div>
+      <div class="sticker-btn" data-sticker="🎊">🎊</div>
+    </div>
   </div>
 
   <div class="share-section">
@@ -829,6 +837,7 @@ function buildControls() {
 // ─── LAUNCH ──────────────────────────────────────────────────────────────────
 document.getElementById('launch-btn').addEventListener('click', async () => {
   startScreen.style.display = 'none';
+  document.getElementById('start-footer').classList.remove('show');
   arHeader.style.display    = 'flex';
   toolbar.style.display     = 'flex';
   modeBadge.style.display   = 'block';
@@ -916,9 +925,6 @@ function renderLoop() {
     ctx.globalAlpha = 1;
   }
 
-  // Draw stickers on top
-  drawStickers(w, h);
-
   animFrame = requestAnimationFrame(renderLoop);
 }
 
@@ -943,7 +949,30 @@ function hitSprite(x, y) {
          y <= sp.y + sp.baseH + 20;
 }
 
-// Pointer handlers now defined in STICKERS section below
+// Pointer handlers now defined below
+canvas.addEventListener('pointerdown', e => {
+  if (e.target !== canvas) return;
+  const { x, y } = getPos(e);
+  if (!hitSprite(x, y)) return;
+  drag.on = true;
+  drag.startX = x; drag.startY = y;
+  drag.origX = sprites[currentMode].x;
+  drag.origY = sprites[currentMode].y;
+  canvas.setPointerCapture(e.pointerId);
+  if (!hintHidden) dragHint.classList.add('hidden');
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('pointermove', e => {
+  if (!drag.on) return;
+  const { x, y } = getPos(e);
+  sprites[currentMode].x = drag.origX + (x - drag.startX);
+  sprites[currentMode].y = drag.origY + (y - drag.startY);
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('pointerup',     () => { drag.on = false; });
+canvas.addEventListener('pointercancel', () => { drag.on = false; });
 
 // ─── SNAP ─────────────────────────────────────────────────────────────────────
 document.getElementById('snap-btn').addEventListener('click', () => {
@@ -952,9 +981,33 @@ document.getElementById('snap-btn').addEventListener('click', () => {
 
   // Capture at full DPR resolution
   capturedDataUrl = canvas.toDataURL('image/jpeg', 0.94);
-  document.getElementById('preview-img').src = capturedDataUrl;
-  setupShareLinks();
-  document.getElementById('preview-overlay').classList.add('show');
+
+  // Reset preview stickers
+  pStickers = []; pSelectedId = null;
+  stickerDelete.classList.remove('show');
+  stickerTray.classList.remove('open');
+
+  // Load captured image into preview canvas
+  const img = new Image();
+  img.onload = () => {
+    capturedPhotoImg = img;
+    // Size preview canvas to match image aspect ratio, display-fit
+    const maxW = Math.min(window.innerWidth - 40, 420);
+    const maxH = window.innerHeight * 0.46;
+    const ratio = img.width / img.height;
+    let cW, cH;
+    if (ratio > maxW / maxH) { cW = maxW; cH = maxW / ratio; }
+    else { cH = maxH; cW = maxH * ratio; }
+    previewCanvas.width  = Math.round(cW * (window.devicePixelRatio || 1));
+    previewCanvas.height = Math.round(cH * (window.devicePixelRatio || 1));
+    previewCanvas.style.width  = Math.round(cW) + 'px';
+    previewCanvas.style.height = Math.round(cH) + 'px';
+    renderPreview();
+    setupShareLinks();
+    document.getElementById('preview-overlay').classList.add('show');
+    document.getElementById('start-footer').classList.remove('show');
+  };
+  img.src = capturedDataUrl;
 });
 
 // ─── SHARE ────────────────────────────────────────────────────────────────────
@@ -973,7 +1026,8 @@ function setupShareLinks() {
 
   document.getElementById('share-copy').onclick = async () => {
     try {
-      const res  = await fetch(capturedDataUrl);
+      const dataUrl = getFinalDataUrl();
+      const res  = await fetch(dataUrl);
       const blob = await res.blob();
       await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
       showToast('✓ Image copied to clipboard!');
@@ -988,7 +1042,8 @@ function setupShareLinks() {
     nativeBtn.classList.remove('hidden');
     nativeBtn.onclick = async () => {
       try {
-        const res  = await fetch(capturedDataUrl);
+        const dataUrl = getFinalDataUrl();
+        const res  = await fetch(dataUrl);
         const blob = await res.blob();
         const file = new File([blob], 'daicos-selfie.jpg', { type: 'image/jpeg' });
         if (navigator.canShare?.({ files: [file] })) {
@@ -1006,20 +1061,42 @@ function setupShareLinks() {
 }
 
 // ─── SAVE ─────────────────────────────────────────────────────────────────────
+function getFinalDataUrl() {
+  // Render preview canvas with selection rings hidden for final export
+  const wasSelected = pSelectedId;
+  pStickers.forEach(s => s.selected = false);
+  pSelectedId = null;
+  stickerDelete.classList.remove('show');
+  renderPreview();
+  const url = previewCanvas.toDataURL('image/jpeg', 0.94);
+  // Restore selection
+  pSelectedId = wasSelected;
+  pStickers.forEach(s => s.selected = s.id === wasSelected);
+  if (wasSelected) stickerDelete.classList.add('show');
+  renderPreview();
+  return url;
+}
+
 function savePhoto() {
-  if (!capturedDataUrl) return;
+  const url = getFinalDataUrl();
   const a = document.createElement('a');
   a.download = 'daicos-selfie.jpg';
-  a.href = capturedDataUrl;
+  a.href = url;
   a.click();
 }
+
 document.getElementById('save-btn').addEventListener('click', () => {
   savePhoto();
   showToast('✓ Saved to your device!');
 });
+
 document.getElementById('retake-btn').addEventListener('click', () => {
   document.getElementById('preview-overlay').classList.remove('show');
-  capturedDataUrl = null;
+  document.getElementById('start-footer').classList.remove('show');
+  pStickers = []; pSelectedId = null;
+  stickerDelete.classList.remove('show');
+  stickerTray.classList.remove('open');
+  capturedDataUrl = null; capturedPhotoImg = null;
 });
 
 // ─── TOAST ────────────────────────────────────────────────────────────────────
@@ -1034,223 +1111,173 @@ function showToast(msg) {
 document.getElementById('back-btn').addEventListener('click', () => {
   if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
   cancelAnimationFrame(animFrame);
-  stickers = [];
-  selectedStickerId = null;
+  pStickers = []; pSelectedId = null;
   stickerDelete.classList.remove('show');
   stickerTray.classList.remove('open');
   arHeader.style.display  = 'none';
   toolbar.style.display   = 'none';
   modeBadge.style.display = 'none';
   startScreen.style.display = 'flex';
+  document.getElementById('start-footer').classList.add('show');
   dragHint.classList.remove('hidden');
   hintHidden = false;
 });
 
-// ─── STICKERS ────────────────────────────────────────────────────────────────
-let stickers = [];       // { id, emoji, x, y, size, selected }
-let stickerIdCounter = 0;
-let selectedStickerId = null;
+// ─── STICKERS (on preview canvas) ────────────────────────────────────────────
+let pStickers = [];      // stickers on preview: { id, emoji, x, y, size, selected }
+let pStickerIdCounter = 0;
+let pSelectedId = null;
+let capturedPhotoImg = null;  // the raw captured Image object
 
-// Pinch state for sticker resize
-const pinch = { on: false, startDist: 0, startSize: 0, id: null };
-
-const stickerTray   = document.getElementById('sticker-tray');
-const stickerDelete = document.getElementById('sticker-delete');
-const stickerToggle = document.getElementById('sticker-toggle');
+const previewCanvas  = document.getElementById('preview-canvas');
+const previewCtx     = previewCanvas.getContext('2d');
+const stickerTray    = document.getElementById('sticker-tray');
+const stickerDelete  = document.getElementById('sticker-delete');
+const stickerToggle  = document.getElementById('sticker-toggle');
 
 stickerToggle.addEventListener('click', () => {
   stickerTray.classList.toggle('open');
-  // Deselect when opening tray
-  selectedStickerId = null;
-  stickerDelete.classList.remove('show');
 });
 
-// Close tray when tapping outside
-canvas.addEventListener('pointerdown', () => {
-  if (stickerTray.classList.contains('open')) {
-    stickerTray.classList.remove('open');
-  }
-}, { capture: true, passive: true });
-
-// Add sticker on tap
+// Add sticker from tray
 document.querySelectorAll('.sticker-btn').forEach(btn => {
   btn.addEventListener('click', () => {
     const emoji = btn.dataset.sticker;
-    const w = window.innerWidth, h = window.innerHeight;
-    stickers.push({
-      id: ++stickerIdCounter,
-      emoji,
-      x: w * 0.5 + (Math.random() - 0.5) * 80,
-      y: h * 0.4 + (Math.random() - 0.5) * 80,
-      size: Math.round(w * 0.14),
-      selected: false
+    const w = previewCanvas.width, h = previewCanvas.height;
+    const newId = ++pStickerIdCounter;
+    pStickers.push({
+      id: newId, emoji,
+      x: w * 0.5 + (Math.random() - 0.5) * w * 0.3,
+      y: h * 0.4 + (Math.random() - 0.5) * h * 0.2,
+      size: Math.round(w * 0.12),
+      selected: true
     });
+    pSelectedId = newId;
+    pStickers.forEach(s => s.selected = s.id === newId);
+    stickerDelete.classList.add('show');
     stickerTray.classList.remove('open');
-    // Auto-select the new sticker
-    selectSticker(stickerIdCounter);
+    renderPreview();
   });
 });
 
-function selectSticker(id) {
-  selectedStickerId = id;
-  stickers.forEach(s => s.selected = s.id === id);
-  stickerDelete.classList.toggle('show', id !== null);
-}
-
-document.getElementById('sticker-delete').addEventListener('click', () => {
-  stickers = stickers.filter(s => s.id !== selectedStickerId);
-  selectedStickerId = null;
+stickerDelete.addEventListener('click', () => {
+  pStickers = pStickers.filter(s => s.id !== pSelectedId);
+  pSelectedId = null;
   stickerDelete.classList.remove('show');
+  renderPreview();
 });
 
-// Draw stickers onto canvas each frame
-function drawStickers(w, h) {
-  stickers.forEach(s => {
-    ctx.font = `${s.size}px serif`;
-    ctx.textAlign = 'center';
-    ctx.textBaseline = 'middle';
+function renderPreview() {
+  if (!capturedPhotoImg) return;
+  const w = previewCanvas.width, h = previewCanvas.height;
+  previewCtx.clearRect(0, 0, w, h);
+  previewCtx.drawImage(capturedPhotoImg, 0, 0, w, h);
 
-    // Selection ring
+  pStickers.forEach(s => {
+    previewCtx.font = `${s.size}px serif`;
+    previewCtx.textAlign = 'center';
+    previewCtx.textBaseline = 'middle';
+
     if (s.selected) {
-      ctx.save();
-      ctx.strokeStyle = 'rgba(200,168,75,0.9)';
-      ctx.lineWidth = 3;
-      ctx.setLineDash([6, 4]);
-      const r = s.size * 0.6;
-      ctx.beginPath();
-      ctx.arc(s.x, s.y, r, 0, Math.PI * 2);
-      ctx.stroke();
-      ctx.setLineDash([]);
-      ctx.restore();
+      previewCtx.save();
+      previewCtx.strokeStyle = 'rgba(200,168,75,0.9)';
+      previewCtx.lineWidth = Math.max(2, w * 0.004);
+      previewCtx.setLineDash([6, 4]);
+      previewCtx.beginPath();
+      previewCtx.arc(s.x, s.y, s.size * 0.62, 0, Math.PI * 2);
+      previewCtx.stroke();
+      previewCtx.setLineDash([]);
+      previewCtx.restore();
     }
 
-    ctx.fillText(s.emoji, s.x, s.y);
+    previewCtx.fillText(s.emoji, s.x, s.y);
   });
 }
 
-// Hit test sticker (returns sticker or null)
-function hitSticker(x, y) {
-  // Reverse iterate so topmost sticker wins
-  for (let i = stickers.length - 1; i >= 0; i--) {
-    const s = stickers[i];
-    const r = s.size * 0.65;
-    if (Math.hypot(x - s.x, y - s.y) <= r) return s;
+// Sticker hit test on preview canvas
+function hitPreviewSticker(x, y) {
+  for (let i = pStickers.length - 1; i >= 0; i--) {
+    const s = pStickers[i];
+    if (Math.hypot(x - s.x, y - s.y) <= s.size * 0.7) return s;
   }
   return null;
 }
 
-// Sticker drag state (separate from sprite drag)
-const sDrag = { on: false, stickerId: null, startX: 0, startY: 0, origX: 0, origY: 0 };
+// Preview canvas pointer events — drag stickers
+const pDrag = { on: false, id: null, startX: 0, startY: 0, origX: 0, origY: 0 };
+const pPinch = { on: false, startDist: 0, startSize: 0, id: null };
 
-// Override pointer handlers to also handle stickers
-// We'll patch into the existing pointerdown/move/up by replacing them
+function previewPos(e) {
+  const rect = previewCanvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  // Scale from display px to canvas px
+  const scaleX = previewCanvas.width  / rect.width;
+  const scaleY = previewCanvas.height / rect.height;
+  return {
+    x: (src.clientX - rect.left) * scaleX,
+    y: (src.clientY - rect.top)  * scaleY
+  };
+}
 
-canvas.removeEventListener('pointerdown', canvas._pdHandler);
-canvas.removeEventListener('pointermove', canvas._pmHandler);
-canvas.removeEventListener('pointerup',   canvas._puHandler);
-
-function unifiedPointerDown(e) {
-  if (e.target !== canvas) return;
-  const { x, y } = getPos(e);
-
-  // Close sticker tray
-  if (stickerTray.classList.contains('open')) {
-    stickerTray.classList.remove('open');
-    return;
-  }
-
-  // Check sticker hit first (they're on top)
-  const s = hitSticker(x, y);
-  if (s) {
-    selectSticker(s.id);
-    sDrag.on = true;
-    sDrag.stickerId = s.id;
-    sDrag.startX = x; sDrag.startY = y;
-    sDrag.origX = s.x; sDrag.origY = s.y;
-    canvas.setPointerCapture(e.pointerId);
+previewCanvas.addEventListener('pointerdown', e => {
+  const { x, y } = previewPos(e);
+  const hit = hitPreviewSticker(x, y);
+  if (hit) {
+    pSelectedId = hit.id;
+    pStickers.forEach(s => s.selected = s.id === hit.id);
+    stickerDelete.classList.add('show');
+    pDrag.on = true; pDrag.id = hit.id;
+    pDrag.startX = x; pDrag.startY = y;
+    pDrag.origX = hit.x; pDrag.origY = hit.y;
+    previewCanvas.setPointerCapture(e.pointerId);
+    renderPreview();
     e.preventDefault();
-    return;
-  }
-
-  // Deselect sticker if tapping empty area
-  if (selectedStickerId !== null) {
-    selectedStickerId = null;
-    stickers.forEach(s => s.selected = false);
+  } else {
+    // Deselect
+    pSelectedId = null;
+    pStickers.forEach(s => s.selected = false);
     stickerDelete.classList.remove('show');
+    renderPreview();
   }
+}, { passive: false });
 
-  // Sprite drag
-  if (!hitSprite(x, y)) return;
-  drag.on = true;
-  drag.startX = x; drag.startY = y;
-  drag.origX = sprites[currentMode].x;
-  drag.origY = sprites[currentMode].y;
-  canvas.setPointerCapture(e.pointerId);
-  if (!hintHidden) dragHint.classList.add('hidden');
+previewCanvas.addEventListener('pointermove', e => {
+  if (!pDrag.on) return;
+  const { x, y } = previewPos(e);
+  const s = pStickers.find(s => s.id === pDrag.id);
+  if (s) { s.x = pDrag.origX + (x - pDrag.startX); s.y = pDrag.origY + (y - pDrag.startY); }
+  renderPreview();
   e.preventDefault();
-}
+}, { passive: false });
 
-function unifiedPointerMove(e) {
-  const { x, y } = getPos(e);
+previewCanvas.addEventListener('pointerup',     () => { pDrag.on = false; });
+previewCanvas.addEventListener('pointercancel', () => { pDrag.on = false; });
 
-  if (sDrag.on) {
-    const s = stickers.find(s => s.id === sDrag.stickerId);
-    if (s) {
-      s.x = sDrag.origX + (x - sDrag.startX);
-      s.y = sDrag.origY + (y - sDrag.startY);
-    }
-    e.preventDefault();
-    return;
-  }
-
-  if (!drag.on) return;
-  sprites[currentMode].x = drag.origX + (x - drag.startX);
-  sprites[currentMode].y = drag.origY + (y - drag.startY);
-  e.preventDefault();
-}
-
-function unifiedPointerUp() {
-  drag.on = false;
-  sDrag.on = false;
-}
-
-canvas.addEventListener('pointerdown', unifiedPointerDown, { passive: false });
-canvas.addEventListener('pointermove', unifiedPointerMove, { passive: false });
-canvas.addEventListener('pointerup',   unifiedPointerUp);
-canvas.addEventListener('pointercancel', unifiedPointerUp);
-
-// Pinch-to-resize sticker (touch only, 2 fingers on canvas)
-canvas.addEventListener('touchstart', e => {
-  if (e.touches.length === 2 && selectedStickerId !== null) {
-    const s = stickers.find(s => s.id === selectedStickerId);
+// Pinch to resize sticker on preview
+previewCanvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 2 && pSelectedId !== null) {
+    const s = pStickers.find(s => s.id === pSelectedId);
     if (!s) return;
     const dx = e.touches[0].clientX - e.touches[1].clientX;
     const dy = e.touches[0].clientY - e.touches[1].clientY;
-    pinch.on = true;
-    pinch.startDist = Math.hypot(dx, dy);
-    pinch.startSize = s.size;
-    pinch.id = selectedStickerId;
+    pPinch.on = true; pPinch.id = pSelectedId;
+    pPinch.startDist = Math.hypot(dx, dy); pPinch.startSize = s.size;
   }
 }, { passive: true });
 
-canvas.addEventListener('touchmove', e => {
-  if (!pinch.on || e.touches.length < 2) return;
+previewCanvas.addEventListener('touchmove', e => {
+  if (!pPinch.on || e.touches.length < 2) return;
   const dx = e.touches[0].clientX - e.touches[1].clientX;
   const dy = e.touches[0].clientY - e.touches[1].clientY;
-  const dist = Math.hypot(dx, dy);
-  const s = stickers.find(s => s.id === pinch.id);
+  const s = pStickers.find(s => s.id === pPinch.id);
   if (s) {
-    s.size = Math.max(24, Math.min(200, pinch.startSize * (dist / pinch.startDist)));
+    s.size = Math.max(20, Math.min(previewCanvas.width * 0.4,
+      pPinch.startSize * (Math.hypot(dx, dy) / pPinch.startDist)));
+    renderPreview();
   }
 }, { passive: true });
 
-canvas.addEventListener('touchend', () => { pinch.on = false; }, { passive: true });
-
-// Clear stickers on back / reset
-const origReset = document.getElementById('reset-btn').onclick;
-document.getElementById('reset-btn').addEventListener('click', () => {
-  // Keep stickers — just reset sprite position
-});
+previewCanvas.addEventListener('touchend', () => { pPinch.on = false; }, { passive: true });
 
 // ─── INIT ─────────────────────────────────────────────────────────────────────
 preloadAll();
