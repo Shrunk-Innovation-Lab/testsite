@@ -1,234 +1,1351 @@
 <!DOCTYPE html>
 <html lang="en">
-
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Waste Bin Selector</title>
-  <link rel="stylesheet" href="styles.css">
-</head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+<meta name="apple-mobile-web-app-capable" content="yes">
+<meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+<meta name="theme-color" content="#000000">
+<title>Selfie with the Daicos Bros</title>
+<style>
+  @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&family=Barlow+Condensed:wght@400;600;700&family=Barlow:wght@400;500&display=swap');
 
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+  :root {
+    --black:  #0a0a0a;
+    --white:  #f5f5f0;
+    --accent: #c8a84b;
+    --blue:   #64b5f6;
+    --green:  #3ddc84;
+
+    /* iPhone safe areas — fallback for non-notch devices */
+    --sat: env(safe-area-inset-top,    0px);
+    --sar: env(safe-area-inset-right,  0px);
+    --sab: env(safe-area-inset-bottom, 0px);
+    --sal: env(safe-area-inset-left,   0px);
+
+    /* Dynamic Island clearance on iPhone 17 Pro Max ≈ 59pt logical */
+    --di-top: max(var(--sat), 16px);
+  }
+
+  html, body {
+    height: 100%; width: 100%;
+    background: var(--black);
+    color: var(--white);
+    font-family: 'Barlow', sans-serif;
+    overflow: hidden;
+    /* Disable rubber-band scroll & double-tap zoom */
+    touch-action: none;
+    -webkit-tap-highlight-color: transparent;
+    -webkit-touch-callout: none;
+    -webkit-user-select: none;
+  }
+
+  /* ═══════════════ VIEWFINDER ═══════════════ */
+  #viewfinder {
+    position: fixed; inset: 0;
+    /* Extend under Dynamic Island & home bar */
+    padding: 0;
+  }
+  #canvas {
+    width: 100%; height: 100%;
+    display: block;
+    /* Prevent blurry canvas on Retina */
+    image-rendering: -webkit-optimize-contrast;
+  }
+  video { display: none; }
+
+  /* ═══════════════ HEADER ═══════════════ */
+  #ar-header {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: none;
+    align-items: center;
+    justify-content: space-between;
+    /* Sit below Dynamic Island */
+    padding: calc(var(--di-top) + 8px) 20px 12px;
+    background: linear-gradient(to bottom, rgba(0,0,0,0.88) 60%, transparent);
+  }
+  .header-logo {
+    height: 32px; width: auto;
+    object-fit: contain;
+    filter: drop-shadow(0 1px 4px rgba(0,0,0,0.7));
+  }
+  .flip-btn {
+    background: rgba(255,255,255,0.12);
+    border: 1px solid rgba(255,255,255,0.22);
+    color: var(--white);
+    /* min 44pt touch target */
+    min-width: 44px; min-height: 44px;
+    padding: 8px 16px;
+    border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.1em;
+    cursor: pointer;
+    backdrop-filter: blur(12px) saturate(1.4);
+    -webkit-backdrop-filter: blur(12px) saturate(1.4);
+    transition: background 0.2s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  .flip-btn:active { background: rgba(255,255,255,0.26); }
+
+  /* ═══════════════ MODE BADGE ═══════════════ */
+  #mode-badge {
+    position: fixed;
+    top: calc(var(--di-top) + 60px);
+    left: 50%; transform: translateX(-50%);
+    z-index: 99;
+    background: rgba(0,0,0,0.72);
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(200,168,75,0.45);
+    border-radius: 50px;
+    padding: 5px 16px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.72rem; letter-spacing: 0.14em; text-transform: uppercase;
+    color: var(--accent);
+    pointer-events: none;
+    display: none;
+    white-space: nowrap;
+  }
+
+  /* ═══════════════ DRAG HINT ═══════════════ */
+  #drag-hint {
+    position: fixed; top: 50%; left: 50%;
+    transform: translate(-50%, -50%);
+    background: rgba(0,0,0,0.68);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    color: var(--white);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.88rem; letter-spacing: 0.1em;
+    padding: 10px 20px; border-radius: 50px;
+    pointer-events: none;
+    opacity: 1; transition: opacity 0.8s;
+    z-index: 99; white-space: nowrap;
+  }
+  #drag-hint.hidden { opacity: 0; }
+
+  /* ═══════════════ TOOLBAR ═══════════════ */
+  #toolbar {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 100;
+    /* Respect home indicator */
+    padding: 14px 20px calc(var(--sab) + 18px);
+    background: linear-gradient(to top, rgba(0,0,0,0.96) 65%, transparent);
+    display: none;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  /* Scale control */
+  #ctrl-area {
+    background: rgba(255,255,255,0.07);
+    border: 1px solid rgba(255,255,255,0.11);
+    border-radius: 14px;
+    padding: 11px 14px;
+    display: flex; flex-direction: column; gap: 7px;
+  }
+  .ctrl-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.7rem; letter-spacing: 0.13em; text-transform: uppercase;
+    color: rgba(255,255,255,0.45);
+    display: flex; align-items: center; gap: 6px;
+  }
+  .dot { width: 7px; height: 7px; border-radius: 50%; flex-shrink: 0; }
+  .dot-both { background: linear-gradient(90deg, var(--accent), var(--blue)); }
+  .dot-nick  { background: var(--accent); }
+  .dot-josh  { background: var(--blue); }
+  .toggle-vis {
+    margin-left: auto; cursor: pointer;
+    font-size: 1rem; opacity: 0.7;
+    transition: opacity 0.15s;
+    min-width: 36px; min-height: 36px;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .toggle-vis:active { opacity: 1; }
+
+  /* Slider — large thumb for 17 Pro Max */
+  .scale-slider {
+    -webkit-appearance: none; appearance: none;
+    width: 100%; height: 4px; border-radius: 2px;
+    background: rgba(255,255,255,0.14); outline: none;
+  }
+  .scale-slider::-webkit-slider-thumb {
+    -webkit-appearance: none;
+    width: 26px; height: 26px;
+    border-radius: 50%;
+    cursor: pointer;
+    box-shadow: 0 2px 8px rgba(0,0,0,0.5);
+  }
+  .s-both::-webkit-slider-thumb { background: var(--white); }
+  .s-nick::-webkit-slider-thumb { background: var(--accent); }
+  .s-josh::-webkit-slider-thumb { background: var(--blue); }
+
+  /* Bottom action row */
+  .bottom-actions {
+    display: flex; align-items: center;
+    justify-content: center; gap: 16px;
+  }
+  .snap-btn {
+    width: 78px; height: 78px;
+    border-radius: 50%;
+    background: var(--white);
+    border: 5px solid rgba(255,255,255,0.28);
+    cursor: pointer; flex-shrink: 0;
+    display: flex; align-items: center; justify-content: center;
+    transition: transform 0.1s, background 0.15s;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.5);
+  }
+  .snap-btn:active { transform: scale(0.88); background: var(--accent); }
+  .snap-btn svg { width: 30px; height: 30px; fill: var(--black); }
+
+  .action-btn {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--white);
+    min-width: 44px; min-height: 44px;
+    padding: 11px 18px;
+    border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.08em;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.18s;
+  }
+  .action-btn:active { background: rgba(255,255,255,0.22); }
+
+  /* ═══════════════ FLASH ═══════════════ */
+  #flash {
+    position: fixed; inset: 0;
+    background: white; opacity: 0;
+    pointer-events: none; z-index: 300;
+    transition: opacity 0.04s;
+  }
+  #flash.active { opacity: 1; }
+
+  /* ═══════════════ START SCREEN ═══════════════ */
+  #start-screen {
+    position: fixed; inset: 0; z-index: 200;
+    background: var(--black);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: flex-start;
+    padding: calc(var(--di-top) + 12px) 24px 0;
+    overflow-y: auto;
+    gap: 0;
+    /* Leave room for fixed footer */
+    padding-bottom: calc(var(--sab) + 88px);
+  }
+
+  /* Fixed footer on start screen */
+  #start-footer {
+    position: fixed;
+    bottom: 0; left: 0; right: 0;
+    z-index: 201;
+    padding: 12px 24px calc(var(--sab) + 16px);
+    background: linear-gradient(to top, rgba(10,10,10,1) 60%, transparent);
+    display: none;
+    justify-content: center;
+  }
+  #start-footer.show { display: flex; }
+
+  .start-logo {
+    height: 56px; width: auto;
+    object-fit: contain;
+    margin-bottom: 10px;
+    filter: drop-shadow(0 2px 10px rgba(0,0,0,0.7));
+  }
+  .big-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 14vw, 5.5rem);
+    letter-spacing: 0.03em; line-height: 0.88;
+    text-align: center;
+  }
+  .big-title em { color: var(--accent); font-style: normal; display: block; font-size: 0.58em; }
+
+  .stripe-divider {
+    width: 100%; height: 5px;
+    background: repeating-linear-gradient(90deg, var(--white) 0, var(--white) 18px, var(--black) 18px, var(--black) 36px);
+    margin: 14px 0;
+  }
+
+  /* Mode cards */
+  .section-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.35); margin-bottom: 8px; align-self: flex-start;
+    width: 100%; max-width: 440px;
+  }
+  .mode-grid {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    width: 100%; max-width: 440px;
+  }
+  .mode-card {
+    background: #141414; border: 2px solid #242424;
+    border-radius: 14px; padding: 14px 8px;
+    display: flex; flex-direction: column; align-items: center; gap: 6px;
+    cursor: pointer; transition: border-color 0.2s, background 0.2s;
+    /* Generous touch targets */
+    min-height: 90px;
+  }
+  .mode-card:active { background: #1e1c14; }
+  .mode-card.active { border-color: var(--accent); background: #1b1910; }
+  .mode-icon { font-size: 1.6rem; line-height: 1; }
+  .mode-name {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.74rem; font-weight: 700; letter-spacing: 0.08em;
+    text-transform: uppercase; text-align: center;
+  }
+  .mode-sub {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.6rem; color: rgba(255,255,255,0.35); text-align: center; line-height: 1.3;
+  }
+
+  /* Player image previews on start screen */
+  .preview-strip {
+    display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 8px;
+    width: 100%; max-width: 440px; margin-top: 10px;
+  }
+  .preview-cell {
+    background: #141414; border: 1px solid #262626;
+    border-radius: 12px; overflow: hidden;
+    aspect-ratio: 9/16; position: relative;
+    display: flex; align-items: center; justify-content: center;
+  }
+  .preview-cell img {
+    width: 100%; height: 100%; object-fit: contain;
+    padding: 4px;
+  }
+  .preview-cell .preview-label {
+    position: absolute; bottom: 0; left: 0; right: 0;
+    background: linear-gradient(to top, rgba(0,0,0,0.85), transparent);
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.62rem; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
+    color: rgba(255,255,255,0.7); text-align: center; padding: 8px 4px 5px;
+  }
+  .preview-cell .loading-dot {
+    width: 24px; height: 24px; border-radius: 50%;
+    border: 2px solid rgba(255,255,255,0.15);
+    border-top-color: var(--accent);
+    animation: spin 0.8s linear infinite;
+  }
+  @keyframes spin { to { transform: rotate(360deg); } }
+
+  .launch-btn {
+    margin-top: 14px;
+    background: var(--white); color: var(--black);
+    border: none; width: 100%; max-width: 440px;
+    padding: 17px; border-radius: 50px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.35rem; letter-spacing: 0.12em;
+    cursor: pointer; transition: transform 0.12s, background 0.18s;
+    min-height: 56px;
+  }
+  .launch-btn:active { background: var(--accent); transform: scale(0.98); }
+
+  /* ═══════════════ PREVIEW / SHARE OVERLAY ═══════════════ */
+  #preview-overlay {
+    position: fixed; inset: 0; z-index: 400;
+    background: #000;
+    display: none;
+  }
+  #preview-overlay.show { display: block; }
+
+  /* Canvas fills the entire screen */
+  .preview-canvas-wrap {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background: #000;
+  }
+  #preview-canvas {
+    width: 100%;
+    height: 100%;
+    object-fit: contain;
+    display: block;
+    touch-action: none;
+  }
+
+  /* Sticker delete pill — floats over canvas top-centre */
+  #sticker-delete {
+    position: absolute;
+    top: calc(var(--di-top) + 14px);
+    left: 50%; transform: translateX(-50%);
+    background: rgba(210,40,40,0.88);
+    backdrop-filter: blur(8px);
+    color: #fff; border: none;
+    border-radius: 50px; padding: 9px 20px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.1em;
+    cursor: pointer; display: none;
+    align-items: center; gap: 6px;
+    white-space: nowrap; z-index: 10;
+    box-shadow: 0 4px 14px rgba(0,0,0,0.6);
+  }
+  #sticker-delete.show { display: flex; }
+
+  /* Controls float over the bottom of the canvas */
+  #preview-controls {
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    z-index: 5;
+    background: linear-gradient(to top, rgba(0,0,0,0.95) 70%, transparent);
+    padding: 20px 16px calc(var(--sab) + 14px);
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+  }
+
+  .preview-save-row {
+    display: flex; gap: 10px; margin-top: 14px; flex-shrink: 0;
+  }
+  .preview-btn {
+    padding: 14px 28px; border-radius: 50px;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.1rem; letter-spacing: 0.1em;
+    cursor: pointer; border: none; min-height: 50px;
+    transition: transform 0.1s;
+  }
+  .preview-btn:active { transform: scale(0.94); }
+  .preview-btn.save { background: var(--accent); color: var(--black); }
+  .preview-btn.retake { background: rgba(255,255,255,0.13); color: var(--white); }
+
+  /* Share section */
+  .share-section { margin-top: 16px; width: 100%; max-width: 400px; flex-shrink: 0; }
+  .share-label {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.32); text-align: center; margin-bottom: 10px;
+  }
+
+  .native-share-btn {
+    width: 100%; margin-bottom: 10px; padding: 15px;
+    background: rgba(200,168,75,0.14); border: 1px solid rgba(200,168,75,0.4);
+    color: var(--accent); border-radius: 14px; cursor: pointer;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.92rem; letter-spacing: 0.12em; text-transform: uppercase;
+    display: flex; align-items: center; justify-content: center; gap: 8px;
+    min-height: 52px; transition: background 0.18s;
+  }
+  .native-share-btn:active { background: rgba(200,168,75,0.26); }
+  .native-share-btn.hidden { display: none; }
+
+  .share-grid { display: grid; grid-template-columns: repeat(5, 1fr); gap: 8px; }
+  .share-tile {
+    display: flex; flex-direction: column; align-items: center; gap: 5px;
+    cursor: pointer; padding: 12px 4px; border-radius: 14px;
+    background: rgba(255,255,255,0.06); border: 1px solid rgba(255,255,255,0.09);
+    text-decoration: none; color: var(--white);
+    min-height: 64px;
+    transition: background 0.18s;
+  }
+  .share-tile:active { background: rgba(255,255,255,0.16); }
+  .share-tile svg { width: 26px; height: 26px; }
+  .share-tile span {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.58rem; letter-spacing: 0.04em;
+    text-transform: uppercase; color: rgba(255,255,255,0.38);
+  }
+
+  .share-footnote {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.61rem; color: rgba(255,255,255,0.2);
+    text-align: center; margin-top: 10px; line-height: 1.5;
+  }
+
+  /* ═══════════════ TOAST ═══════════════ */
+  #toast {
+    position: fixed;
+    bottom: calc(var(--sab) + 100px);
+    left: 50%; transform: translateX(-50%);
+    background: #1b5e20; color: #fff;
+    padding: 11px 22px; border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.88rem; letter-spacing: 0.1em;
+    opacity: 0; transition: opacity 0.3s;
+    pointer-events: none; z-index: 500; white-space: nowrap;
+  }
+  #toast.show { opacity: 1; }
+
+  /* ═══════════════ STICKER TRAY ═══════════════ */
+  #sticker-toggle {
+    background: rgba(255,255,255,0.10);
+    border: 1px solid rgba(255,255,255,0.18);
+    color: var(--white);
+    min-height: 44px; padding: 10px 20px;
+    border-radius: 50px;
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.82rem; letter-spacing: 0.08em;
+    cursor: pointer; white-space: nowrap;
+    transition: background 0.18s;
+    display: flex; align-items: center; gap: 6px;
+  }
+  #sticker-toggle:active { background: rgba(255,255,255,0.22); }
+
+  #sticker-tray {
+    width: 100%;
+    background: rgba(18,18,18,1);
+    border: 1px solid rgba(255,255,255,0.1);
+    border-radius: 16px;
+    padding: 12px 12px 14px;
+    display: none;
+  }
+  #sticker-tray.open { display: block; }
+
+  .tray-handle {
+    width: 32px; height: 3px; border-radius: 2px;
+    background: rgba(255,255,255,0.18);
+    margin: 0 auto 10px;
+  }
+  .tray-title {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.68rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.3); margin-bottom: 10px; text-align: center;
+  }
+  .sticker-grid {
+    display: grid; grid-template-columns: repeat(8, 1fr); gap: 6px;
+  }
+  .sticker-btn {
+    aspect-ratio: 1;
+    background: rgba(255,255,255,0.06);
+    border: 1px solid rgba(255,255,255,0.09);
+    border-radius: 10px; font-size: 1.5rem;
+    display: flex; align-items: center; justify-content: center;
+    cursor: pointer; transition: background 0.15s, transform 0.1s;
+    min-height: 44px;
+  }
+  .sticker-btn:active { background: rgba(255,255,255,0.18); transform: scale(0.88); }
+
+  #loading-screen {
+    position: fixed; inset: 0; z-index: 500;
+    background: var(--black);
+    display: flex; flex-direction: column;
+    align-items: center; justify-content: center; gap: 20px;
+  }
+  #loading-screen.hidden { display: none; }
+  .loading-ring {
+    width: 48px; height: 48px; border-radius: 50%;
+    border: 3px solid rgba(200,168,75,0.2);
+    border-top-color: var(--accent);
+    animation: spin 0.7s linear infinite;
+  }
+  .loading-text {
+    font-family: 'Barlow Condensed', sans-serif;
+    font-size: 0.8rem; letter-spacing: 0.18em; text-transform: uppercase;
+    color: rgba(255,255,255,0.4);
+  }
+</style>
+</head>
 <body>
 
-  <div id="app-container">
+<video id="video" autoplay playsinline muted playsinline></video>
+<div id="viewfinder"><canvas id="canvas"></canvas></div>
+<div id="flash"></div>
+<div id="toast"></div>
 
-    <!-- Header -->
-    <header class="header">
-      <a href="report.html" target="_blank" class="database-link">
-        <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-          <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
-          <path d="M3 12c0 1.66 4.03 3 9 3s9-1.34 9-3"></path>
-          <path d="M3 18c0 1.66 4.03 3 9 3s9-1.34 9-3"></path>
-        </svg>
-      </a>
-      <div class="header-spacer"></div>
-      <span id="demo-badge"
-        style="background:rgba(251,191,36,0.15);border:1px solid rgba(251,191,36,0.4);color:#fbbf24;font-size:0.62rem;font-weight:700;letter-spacing:0.12em;padding:3px 9px;border-radius:3px;text-transform:uppercase;">DEMO</span>
-      <div style="width:12px;"></div>
-     <img
-        src="data:image/png;base64,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"
-        alt="Logo" class="logo">
-    </header>
+<!-- ═══════════ LOADING ═══════════ -->
+<div id="loading-screen">
+  <img src="https://i.imgur.com/kG2dDb7.png" style="height:52px;object-fit:contain;filter:drop-shadow(0 2px 8px rgba(0,0,0,0.6))" onerror="this.style.display='none'" alt="Logo">
+  <div class="loading-ring"></div>
+  <div class="loading-text">Loading players…</div>
+</div>
 
-    <!-- Main Content -->
-    <div class="main-content">
+<!-- ═══════════ START SCREEN ═══════════ -->
+<div id="start-screen" style="display:none">
+  <img src="https://i.imgur.com/kG2dDb7.png" class="start-logo" alt="Logo" onerror="this.style.display='none'">
+  <div class="big-title">SELFIE<br>WITH THE<br><em>DAICOS BROS</em></div>
+  <div class="stripe-divider"></div>
 
-      <!-- Weight Display -->
-      <div class="weight-display">
-        <div class="weight-label">CURRENT WEIGHT</div>
-        <div class="weight-value-container">
-          <div id="weight-value">0.00</div>
-          <div class="weight-unit">kg</div>
-        </div>
-        <button id="zero-btn" class="zero-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <circle cx="12" cy="12" r="10"></circle>
-            <line x1="8" y1="12" x2="16" y2="12"></line>
-          </svg>
-          Zero Scale
-        </button>
-      </div>
+  <div class="section-label">Choose your AR mode</div>
+  <div class="mode-grid">
+    <div class="mode-card active" data-mode="both" onclick="selectMode('both')">
+      <div class="mode-icon">👥</div>
+      <div class="mode-name">Both Bros</div>
+    </div>
+    <div class="mode-card" data-mode="nick" onclick="selectMode('nick')">
+      <div class="mode-icon">⭐</div>
+      <div class="mode-name">Nick</div>
+    </div>
+    <div class="mode-card" data-mode="josh" onclick="selectMode('josh')">
+      <div class="mode-icon">🏆</div>
+      <div class="mode-name">Josh</div>
+    </div>
+  </div>
 
-      <!-- Tracker + Tenant Banner + Logout row -->
-      <div style="display:flex;gap:6px;margin-bottom:5px;height:28px;min-height:28px;">
-        <div id="tenant-banner" class="tenant-banner" style="flex:1;">
-          <div class="tenant-banner-dot"></div>
-          <span id="tenant-banner-name"></span>
-        </div>
-        <button id="logout-btn" class="logout-btn" style="display:none;">
-          <svg xmlns="http://www.w3.org/2000/svg" width="13" height="13" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
-            <polyline points="16 17 21 12 16 7"></polyline>
-            <line x1="21" y1="12" x2="9" y2="12"></line>
-          </svg>
-          End Session
-        </button>
-      </div>
+</div>
 
-      <!-- Selection Stepper -->
-      <div class="selection-stepper">
+<!-- Fixed footer for start screen -->
+<div id="start-footer" class="show">
+  <button class="launch-btn" id="launch-btn">LAUNCH CAMERA</button>
+</div>
 
-        <!-- Step 1: General Waste ONLY -->
-        <div class="selection-section active" id="waste-section">
-          <div class="section-header">
-            <div class="section-title">SELECT WASTE TYPE</div>
-            <div class="section-step">1</div>
-          </div>
+<!-- ═══════════ AR HEADER ═══════════ -->
+<header id="ar-header">
+  <img src="https://i.imgur.com/kG2dDb7.png" class="header-logo" alt="Logo" onerror="this.style.display='none'">
+  <div style="display:flex;gap:10px;align-items:center">
+    <button class="action-btn" id="back-btn" style="padding:8px 14px;font-size:0.78rem">↩ Back</button>
+    <button class="flip-btn" id="flip-btn">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="currentColor"><path d="M20 5H4v2l-4-3 4-3v2h18v6h-2V5zM4 19h16v-2l4 3-4 3v-2H2v-6h2v4z"/></svg>
+      Flip
+    </button>
+  </div>
+</header>
 
-          <div class="waste-cards-primary">
-            <div class="waste-card" data-category="General" data-color="#E41F26" data-name="General Waste">
-              <div class="card-icon" style="background-color:#E41F26;">General</div>
-              <div class="card-info">
-                <div class="card-title">General Waste</div>
-                <div class="card-subtitle">Non Recycling</div>
-              </div>
-            </div>
-          </div>
-        </div>
+<div id="mode-badge"></div>
+<div id="drag-hint">👆 Drag to position</div>
 
-      </div><!-- /selection-stepper -->
+<!-- ═══════════ TOOLBAR ═══════════ -->
+<div id="toolbar">
+  <div id="ctrl-area"></div>
+  <div class="bottom-actions">
+    <button class="action-btn" id="reset-btn">↺ Reset</button>
+    <button class="snap-btn" id="snap-btn" aria-label="Take photo">
+      <svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="5.5"/><path d="M20 4h-3.17L15 2H9L7.17 4H4C2.9 4 2 4.9 2 6v14c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2z" opacity="0.3"/></svg>
+    </button>
+    <div style="width:44px"></div>
+  </div>
+</div>
 
-      <!-- Action Buttons -->
-      <div class="action-bar">
-        <button id="contaminated-btn" class="action-btn contaminated-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-            <line x1="12" y1="9" x2="12" y2="13"></line>
-            <line x1="12" y1="17" x2="12.01" y2="17"></line>
-          </svg>
-          Mark as Contaminated
-        </button>
-        <button id="weigh-btn" class="action-btn weigh-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M20.59 13.41l-7.17 7.17a2 2 0 0 1-2.83 0L2 12V2h10l8.59 8.59a2 2 0 0 1 0 2.82z"></path>
-            <line x1="7" y1="7" x2="7.01" y2="7"></line>
-          </svg>
-          Weigh Bin
-        </button>
-        <button id="reset-btn" class="action-btn reset-btn">
-          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none"
-            stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-            <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
-            <polyline points="9 22 9 12 15 12 15 22"></polyline>
-          </svg>
-          Reset
-        </button>
-      </div>
 
-    </div><!-- /main-content -->
+<div id="preview-overlay">
 
-    <footer class="footer">2026 | Wasted by Shrunk | All Rights Reserved</footer>
+  <!-- Full-screen canvas area -->
+  <div class="preview-canvas-wrap">
+    <canvas id="preview-canvas"></canvas>
+    <button id="sticker-delete">✕ Remove Sticker</button>
+  </div>
 
-    <!-- ============================================================
-         PIN GATE OVERLAY
-    ============================================================ -->
-    <div id="pin-overlay" class="pin-overlay">
-      <div class="pin-modal">
-        <div class="pin-modal-header">
-          <div class="pin-modal-title">Enter Tenant PIN</div>
-          <div class="pin-modal-subtitle">5-digit PIN required to access the scale</div>
-        </div>
-        <div class="pin-dots">
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-          <div class="pin-dot"></div>
-        </div>
-        <div id="pin-status" class="pin-status"></div>
-        <div class="pin-numpad">
-          <button class="pin-key" data-digit="1">1</button>
-          <button class="pin-key" data-digit="2">2</button>
-          <button class="pin-key" data-digit="3">3</button>
-          <button class="pin-key" data-digit="4">4</button>
-          <button class="pin-key" data-digit="5">5</button>
-          <button class="pin-key" data-digit="6">6</button>
-          <button class="pin-key" data-digit="7">7</button>
-          <button class="pin-key" data-digit="8">8</button>
-          <button class="pin-key" data-digit="9">9</button>
-          <button class="pin-key pin-key-empty" disabled></button>
-          <button class="pin-key" data-digit="0">0</button>
-          <button id="pin-backspace-btn" class="pin-key pin-key-backspace">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-              <path d="M21 4H8l-7 8 7 8h13a2 2 0 0 0 2-2V6a2 2 0 0 0-2-2z"></path>
-              <line x1="18" y1="9" x2="12" y2="15"></line>
-              <line x1="12" y1="9" x2="18" y2="15"></line>
-            </svg>
-          </button>
-        </div>
-        <div id="pin-tenant-badge" class="pin-tenant-badge"></div>
-        <button id="pin-cancel-btn" class="pin-cancel-btn hidden">Cancel</button>
+  <!-- Fixed controls bar at bottom -->
+  <div id="preview-controls">
+
+    <!-- Sticker tray (expands upward) -->
+    <div id="sticker-tray">
+      <div class="tray-handle"></div>
+      <div class="tray-title">Tap a sticker to add it</div>
+      <div class="sticker-grid">
+        <div class="sticker-btn" data-sticker="🦅">🦅</div>
+        <div class="sticker-btn" data-sticker="🏆">🏆</div>
+        <div class="sticker-btn" data-sticker="⭐">⭐</div>
+        <div class="sticker-btn" data-sticker="🔥">🔥</div>
+        <div class="sticker-btn" data-sticker="💪">💪</div>
+        <div class="sticker-btn" data-sticker="👊">👊</div>
+        <div class="sticker-btn" data-sticker="🙌">🙌</div>
+        <div class="sticker-btn" data-sticker="🎉">🎉</div>
+        <div class="sticker-btn" data-sticker="😎">😎</div>
+        <div class="sticker-btn" data-sticker="🤩">🤩</div>
+        <div class="sticker-btn" data-sticker="😂">😂</div>
+        <div class="sticker-btn" data-sticker="🥳">🥳</div>
+        <div class="sticker-btn" data-sticker="😍">😍</div>
+        <div class="sticker-btn" data-sticker="🤙">🤙</div>
+        <div class="sticker-btn" data-sticker="👏">👏</div>
+        <div class="sticker-btn" data-sticker="❤️">❤️</div>
+        <div class="sticker-btn" data-sticker="🥇">🥇</div>
+        <div class="sticker-btn" data-sticker="🎯">🎯</div>
+        <div class="sticker-btn" data-sticker="⚡">⚡</div>
+        <div class="sticker-btn" data-sticker="💥">💥</div>
+        <div class="sticker-btn" data-sticker="🏅">🏅</div>
+        <div class="sticker-btn" data-sticker="👑">👑</div>
+        <div class="sticker-btn" data-sticker="✨">✨</div>
+        <div class="sticker-btn" data-sticker="🎊">🎊</div>
       </div>
     </div>
 
-    <!-- ============================================================
-         WEIGH AGAIN OVERLAY
-    ============================================================ -->
-    <div id="weigh-again-overlay" class="weigh-again-overlay">
-      <div class="weigh-again-modal">
+    <!-- STEP 1: Edit actions (stickers + retake + done) -->
+    <div id="edit-actions" class="preview-save-row">
+      <button class="preview-btn retake" id="retake-btn">✕ Retake</button>
+      <button id="sticker-toggle">😎 Stickers</button>
+      <button class="preview-btn save" id="done-btn">✓ Done</button>
+    </div>
 
-        <div class="weigh-again-check">✓</div>
-        <div class="weigh-again-title">Weigh Recorded</div>
-        <div class="weigh-again-meta">
-          <strong id="wa-tenant"></strong><br>
-          <span id="wa-location"></span>
-        </div>
-
-        <div class="wa-stats">
-          <div class="wa-stat">
-            <div class="wa-stat-label">Net Weight</div>
-            <div class="wa-stat-value" id="wa-weight">—</div>
+    <!-- STEP 2: Export (save + share) — hidden until Done is tapped -->
+    <div id="export-panel" style="display:none">
+      <div class="preview-save-row" style="margin-bottom:10px">
+        <button class="preview-btn retake" id="back-to-edit-btn">← Edit</button>
+        <button class="preview-btn save" id="save-btn">💾 Save Photo</button>
+      </div>
+      <div class="share-section">
+        <div class="share-label">Share your selfie</div>
+        <button class="native-share-btn hidden" id="native-share-btn">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="currentColor"><path d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92 1.61 0 2.92-1.31 2.92-2.92s-1.31-2.92-2.92-2.92z"/></svg>
+          📤 Share via Apps
+        </button>
+        <div class="share-grid">
+          <a class="share-tile" id="share-fb" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#1877F2"><path d="M24 12.073c0-6.627-5.373-12-12-12s-12 5.373-12 12c0 5.99 4.388 10.954 10.125 11.854v-8.385H7.078v-3.47h3.047V9.43c0-3.007 1.792-4.669 4.533-4.669 1.312 0 2.686.235 2.686.235v2.953H15.83c-1.491 0-1.956.925-1.956 1.874v2.25h3.328l-.532 3.47h-2.796v8.385C19.612 23.027 24 18.062 24 12.073z"/></svg>
+            <span>Facebook</span>
+          </a>
+          <div class="share-tile" id="share-ig">
+            <svg viewBox="0 0 24 24"><defs><linearGradient id="ig" x1="0%" y1="100%" x2="100%" y2="0%"><stop offset="0%" style="stop-color:#f09433"/><stop offset="25%" style="stop-color:#e6683c"/><stop offset="50%" style="stop-color:#dc2743"/><stop offset="75%" style="stop-color:#cc2366"/><stop offset="100%" style="stop-color:#bc1888"/></linearGradient></defs><path fill="url(#ig)" d="M12 2.163c3.204 0 3.584.012 4.85.07 3.252.148 4.771 1.691 4.919 4.919.058 1.265.069 1.645.069 4.849 0 3.205-.012 3.584-.069 4.849-.149 3.225-1.664 4.771-4.919 4.919-1.266.058-1.644.07-4.85.07-3.204 0-3.584-.012-4.849-.07-3.26-.149-4.771-1.699-4.919-4.92-.058-1.265-.07-1.644-.07-4.849 0-3.204.013-3.583.07-4.849.149-3.227 1.664-4.771 4.919-4.919 1.266-.057 1.645-.069 4.849-.069zM12 0C8.741 0 8.333.014 7.053.072 2.695.272.273 2.69.073 7.052.014 8.333 0 8.741 0 12c0 3.259.014 3.668.072 4.948.2 4.358 2.618 6.78 6.98 6.98C8.333 23.986 8.741 24 12 24c3.259 0 3.668-.014 4.948-.072 4.354-.2 6.782-2.618 6.979-6.98.059-1.28.073-1.689.073-4.948 0-3.259-.014-3.667-.072-4.947-.196-4.354-2.617-6.78-6.979-6.98C15.668.014 15.259 0 12 0zm0 5.838a6.162 6.162 0 100 12.324 6.162 6.162 0 000-12.324zM12 16a4 4 0 110-8 4 4 0 010 8zm6.406-11.845a1.44 1.44 0 100 2.881 1.44 1.44 0 000-2.881z"/></svg>
+            <span>Instagram</span>
+          </div>
+          <a class="share-tile" id="share-x" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#e7e9ea"><path d="M18.244 2.25h3.308l-7.227 8.26 8.502 11.24H16.17l-4.714-6.231-5.401 6.231H2.744l7.73-8.835L1.254 2.25H8.08l4.253 5.622zm-1.161 17.52h1.833L7.084 4.126H5.117z"/></svg>
+            <span>X</span>
+          </a>
+          <a class="share-tile" id="share-wa" href="#" target="_blank" rel="noopener">
+            <svg viewBox="0 0 24 24" fill="#25D366"><path d="M17.472 14.382c-.297-.149-1.758-.867-2.03-.967-.273-.099-.471-.148-.67.15-.197.297-.767.966-.94 1.164-.173.199-.347.223-.644.075-.297-.15-1.255-.463-2.39-1.475-.883-.788-1.48-1.761-1.653-2.059-.173-.297-.018-.458.13-.606.134-.133.298-.347.446-.52.149-.174.198-.298.298-.497.099-.198.05-.371-.025-.52-.075-.149-.669-1.612-.916-2.207-.242-.579-.487-.5-.669-.51a12.8 12.8 0 00-.57-.01c-.198 0-.52.074-.792.372-.272.297-1.04 1.016-1.04 2.479 0 1.462 1.065 2.875 1.213 3.074.149.198 2.096 3.2 5.077 4.487.709.306 1.262.489 1.694.625.712.227 1.36.195 1.871.118.571-.085 1.758-.719 2.006-1.413.248-.694.248-1.289.173-1.413-.074-.124-.272-.198-.57-.347m-5.421 7.403h-.004a9.87 9.87 0 01-5.031-1.378l-.361-.214-3.741.982.998-3.648-.235-.374a9.86 9.86 0 01-1.51-5.26c.001-5.45 4.436-9.884 9.888-9.884 2.64 0 5.122 1.03 6.988 2.898a9.825 9.825 0 012.893 6.994c-.003 5.45-4.437 9.884-9.885 9.884m8.413-18.297A11.815 11.815 0 0012.05 0C5.495 0 .16 5.335.157 11.892c0 2.096.547 4.142 1.588 5.945L.057 24l6.305-1.654a11.882 11.882 0 005.683 1.448h.005c6.554 0 11.89-5.335 11.893-11.893a11.821 11.821 0 00-3.48-8.413z"/></svg>
+            <span>WhatsApp</span>
+          </a>
+          <div class="share-tile" id="share-copy">
+            <svg viewBox="0 0 24 24" fill="rgba(255,255,255,0.7)"><path d="M16 1H4c-1.1 0-2 .9-2 2v14h2V3h12V1zm3 4H8c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h11c1.1 0 2-.9 2-2V7c0-1.1-.9-2-2-2zm0 16H8V7h11v14z"/></svg>
+            <span>Copy</span>
           </div>
         </div>
-        <div id="wa-contaminated" class="wa-contaminated-badge" style="display:none;">
-          ⚠ Contaminated
-        </div>
-
-        <div class="timer-wrap">
-          <svg class="timer-svg" viewBox="0 0 80 80">
-            <circle class="timer-track" cx="40" cy="40" r="34" />
-            <circle class="timer-ring" id="timer-ring" cx="40" cy="40" r="34" />
-          </svg>
-          <div class="timer-number" id="timer-number">60</div>
-        </div>
-
-        <div class="weigh-again-prompt">Weigh more waste?</div>
-
-        <div class="weigh-again-btns">
-          <button id="weigh-again-yes" class="weigh-again-btn yes-btn">Yes</button>
-          <button id="weigh-again-no" class="weigh-again-btn no-btn">No</button>
-        </div>
-
+        <p class="share-footnote">Instagram: Save first → post from your camera roll.</p>
       </div>
     </div>
 
-    <!-- Generic error modal -->
-    <div id="customModal" class="overlay">
-      <div class="modal">
-        <h2 id="modalTitle" class="modal-title">Error</h2>
-        <p id="modalMessage" class="modal-content"></p>
-        <button id="modal-ok-btn" class="modal-btn">OK</button>
-      </div>
+  </div><!-- end preview-controls -->
+</div><!-- end preview-overlay -->
+
+<script>
+'use strict';
+
+// ─── CONFIG ───────────────────────────────────────────────────────────────────
+const LOGO_URL = 'https://i.imgur.com/kG2dDb7.png';
+
+const IMAGE_SRCS = {
+  both: 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/a25e76a7d5b5be65694113d93a561c00d05b363f/Selfies/NXTplay.png',
+  nick: 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/8705665d927c2104ee39a2a2b13d9c11c17eb94f/Selfies/NXTnick.png',
+  josh: 'https://raw.githubusercontent.com/Shrunk-Innovation-Lab/testsite/a25e76a7d5b5be65694113d93a561c00d05b363f/Selfies/NXTjosh.png'
+};
+
+// ─── STATE ────────────────────────────────────────────────────────────────────
+let currentMode = 'both';
+let capturedDataUrl = null;
+let animFrame = null;
+let hintHidden = false;
+
+const images = { both: null, nick: null, josh: null };
+const sprites = {
+  both: { x: 0, y: 0, scale: 1, visible: true, baseW: 0, baseH: 0 },
+  nick: { x: 0, y: 0, scale: 1, visible: true, baseW: 0, baseH: 0 },
+  josh: { x: 0, y: 0, scale: 1, visible: true, baseW: 0, baseH: 0 }
+};
+
+const cam  = { stream: null, facing: 'user' };
+const drag = { on: false, startX: 0, startY: 0, origX: 0, origY: 0 };
+
+// Watermark
+const wmImg = new Image();
+wmImg.crossOrigin = 'anonymous';
+wmImg.src = LOGO_URL;
+
+// ─── ELEMENTS ─────────────────────────────────────────────────────────────────
+const video          = document.getElementById('video');
+const canvas         = document.getElementById('canvas');
+const ctx            = canvas.getContext('2d');
+const loadingScreen  = document.getElementById('loading-screen');
+const startScreen    = document.getElementById('start-screen');
+const arHeader       = document.getElementById('ar-header');
+const toolbar        = document.getElementById('toolbar');
+const flashEl        = document.getElementById('flash');
+const dragHint       = document.getElementById('drag-hint');
+const modeBadge      = document.getElementById('mode-badge');
+const ctrlArea       = document.getElementById('ctrl-area');
+
+// ─── LOAD ALL IMAGES UPFRONT ─────────────────────────────────────────────────
+function loadImg(key, src) {
+  return new Promise(resolve => {
+    const img = new Image();
+    img.crossOrigin = 'anonymous';
+    img.onload = () => {
+      images[key] = img;
+      // Update preview cell
+      const cell = document.getElementById('prev-' + key);
+      if (cell) {
+        cell.innerHTML = `<img src="${src}" alt="${key}"><div class="preview-label">${key === 'both' ? 'Both' : key.charAt(0).toUpperCase() + key.slice(1)}</div>`;
+      }
+      resolve();
+    };
+    img.onerror = () => {
+      // Leave null — render loop will skip
+      const cell = document.getElementById('prev-' + key);
+      if (cell) cell.innerHTML = `<span style="font-size:1.5rem;opacity:0.3">?</span><div class="preview-label" style="color:#e66">${key}</div>`;
+      resolve();
+    };
+    img.src = src;
+  });
+}
+
+async function preloadAll() {
+  await Promise.all([
+    loadImg('both', IMAGE_SRCS.both),
+    loadImg('nick', IMAGE_SRCS.nick),
+    loadImg('josh', IMAGE_SRCS.josh)
+  ]);
+  loadingScreen.classList.add('hidden');
+  startScreen.style.display = 'flex';
+}
+
+// ─── MODE ─────────────────────────────────────────────────────────────────────
+function selectMode(mode) {
+  currentMode = mode;
+  document.querySelectorAll('.mode-card').forEach(c =>
+    c.classList.toggle('active', c.dataset.mode === mode)
+  );
+}
+window.selectMode = selectMode;
+
+// ─── CAMERA ──────────────────────────────────────────────────────────────────
+async function startCamera() {
+  if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
+  try {
+    // iPhone 17 Pro Max native camera resolution
+    cam.stream = await navigator.mediaDevices.getUserMedia({
+      video: {
+        facingMode: cam.facing,
+        width:  { ideal: 2868 },
+        height: { ideal: 1320 },
+        frameRate: { ideal: 60 }
+      },
+      audio: false
+    });
+    video.srcObject = cam.stream;
+    await video.play();
+  } catch (e) {
+    alert('Camera access denied. Allow camera in Settings and reload.');
+  }
+}
+
+document.getElementById('flip-btn').addEventListener('click', () => {
+  cam.facing = cam.facing === 'user' ? 'environment' : 'user';
+  startCamera();
+});
+
+// ─── CONTROLS ────────────────────────────────────────────────────────────────
+function buildControls() {
+  const sp = sprites[currentMode];
+  const dotClass = { both: 'dot-both', nick: 'dot-nick', josh: 'dot-josh' }[currentMode];
+  const label    = { both: 'Nick & Josh — Scale', nick: 'Nick Daicos #7', josh: 'Josh Daicos #35' }[currentMode];
+  const sClass   = { both: 's-both', nick: 's-nick', josh: 's-josh' }[currentMode];
+
+  ctrlArea.innerHTML = `
+    <div class="ctrl-label">
+      <span class="dot ${dotClass}"></span>${label}
+      <span class="toggle-vis" id="toggle-sprite">👁</span>
     </div>
+    <input type="range" class="scale-slider ${sClass}" id="sprite-scale"
+           min="15" max="200" value="${Math.round(sp.scale * 100)}">`;
 
-    <!-- Recording indicator -->
-    <div id="recordingMessage" class="reading-message">Recording — please wait…</div>
+  document.getElementById('sprite-scale').addEventListener('input', e => {
+    sprites[currentMode].scale = e.target.value / 100;
+  });
+  document.getElementById('toggle-sprite').addEventListener('click', () => {
+    sprites[currentMode].visible = !sprites[currentMode].visible;
+    document.getElementById('toggle-sprite').style.opacity = sprites[currentMode].visible ? '1' : '0.3';
+  });
+}
 
-    <!-- Screensaver -->
-    <div id="blackScreen" class="black-screen">
-      <img id="blackScreenLogo" src="https://i.imgur.com/iB983sa.png" alt="Logo" class="black-screen-logo">
-    </div>
+// ─── LAUNCH ──────────────────────────────────────────────────────────────────
+document.getElementById('launch-btn').addEventListener('click', async () => {
+  startScreen.style.display = 'none';
+  document.getElementById('start-footer').classList.remove('show');
+  arHeader.style.display    = 'flex';
+  toolbar.style.display     = 'flex';
+  modeBadge.style.display   = 'block';
+  modeBadge.textContent = {
+    both: '👥 Both Brothers',
+    nick: '⭐ Nick Only',
+    josh: '🏆 Josh Only'
+  }[currentMode];
 
-  </div><!-- /app-container -->
+  buildControls();
+  await startCamera();
+  positionSprite();
+  animFrame = requestAnimationFrame(renderLoop);
 
-  <script src="pins.js"></script>
-  <script src="script.js"></script>
+  setTimeout(() => { dragHint.classList.add('hidden'); hintHidden = true; }, 3000);
+});
+
+// ─── POSITION ────────────────────────────────────────────────────────────────
+function positionSprite() {
+  const w = window.innerWidth, h = window.innerHeight;
+  const sp = sprites[currentMode];
+  sp.x = w * 0.5; sp.y = h * 0.06; sp.scale = 1; sp.visible = true;
+  const el = document.getElementById('sprite-scale');
+  if (el) el.value = 100;
+}
+document.getElementById('reset-btn').addEventListener('click', positionSprite);
+
+// ─── RENDER LOOP ─────────────────────────────────────────────────────────────
+function drawVideoFrame(w, h) {
+  if (video.readyState < 2) return;
+  const vw = video.videoWidth, vh = video.videoHeight;
+  if (!vw || !vh) return;
+  const cAR = w / h, vAR = vw / vh;
+  let sw, sh, sx, sy;
+  if (cAR > vAR) { sw = vw; sh = vw / cAR; sx = 0; sy = (vh - sh) / 2; }
+  else           { sh = vh; sw = vh * cAR; sx = (vw - sw) / 2; sy = 0; }
+
+  if (cam.facing === 'user') {
+    ctx.save(); ctx.translate(w, 0); ctx.scale(-1, 1);
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
+    ctx.restore();
+  } else {
+    ctx.drawImage(video, sx, sy, sw, sh, 0, 0, w, h);
+  }
+}
+
+function renderLoop() {
+  // Use devicePixelRatio for crisp rendering on 460ppi display
+  const dpr = window.devicePixelRatio || 1;
+  const w   = window.innerWidth;
+  const h   = window.innerHeight;
+
+  // Only resize canvas if needed (avoids unnecessary clears)
+  if (canvas.width  !== Math.round(w * dpr) ||
+      canvas.height !== Math.round(h * dpr)) {
+    canvas.width  = Math.round(w * dpr);
+    canvas.height = Math.round(h * dpr);
+    canvas.style.width  = w + 'px';
+    canvas.style.height = h + 'px';
+    ctx.scale(dpr, dpr);
+  }
+
+  drawVideoFrame(w, h);
+
+  // Draw sprite
+  const sp  = sprites[currentMode];
+  const img = images[currentMode];
+  if (sp.visible && img) {
+    const baseH   = h * 0.78;
+    const ratio   = img.naturalWidth / img.naturalHeight;
+    const scaledH = baseH * sp.scale;
+    const scaledW = scaledH * ratio;
+    ctx.drawImage(img, sp.x - scaledW / 2, sp.y, scaledW, scaledH);
+    sp.baseW = scaledW;
+    sp.baseH = scaledH;
+  }
+
+  // Watermark — bottom-right, 7% of screen height
+  if (wmImg.complete && wmImg.naturalWidth > 0) {
+    const wmH = h * 0.068;
+    const wmW = wmH * (wmImg.naturalWidth / wmImg.naturalHeight);
+    const pad = 16;
+    ctx.globalAlpha = 0.78;
+    ctx.drawImage(wmImg, w - wmW - pad, h - wmH - pad, wmW, wmH);
+    ctx.globalAlpha = 1;
+  }
+
+  animFrame = requestAnimationFrame(renderLoop);
+}
+
+// ─── DRAG — coalesced pointer events for 120Hz ProMotion ────────────────────
+function getPos(e) {
+  const rect = canvas.getBoundingClientRect();
+  const src  = e.touches ? e.touches[0] : e;
+  // Account for devicePixelRatio scaling
+  return {
+    x: (src.clientX - rect.left),
+    y: (src.clientY - rect.top)
+  };
+}
+
+function hitSprite(x, y) {
+  const sp = sprites[currentMode];
+  if (!sp.visible || !images[currentMode] || !sp.baseW) return false;
+  // Expand hit target by 20px for fat fingers
+  return x >= sp.x - sp.baseW / 2 - 20 &&
+         x <= sp.x + sp.baseW / 2 + 20 &&
+         y >= sp.y - 20 &&
+         y <= sp.y + sp.baseH + 20;
+}
+
+// Pointer handlers now defined below
+canvas.addEventListener('pointerdown', e => {
+  if (e.target !== canvas) return;
+  const { x, y } = getPos(e);
+  if (!hitSprite(x, y)) return;
+  drag.on = true;
+  drag.startX = x; drag.startY = y;
+  drag.origX = sprites[currentMode].x;
+  drag.origY = sprites[currentMode].y;
+  canvas.setPointerCapture(e.pointerId);
+  if (!hintHidden) dragHint.classList.add('hidden');
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('pointermove', e => {
+  if (!drag.on) return;
+  const { x, y } = getPos(e);
+  sprites[currentMode].x = drag.origX + (x - drag.startX);
+  sprites[currentMode].y = drag.origY + (y - drag.startY);
+  e.preventDefault();
+}, { passive: false });
+
+canvas.addEventListener('pointerup',     () => { drag.on = false; });
+canvas.addEventListener('pointercancel', () => { drag.on = false; });
+
+// ─── SNAP ─────────────────────────────────────────────────────────────────────
+document.getElementById('snap-btn').addEventListener('click', () => {
+  flashEl.classList.add('active');
+  setTimeout(() => flashEl.classList.remove('active'), 100);
+
+  // Capture at full DPR resolution
+  capturedDataUrl = canvas.toDataURL('image/jpeg', 0.94);
+
+  // Reset preview stickers
+  pStickers = []; pSelectedId = null;
+  stickerDelete.classList.remove('show');
+  stickerTray.classList.remove('open');
+
+  // Load captured image into preview canvas — fill the full screen
+  const img = new Image();
+  img.onload = () => {
+    capturedPhotoImg = img;
+
+    const dpr  = window.devicePixelRatio || 1;
+    const scrW = window.innerWidth;
+    const scrH = window.innerHeight;
+
+    // Canvas internal resolution = full screen at device pixel ratio
+    previewCanvas.width  = Math.round(scrW * dpr);
+    previewCanvas.height = Math.round(scrH * dpr);
+    previewCanvas.style.width  = scrW + 'px';
+    previewCanvas.style.height = scrH + 'px';
+
+    renderPreview();
+    setupShareLinks();
+    document.getElementById('preview-overlay').classList.add('show');
+    document.getElementById('start-footer').classList.remove('show');
+  };
+  img.src = capturedDataUrl;
+});
+
+// ─── SHARE ────────────────────────────────────────────────────────────────────
+function setupShareLinks() {
+  const text = encodeURIComponent('Just had a selfie with the Daicos Bros! 🦅⚫⚪ #Collingwood #GoPies #DaicosFamily');
+  const url  = encodeURIComponent(window.location.href);
+
+  document.getElementById('share-fb').href = `https://www.facebook.com/sharer/sharer.php?u=${url}&quote=${text}`;
+  document.getElementById('share-x').href  = `https://twitter.com/intent/tweet?text=${text}&url=${url}`;
+  document.getElementById('share-wa').href = `https://wa.me/?text=${text}%20${url}`;
+
+  document.getElementById('share-ig').onclick = () => {
+    savePhoto();
+    showToast('📸 Saved! Open Instagram to post it.');
+  };
+
+  document.getElementById('share-copy').onclick = async () => {
+    try {
+      const dataUrl = finalDataUrl || getFinalDataUrl();
+      const res  = await fetch(dataUrl);
+      const blob = await res.blob();
+      await navigator.clipboard.write([new ClipboardItem({ 'image/png': blob })]);
+      showToast('✓ Image copied to clipboard!');
+    } catch {
+      try { await navigator.clipboard.writeText(window.location.href); showToast('✓ Link copied!'); }
+      catch { showToast('Use Save to download the photo'); }
+    }
+  };
+
+  const nativeBtn = document.getElementById('native-share-btn');
+  if (navigator.share) {
+    nativeBtn.classList.remove('hidden');
+    nativeBtn.onclick = async () => {
+      try {
+        const dataUrl = finalDataUrl || getFinalDataUrl();
+        const res  = await fetch(dataUrl);
+        const blob = await res.blob();
+        const file = new File([blob], 'daicos-selfie.jpg', { type: 'image/jpeg' });
+        if (navigator.canShare?.({ files: [file] })) {
+          await navigator.share({ files: [file], title: 'Daicos Selfie', text: 'Just took a selfie with the Daicos Bros! 🦅 #GoPies' });
+        } else {
+          await navigator.share({ title: 'Daicos Selfie', text: 'Just took a selfie with the Daicos Bros! 🦅 #GoPies', url: window.location.href });
+        }
+      } catch (err) {
+        if (err.name !== 'AbortError') showToast('Use Save to download the photo');
+      }
+    };
+  } else {
+    nativeBtn.classList.add('hidden');
+  }
+}
+
+// ─── FINALISED IMAGE STATE ────────────────────────────────────────────────────
+let finalDataUrl = null;
+
+// ─── SAVE / EXPORT ────────────────────────────────────────────────────────────
+function getFinalDataUrl() {
+  if (!capturedPhotoImg) return capturedDataUrl;
+
+  const exportCanvas = document.createElement('canvas');
+  exportCanvas.width  = capturedPhotoImg.width;
+  exportCanvas.height = capturedPhotoImg.height;
+  const ectx = exportCanvas.getContext('2d');
+  ectx.drawImage(capturedPhotoImg, 0, 0);
+
+  const cW = previewCanvas.width, cH = previewCanvas.height;
+  const iW = capturedPhotoImg.width, iH = capturedPhotoImg.height;
+  const scale = Math.min(cW / iW, cH / iH);
+  const offsetX = (cW - iW * scale) / 2;
+  const offsetY = (cH - iH * scale) / 2;
+  const invScale = 1 / scale;
+
+  pStickers.forEach(s => {
+    const px = (s.x - offsetX) * invScale;
+    const py = (s.y - offsetY) * invScale;
+    const ps = s.size * invScale;
+    ectx.font = `${ps}px serif`;
+    ectx.textAlign = 'center';
+    ectx.textBaseline = 'middle';
+    ectx.fillText(s.emoji, px, py);
+  });
+
+  return exportCanvas.toDataURL('image/jpeg', 0.94);
+}
+
+function savePhoto() {
+  const url = finalDataUrl || getFinalDataUrl();
+  const a = document.createElement('a');
+  a.download = 'daicos-selfie.jpg';
+  a.href = url;
+  a.click();
+}
+
+// ─── DONE (finalise → show export) ───────────────────────────────────────────
+document.getElementById('done-btn').addEventListener('click', () => {
+  pSelectedId = null;
+  pStickers.forEach(s => s.selected = false);
+  stickerDelete.classList.remove('show');
+  stickerTray.classList.remove('open');
+  renderPreview();
+
+  finalDataUrl = getFinalDataUrl();
+
+  document.getElementById('edit-actions').style.display = 'none';
+  document.getElementById('sticker-tray').style.display = 'none';
+  document.getElementById('sticker-delete').style.display = 'none';
+  document.getElementById('export-panel').style.display  = 'block';
+  setupShareLinks();
+});
+
+// ─── BACK TO EDIT ─────────────────────────────────────────────────────────────
+document.getElementById('back-to-edit-btn').addEventListener('click', () => {
+  finalDataUrl = null;
+  document.getElementById('export-panel').style.display  = 'none';
+  document.getElementById('sticker-delete').style.display = '';
+  document.getElementById('edit-actions').style.display  = 'flex';
+});
+
+// ─── RETAKE ───────────────────────────────────────────────────────────────────
+document.getElementById('retake-btn').addEventListener('click', () => {
+  document.getElementById('preview-overlay').classList.remove('show');
+  document.getElementById('export-panel').style.display  = 'none';
+  document.getElementById('edit-actions').style.display  = 'flex';
+  document.getElementById('start-footer').classList.remove('show');
+  pStickers = []; pSelectedId = null; finalDataUrl = null;
+  stickerDelete.classList.remove('show');
+  stickerTray.classList.remove('open');
+  capturedDataUrl = null; capturedPhotoImg = null;
+});
+
+// ─── SAVE BUTTON ──────────────────────────────────────────────────────────────
+document.getElementById('save-btn').addEventListener('click', () => {
+  savePhoto();
+  showToast('✓ Saved to your device!');
+});
+
+// ─── TOAST ────────────────────────────────────────────────────────────────────
+function showToast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg;
+  t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 3000);
+}
+
+// ─── BACK ─────────────────────────────────────────────────────────────────────
+document.getElementById('back-btn').addEventListener('click', () => {
+  if (cam.stream) cam.stream.getTracks().forEach(t => t.stop());
+  cancelAnimationFrame(animFrame);
+  pStickers = []; pSelectedId = null; finalDataUrl = null;
+  stickerDelete.classList.remove('show');
+  stickerTray.classList.remove('open');
+  arHeader.style.display  = 'none';
+  toolbar.style.display   = 'none';
+  modeBadge.style.display = 'none';
+  startScreen.style.display = 'flex';
+  document.getElementById('start-footer').classList.add('show');
+  dragHint.classList.remove('hidden');
+  hintHidden = false;
+});
+
+// ─── STICKERS (on preview canvas) ────────────────────────────────────────────
+let pStickers = [];      // stickers on preview: { id, emoji, x, y, size, selected }
+let pStickerIdCounter = 0;
+let pSelectedId = null;
+let capturedPhotoImg = null;  // the raw captured Image object
+
+const previewCanvas  = document.getElementById('preview-canvas');
+const previewCtx     = previewCanvas.getContext('2d');
+const stickerTray    = document.getElementById('sticker-tray');
+const stickerDelete  = document.getElementById('sticker-delete');
+const stickerToggle  = document.getElementById('sticker-toggle');
+
+stickerToggle.addEventListener('click', () => {
+  stickerTray.classList.toggle('open');
+});
+
+// Add sticker from tray
+document.querySelectorAll('.sticker-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    const emoji = btn.dataset.sticker;
+    const w = previewCanvas.width, h = previewCanvas.height;
+    // Calculate image bounds within canvas to drop stickers inside the photo
+    const iW = capturedPhotoImg ? capturedPhotoImg.width : w;
+    const iH = capturedPhotoImg ? capturedPhotoImg.height : h;
+    const scale = Math.min(w / iW, h / iH);
+    const imgW = iW * scale, imgH = iH * scale;
+    const imgX = (w - imgW) / 2, imgY = (h - imgH) / 2;
+    const newId = ++pStickerIdCounter;
+    pStickers.push({
+      id: newId, emoji,
+      x: imgX + imgW * 0.5 + (Math.random() - 0.5) * imgW * 0.3,
+      y: imgY + imgH * 0.4 + (Math.random() - 0.5) * imgH * 0.2,
+      size: Math.round(w * 0.12),
+      selected: true
+    });
+    pSelectedId = newId;
+    pStickers.forEach(s => s.selected = s.id === newId);
+    stickerDelete.classList.add('show');
+    stickerTray.classList.remove('open');
+    renderPreview();
+  });
+});
+
+stickerDelete.addEventListener('click', () => {
+  pStickers = pStickers.filter(s => s.id !== pSelectedId);
+  pSelectedId = null;
+  stickerDelete.classList.remove('show');
+  renderPreview();
+});
+
+function renderPreview() {
+  if (!capturedPhotoImg) return;
+  const w = previewCanvas.width, h = previewCanvas.height;
+  previewCtx.clearRect(0, 0, w, h);
+
+  // Draw image scaled to fit (contain) within canvas
+  const iW = capturedPhotoImg.width, iH = capturedPhotoImg.height;
+  const scale = Math.min(w / iW, h / iH);
+  const dW = iW * scale, dH = iH * scale;
+  const dx = (w - dW) / 2, dy = (h - dH) / 2;
+  previewCtx.drawImage(capturedPhotoImg, dx, dy, dW, dH);
+
+  // Draw stickers
+  pStickers.forEach(s => {
+    previewCtx.font = `${s.size}px serif`;
+    previewCtx.textAlign = 'center';
+    previewCtx.textBaseline = 'middle';
+
+    if (s.selected) {
+      previewCtx.save();
+      previewCtx.strokeStyle = 'rgba(200,168,75,0.9)';
+      previewCtx.lineWidth = Math.max(2, w * 0.004);
+      previewCtx.setLineDash([6, 4]);
+      previewCtx.beginPath();
+      previewCtx.arc(s.x, s.y, s.size * 0.62, 0, Math.PI * 2);
+      previewCtx.stroke();
+      previewCtx.setLineDash([]);
+      previewCtx.restore();
+    }
+
+    previewCtx.fillText(s.emoji, s.x, s.y);
+  });
+}
+
+// Sticker hit test on preview canvas
+function hitPreviewSticker(x, y) {
+  for (let i = pStickers.length - 1; i >= 0; i--) {
+    const s = pStickers[i];
+    if (Math.hypot(x - s.x, y - s.y) <= s.size * 0.7) return s;
+  }
+  return null;
+}
+
+// Preview canvas pointer events — drag stickers
+const pDrag = { on: false, id: null, startX: 0, startY: 0, origX: 0, origY: 0 };
+const pPinch = { on: false, startDist: 0, startSize: 0, id: null };
+
+function previewPos(e) {
+  const rect = previewCanvas.getBoundingClientRect();
+  const src = e.touches ? e.touches[0] : e;
+  // Scale from display px to canvas px
+  const scaleX = previewCanvas.width  / rect.width;
+  const scaleY = previewCanvas.height / rect.height;
+  return {
+    x: (src.clientX - rect.left) * scaleX,
+    y: (src.clientY - rect.top)  * scaleY
+  };
+}
+
+previewCanvas.addEventListener('pointerdown', e => {
+  const { x, y } = previewPos(e);
+  const hit = hitPreviewSticker(x, y);
+  if (hit) {
+    pSelectedId = hit.id;
+    pStickers.forEach(s => s.selected = s.id === hit.id);
+    stickerDelete.classList.add('show');
+    pDrag.on = true; pDrag.id = hit.id;
+    pDrag.startX = x; pDrag.startY = y;
+    pDrag.origX = hit.x; pDrag.origY = hit.y;
+    previewCanvas.setPointerCapture(e.pointerId);
+    renderPreview();
+    e.preventDefault();
+  } else {
+    // Deselect
+    pSelectedId = null;
+    pStickers.forEach(s => s.selected = false);
+    stickerDelete.classList.remove('show');
+    renderPreview();
+  }
+}, { passive: false });
+
+previewCanvas.addEventListener('pointermove', e => {
+  if (!pDrag.on) return;
+  const { x, y } = previewPos(e);
+  const s = pStickers.find(s => s.id === pDrag.id);
+  if (s) { s.x = pDrag.origX + (x - pDrag.startX); s.y = pDrag.origY + (y - pDrag.startY); }
+  renderPreview();
+  e.preventDefault();
+}, { passive: false });
+
+previewCanvas.addEventListener('pointerup',     () => { pDrag.on = false; });
+previewCanvas.addEventListener('pointercancel', () => { pDrag.on = false; });
+
+// Pinch to resize sticker on preview
+previewCanvas.addEventListener('touchstart', e => {
+  if (e.touches.length === 2 && pSelectedId !== null) {
+    const s = pStickers.find(s => s.id === pSelectedId);
+    if (!s) return;
+    const dx = e.touches[0].clientX - e.touches[1].clientX;
+    const dy = e.touches[0].clientY - e.touches[1].clientY;
+    pPinch.on = true; pPinch.id = pSelectedId;
+    pPinch.startDist = Math.hypot(dx, dy); pPinch.startSize = s.size;
+  }
+}, { passive: true });
+
+previewCanvas.addEventListener('touchmove', e => {
+  if (!pPinch.on || e.touches.length < 2) return;
+  const dx = e.touches[0].clientX - e.touches[1].clientX;
+  const dy = e.touches[0].clientY - e.touches[1].clientY;
+  const s = pStickers.find(s => s.id === pPinch.id);
+  if (s) {
+    s.size = Math.max(20, Math.min(previewCanvas.width * 0.4,
+      pPinch.startSize * (Math.hypot(dx, dy) / pPinch.startDist)));
+    renderPreview();
+  }
+}, { passive: true });
+
+previewCanvas.addEventListener('touchend', () => { pPinch.on = false; }, { passive: true });
+
+// ─── INIT ─────────────────────────────────────────────────────────────────────
+preloadAll();
+</script>
 </body>
-
 </html>
