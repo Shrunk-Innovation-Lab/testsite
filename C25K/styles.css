@@ -370,3 +370,14 @@ body.s-walk .seg-pip { animation: pip-walk 1.3s ease-in-out infinite; }
 .leaflet-control-attribution { display: none; }
 .leaflet-control-zoom { display: none; }
 .hidden { display: none !important; }
+
+/* ── LONG PRESS RING ─────────────────────────────────────────────── */
+.lp-ring {
+  position: absolute; inset: 0;
+  display: flex; align-items: center; justify-content: center;
+  pointer-events: none; border-radius: inherit;
+  background: rgba(0,0,0,.3);
+}
+.lp-ring svg { width: 44px; height: 44px; transform: rotate(-90deg); }
+.lp-track { fill: none; stroke: rgba(255,255,255,.15); stroke-width: 3; }
+.lp-arc   { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; }
