@@ -48,7 +48,7 @@ const PROG = [
 const IC = {
   vol:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor" stroke="none"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7.5 7.5 0 0 1 0 10"/></svg>`,
   mute: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor" stroke="none"/><path d="M17 9l4 4m0-4-4 4"/></svg>`,
-  cal:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+  run:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="3.5" r="1.5" fill="currentColor" stroke="none"/><path d="M9 18l1.5-4.5L13 16l2.5-5 2 3.5"/><path d="M5.5 12.5l2-4 3.5 1.5 3-5 3.5 1.5"/></svg>`,
   chev: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
   ext:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"/><path d="M10 14 19 5"/><path d="M19 13v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/></svg>`,
 };
@@ -144,6 +144,7 @@ var ST = {
   done: {}, hist: [],
   expW: 0,
   tab: 'stats',
+  view: 'workout',
   sheetOpen: false, sheetTab: 'plan',
 };
 
@@ -439,10 +440,85 @@ function makeRing(tp, segPct) {
     '</svg>';
 }
 
-/* ── RENDER ──────────────────────────────────────────────────────── */
+/* == PLAN VIEW == */
+function renderPlan() {
+  var totDone = Object.values(ST.done).filter(Boolean).length;
+  var totAll  = PROG.reduce(function(s, wk) { return s + wk.days.length; }, 0);
+
+  var planRows = '';
+  for (var wi = 0; wi < PROG.length; wi++) {
+    var wk = PROG[wi], exp = ST.expW === wi;
+    var daysHTML = '';
+    if (exp) {
+      for (var di = 0; di < wk.days.length; di++) {
+        var dd = wk.days[di], sel = ST.w === wi && ST.d === di, dn = ST.done[dayKey(wi, di)];
+        daysHTML += '<button class="day-btn' + (sel ? ' sel' : '') + '" data-sw="' + wi + '" data-sd="' + di + '">' +
+          '<div><div class="day-name">' + dd.t + '</div><div class="day-meta">' + totalMin(dd) + ' min</div></div>' +
+          (dn ? '<span class="done-pill">Done</span>' : '') + '</button>';
+      }
+      daysHTML = '<div class="week-days">' + daysHTML + '</div>';
+    }
+    var wkMins = wk.days.map(function(d) { return totalMin(d); }).join(', ');
+    planRows += '<div class="week-block">' +
+      '<div class="week-hd" data-tw="' + wi + '">' +
+        '<div><div class="week-name">Week ' + wk.w + '</div>' +
+        '<div class="week-meta">' + wk.days.length + ' workouts - ' + wkMins + ' min</div></div>' +
+        '<div class="week-chev' + (exp ? ' open' : '') + '">' + IC.chev + '</div>' +
+      '</div>' + daysHTML + '</div>';
+  }
+
+  var histRows = '';
+  if (ST.hist.length) {
+    for (var hi = 0; hi < ST.hist.length; hi++) {
+      var hr = ST.hist[hi];
+      histRows += '<div class="hist-row">' +
+        '<div class="hist-hd">' +
+          '<div><div class="hist-title">Week ' + hr.week + ' - ' + hr.dayT + '</div>' +
+          '<div class="hist-date">' + new Date(hr.at).toLocaleString() + '</div></div>' +
+          '<div class="hist-data"><div>' + fmtDist(hr.dist) + '</div><div>' + fmtDur(hr.sec) + '</div></div>' +
+        '</div>' +
+        '<div class="hist-tags"><span class="tag">' + fmtPace(hr.pace) + '</span>' +
+          '<span class="tag">' + fmtSpeed(hr.speed) + '</span>' +
+          '<span class="tag">' + hr.splits.length + ' splits</span></div>' +
+      '</div>';
+    }
+    histRows += '<button class="clear-btn" id="b-clear">Clear history</button>';
+  } else {
+    histRows = '<div class="empty">Complete a workout to see history here.</div>';
+  }
+
+  var html =
+    '<div class="topbar">' +
+      '<div class="topbar-left">' +
+        '<div class="topbar-eyebrow">Couch to 5K</div>' +
+        '<div class="topbar-title">Week ' + (ST.w + 1) + ' - ' + curDay().t + '</div>' +
+      '</div>' +
+      '<div class="topbar-right">' +
+        '<button id="b-snd" class="icon-btn' + (ST.snd ? ' lit' : '') + '">' + (ST.snd ? IC.vol : IC.mute) + '</button>' +
+        '<button id="b-plan" class="icon-btn lit">' + IC.run + '</button>' +
+      '</div>' +
+    '</div>' +
+    '<div class="plan-head">' +
+      '<div class="plan-tabs">' +
+        '<button class="ptab' + (ST.sheetTab === 'plan' ? ' on' : '') + '" data-pt="plan">Plan</button>' +
+        '<button class="ptab' + (ST.sheetTab === 'hist' ? ' on' : '') + '" data-pt="hist">History</button>' +
+      '</div>' +
+      '<span class="sheet-count">' + totDone + '/' + totAll + '</span>' +
+    '</div>' +
+    '<div class="plan-scroll">' +
+      (ST.sheetTab === 'plan' ? planRows : histRows) +
+    '</div>';
+
+  document.getElementById('app').innerHTML = html;
+  bind();
+}
+
+
 function render() {
   try {
     maybeSave(); saveST(); syncBody();
+
+    if (ST.view === 'plan') { renderPlan(); return; }
 
     var dy = curDay();
     var sg = curSegs();
@@ -591,7 +667,7 @@ function render() {
         '</div>' +
         '<div class="topbar-right">' +
           '<button id="b-snd" class="icon-btn' + (ST.snd ? ' lit' : '') + '">' + (ST.snd ? IC.vol : IC.mute) + '</button>' +
-          '<button id="b-plan" class="icon-btn">' + IC.cal + '</button>' +
+          '<button id="b-plan" class="icon-btn' + (ST.view === 'plan' ? ' lit' : '') + '">' + IC.run + '</button>' +
         '</div>' +
       '</div>' +
 
@@ -629,26 +705,7 @@ function render() {
         '<button class="tab-btn' + (ST.tab==='splits'?' active':'') + '" data-tab="splits">Splits</button>' +
       '</div>' +
 
-      '<div class="tab-content">' + tabHTML + '</div>' +
-
-      '<div id="scrim"' + (ST.sheetOpen ? ' class="on"' : '') + '></div>' +
-
-      '<div class="sheet' + (ST.sheetOpen ? ' open' : '') + '" id="sheet">' +
-        '<div class="sheet-handle-row" id="sheet-handle">' +
-          '<div class="sheet-nub"></div>' +
-          '<div class="sheet-head">' +
-            '<div class="sheet-title">Workout Plan</div>' +
-            '<div class="sheet-right">' +
-              '<div class="sheet-tabs">' +
-                '<button class="stab' + (ST.sheetTab==='plan'?' on':'') + '" data-stab="plan">Plan</button>' +
-                '<button class="stab' + (ST.sheetTab==='hist'?' on':'') + '" data-stab="hist">History</button>' +
-              '</div>' +
-              '<span class="sheet-count">' + totDone + '/' + totAll + '</span>' +
-            '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="sheet-scroll">' + sheetContent + '</div>' +
-      '</div>';
+      '<div class="tab-content">' + tabHTML + '</div>';
 
     document.getElementById('app').innerHTML = html;
     bind();
@@ -679,11 +736,12 @@ function bind() {
   if (bPause) bPause.onclick = function(ev) { addRipple(bPause, ev); doPause(); };
   if (bStop)  bStop.onclick  = function(ev) { addRipple(bStop, ev);  doStop();  };
   if (bSnd)   bSnd.onclick   = function() { ST.snd = !ST.snd; saveST(); render(); };
-  if (bPlan)  bPlan.onclick  = function() { ST.sheetOpen = !ST.sheetOpen; render(); };
+  if (bPlan)  bPlan.onclick  = function() { ST.view = ST.view === 'plan' ? 'workout' : 'plan'; render(); };
   if (bClear) bClear.onclick = function() { ST.hist = []; localStorage.removeItem(STORE.hist); render(); };
 
-  if (handle) handle.onclick = function() { ST.sheetOpen = false; render(); };
-  if (scrim)  scrim.onclick  = function() { ST.sheetOpen = false; render(); };
+  document.querySelectorAll('[data-pt]').forEach(function(b) {
+    b.onclick = function() { ST.sheetTab = b.dataset.pt; render(); };
+  });
 
   document.querySelectorAll('[data-tab]').forEach(function(b) {
     b.onclick = function() { ST.tab = b.dataset.tab; render(); };
@@ -700,7 +758,7 @@ function bind() {
     };
   });
   document.querySelectorAll('[data-sw]').forEach(function(b) {
-    b.onclick = function() { selWork(Number(b.dataset.sw), Number(b.dataset.sd)); ST.sheetOpen = false; render(); };
+    b.onclick = function() { selWork(Number(b.dataset.sw), Number(b.dataset.sd)); ST.view = 'workout'; render(); };
   });
 }
 
