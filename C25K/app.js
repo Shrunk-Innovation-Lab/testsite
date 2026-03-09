@@ -218,31 +218,70 @@ function playTone(freq, dur, type, vol) {
   } catch(e) {}
 }
 
+function speak(text, delay) {
+  if (!ST.snd) return;
+  if (!window.speechSynthesis) return;
+  setTimeout(function() {
+    window.speechSynthesis.cancel();
+    var u = new SpeechSynthesisUtterance(text);
+    u.rate  = 0.95;
+    u.pitch = 1.0;
+    u.volume = 1.0;
+    // Prefer a local voice if available
+    var voices = window.speechSynthesis.getVoices();
+    var pick = voices.find(function(v) { return v.lang.startsWith('en') && v.localService; })
+            || voices.find(function(v) { return v.lang.startsWith('en'); });
+    if (pick) u.voice = pick;
+    window.speechSynthesis.speak(u);
+  }, delay || 0);
+}
+
 function beepCountdown(v) {
   if (v <= 0) playTone(1320, 0.22, 'triangle', 0.06);
   else playTone(v <= 3 ? 1046 : 880, v <= 3 ? 0.18 : 0.12, 'sine', 0.05);
 }
-function beepFinal(v)  { playTone(v <= 3 ? 1046 : 880, v <= 3 ? 0.18 : 0.12, 'sine', 0.05); }
-function beepChange(tp) {
+function beepFinal(v) {
+  playTone(v <= 3 ? 1046 : 880, v <= 3 ? 0.18 : 0.12, 'sine', 0.05);
+  if (v === 10) speak('10 seconds');
+  if (v === 3)  speak('3');
+  if (v === 2)  speak('2');
+  if (v === 1)  speak('1');
+}
+function beepChange(tp, lbl) {
   if (tp === 'run') {
-    playTone(880, 0.12, 'triangle', 0.05);
+    playTone(880,  0.12, 'triangle', 0.05);
     setTimeout(function() { playTone(1174, 0.16, 'triangle', 0.05); }, 120);
+    speak('Run', 150);
   } else {
     playTone(659, 0.12, 'triangle', 0.05);
     setTimeout(function() { playTone(523, 0.16, 'triangle', 0.05); }, 120);
+    speak('Walk', 150);
   }
 }
 function beepDone() {
   playTone(784, 0.14, 'triangle', 0.05);
-  setTimeout(function() { playTone(988, 0.18, 'triangle', 0.05); }, 160);
+  setTimeout(function() { playTone(988,  0.18, 'triangle', 0.05); }, 160);
   setTimeout(function() { playTone(1318, 0.24, 'triangle', 0.05); }, 340);
+  speak('Workout complete. Well done!', 500);
 }
 
-async function resumeAudio() {
+function resumeAudio() {
   var Ctx = window.AudioContext || window.webkitAudioContext;
-  if (!Ctx) return;
+  if (!Ctx) return Promise.resolve();
   if (!RF.audio) RF.audio = new Ctx();
-  if (RF.audio.state === 'suspended') await RF.audio.resume();
+  // Warm up speech synthesis on first interaction (required by iOS)
+  if (window.speechSynthesis && !RF.speechReady) {
+    RF.speechReady = true;
+    var u = new SpeechSynthesisUtterance('');
+    window.speechSynthesis.speak(u);
+    // Pre-load voices
+    window.speechSynthesis.getVoices();
+    if (window.speechSynthesis.onvoiceschanged !== undefined) {
+      window.speechSynthesis.onvoiceschanged = function() { window.speechSynthesis.getVoices(); };
+    }
+  }
+  if (RF.audio.state === 'suspended') return RF.audio.resume();
+  return Promise.resolve();
 }
 
 /* ── TIMER CONTROL ───────────────────────────────────────────────── */
@@ -373,32 +412,35 @@ function tickUpdate() {
 }
 
 /* ── ACTIONS ─────────────────────────────────────────────────────── */
-async function doStart() {
-  await resumeAudio();
-  if (ST.started) { ST.active = true; startTick(); maybeTenBeep(); wakeLockAcquire(); render(); return; }
-  clearCd();
-  ST.active = false; ST.started = false;
-  ST.si = 0; ST.tl = curSegs()[0] ? curSegs()[0].sec : 0;
-  RF.saved = false; ST.dist = 0; ST.pts = []; ST.gpsErr = '';
-  ST.splits = emptySplits(curSegs());
-  RF.lastPt = null; RF.segDist = 0; RF.segT = Date.now();
-  RF.tenBeep = null; RF.segBeep = 0;
+function doStart() {
+  resumeAudio().then(function() {
+    if (ST.started) { ST.active = true; startTick(); maybeTenBeep(); wakeLockAcquire(); render(); return; }
+    clearCd();
+    ST.active = false; ST.started = false;
+    ST.si = 0; ST.tl = curSegs()[0] ? curSegs()[0].sec : 0;
+    RF.saved = false; ST.dist = 0; ST.pts = []; ST.gpsErr = '';
+    ST.splits = emptySplits(curSegs());
+    RF.lastPt = null; RF.segDist = 0; RF.segT = Date.now();
+    RF.tenBeep = null; RF.segBeep = 0;
 
-  var c = 3;
-  ST.cd = c; beepCountdown(c); render();
-  RF.cdInt = setInterval(function() {
-    c--;
-    if (c > 0) { ST.cd = c; beepCountdown(c); render(); return; }
-    ST.cd = 0; beepCountdown(0); render();
-    clearInterval(RF.cdInt); RF.cdInt = null;
-    setTimeout(function() {
-      clearCd();
-      ST.started = true; ST.active = true;
-      ST.si = 0; ST.tl = curSegs()[0] ? curSegs()[0].sec : 0;
-      RF.segT = Date.now(); RF.segBeep = 0;
-      startGeo(); startTick(); wakeLockAcquire(); render();
-    }, 250);
-  }, 1000);
+    var c = 3;
+    ST.cd = c; beepCountdown(c); render();
+    RF.cdInt = setInterval(function() {
+      c--;
+      if (c > 0) { ST.cd = c; beepCountdown(c); render(); return; }
+      ST.cd = 0; beepCountdown(0); render();
+      clearInterval(RF.cdInt); RF.cdInt = null;
+      setTimeout(function() {
+        clearCd();
+        ST.started = true; ST.active = true;
+        ST.si = 0; ST.tl = curSegs()[0] ? curSegs()[0].sec : 0;
+        RF.segT = Date.now(); RF.segBeep = 0;
+        var firstSeg = curSegs()[0];
+        if (firstSeg) speak(firstSeg.tp === 'run' ? 'Run' : 'Walk', 0);
+        startGeo(); startTick(); wakeLockAcquire(); render();
+      }, 250);
+    }, 1000);
+  });
 }
 
 function doPause() { clearCd(); ST.active = false; stopTick(); wakeLockRelease(); render(); }
