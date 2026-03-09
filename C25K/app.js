@@ -258,7 +258,7 @@ if(S.si!==R.segBeep){if(S.si>0)B.chg(segs()[S.si]?.tp||‘walk’);R.segBeep=S.s
 function startTick() {
 stopTick();
 R.tick=setInterval(()=>{
-if(S.tl>1){S.tl–;maybeBeepCd();render();return;}
+if(S.tl>1){S.tl–;maybeBeepCd();tickUpdate();return;}
 const sg=segs(),cur=S.si,nxt=cur+1;
 finSplit(cur,sg[cur]?.sec||0);
 if(nxt>=sg.length){
@@ -307,6 +307,33 @@ R.lastPt=null; R.segDist=0; R.segT=Date.now();
 S.tl=segs()[0]?.sec||0;
 S.splits=emptySplits(segs());
 stopTick(); stopGeo(); saveSt(); render();
+}
+
+/* ─── TICK UPDATE (no DOM rebuild) ──────────────────────────────── */
+function tickUpdate() {
+const cur=segs()[S.si]||null;
+const e=elapsed(), pr=prog();
+const remain=Math.max(0,totSec()-e);
+const segPct=(cur&&S.tl>0)?(1-S.tl/cur.sec):0;
+const C=2*Math.PI*110;
+const offset=(C*(1-segPct)).toFixed(2);
+
+// Time display
+const td=document.getElementById(‘ring-time’);
+if(td) td.textContent=F.t(S.tl);
+
+// Ring progress circles (both prog and glow)
+document.querySelectorAll(’.ring-prog,.ring-glow’).forEach(el=>{
+el.setAttribute(‘stroke-dashoffset’, offset);
+});
+
+// Session bar
+const fill=document.getElementById(‘sbar-fill’);
+if(fill) fill.style.width=pr+’%’;
+const pct=document.getElementById(‘sbar-pct’);
+if(pct) pct.textContent=pr+’%’;
+const rem=document.getElementById(‘sbar-rem’);
+if(rem) rem.textContent=F.t(remain)+’ left’;
 }
 
 /* ─── BODY STATE ─────────────────────────────────────────────────── */
@@ -408,9 +435,11 @@ app.innerHTML=`
         ? (S.cd>0
             ? `<div class="cnt-num">${S.cd}</div>`
             : `<div class="cnt-go">GO</div>`)
-        : `<div class="ring-time">${F.t(S.tl)}</div>`}
+        : `<div class="ring-time" id="ring-time">${F.t(S.tl)}</div>`}
       <div class="ring-sub">
-        ${S.started?(tp==='run'?'— running —':'— walking —'):(e>0&&S.tl===0?'— done —':'— tap start —')}
+        ${S.started
+          ? (tp==='run' ? '— running —' : '— walking —')
+          : (e>0&&S.tl===0 ? '— done —' : '— tap start —')}
       </div>
     </div>
   </div>
@@ -420,10 +449,10 @@ app.innerHTML=`
 
 <div class="session-bar">
   <div class="sbar-row">
-    <span class="sbar-pct">${pr}%</span>
-    <span class="sbar-rem">${F.t(remain)} left</span>
+    <span class="sbar-pct" id="sbar-pct">${pr}%</span>
+    <span class="sbar-rem" id="sbar-rem">${F.t(remain)} left</span>
   </div>
-  <div class="sbar-track"><div class="sbar-fill" style="width:${pr}%"></div></div>
+  <div class="sbar-track"><div class="sbar-fill" id="sbar-fill" style="width:${pr}%"></div></div>
   <div class="sbar-marks">${marks}</div>
 </div>
 
@@ -431,7 +460,7 @@ app.innerHTML=`
 
 <div class="controls">
   <button id="b-stop"  class="ctrl-side" style="position:relative;overflow:hidden">Stop</button>
-  <button id="b-start" class="ctrl-main">${S.active?'Running':(S.started?'Resume':'Start')}</button>
+  <button id="b-start" class="ctrl-main">${!S.started && S.cd===null ? 'Start' : S.active ? (tp==='run' ? 'Running' : 'Walking') : 'Resume'}</button>
   <button id="b-pause" class="ctrl-side" style="position:relative;overflow:hidden">Pause</button>
 </div>
 
