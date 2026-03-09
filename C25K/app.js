@@ -682,7 +682,7 @@ function bind() {
   if (bPlan)  bPlan.onclick  = function() { ST.sheetOpen = !ST.sheetOpen; render(); };
   if (bClear) bClear.onclick = function() { ST.hist = []; localStorage.removeItem(STORE.hist); render(); };
 
-  if (handle) handle.onclick = function() { ST.sheetOpen = !ST.sheetOpen; render(); };
+  if (handle) handle.onclick = function() { ST.sheetOpen = false; render(); };
   if (scrim)  scrim.onclick  = function() { ST.sheetOpen = false; render(); };
 
   document.querySelectorAll('[data-tab]').forEach(function(b) {
