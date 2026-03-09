@@ -72,6 +72,72 @@ const PROGRAM = [
   },
 ];
 
+const ICONS = {
+  shoe: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M5 16.5c2.2 0 3.8-.4 5.1-1.2l1.5-.9c.5-.3.9-.8 1-1.4l.3-1.4c.1-.4.5-.6.9-.5l1.2.4c.5.2.8.6.9 1.1l.2 1c.1.5.4 1 .9 1.2l2 .9c.8.4 1.4 1.2 1.4 2.1V19H5c-1.1 0-2-.9-2-2s.9-2 2-2Z" fill="currentColor"/>
+      <path d="M8.5 10.2 10 8.5l1.8 2.1" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+    </svg>
+  `,
+  volume: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor"/>
+      <path d="M15 9.5a4 4 0 0 1 0 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M17.5 7a7.5 7.5 0 0 1 0 10" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  `,
+  distance: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 21s6-5.4 6-11a6 6 0 1 0-12 0c0 5.6 6 11 6 11Z" fill="currentColor"/>
+      <circle cx="12" cy="10" r="2.5" fill="#fff"/>
+    </svg>
+  `,
+  pace: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M12 4a9 9 0 1 0 9 9" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 12l4-3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="12" cy="12" r="1.4" fill="currentColor"/>
+    </svg>
+  `,
+  speed: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4 13.5A8 8 0 0 1 20 13.5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M12 13l5-4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <circle cx="12" cy="13" r="1.4" fill="currentColor"/>
+    </svg>
+  `,
+  split: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M6 5v14M18 5v14" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M9 8h6l-2.5 4L15 16H9l2.5-4L9 8Z" fill="currentColor"/>
+    </svg>
+  `,
+  history: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M4.5 12A7.5 7.5 0 1 0 7 6.4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M4 4v4h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M12 8v4l2.8 1.8" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  `,
+  external: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <path d="M14 5h5v5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/>
+      <path d="M10 14 19 5" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+      <path d="M19 13v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  `,
+  autoCenter: `
+    <svg viewBox="0 0 24 24" aria-hidden="true">
+      <circle cx="12" cy="12" r="3.2" fill="none" stroke="currentColor" stroke-width="1.8"/>
+      <path d="M12 3v3M12 18v3M3 12h3M18 12h3" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round"/>
+    </svg>
+  `,
+};
+
+function icon(name, extraClass = "") {
+  return `<span class="icon ${extraClass}" aria-hidden="true">${ICONS[name] || ""}</span>`;
+}
+
 function formatTime(seconds) {
   const safe = Math.max(0, Math.floor(seconds || 0));
   const mins = Math.floor(safe / 60);
@@ -137,7 +203,11 @@ function buildSegments(day) {
       }
     }
   });
-  segments.push({ label: "Cool down walk", type: "walk", seconds: Math.round(day.cooldown * 60) });
+  segments.push({
+    label: "Cool down walk",
+    type: "walk",
+    seconds: Math.round(day.cooldown * 60),
+  });
   return segments;
 }
 
@@ -265,9 +335,7 @@ function runTests() {
     { lat: 2, lng: 2 },
     { lat: 3, lng: 3 },
   ]);
-  if (smoothed[1].lat !== 2 || smoothed[1].lng !== 2) {
-    throw new Error("route smoothing failed");
-  }
+  if (smoothed[1].lat !== 2 || smoothed[1].lng !== 2) throw new Error("route smoothing failed");
 
   const path = buildMiniMapPoints([
     { lat: -37.81, lng: 144.96 },
@@ -776,10 +844,6 @@ function toggleAutoCenter() {
   render();
 }
 
-function iconText(label) {
-  return label;
-}
-
 function render() {
   maybeSaveWorkoutResult();
   persistState();
@@ -812,7 +876,7 @@ function render() {
             <h1>Run your first 5K</h1>
             <p class="subtle">Week ${state.selectedWeek + 1} • ${day.title}</p>
           </div>
-          <div class="hero-badge">👟</div>
+          <div class="hero-badge">${icon("shoe", "icon-hero")}</div>
         </header>
 
         <section class="card timer-card">
@@ -833,7 +897,7 @@ function render() {
           </div>
 
           <div class="sound-row">
-            <span>🔊</span>
+            ${icon("volume", "icon-inline")}
             <button id="toggle-sound" class="pill-button">
               ${state.soundEnabled ? "Sound on" : "Sound off"}
             </button>
@@ -857,25 +921,25 @@ function render() {
           <div class="${state.activeTab === "stats" ? "" : "hidden"}">
             <div class="stats-grid">
               <div class="card stat-card">
-                <div class="stat-title">Distance</div>
+                <div class="stat-title stat-title-row">${icon("distance", "icon-stat")}<span>Distance</span></div>
                 <div class="stat-value">${formatDistance(state.distance)}</div>
                 <div class="stat-note">Live GPS tracked distance</div>
               </div>
 
               <div class="card stat-card">
-                <div class="stat-title">Pace</div>
+                <div class="stat-title stat-title-row">${icon("pace", "icon-stat")}<span>Pace</span></div>
                 <div class="stat-value">${formatPace(avgPace)}</div>
                 <div class="stat-note">Average pace</div>
               </div>
 
               <div class="card stat-card">
-                <div class="stat-title">Speed</div>
+                <div class="stat-title stat-title-row">${icon("speed", "icon-stat")}<span>Speed</span></div>
                 <div class="stat-value">${formatSpeed(avgSpeed)}</div>
                 <div class="stat-note">Average speed</div>
               </div>
 
               <div class="card stat-card">
-                <div class="stat-title">Current split</div>
+                <div class="stat-title stat-title-row">${icon("split", "icon-stat")}<span>Current split</span></div>
                 <div class="stat-value">${formatDistance(currentSplitDistance)}</div>
                 <div class="stat-note">Distance in this interval</div>
               </div>
@@ -887,7 +951,7 @@ function render() {
               <div class="card">
                 <div class="row-between">
                   <div>
-                    <h3>Google Maps</h3>
+                    <h3 class="title-with-icon">${icon("distance", "icon-title")}<span>Google Maps</span></h3>
                     <p class="subtle">
                       ${
                         latest
@@ -899,11 +963,16 @@ function render() {
                   <div class="route-actions">
                     ${
                       googleMapsExternalUrl
-                        ? `<a href="${googleMapsExternalUrl}" target="_blank" rel="noreferrer" class="pill-button">Open map</a>`
+                        ? `<a href="${googleMapsExternalUrl}" target="_blank" rel="noreferrer" class="pill-button icon-button">${icon("external", "icon-button-svg")}<span>Open</span></a>`
                         : ""
                     }
-                    <button id="toggle-auto-center" class="pill-button">
-                      ${state.autoCenter ? "Auto-center on" : "Auto-center off"}
+                    <button
+                      id="toggle-auto-center"
+                      class="pill-button icon-only-button ${state.autoCenter ? "is-active" : ""}"
+                      aria-label="${state.autoCenter ? "Auto-center on" : "Auto-center off"}"
+                      title="${state.autoCenter ? "Auto-center on" : "Auto-center off"}"
+                    >
+                      ${icon("autoCenter", "icon-button-svg")}
                     </button>
                   </div>
                 </div>
@@ -918,7 +987,7 @@ function render() {
               </div>
 
               <div class="card">
-                <h3>Route sketch</h3>
+                <h3 class="title-with-icon">${icon("speed", "icon-title")}<span>Route sketch</span></h3>
                 <p class="subtle">
                   ${
                     state.routePoints.length > 1
@@ -981,7 +1050,7 @@ function render() {
 
           <div class="${state.activeTab === "splits" ? "" : "hidden"}">
             <div class="card">
-              <h3>Split distance per interval</h3>
+              <h3 class="title-with-icon">${icon("split", "icon-title")}<span>Split distance per interval</span></h3>
               <p class="subtle">Each interval records its own distance and elapsed time.</p>
 
               <div class="stack-sm">
@@ -1019,7 +1088,7 @@ function render() {
 
           <div class="${state.activeTab === "history" ? "" : "hidden"}">
             <div class="card">
-              <h3>Saved runs</h3>
+              <h3 class="title-with-icon">${icon("history", "icon-title")}<span>Saved runs</span></h3>
               <p class="subtle">Your last 30 completed workouts are saved on this device with localStorage.</p>
 
               <div class="stack-sm">
