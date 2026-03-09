@@ -48,7 +48,7 @@ const PROG = [
 const IC = {
   vol:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor" stroke="none"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7.5 7.5 0 0 1 0 10"/></svg>`,
   mute: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor" stroke="none"/><path d="M17 9l4 4m0-4-4 4"/></svg>`,
-  run:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="14.5" cy="3.5" r="1.5" fill="currentColor" stroke="none"/><path d="M9 18l1.5-4.5L13 16l2.5-5 2 3.5"/><path d="M5.5 12.5l2-4 3.5 1.5 3-5 3.5 1.5"/></svg>`,
+  run:  `<svg viewBox="0 0 24 24" fill="currentColor" xmlns="http://www.w3.org/2000/svg"><circle cx="17" cy="4" r="2"/><path d="M15.777 10.969a2.007 2.007 0 0 0 2.148.83l3.316-.829-.483-1.94-3.316.829-1.379-2.067a2.01 2.01 0 0 0-1.272-.854l-3.846-.77a1.998 1.998 0 0 0-2.181 1.067l-1.658 3.316 1.789.895 1.658-3.317 1.967.394L7.434 17H3v2h4.434c.698 0 1.355-.372 1.715-.971l1.918-3.196 5.169 1.034 1.816 5.449 1.896-.633-1.815-5.448a2.007 2.007 0 0 0-1.506-1.33l-3.039-.607 1.772-2.954.417.625z"/></svg>`,
   chev: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
   ext:  `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"/><path d="M10 14 19 5"/><path d="M19 13v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/></svg>`,
 };
@@ -336,6 +336,7 @@ function startTick() {
       ST.active = false; ST.started = false; ST.tl = 0;
       beepDone();
       ST.done[dayKey(ST.w, ST.d)] = true;
+      wakeLockRelease();
       saveST(); stopTick(); stopGeo(); maybeSave(); render(); return;
     }
     ST.si = nxt; ST.tl = sg[nxt].sec; maybeChangeBeep(); render();
@@ -374,7 +375,7 @@ function tickUpdate() {
 /* ── ACTIONS ─────────────────────────────────────────────────────── */
 async function doStart() {
   await resumeAudio();
-  if (ST.started) { ST.active = true; startTick(); maybeTenBeep(); render(); return; }
+  if (ST.started) { ST.active = true; startTick(); maybeTenBeep(); wakeLockAcquire(); render(); return; }
   clearCd();
   ST.active = false; ST.started = false;
   ST.si = 0; ST.tl = curSegs()[0] ? curSegs()[0].sec : 0;
@@ -395,13 +396,13 @@ async function doStart() {
       ST.started = true; ST.active = true;
       ST.si = 0; ST.tl = curSegs()[0] ? curSegs()[0].sec : 0;
       RF.segT = Date.now(); RF.segBeep = 0;
-      startGeo(); startTick(); render();
+      startGeo(); startTick(); wakeLockAcquire(); render();
     }, 250);
   }, 1000);
 }
 
-function doPause() { clearCd(); ST.active = false; stopTick(); render(); }
-function doStop()  { resetAll(); render(); }
+function doPause() { clearCd(); ST.active = false; stopTick(); wakeLockRelease(); render(); }
+function doStop()  { wakeLockRelease(); resetAll(); render(); }
 
 function selWork(wi, di) {
   clearCd(); RF.saved = false;
@@ -442,7 +443,61 @@ function makeRing(tp, segPct) {
     '</svg>';
 }
 
-/* == LEAFLET MAP == */
+/* == LONG PRESS for stop/pause during active wake lock == */
+var LP = { timer: null, prog: null, dur: 700 };
+
+function lpStart(btn, action, ev) {
+  if (!WAKE.lock) { action(); return; }
+  ev.preventDefault();
+
+  var ring = document.createElement('div');
+  ring.className = 'lp-ring';
+  var C = 2 * Math.PI * 20;
+  ring.innerHTML = '<svg viewBox="0 0 48 48"><circle class="lp-track" cx="24" cy="24" r="20"/><circle class="lp-arc" cx="24" cy="24" r="20" style="stroke-dasharray:' + C + ';stroke-dashoffset:' + C + '"/></svg>';
+  btn.appendChild(ring);
+  LP.prog = ring;
+
+  var arc = ring.querySelector('.lp-arc');
+  var start = null;
+  function frame(ts) {
+    if (!start) start = ts;
+    var pct = Math.min((ts - start) / LP.dur, 1);
+    arc.style.strokeDashoffset = C * (1 - pct);
+    if (pct < 1 && LP.timer !== null) requestAnimationFrame(frame);
+  }
+  requestAnimationFrame(frame);
+
+  LP.timer = setTimeout(function() {
+    lpCancel(); action();
+  }, LP.dur);
+}
+
+function lpCancel() {
+  if (LP.timer !== null) { clearTimeout(LP.timer); LP.timer = null; }
+  if (LP.prog) { LP.prog.remove(); LP.prog = null; }
+}
+
+/* == WAKE LOCK == */
+var WAKE = { lock: null };
+
+function wakeLockAcquire() {
+  if (!navigator.wakeLock) return;
+  navigator.wakeLock.request('screen').then(function(lock) {
+    WAKE.lock = lock;
+    lock.addEventListener('release', function() { WAKE.lock = null; });
+  }).catch(function() {});
+}
+
+function wakeLockRelease() {
+  if (WAKE.lock) { WAKE.lock.release(); WAKE.lock = null; }
+}
+
+// Re-acquire after screen is unlocked (iOS releases it on screen off)
+document.addEventListener('visibilitychange', function() {
+  if (document.visibilityState === 'visible' && ST.active) wakeLockAcquire();
+});
+
+
 var MAP = {
   instance: null,
   tile: null,
@@ -843,8 +898,19 @@ function bind() {
   var scrim = $('scrim'), handle = $('sheet-handle');
 
   if (bStart) bStart.onclick = function(ev) { addRipple(bStart, ev); doStart(); };
-  if (bPause) bPause.onclick = function(ev) { addRipple(bPause, ev); doPause(); };
-  if (bStop)  bStop.onclick  = function(ev) { addRipple(bStop, ev);  doStop();  };
+
+  function bindLongPress(btn, action) {
+    btn.addEventListener('touchstart',  function(ev) { lpStart(btn, action, ev); }, { passive: false });
+    btn.addEventListener('touchend',    function()   { lpCancel(); });
+    btn.addEventListener('touchcancel', function()   { lpCancel(); });
+    // Desktop fallback
+    btn.addEventListener('mousedown',   function(ev) { lpStart(btn, action, ev); });
+    btn.addEventListener('mouseup',     function()   { lpCancel(); });
+    btn.addEventListener('mouseleave',  function()   { lpCancel(); });
+  }
+
+  if (bPause) bindLongPress(bPause, doPause);
+  if (bStop)  bindLongPress(bStop,  doStop);
   if (bSnd)   bSnd.onclick   = function() { ST.snd = !ST.snd; saveST(); render(); };
   if (bPlan)  bPlan.onclick  = function() { ST.view = ST.view === 'plan' ? 'workout' : 'plan'; render(); };
   if (bClear) bClear.onclick = function() { ST.hist = []; localStorage.removeItem(STORE.hist); render(); };
