@@ -667,18 +667,27 @@ function renderPlan() {
   if (ST.hist.length) {
     for (var hi = 0; hi < ST.hist.length; hi++) {
       var hr = ST.hist[hi];
-      histRows += '<div class="hist-row">' +
-        '<div class="hist-hd">' +
-          '<div><div class="hist-title">Week ' + hr.week + ' - ' + hr.dayT + '</div>' +
-          '<div class="hist-date">' + new Date(hr.at).toLocaleString() + '</div></div>' +
-          '<div class="hist-data"><div>' + fmtDist(hr.dist) + '</div><div>' + fmtDur(hr.sec) + '</div></div>' +
-        '</div>' +
-        '<div class="hist-tags"><span class="tag">' + fmtPace(hr.pace) + '</span>' +
-          '<span class="tag">' + fmtSpeed(hr.speed) + '</span>' +
-          '<span class="tag">' + hr.splits.length + ' splits</span></div>' +
-      '</div>';
+      histRows +=
+        '<div class="hist-item" data-hid="' + hr.id + '">' +
+          '<div class="hist-delete-bg"><span>Delete</span></div>' +
+          '<div class="hist-row">' +
+            '<div class="hist-hd">' +
+              '<div><div class="hist-title">Week ' + hr.week + ' - ' + hr.dayT + '</div>' +
+              '<div class="hist-date">' + new Date(hr.at).toLocaleString() + '</div></div>' +
+              '<div class="hist-data"><div>' + fmtDist(hr.dist) + '</div><div>' + fmtDur(hr.sec) + '</div></div>' +
+            '</div>' +
+            '<div class="hist-tags"><span class="tag">' + fmtPace(hr.pace) + '</span>' +
+              '<span class="tag">' + fmtSpeed(hr.speed) + '</span>' +
+              '<span class="tag">' + hr.splits.length + ' splits</span></div>' +
+          '</div>' +
+          '<div class="hist-confirm hidden">' +
+            '<span>Delete this workout?</span>' +
+            '<button class="hc-yes" data-hid="' + hr.id + '">Delete</button>' +
+            '<button class="hc-no">Cancel</button>' +
+          '</div>' +
+        '</div>';
     }
-    histRows += '<button class="clear-btn" id="b-clear">Clear history</button>';
+    histRows += '<button class="clear-btn" id="b-clear">Clear all history</button>';
   } else {
     histRows = '<div class="empty">Complete a workout to see history here.</div>';
   }
@@ -956,6 +965,71 @@ function bind() {
   if (bSnd)   bSnd.onclick   = function() { ST.snd = !ST.snd; saveST(); render(); };
   if (bPlan)  bPlan.onclick  = function() { ST.view = ST.view === 'plan' ? 'workout' : 'plan'; render(); };
   if (bClear) bClear.onclick = function() { ST.hist = []; localStorage.removeItem(STORE.hist); render(); };
+
+  // Swipe-to-delete on history items
+  document.querySelectorAll('.hist-item').forEach(function(item) {
+    var row = item.querySelector('.hist-row');
+    var confirm = item.querySelector('.hist-confirm');
+    var startX, startY, dragging = false, revealed = false;
+    var THRESHOLD = 72;
+
+    function onTouchStart(e) {
+      startX = e.touches[0].clientX;
+      startY = e.touches[0].clientY;
+      dragging = true;
+      row.style.transition = 'none';
+    }
+    function onTouchMove(e) {
+      if (!dragging) return;
+      var dx = e.touches[0].clientX - startX;
+      var dy = e.touches[0].clientY - startY;
+      if (!revealed && Math.abs(dy) > Math.abs(dx)) { dragging = false; return; }
+      e.preventDefault();
+      var x = Math.max(-140, Math.min(0, dx + (revealed ? -THRESHOLD : 0)));
+      row.style.transform = 'translateX(' + x + 'px)';
+    }
+    function onTouchEnd(e) {
+      if (!dragging) return;
+      dragging = false;
+      var dx = e.changedTouches[0].clientX - startX;
+      var net = dx + (revealed ? -THRESHOLD : 0);
+      row.style.transition = 'transform 0.25s ease';
+      if (net < -THRESHOLD) {
+        row.style.transform = 'translateX(-' + THRESHOLD + 'px)';
+        revealed = true;
+      } else {
+        row.style.transform = 'translateX(0)';
+        revealed = false;
+      }
+    }
+
+    item.addEventListener('touchstart', onTouchStart, { passive: true });
+    item.addEventListener('touchmove',  onTouchMove,  { passive: false });
+    item.addEventListener('touchend',   onTouchEnd);
+
+    // Tapping the revealed delete bg shows confirm
+    item.querySelector('.hist-delete-bg').addEventListener('click', function() {
+      row.style.transition = 'transform 0.2s ease';
+      row.style.transform = 'translateX(0)';
+      revealed = false;
+      confirm.classList.remove('hidden');
+    });
+  });
+
+  // Confirm delete buttons
+  document.querySelectorAll('.hc-yes').forEach(function(btn) {
+    btn.onclick = function() {
+      var id = btn.dataset.hid;
+      ST.hist = ST.hist.filter(function(h) { return h.id !== id; });
+      saveST(); render();
+    };
+  });
+  document.querySelectorAll('.hc-no').forEach(function(btn) {
+    btn.onclick = function() {
+      var item = btn.closest('.hist-item');
+      item.querySelector('.hist-confirm').classList.add('hidden');
+    };
+  });
 
   document.querySelectorAll('[data-pt]').forEach(function(b) {
     b.onclick = function() { ST.sheetTab = b.dataset.pt; render(); };
