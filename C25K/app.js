@@ -1,977 +1,879 @@
+/* ─── CONSTANTS ──────────────────────────────────────────────────── */
 const STORAGE_KEYS = {
   completed: "c25k-completed-v2",
-  soundEnabled: "c25k-sound-enabled-v2",
+  sound: "c25k-sound-v2",
   history: "c25k-history-v2",
-  selectedWorkout: "c25k-selected-workout-v2",
+  selected: "c25k-selected-v2",
 };
 
 const PROGRAM = [
-  {
-    week: 1,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 1, walk: 1.5, repeat: 8 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 1, walk: 1.5, repeat: 8 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 1, walk: 1.5, repeat: 8 }] },
-    ],
-  },
-  {
-    week: 2,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 2, repeat: 6 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 2, repeat: 6 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 2, repeat: 6 }] },
-    ],
-  },
-  {
-    week: 3,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 1.5, repeat: 2 }, { run: 3, walk: 3, repeat: 2 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 1.5, repeat: 2 }, { run: 3, walk: 3, repeat: 2 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 2, walk: 2, repeat: 2 }, { run: 4, walk: 3, repeat: 2 }] },
-    ],
-  },
-  {
-    week: 4,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 3, walk: 1.5, repeat: 2 }, { run: 5, walk: 2.5, repeat: 2 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 3, walk: 1.5, repeat: 2 }, { run: 5, walk: 2.5, repeat: 2 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 4, walk: 2, repeat: 2 }, { run: 5, walk: 2, repeat: 2 }] },
-    ],
-  },
-  {
-    week: 5,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 5, walk: 3, repeat: 2 }, { run: 5, walk: 0, repeat: 1 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 8, walk: 5, repeat: 1 }, { run: 8, walk: 0, repeat: 1 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 20, walk: 0, repeat: 1 }] },
-    ],
-  },
-  {
-    week: 6,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 5, walk: 3, repeat: 1 }, { run: 8, walk: 3, repeat: 1 }, { run: 5, walk: 0, repeat: 1 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 10, walk: 3, repeat: 1 }, { run: 10, walk: 0, repeat: 1 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 22, walk: 0, repeat: 1 }] },
-    ],
-  },
-  {
-    week: 7,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 25, walk: 0, repeat: 1 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 25, walk: 0, repeat: 1 }] },
-      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 28, walk: 0, repeat: 1 }] },
-    ],
-  },
-  {
-    week: 8,
-    days: [
-      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 30, walk: 0, repeat: 1 }] },
-      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 30, walk: 0, repeat: 1 }] },
-      { title: "5K Day", warmup: 5, cooldown: 5, intervals: [{ run: 35, walk: 0, repeat: 1 }] },
-    ],
-  },
+  { week:1, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:1,walk:1.5,repeat:8}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:1,walk:1.5,repeat:8}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:1,walk:1.5,repeat:8}]},
+  ]},
+  { week:2, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:1.5,walk:2,repeat:6}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:1.5,walk:2,repeat:6}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:1.5,walk:2,repeat:6}]},
+  ]},
+  { week:3, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:1.5,walk:1.5,repeat:2},{run:3,walk:3,repeat:2}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:1.5,walk:1.5,repeat:2},{run:3,walk:3,repeat:2}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:2,walk:2,repeat:2},{run:4,walk:3,repeat:2}]},
+  ]},
+  { week:4, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:3,walk:1.5,repeat:2},{run:5,walk:2.5,repeat:2}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:3,walk:1.5,repeat:2},{run:5,walk:2.5,repeat:2}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:4,walk:2,repeat:2},{run:5,walk:2,repeat:2}]},
+  ]},
+  { week:5, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:5,walk:3,repeat:2},{run:5,walk:0,repeat:1}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:8,walk:5,repeat:1},{run:8,walk:0,repeat:1}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:20,walk:0,repeat:1}]},
+  ]},
+  { week:6, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:5,walk:3,repeat:1},{run:8,walk:3,repeat:1},{run:5,walk:0,repeat:1}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:10,walk:3,repeat:1},{run:10,walk:0,repeat:1}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:22,walk:0,repeat:1}]},
+  ]},
+  { week:7, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:25,walk:0,repeat:1}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:25,walk:0,repeat:1}]},
+    {title:"Day 3",warmup:5,cooldown:5,intervals:[{run:28,walk:0,repeat:1}]},
+  ]},
+  { week:8, days:[
+    {title:"Day 1",warmup:5,cooldown:5,intervals:[{run:30,walk:0,repeat:1}]},
+    {title:"Day 2",warmup:5,cooldown:5,intervals:[{run:30,walk:0,repeat:1}]},
+    {title:"5K Day",warmup:5,cooldown:5,intervals:[{run:35,walk:0,repeat:1}]},
+  ]},
 ];
 
-function formatTime(seconds) {
-  const safe = Math.max(0, Math.floor(seconds || 0));
-  const mins = Math.floor(safe / 60);
-  const secs = safe % 60;
-  return `${mins}:${String(secs).padStart(2, "0")}`;
+/* ─── ICONS ──────────────────────────────────────────────────────── */
+const IC = {
+  volume: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor" stroke="none"/><path d="M15 9.5a4 4 0 0 1 0 5"/><path d="M17.5 7a7.5 7.5 0 0 1 0 10"/></svg>`,
+  mute:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M4 14h3l4 3V7L7 10H4v4Z" fill="currentColor" stroke="none"/><path d="M17 9l4 4m0-4-4 4"/></svg>`,
+  plan:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/></svg>`,
+  center: `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="3"/><path d="M12 3v3M12 18v3M3 12h3M18 12h3"/></svg>`,
+  ext:    `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M14 5h5v5"/><path d="M10 14 19 5"/><path d="M19 13v4a2 2 0 0 1-2 2H7a2 2 0 0 1-2-2V7a2 2 0 0 1 2-2h4"/></svg>`,
+  chev:   `<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="m6 9 6 6 6-6"/></svg>`,
+};
+
+/* ─── PURE UTILS ─────────────────────────────────────────────────── */
+const fmt = {
+  time(s) {
+    const n = Math.max(0, Math.floor(s||0));
+    return `${Math.floor(n/60)}:${String(n%60).padStart(2,'0')}`;
+  },
+  dur(s) {
+    const n = Math.max(0, Math.floor(s||0));
+    return `${Math.floor(n/60)}m ${String(n%60).padStart(2,'0')}s`;
+  },
+  dist(m) {
+    if (!m || m < 1) return '0 m';
+    return m < 1000 ? `${Math.round(m)} m` : `${(m/1000).toFixed(2)} km`;
+  },
+  pace(spk) {
+    if (!Number.isFinite(spk) || spk <= 0) return '--:--';
+    const m = Math.floor(spk/60), s = Math.round(spk%60);
+    return s===60 ? `${m+1}:00 /km` : `${m}:${String(s).padStart(2,'0')} /km`;
+  },
+  speed(mps) {
+    if (!Number.isFinite(mps) || mps <= 0) return '0.0 km/h';
+    return `${(mps*3.6).toFixed(1)} km/h`;
+  },
+};
+
+function dayKey(w, d) { return `w${w+1}-d${d+1}`; }
+
+function haversine(a, b) {
+  const R=6371000, dLat=((b.lat-a.lat)*Math.PI/180), dLon=((b.lng-a.lng)*Math.PI/180);
+  const x=Math.sin(dLat/2)**2+Math.sin(dLon/2)**2*Math.cos(a.lat*Math.PI/180)*Math.cos(b.lat*Math.PI/180);
+  return 2*R*Math.atan2(Math.sqrt(x),Math.sqrt(1-x));
 }
 
-function formatDistance(meters) {
-  if (!meters || meters < 1) return "0 m";
-  if (meters < 1000) return `${Math.round(meters)} m`;
-  return `${(meters / 1000).toFixed(2)} km`;
-}
-
-function formatPace(secondsPerKm) {
-  if (!Number.isFinite(secondsPerKm) || secondsPerKm <= 0) return "--:-- /km";
-  const mins = Math.floor(secondsPerKm / 60);
-  const secs = Math.round(secondsPerKm % 60);
-  if (secs === 60) return `${mins + 1}:00 /km`;
-  return `${mins}:${String(secs).padStart(2, "0")} /km`;
-}
-
-function formatSpeed(mps) {
-  if (!Number.isFinite(mps) || mps <= 0) return "0.0 km/h";
-  return `${(mps * 3.6).toFixed(1)} km/h`;
-}
-
-function formatDurationLong(seconds) {
-  const safe = Math.max(0, Math.floor(seconds || 0));
-  const mins = Math.floor(safe / 60);
-  const secs = safe % 60;
-  return `${mins}m ${String(secs).padStart(2, "0")}s`;
-}
-
-function getDayKey(weekIndex, dayIndex) {
-  return `w${weekIndex + 1}-d${dayIndex + 1}`;
-}
-
-function haversineDistance(a, b) {
-  const R = 6371000;
-  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
-  const dLon = ((b.lng - a.lng) * Math.PI) / 180;
-  const lat1 = (a.lat * Math.PI) / 180;
-  const lat2 = (b.lat * Math.PI) / 180;
-  const x =
-    Math.sin(dLat / 2) ** 2 +
-    Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
-  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
-}
-
-function smoothRoutePoints(points) {
-  if (points.length <= 2) return points;
-  return points.map((point, index) => {
-    if (index === 0 || index === points.length - 1) return point;
-    const prev = points[index - 1];
-    const next = points[index + 1];
+function smoothPts(pts) {
+  if (pts.length<=2) return pts;
+  return pts.map((p,i)=>{
+    if(i===0||i===pts.length-1) return p;
     return {
-      ...point,
-      lat: (prev.lat + point.lat + next.lat) / 3,
-      lng: (prev.lng + point.lng + next.lng) / 3,
+      ...p,
+      lat:(pts[i-1].lat+p.lat+pts[i+1].lat)/3,
+      lng:(pts[i-1].lng+p.lng+pts[i+1].lng)/3,
     };
   });
-}
-
-function buildMiniMapPoints(points, width = 320, height = 180, padding = 16) {
-  if (!points.length) return "";
-  if (points.length === 1) return `${width / 2},${height / 2}`;
-  const lats = points.map((p) => p.lat);
-  const lngs = points.map((p) => p.lng);
-  const minLat = Math.min(...lats);
-  const maxLat = Math.max(...lats);
-  const minLng = Math.min(...lngs);
-  const maxLng = Math.max(...lngs);
-  const latRange = Math.max(maxLat - minLat, 0.00001);
-  const lngRange = Math.max(maxLng - minLng, 0.00001);
-
-  return points
-    .map((p) => {
-      const x = padding + ((p.lng - minLng) / lngRange) * (width - padding * 2);
-      const y = height - padding - ((p.lat - minLat) / latRange) * (height - padding * 2);
-      return `${x},${y}`;
-    })
-    .join(" ");
 }
 
 function buildSegments(day) {
-  const segments = [{ label: "Warm up walk", type: "walk", seconds: Math.round(day.warmup * 60) }];
-  day.intervals.forEach((block) => {
-    for (let i = 0; i < block.repeat; i += 1) {
-      if (block.run) {
-        segments.push({
-          label: `Run ${block.run} min`,
-          type: "run",
-          seconds: Math.round(block.run * 60),
-        });
-      }
-      if (block.walk) {
-        segments.push({
-          label: `Walk ${block.walk} min`,
-          type: "walk",
-          seconds: Math.round(block.walk * 60),
-        });
-      }
+  const s=[{label:'Warm-up',type:'walk',seconds:Math.round(day.warmup*60)}];
+  day.intervals.forEach(b=>{
+    for(let i=0;i<b.repeat;i++){
+      if(b.run)  s.push({label:`Run ${b.run} min`,  type:'run',  seconds:Math.round(b.run*60)});
+      if(b.walk) s.push({label:`Walk ${b.walk} min`,type:'walk', seconds:Math.round(b.walk*60)});
     }
   });
-  segments.push({ label: "Cool down walk", type: "walk", seconds: Math.round(day.cooldown * 60) });
-  return segments;
+  s.push({label:'Cool-down',type:'walk',seconds:Math.round(day.cooldown*60)});
+  return s;
 }
 
-function totalMinutes(day) {
-  const base = day.warmup + day.cooldown;
-  const intervals = day.intervals.reduce((sum, item) => sum + (item.run + item.walk) * item.repeat, 0);
-  return base + intervals;
+function totalMin(day) {
+  return day.warmup + day.cooldown + day.intervals.reduce((s,i)=>(s+(i.run+i.walk)*i.repeat),0);
 }
 
-function createEmptySplits(segments) {
-  return segments.map((segment, index) => ({
-    index,
-    label: segment.label,
-    type: segment.type,
-    plannedSeconds: segment.seconds,
-    actualSeconds: 0,
-    distance: 0,
-  }));
+function miniMapPts(pts, W=320, H=140, P=12) {
+  if(!pts.length) return '';
+  if(pts.length===1) return `${W/2},${H/2}`;
+  const lats=pts.map(p=>p.lat), lngs=pts.map(p=>p.lng);
+  const minLat=Math.min(...lats), maxLat=Math.max(...lats);
+  const minLng=Math.min(...lngs), maxLng=Math.max(...lngs);
+  const lr=Math.max(maxLat-minLat,0.00001), lgr=Math.max(maxLng-minLng,0.00001);
+  return pts.map(p=>{
+    const x=P+((p.lng-minLng)/lgr)*(W-P*2);
+    const y=H-P-((p.lat-minLat)/lr)*(H-P*2);
+    return `${x.toFixed(1)},${y.toFixed(1)}`;
+  }).join(' ');
 }
 
-function getGoogleMapsEmbedUrl(point) {
-  if (!point) return "";
-  return `https://www.google.com/maps?q=${point.lat},${point.lng}&z=16&output=embed`;
+function emptySplits(segs) {
+  return segs.map((s,i)=>({index:i,label:s.label,type:s.type,plannedSec:s.seconds,actualSec:0,dist:0}));
 }
 
-function buildWorkoutRecord({ selectedWeek, day, elapsedSeconds, distance, avgPace, avgSpeed, routePoints, splits }) {
+function mapsEmbed(p) { return p ? `https://www.google.com/maps?q=${p.lat},${p.lng}&z=16&output=embed` : ''; }
+function mapsExt(p)   { return p ? `https://www.google.com/maps/search/?api=1&query=${p.lat},${p.lng}` : ''; }
+
+function buildRecord({week,day,elapsed,dist,pace,speed,pts,splits}) {
   return {
-    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
-    completedAt: new Date().toISOString(),
-    week: selectedWeek + 1,
-    dayTitle: day.title,
-    totalSeconds: elapsedSeconds,
-    distance,
-    averagePace: avgPace,
-    averageSpeed: avgSpeed,
-    routePoints,
-    splits,
+    id:`${Date.now()}-${Math.random().toString(36).slice(2,8)}`,
+    at: new Date().toISOString(),
+    week:week+1, dayTitle:day.title,
+    totalSec:elapsed, dist, pace, speed, pts, splits,
   };
 }
 
-function createBeepScheduler(playTone) {
+function mkBeeps(play) {
   return {
-    startCountdown(value) {
-      if (value <= 0) playTone(1320, 0.22, "triangle", 0.06);
-      else playTone(value <= 3 ? 1046 : 880, value <= 3 ? 0.18 : 0.12, "sine", 0.05);
+    countdown(v) {
+      if(v<=0) play(1320,.22,'triangle',.06);
+      else play(v<=3?1046:880, v<=3?.18:.12,'sine',.05);
     },
-    finalCountdown(value) {
-      playTone(value <= 3 ? 1046 : 880, value <= 3 ? 0.18 : 0.12, "sine", 0.05);
-    },
-    intervalChange(type) {
-      if (type === "run") {
-        playTone(880, 0.12, "triangle", 0.05);
-        window.setTimeout(() => playTone(1174, 0.16, "triangle", 0.05), 120);
-      } else {
-        playTone(659, 0.12, "triangle", 0.05);
-        window.setTimeout(() => playTone(523, 0.16, "triangle", 0.05), 120);
-      }
+    final(v) { play(v<=3?1046:880, v<=3?.18:.12,'sine',.05); },
+    change(type) {
+      if(type==='run') { play(880,.12,'triangle',.05); setTimeout(()=>play(1174,.16,'triangle',.05),120); }
+      else             { play(659,.12,'triangle',.05); setTimeout(()=>play(523,.16,'triangle',.05),120); }
     },
     finish() {
-      playTone(784, 0.14, "triangle", 0.05);
-      window.setTimeout(() => playTone(988, 0.18, "triangle", 0.05), 160);
-      window.setTimeout(() => playTone(1318, 0.24, "triangle", 0.05), 340);
+      play(784,.14,'triangle',.05);
+      setTimeout(()=>play(988,.18,'triangle',.05),160);
+      setTimeout(()=>play(1318,.24,'triangle',.05),340);
     },
   };
 }
 
-const state = {
-  selectedWeek: 0,
-  selectedDay: 0,
-  activeScene: "session",
-  timerActive: false,
-  started: false,
-  segmentIndex: 0,
-  timeLeft: 0,
-  distance: 0,
-  routePoints: [],
-  gpsError: "",
-  completed: {},
-  splits: [],
-  startCountdown: null,
-  soundEnabled: true,
-  workoutHistory: [],
+/* ─── TESTS ──────────────────────────────────────────────────────── */
+function runTests() {
+  if(haversine({lat:0,lng:0},{lat:0,lng:0.001})<=0) throw new Error('haversine');
+  if(fmt.dist(1200)!=='1.20 km') throw new Error('dist');
+  if(fmt.pace(360)!=='6:00 /km') throw new Error('pace');
+  if(fmt.speed(2.7777778)!=='10.0 km/h') throw new Error('speed');
+  if(fmt.time(75)!=='1:15') throw new Error('time');
+  if(fmt.dur(75)!=='1m 15s') throw new Error('dur');
+  if(dayKey(0,0)!=='w1-d1') throw new Error('dayKey');
+  const s=smoothPts([{lat:1,lng:1},{lat:2,lng:2},{lat:3,lng:3}]);
+  if(s[1].lat!==2) throw new Error('smooth');
+  const pts=miniMapPts([{lat:-37.81,lng:144.96},{lat:-37.82,lng:144.97}]);
+  if(!pts.includes(',')) throw new Error('miniMap');
+  const sp=emptySplits([{label:'x',type:'run',seconds:60}]);
+  if(sp.length!==1||sp[0].dist!==0) throw new Error('splits');
+  const calls=[]; const b=mkBeeps(f=>calls.push(f));
+  b.countdown(3); b.final(10);
+  if(calls.length!==2) throw new Error('beeps');
+  const rec=buildRecord({week:0,day:{title:'Day 1'},elapsed:600,dist:1200,pace:500,speed:2.4,pts:[],splits:[]});
+  if(rec.week!==1||rec.dayTitle!=='Day 1') throw new Error('record');
+  if(buildSegments(PROGRAM[0].days[0]).length!==18) throw new Error('segs');
+}
+
+/* ─── STATE ──────────────────────────────────────────────────────── */
+const ST = {
+  selWeek:0, selDay:0,
+  active:false, started:false,
+  segIdx:0, timeLeft:0,
+  dist:0, pts:[], gpsErr:'', splits:[],
+  countdown:null, soundOn:true,
+  completed:{}, history:[],
+  expandedWeek:0,
+  panel:0,            // 0=stats 1=route 2=splits
+  sheetOpen:false,
+  sheetTab:'plan',    // plan|history
+  autoCenter:true,
 };
 
-const refs = {
-  timerInterval: null,
-  startCountdownInterval: null,
-  audioContext: null,
-  watchId: null,
-  lastPos: null,
-  currentSegmentDistance: 0,
-  segmentStartedAt: Date.now(),
-  lastTenSecondBeep: null,
-  lastSegmentBeep: 0,
-  savedResult: false,
-  timerPulseTimeout: null,
+const RF = {
+  watchId:null, lastPos:null,
+  segDist:0, segStart:Date.now(),
+  audio:null, cdInterval:null,
+  tenBeep:null, segBeep:0,
+  saved:false, timerInterval:null,
 };
 
-function getDay() {
-  return PROGRAM[state.selectedWeek].days[state.selectedDay];
+/* ─── DERIVED ────────────────────────────────────────────────────── */
+function curDay()  { return PROGRAM[ST.selWeek].days[ST.selDay]; }
+function curSegs() { return buildSegments(curDay()); }
+
+function totalSec() { return curSegs().reduce((s,seg)=>s+seg.seconds,0); }
+
+function elapsed() {
+  const segs=curSegs();
+  const done=segs.slice(0,ST.segIdx).reduce((s,sg)=>s+sg.seconds,0);
+  const cur=segs[ST.segIdx]?.seconds||0;
+  return Math.max(0,done+(cur-ST.timeLeft));
 }
 
-function getSegments() {
-  return buildSegments(getDay());
+function progress() {
+  const t=totalSec(); const e=elapsed();
+  return t ? Math.round((e/t)*100) : 0;
 }
 
-function getElapsedSeconds() {
-  const segments = getSegments();
-  const finishedSeconds = segments
-    .slice(0, state.segmentIndex)
-    .reduce((sum, seg) => sum + seg.seconds, 0);
-  const currentSegmentSeconds = segments[state.segmentIndex]?.seconds || 0;
-  return Math.max(0, finishedSeconds + (currentSegmentSeconds - state.timeLeft));
-}
+function avgPace()  { const e=elapsed(); return ST.dist>0 ? e/(ST.dist/1000) : 0; }
+function avgSpeed() { const e=elapsed(); return e>0 ? ST.dist/e : 0; }
+function latPt()    { return ST.pts[ST.pts.length-1]||RF.lastPos; }
+function firstPt()  { return ST.pts[0]||null; }
 
-function getTotalWorkoutSeconds() {
-  return getSegments().reduce((sum, seg) => sum + seg.seconds, 0);
-}
-
-function getProgressPct() {
-  const total = getTotalWorkoutSeconds();
-  const elapsed = getElapsedSeconds();
-  return total ? Math.round((elapsed / total) * 100) : 0;
-}
-
-function getAvgPace() {
-  const elapsed = getElapsedSeconds();
-  return state.distance > 0 ? elapsed / (state.distance / 1000) : 0;
-}
-
-function getAvgSpeed() {
-  const elapsed = getElapsedSeconds();
-  return elapsed > 0 ? state.distance / elapsed : 0;
-}
-
-function latestPoint() {
-  return state.routePoints[state.routePoints.length - 1] || refs.lastPos;
-}
-
-function loadState() {
+/* ─── STORAGE ────────────────────────────────────────────────────── */
+function load() {
   try {
-    const completed = localStorage.getItem(STORAGE_KEYS.completed);
-    const sound = localStorage.getItem(STORAGE_KEYS.soundEnabled);
-    const history = localStorage.getItem(STORAGE_KEYS.history);
-    const selected = localStorage.getItem(STORAGE_KEYS.selectedWorkout);
-
-    if (completed) state.completed = JSON.parse(completed);
-    if (sound !== null) state.soundEnabled = sound === "true";
-    if (history) state.workoutHistory = JSON.parse(history);
-    if (selected) {
-      const parsed = JSON.parse(selected);
-      state.selectedWeek = parsed.week ?? 0;
-      state.selectedDay = parsed.day ?? 0;
-    }
-  } catch (error) {
-    console.error("Failed to restore saved data", error);
-  }
+    const c=localStorage.getItem(STORAGE_KEYS.completed);
+    const snd=localStorage.getItem(STORAGE_KEYS.sound);
+    const h=localStorage.getItem(STORAGE_KEYS.history);
+    const sel=localStorage.getItem(STORAGE_KEYS.selected);
+    if(c) ST.completed=JSON.parse(c);
+    if(snd!==null) ST.soundOn=snd==='true';
+    if(h) ST.history=JSON.parse(h);
+    if(sel){ const p=JSON.parse(sel); ST.selWeek=p.week??0; ST.selDay=p.day??0; ST.expandedWeek=p.week??0; }
+  } catch(e){ console.error(e); }
 }
 
-function persistState() {
-  localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(state.completed));
-  localStorage.setItem(STORAGE_KEYS.soundEnabled, String(state.soundEnabled));
-  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(state.workoutHistory));
-  localStorage.setItem(
-    STORAGE_KEYS.selectedWorkout,
-    JSON.stringify({ week: state.selectedWeek, day: state.selectedDay })
-  );
+function save() {
+  localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(ST.completed));
+  localStorage.setItem(STORAGE_KEYS.sound, String(ST.soundOn));
+  localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(ST.history));
+  localStorage.setItem(STORAGE_KEYS.selected, JSON.stringify({week:ST.selWeek,day:ST.selDay}));
 }
 
-function playTone(frequency = 880, duration = 0.12, type = "sine", volume = 0.05) {
-  if (!state.soundEnabled) return;
+/* ─── AUDIO ──────────────────────────────────────────────────────── */
+function playTone(freq=880,dur=0.12,type='sine',vol=0.05) {
+  if(!ST.soundOn) return;
   try {
-    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-    if (!AudioContextClass) return;
-    if (!refs.audioContext) refs.audioContext = new AudioContextClass();
-    const context = refs.audioContext;
-    const now = context.currentTime;
-    const oscillator = context.createOscillator();
-    const gainNode = context.createGain();
-
-    oscillator.type = type;
-    oscillator.frequency.setValueAtTime(frequency, now);
-    gainNode.gain.cancelScheduledValues(now);
-    gainNode.gain.setValueAtTime(0.0001, now);
-    gainNode.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), now + 0.01);
-    gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
-
-    oscillator.connect(gainNode);
-    gainNode.connect(context.destination);
-    oscillator.start(now);
-    oscillator.stop(now + duration + 0.03);
-  } catch (error) {
-    console.error("Audio playback failed", error);
-  }
+    const Ctx=window.AudioContext||window.webkitAudioContext;
+    if(!Ctx) return;
+    if(!RF.audio) RF.audio=new Ctx();
+    const ctx=RF.audio, now=ctx.currentTime;
+    const osc=ctx.createOscillator(), gain=ctx.createGain();
+    osc.type=type; osc.frequency.setValueAtTime(freq,now);
+    gain.gain.cancelScheduledValues(now);
+    gain.gain.setValueAtTime(0.0001,now);
+    gain.gain.exponentialRampToValueAtTime(Math.max(0.0001,vol),now+0.01);
+    gain.gain.exponentialRampToValueAtTime(0.0001,now+dur);
+    osc.connect(gain); gain.connect(ctx.destination);
+    osc.start(now); osc.stop(now+dur+0.03);
+  } catch(e){ console.error(e); }
 }
 
-const beeps = createBeepScheduler(playTone);
+const beeps=mkBeeps(playTone);
 
 async function resumeAudio() {
-  const AudioContextClass = window.AudioContext || window.webkitAudioContext;
-  if (!AudioContextClass) return;
-  if (!refs.audioContext) refs.audioContext = new AudioContextClass();
-  if (refs.audioContext.state === "suspended") {
-    await refs.audioContext.resume();
-  }
+  const Ctx=window.AudioContext||window.webkitAudioContext;
+  if(!Ctx) return;
+  if(!RF.audio) RF.audio=new Ctx();
+  if(RF.audio.state==='suspended') await RF.audio.resume();
+}
+
+/* ─── TIMER LOGIC ────────────────────────────────────────────────── */
+function clearCd() {
+  if(RF.cdInterval){ clearInterval(RF.cdInterval); RF.cdInterval=null; }
+  ST.countdown=null;
+}
+
+function resetTimer() {
+  clearCd();
+  ST.active=false; ST.started=false;
+  ST.segIdx=0; ST.timeLeft=curSegs()[0]?.seconds||0;
+  ST.dist=0; ST.pts=[]; ST.gpsErr=''; ST.splits=emptySplits(curSegs());
+  RF.lastPos=null; RF.segDist=0; RF.segStart=Date.now();
+  RF.tenBeep=null; RF.segBeep=0; RF.saved=false;
+  stopGeo(); stopTimer();
+}
+
+function finalizeSplit(idx, override=null) {
+  ST.splits=ST.splits.map((sp,i)=>{
+    if(i!==idx) return sp;
+    return {...sp, dist:RF.segDist, actualSec:override??Math.max(0,Math.round((Date.now()-RF.segStart)/1000))};
+  });
+  RF.segDist=0; RF.segStart=Date.now();
+}
+
+function stopGeo() {
+  if(RF.watchId!==null&&navigator.geolocation){ navigator.geolocation.clearWatch(RF.watchId); RF.watchId=null; }
+}
+
+function startGeo() {
+  if(!ST.started) return;
+  if(!navigator.geolocation){ ST.gpsErr='Geolocation not available.'; render(); return; }
+  stopGeo();
+  RF.watchId=navigator.geolocation.watchPosition(
+    pos=>{
+      ST.gpsErr='';
+      const acc=pos.coords.accuracy??0;
+      const pt={lat:pos.coords.latitude,lng:pos.coords.longitude,timestamp:pos.timestamp,accuracy:acc};
+      if(acc>35){ render(); return; }
+      ST.pts.push(pt);
+      if(RF.lastPos){ const d=haversine(RF.lastPos,pt); if(d>=0.8&&d<=80){ ST.dist+=d; RF.segDist+=d; } }
+      RF.lastPos=pt; render();
+    },
+    err=>{
+      const msgs=['','Location permission denied.','Position unavailable.','Location timed out.'];
+      ST.gpsErr=msgs[err.code]||'GPS error.'; render();
+    },
+    {enableHighAccuracy:true,timeout:10000,maximumAge:1500}
+  );
 }
 
 function stopTimer() {
-  if (refs.timerInterval) {
-    clearInterval(refs.timerInterval);
-    refs.timerInterval = null;
+  if(RF.timerInterval){ clearInterval(RF.timerInterval); RF.timerInterval=null; }
+}
+
+function maybeSave() {
+  const e=elapsed();
+  if(ST.started||ST.active||ST.timeLeft!==0||RF.saved) return;
+  if(!curSegs().length||e<=0) return;
+  RF.saved=true;
+  ST.history=[
+    buildRecord({week:ST.selWeek,day:curDay(),elapsed:e,dist:ST.dist,pace:avgPace(),speed:avgSpeed(),pts:ST.pts,splits:ST.splits}),
+    ...ST.history
+  ].slice(0,30);
+  save();
+}
+
+function beepCountdown() {
+  if(!ST.started||!ST.active){ RF.tenBeep=null; return; }
+  if(ST.timeLeft<=10&&ST.timeLeft>0&&RF.tenBeep!==ST.timeLeft){ beeps.final(ST.timeLeft); RF.tenBeep=ST.timeLeft; }
+  if(ST.timeLeft>10) RF.tenBeep=null;
+}
+
+function beepChange() {
+  if(!ST.started||!ST.active) return;
+  if(ST.segIdx!==RF.segBeep){
+    if(ST.segIdx>0) beeps.change(curSegs()[ST.segIdx]?.type||'walk');
+    RF.segBeep=ST.segIdx;
   }
 }
 
-function stopStartCountdown() {
-  if (refs.startCountdownInterval) {
-    clearInterval(refs.startCountdownInterval);
-    refs.startCountdownInterval = null;
-  }
-  state.startCountdown = null;
-}
-
-function stopGeolocationWatch() {
-  if (refs.watchId !== null && navigator.geolocation) {
-    navigator.geolocation.clearWatch(refs.watchId);
-    refs.watchId = null;
-  }
-}
-
-function resetWorkoutState() {
+function startTick() {
   stopTimer();
-  stopStartCountdown();
-  stopGeolocationWatch();
-  state.timerActive = false;
-  state.started = false;
-  state.segmentIndex = 0;
-  state.timeLeft = getSegments()[0]?.seconds || 0;
-  state.distance = 0;
-  state.routePoints = [];
-  state.gpsError = "";
-  state.splits = createEmptySplits(getSegments());
-  refs.lastPos = null;
-  refs.currentSegmentDistance = 0;
-  refs.segmentStartedAt = Date.now();
-  refs.lastTenSecondBeep = null;
-  refs.lastSegmentBeep = 0;
-  refs.savedResult = false;
-}
-
-function finalizeSplit(index, actualSecondsOverride = null) {
-  state.splits = state.splits.map((split, i) => {
-    if (i !== index) return split;
-    return {
-      ...split,
-      distance: refs.currentSegmentDistance,
-      actualSeconds:
-        actualSecondsOverride ??
-        Math.max(0, Math.round((Date.now() - refs.segmentStartedAt) / 1000)),
-    };
-  });
-  refs.currentSegmentDistance = 0;
-  refs.segmentStartedAt = Date.now();
-}
-
-function pulseTimer() {
-  const timerEl = document.querySelector(".timer");
-  if (!timerEl) return;
-  timerEl.classList.add("pulse");
-  clearTimeout(refs.timerPulseTimeout);
-  refs.timerPulseTimeout = setTimeout(() => {
-    timerEl.classList.remove("pulse");
-  }, 220);
-}
-
-function startGeolocationWatch() {
-  if (!state.started) return;
-  if (!navigator.geolocation) {
-    state.gpsError = "Geolocation is not available on this device/browser.";
-    render();
-    return;
-  }
-
-  stopGeolocationWatch();
-
-  refs.watchId = navigator.geolocation.watchPosition(
-    (pos) => {
-      state.gpsError = "";
-      const accuracy = pos.coords.accuracy ?? 0;
-      const point = {
-        lat: pos.coords.latitude,
-        lng: pos.coords.longitude,
-        timestamp: pos.timestamp,
-        accuracy,
-      };
-
-      if (accuracy > 35) {
-        render();
-        return;
-      }
-
-      state.routePoints.push(point);
-
-      if (refs.lastPos) {
-        const delta = haversineDistance(refs.lastPos, point);
-        if (delta >= 0.8 && delta <= 80) {
-          state.distance += delta;
-          refs.currentSegmentDistance += delta;
-        }
-      }
-
-      refs.lastPos = point;
-      render();
-    },
-    (error) => {
-      if (error.code === 1) state.gpsError = "Location permission was denied.";
-      else if (error.code === 2) state.gpsError = "Position unavailable.";
-      else if (error.code === 3) state.gpsError = "Location request timed out.";
-      else state.gpsError = "Unable to track GPS location.";
-      render();
-    },
-    {
-      enableHighAccuracy: true,
-      timeout: 10000,
-      maximumAge: 1500,
-    }
-  );
-}
-
-function maybeSaveWorkoutResult() {
-  const elapsedSeconds = getElapsedSeconds();
-  if (state.started || state.timerActive || state.timeLeft !== 0 || refs.savedResult) return;
-  if (!getSegments().length || elapsedSeconds <= 0) return;
-
-  refs.savedResult = true;
-  state.workoutHistory = [
-    buildWorkoutRecord({
-      selectedWeek: state.selectedWeek,
-      day: getDay(),
-      elapsedSeconds,
-      distance: state.distance,
-      avgPace: getAvgPace(),
-      avgSpeed: getAvgSpeed(),
-      routePoints: state.routePoints,
-      splits: state.splits,
-    }),
-    ...state.workoutHistory,
-  ].slice(0, 30);
-  persistState();
-}
-
-function startTimer() {
-  stopTimer();
-  refs.timerInterval = setInterval(() => {
-    if (state.timeLeft > 1) {
-      state.timeLeft -= 1;
-      pulseTimer();
-
-      if (
-        state.started &&
-        state.timerActive &&
-        state.timeLeft <= 10 &&
-        state.timeLeft > 0 &&
-        refs.lastTenSecondBeep !== state.timeLeft
-      ) {
-        beeps.finalCountdown(state.timeLeft);
-        refs.lastTenSecondBeep = state.timeLeft;
-      }
-
-      render();
-      return;
-    }
-
-    const segments = getSegments();
-    const currentIndex = state.segmentIndex;
-    const nextIndex = currentIndex + 1;
-
-    finalizeSplit(currentIndex, segments[currentIndex]?.seconds || 0);
-
-    if (nextIndex >= segments.length) {
-      state.timerActive = false;
-      state.started = false;
-      state.timeLeft = 0;
+  RF.timerInterval=setInterval(()=>{
+    if(ST.timeLeft>1){ ST.timeLeft-=1; beepCountdown(); render(); return; }
+    const segs=curSegs(), cur=ST.segIdx, nxt=cur+1;
+    finalizeSplit(cur, segs[cur]?.seconds||0);
+    if(nxt>=segs.length){
+      ST.active=false; ST.started=false; ST.timeLeft=0;
       beeps.finish();
-      state.completed[getDayKey(state.selectedWeek, state.selectedDay)] = true;
-      persistState();
-      stopTimer();
-      stopGeolocationWatch();
-      maybeSaveWorkoutResult();
-      render();
-      return;
+      ST.completed[dayKey(ST.selWeek,ST.selDay)]=true;
+      save(); stopTimer(); stopGeo(); maybeSave(); render(); return;
     }
-
-    state.segmentIndex = nextIndex;
-    state.timeLeft = segments[nextIndex].seconds;
-    refs.lastTenSecondBeep = null;
-
-    if (state.segmentIndex > 0) {
-      beeps.intervalChange(segments[state.segmentIndex]?.type || "walk");
-    }
-
-    pulseTimer();
-    render();
-  }, 1000);
+    ST.segIdx=nxt; ST.timeLeft=segs[nxt].seconds;
+    beepChange(); render();
+  },1000);
 }
 
-async function startWorkout() {
+/* ─── ACTIONS ────────────────────────────────────────────────────── */
+async function start() {
   await resumeAudio();
+  if(ST.started){ ST.active=true; startTick(); beepCountdown(); render(); return; }
+  clearCd();
+  ST.active=false; ST.started=false;
+  ST.segIdx=0; ST.timeLeft=curSegs()[0]?.seconds||0;
+  RF.saved=false; ST.dist=0; ST.pts=[]; ST.gpsErr=''; ST.splits=emptySplits(curSegs());
+  RF.lastPos=null; RF.segDist=0; RF.segStart=Date.now();
+  RF.tenBeep=null; RF.segBeep=0;
 
-  if (state.started) {
-    state.timerActive = true;
-    startTimer();
-    render();
-    return;
-  }
+  let c=3; ST.countdown=c; beeps.countdown(c); render();
+  RF.cdInterval=setInterval(()=>{
+    c-=1;
+    if(c>0){ ST.countdown=c; beeps.countdown(c); render(); return; }
+    ST.countdown=0; beeps.countdown(0); render();
+    clearInterval(RF.cdInterval); RF.cdInterval=null;
+    setTimeout(()=>{
+      clearCd();
+      ST.started=true; ST.active=true;
+      ST.segIdx=0; ST.timeLeft=curSegs()[0]?.seconds||0;
+      RF.segStart=Date.now(); RF.segBeep=0;
+      startGeo(); startTick(); render();
+    },250);
+  },1000);
+}
 
-  stopStartCountdown();
-  state.timerActive = false;
-  state.started = false;
-  state.segmentIndex = 0;
-  state.timeLeft = getSegments()[0]?.seconds || 0;
-  state.distance = 0;
-  state.routePoints = [];
-  state.gpsError = "";
-  state.splits = createEmptySplits(getSegments());
-  refs.lastPos = null;
-  refs.currentSegmentDistance = 0;
-  refs.segmentStartedAt = Date.now();
-  refs.lastTenSecondBeep = null;
-  refs.lastSegmentBeep = 0;
-  refs.savedResult = false;
+function pause()  { clearCd(); ST.active=false; stopTimer(); render(); }
+function stop()   { resetTimer(); render(); }
 
-  let count = 3;
-  state.startCountdown = count;
-  beeps.startCountdown(count);
-  render();
+function selectWorkout(w,d) {
+  clearCd(); RF.saved=false;
+  ST.selWeek=w; ST.selDay=d;
+  ST.active=false; ST.started=false;
+  ST.dist=0; ST.pts=[]; ST.gpsErr='';
+  RF.lastPos=null; RF.segDist=0; RF.segStart=Date.now();
+  ST.timeLeft=curSegs()[0]?.seconds||0;
+  ST.splits=emptySplits(curSegs());
+  stopTimer(); stopGeo(); save(); render();
+}
 
-  refs.startCountdownInterval = setInterval(() => {
-    count -= 1;
+function clearHistory() { ST.history=[]; localStorage.removeItem(STORAGE_KEYS.history); render(); }
+function toggleSound()  { ST.soundOn=!ST.soundOn; save(); render(); }
+function toggleAutoCenter() { ST.autoCenter=!ST.autoCenter; render(); }
 
-    if (count > 0) {
-      state.startCountdown = count;
-      beeps.startCountdown(count);
-      render();
-      return;
+/* ─── SWIPE STATE ────────────────────────────────────────────────── */
+const swipe = { startX:0, startY:0, dragging:false, locked:false };
+
+function initSwipe(track) {
+  const PANELS=3;
+  track.addEventListener('touchstart', e=>{
+    swipe.startX=e.touches[0].clientX;
+    swipe.startY=e.touches[0].clientY;
+    swipe.dragging=true; swipe.locked=false;
+  },{passive:true});
+  track.addEventListener('touchmove', e=>{
+    if(!swipe.dragging||swipe.locked) return;
+    const dx=e.touches[0].clientX-swipe.startX;
+    const dy=e.touches[0].clientY-swipe.startY;
+    if(!swipe.locked){
+      if(Math.abs(dy)>Math.abs(dx)){ swipe.locked=true; swipe.dragging=false; return; }
     }
-
-    state.startCountdown = 0;
-    beeps.startCountdown(0);
-    render();
-
-    clearInterval(refs.startCountdownInterval);
-    refs.startCountdownInterval = null;
-
-    setTimeout(() => {
-      state.startCountdown = null;
-      state.started = true;
-      state.timerActive = true;
-      state.segmentIndex = 0;
-      state.timeLeft = getSegments()[0]?.seconds || 0;
-      refs.segmentStartedAt = Date.now();
-      startGeolocationWatch();
-      startTimer();
-      render();
-    }, 250);
-  }, 1000);
+    e.preventDefault();
+    const base=-ST.panel*100;
+    const drag=(dx/track.offsetWidth)*100;
+    track.style.transition='none';
+    track.style.transform=`translateX(${base+drag}%)`;
+  },{passive:false});
+  track.addEventListener('touchend', e=>{
+    if(!swipe.dragging){ swipe.dragging=false; return; }
+    const dx=e.changedTouches[0].clientX-swipe.startX;
+    swipe.dragging=false;
+    track.style.transition='';
+    if(Math.abs(dx)>44){
+      if(dx<0&&ST.panel<PANELS-1) ST.panel++;
+      else if(dx>0&&ST.panel>0) ST.panel--;
+    }
+    track.style.transform=`translateX(${-ST.panel*100}%)`;
+    updateDots();
+  },{passive:true});
 }
 
-function pauseWorkout() {
-  stopStartCountdown();
-  state.timerActive = false;
-  stopTimer();
-  render();
-}
-
-function stopWorkout() {
-  resetWorkoutState();
-  render();
-}
-
-function selectWorkout(weekIndex, dayIndex) {
-  state.selectedWeek = weekIndex;
-  state.selectedDay = dayIndex;
-  resetWorkoutState();
-  persistState();
-  render();
-}
-
-function setScene(scene) {
-  state.activeScene = scene;
-  render();
-}
-
-function toggleSound() {
-  state.soundEnabled = !state.soundEnabled;
-  persistState();
-  render();
-}
-
-function clearHistory() {
-  state.workoutHistory = [];
-  localStorage.removeItem(STORAGE_KEYS.history);
-  render();
-}
-
-function renderSessionScene() {
-  const day = getDay();
-  const segments = getSegments();
-  const currentSegment = segments[state.segmentIndex] || null;
-  const progress = getProgressPct();
-  const avgPace = getAvgPace();
-  const avgSpeed = getAvgSpeed();
-  const timerClass = currentSegment?.type === "run" ? "run" : "walk";
-
-  return `
-    <section class="scene ${state.activeScene === "session" ? "active" : ""}">
-      <div class="hero">
-        <div>
-          <p class="kicker">Couch to 5K</p>
-          <div class="title">Run your first 5K</div>
-          <div class="dayline">Week ${state.selectedWeek + 1} • ${day.title}</div>
-        </div>
-        <div class="badge">⟡</div>
-      </div>
-
-      <div class="hero">
-        <div class="interval-label">Current interval</div>
-        <div class="interval-name">${currentSegment?.label || "Ready"}</div>
-        <div class="timer ${timerClass}">${formatTime(state.timeLeft)}</div>
-        <div class="substatus">
-          ${
-            state.startCountdown !== null
-              ? `<strong>${state.startCountdown > 0 ? `Starting in ${state.startCountdown}` : "Go"}</strong>`
-              : `Progress ${progress}%`
-          }
-        </div>
-        <div class="progress">
-          <div class="progress-bar" style="width:${progress}%"></div>
-        </div>
-
-        <div class="metrics-row">
-          <div class="metric">
-            <div class="metric-label">Distance</div>
-            <div class="metric-value">${formatDistance(state.distance)}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Pace</div>
-            <div class="metric-value">${formatPace(avgPace)}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Speed</div>
-            <div class="metric-value">${formatSpeed(avgSpeed)}</div>
-          </div>
-          <div class="metric">
-            <div class="metric-label">Split</div>
-            <div class="metric-value">${formatDistance(refs.currentSegmentDistance)}</div>
-          </div>
-        </div>
-
-        <div class="controls">
-          <button class="btn btn-primary" id="start-btn">${state.started && state.timerActive ? "Resume" : "Start"}</button>
-          <button class="btn btn-secondary" id="pause-btn">Pause</button>
-          <button class="btn btn-secondary" id="stop-btn">Stop</button>
-        </div>
-
-        <div class="sound-row">
-          <button class="sound-toggle" id="sound-btn">${state.soundEnabled ? "Sound on" : "Sound off"}</button>
-        </div>
-      </div>
-
-      <div class="scene-panel">
-        <div class="row">
-          <div>
-            <h3 class="panel-title">Workout plan</h3>
-            <div class="panel-sub">Choose your next session.</div>
-          </div>
-          <div class="panel-sub">${Object.values(state.completed).filter(Boolean).length}/${PROGRAM.reduce((n, w) => n + w.days.length, 0)} done</div>
-        </div>
-
-        <div class="plan-list">
-          ${PROGRAM.map((week, weekIndex) => `
-            <div class="plan-week">
-              <button class="plan-toggle" data-week="${weekIndex}">
-                <div class="row">
-                  <div>
-                    <div class="strong">Week ${week.week}</div>
-                    <div class="small muted">${week.days.length} workouts</div>
-                  </div>
-                  <div class="small faint">${weekIndex === state.selectedWeek ? "open" : "view"}</div>
-                </div>
-              </button>
-              ${
-                weekIndex === state.selectedWeek
-                  ? week.days.map((item, dayIndex) => `
-                    <button class="plan-day" data-select-week="${weekIndex}" data-select-day="${dayIndex}">
-                      <div class="plan-day-card ${weekIndex === state.selectedWeek && dayIndex === state.selectedDay ? "active" : ""}">
-                        <div class="row">
-                          <div>
-                            <div class="strong">${item.title}</div>
-                            <div class="small muted">${totalMinutes(item)} minutes</div>
-                          </div>
-                          <div>
-                            ${state.completed[getDayKey(weekIndex, dayIndex)] ? `<span class="done-pill">Done</span>` : ""}
-                          </div>
-                        </div>
-                      </div>
-                    </button>
-                  `).join("")
-                  : ""
-              }
-            </div>
-          `).join("")}
-        </div>
-      </div>
-    </section>
-  `;
-}
-
-function renderRouteScene() {
-  const latest = latestPoint();
-  const first = state.routePoints[0] || null;
-  const mapUrl = getGoogleMapsEmbedUrl(latest);
-  const miniMapPoints = buildMiniMapPoints(smoothRoutePoints(state.routePoints));
-
-  return `
-    <section class="scene ${state.activeScene === "route" ? "active" : ""}">
-      <div class="hero">
-        <div>
-          <p class="kicker">Route</p>
-          <div class="title">Live route</div>
-          <div class="dayline">${state.routePoints.length ? "Tracking current workout" : "Start a session to see movement"}</div>
-        </div>
-      </div>
-
-      <div class="scene-panel">
-        <h3 class="panel-title">Map</h3>
-        <div class="panel-sub">${latest ? "Centered on your latest position" : "Waiting for GPS"}</div>
-
-        <div class="map-frame">
-          ${
-            mapUrl
-              ? `<iframe title="Google Maps" src="${mapUrl}" loading="lazy" referrerpolicy="no-referrer-when-downgrade"></iframe>`
-              : `<div class="map-empty">No map yet</div>`
-          }
-        </div>
-
-        <div class="route-sketch">
-          <svg viewBox="0 0 320 180">
-            <rect x="0" y="0" width="320" height="180" fill="#0b0f14"></rect>
-            ${
-              miniMapPoints
-                ? `
-                  <polyline
-                    fill="none"
-                    stroke="#7cff8a"
-                    stroke-width="4"
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    points="${miniMapPoints}"
-                  ></polyline>
-                `
-                : `<text x="160" y="92" text-anchor="middle" fill="rgba(255,255,255,0.36)" font-size="14">No route yet</text>`
-            }
-          </svg>
-        </div>
-
-        ${
-          first || latest
-            ? `
-              <div class="coords-grid">
-                <div class="coord-card">
-                  <div class="small faint">Start</div>
-                  <div class="medium strong">${first ? `${first.lat.toFixed(5)}, ${first.lng.toFixed(5)}` : "—"}</div>
-                </div>
-                <div class="coord-card">
-                  <div class="small faint">End</div>
-                  <div class="medium strong">${latest ? `${latest.lat.toFixed(5)}, ${latest.lng.toFixed(5)}` : "—"}</div>
-                </div>
-              </div>
-            `
-            : ""
-        }
-
-        ${state.gpsError ? `<div class="error-text">${state.gpsError}</div>` : ""}
-      </div>
-    </section>
-  `;
-}
-
-function renderHistoryScene() {
-  return `
-    <section class="scene ${state.activeScene === "history" ? "active" : ""}">
-      <div class="hero">
-        <div>
-          <p class="kicker">History</p>
-          <div class="title">Workout log</div>
-          <div class="dayline">Your last 30 completed workouts.</div>
-        </div>
-      </div>
-
-      <div class="scene-panel">
-        <h3 class="panel-title">Saved runs</h3>
-        <div class="panel-sub">Stored locally on this device.</div>
-
-        <div class="history-list">
-          ${
-            state.workoutHistory.length
-              ? state.workoutHistory.map((run) => `
-                  <div class="history-item">
-                    <div class="row">
-                      <div>
-                        <div class="strong">Week ${run.week} • ${run.dayTitle}</div>
-                        <div class="small muted">${new Date(run.completedAt).toLocaleString()}</div>
-                      </div>
-                      <div class="small muted">${formatDistance(run.distance)}</div>
-                    </div>
-                    <div class="small faint" style="margin-top:10px;">
-                      ${formatDurationLong(run.totalSeconds)} • Pace ${formatPace(run.averagePace)} • Speed ${formatSpeed(run.averageSpeed)}
-                    </div>
-                  </div>
-                `).join("")
-              : `<div class="history-item"><div class="muted">No saved runs yet.</div></div>`
-          }
-        </div>
-
-        ${
-          state.workoutHistory.length
-            ? `<button class="btn btn-secondary" id="clear-history-btn" style="margin-top:14px;width:100%;">Clear history</button>`
-            : ""
-        }
-      </div>
-    </section>
-  `;
-}
-
-function renderNav() {
-  return `
-    <nav class="bottom-nav">
-      <button class="nav-btn ${state.activeScene === "session" ? "active" : ""}" data-scene="session">session</button>
-      <button class="nav-btn ${state.activeScene === "route" ? "active" : ""}" data-scene="route">route</button>
-      <button class="nav-btn ${state.activeScene === "history" ? "active" : ""}" data-scene="history">history</button>
-      <button class="nav-btn ${state.activeScene === "session" ? "" : ""}" data-scene="session">back</button>
-    </nav>
-  `;
-}
-
-function bindEvents() {
-  const startBtn = document.getElementById("start-btn");
-  const pauseBtn = document.getElementById("pause-btn");
-  const stopBtn = document.getElementById("stop-btn");
-  const soundBtn = document.getElementById("sound-btn");
-  const clearHistoryBtn = document.getElementById("clear-history-btn");
-
-  if (startBtn) startBtn.onclick = startWorkout;
-  if (pauseBtn) pauseBtn.onclick = pauseWorkout;
-  if (stopBtn) stopBtn.onclick = stopWorkout;
-  if (soundBtn) soundBtn.onclick = toggleSound;
-  if (clearHistoryBtn) clearHistoryBtn.onclick = clearHistory;
-
-  document.querySelectorAll("[data-scene]").forEach((btn) => {
-    btn.onclick = () => setScene(btn.dataset.scene);
-  });
-
-  document.querySelectorAll("[data-select-week]").forEach((btn) => {
-    btn.onclick = () => selectWorkout(Number(btn.dataset.selectWeek), Number(btn.dataset.selectDay));
-  });
-
-  document.querySelectorAll("[data-week]").forEach((btn) => {
-    btn.onclick = () => {
-      state.selectedWeek = Number(btn.dataset.week);
-      state.selectedDay = 0;
-      resetWorkoutState();
-      persistState();
-      render();
-    };
+function updateDots() {
+  document.querySelectorAll('.panel-dot').forEach((d,i)=>{
+    d.classList.toggle('active', i===ST.panel);
   });
 }
+
+/* ─── SHEET DRAG ─────────────────────────────────────────────────── */
+const sheetDrag = { startY:0, startT:0 };
+
+function initSheet(sheet, handle) {
+  let dragging=false, startY=0, startT=0;
+  function open()  { ST.sheetOpen=true;  sheet.classList.add('open');    document.getElementById('sheet-scrim').classList.add('visible'); }
+  function close() { ST.sheetOpen=false; sheet.classList.remove('open'); document.getElementById('sheet-scrim').classList.remove('visible'); }
+
+  handle.addEventListener('click', ()=>{ ST.sheetOpen ? close() : open(); });
+  document.getElementById('sheet-scrim').addEventListener('click', ()=>close());
+
+  handle.addEventListener('touchstart', e=>{ dragging=true; startY=e.touches[0].clientY; startT=Date.now(); sheet.style.transition='none'; },{passive:true});
+  handle.addEventListener('touchmove', e=>{
+    if(!dragging) return;
+    const dy=e.touches[0].clientY-startY;
+    const baseY=ST.sheetOpen ? 0 : (sheet.offsetHeight-68);
+    const newY=Math.max(0, Math.min(sheet.offsetHeight-68, baseY+dy));
+    sheet.style.transform=`translateY(${newY}px)`;
+  },{passive:true});
+  handle.addEventListener('touchend', e=>{
+    if(!dragging) return; dragging=false;
+    sheet.style.transition='';
+    const dy=e.changedTouches[0].clientY-startY;
+    const dt=Date.now()-startT;
+    const vel=dy/dt;
+    if(!ST.sheetOpen){ if(dy<-40||vel<-0.4) open(); else close(); }
+    else             { if(dy>40||vel>0.4)  close(); else open(); }
+  },{passive:true});
+}
+
+/* ─── BODY STATE ─────────────────────────────────────────────────── */
+function syncBodyState() {
+  document.body.classList.remove('s-run','s-walk');
+  if(!ST.started) return;
+  const seg=curSegs()[ST.segIdx];
+  if(seg?.type==='run')  document.body.classList.add('s-run');
+  if(seg?.type==='walk') document.body.classList.add('s-walk');
+}
+
+/* ─── SWEEP UPDATE ───────────────────────────────────────────────── */
+function updateSweep() {
+  const sweep=document.getElementById('seg-sweep');
+  if(!sweep) return;
+  const seg=curSegs()[ST.segIdx];
+  if(ST.started && seg && ST.timeLeft > 0) {
+    const elapsed_pct=(1 - ST.timeLeft/seg.seconds)*100;
+    sweep.style.clipPath=`inset(0 ${elapsed_pct.toFixed(1)}% 0 0)`;
+  } else {
+    sweep.style.clipPath='inset(0 100% 0 0)';
+  }
+}
+
+/* ─── RIPPLE ─────────────────────────────────────────────────────── */
+function ripple(btn, e) {
+  const r=btn.getBoundingClientRect();
+  const sz=Math.max(r.width,r.height);
+  const span=document.createElement('span');
+  span.className='ripple';
+  span.style.cssText=`width:${sz}px;height:${sz}px;left:${e.clientX-r.left-sz/2}px;top:${e.clientY-r.top-sz/2}px`;
+  btn.appendChild(span);
+  setTimeout(()=>span.remove(),700);
+}
+
+/* ─── RENDER ─────────────────────────────────────────────────────── */
+let _initDone=false;
 
 function render() {
-  maybeSaveWorkoutResult();
-  persistState();
+  maybeSave(); save();
+  syncBodyState(); updateSweep();
 
-  document.getElementById("app").innerHTML = `
-    ${renderSessionScene()}
-    ${renderRouteScene()}
-    ${renderHistoryScene()}
-    ${renderNav()}
+  const day=curDay(), segs=curSegs();
+  const seg=segs[ST.segIdx]||null;
+  const e=elapsed(), prog=progress();
+  const pace=avgPace(), spd=avgSpeed();
+  const smPts=smoothPts(ST.pts);
+  const mapPts=miniMapPts(smPts);
+  const segDist=RF.segDist;
+  const latest=latPt(), first=firstPt();
+  const embedUrl=mapsEmbed(latest), extUrl=mapsExt(latest);
+  const totalDone=Object.values(ST.completed).filter(Boolean).length;
+  const totalAll=PROGRAM.reduce((s,w)=>s+w.days.length,0);
+  const remain=Math.max(0, totalSec()-e);
+
+  // Segment label text
+  let segLabelText='Ready to run';
+  if(ST.countdown!==null) segLabelText='Get ready…';
+  else if(ST.started && seg) segLabelText=seg.label;
+  else if(!ST.started && e>0 && ST.timeLeft===0) segLabelText='Workout complete!';
+
+  const segType=seg?.type||'idle';
+
+  // Segment markers for progress bar
+  let cumSec=0;
+  const markerHtml=segs.map(s=>{
+    cumSec+=s.seconds;
+    const pct=(cumSec/totalSec())*100;
+    return `<div class="seg-marker" style="left:${pct.toFixed(2)}%"></div>`;
+  }).join('');
+
+  const app=document.getElementById('app');
+
+  app.innerHTML=`
+<!-- TOP BAR -->
+<div class="top-bar">
+  <div class="top-label">
+    <span class="top-eyebrow">Couch to 5K</span>
+    <span class="top-title">Week ${ST.selWeek+1} · ${day.title}</span>
+  </div>
+  <div class="top-right">
+    <button id="btn-sound" class="icon-btn ${ST.soundOn?'active':''}" title="${ST.soundOn?'Mute':'Unmute'}">
+      ${ST.soundOn ? IC.volume : IC.mute}
+    </button>
+    <button id="btn-plan" class="icon-btn" title="Workout plan">
+      ${IC.plan}
+    </button>
+  </div>
+</div>
+
+<!-- HERO -->
+<div class="hero-area">
+  <div class="segment-label">
+    <span class="seg-dot"></span>
+    ${segLabelText}
+  </div>
+
+  ${ST.countdown !== null
+    ? (ST.countdown > 0
+        ? `<div class="countdown-num">${ST.countdown}</div>`
+        : `<div class="countdown-go">GO</div>`)
+    : `<div class="big-time">${fmt.time(ST.timeLeft)}</div>`
+  }
+
+  <div class="time-sub">
+    ${ST.started ? (segType==='run' ? '— running —' : '— walking —') : (e>0&&ST.timeLeft===0?'— done —':'— tap start —')}
+  </div>
+</div>
+
+<!-- SESSION PROGRESS -->
+<div class="session-progress">
+  <div class="progress-row">
+    <span class="progress-pct">${prog}%</span>
+    <span class="progress-remain">${fmt.time(remain)} left</span>
+  </div>
+  <div class="progress-track">
+    <div class="progress-fill" style="width:${prog}%"></div>
+  </div>
+  <div class="seg-markers">${markerHtml}</div>
+</div>
+
+<!-- CONTROLS -->
+<div class="controls">
+  <button id="btn-stop" class="ctrl-ghost">Stop</button>
+  <button id="btn-start" class="ctrl-main">
+    ${ST.active ? 'Running' : (ST.started ? 'Resume' : 'Start')}
+  </button>
+  <button id="btn-pause" class="ctrl-ghost">Pause</button>
+</div>
+
+<!-- SWIPE PANELS -->
+<div class="panels-wrap">
+  <div class="panels-track" id="panels-track" style="transform:translateX(${-ST.panel*100}%)">
+
+    <!-- Stats -->
+    <div class="panel">
+      <div class="stats-grid">
+        <div class="stat-tile">
+          <div class="stat-lbl">Distance</div>
+          <div class="stat-val">${fmt.dist(ST.dist)}</div>
+          <div class="stat-unit">GPS tracked</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-lbl">Avg Pace</div>
+          <div class="stat-val" style="font-size:22px">${fmt.pace(pace)}</div>
+          <div class="stat-unit">per km</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-lbl">Speed</div>
+          <div class="stat-val" style="font-size:22px">${fmt.speed(spd)}</div>
+          <div class="stat-unit">average</div>
+        </div>
+        <div class="stat-tile">
+          <div class="stat-lbl">Split dist</div>
+          <div class="stat-val">${fmt.dist(segDist)}</div>
+          <div class="stat-unit">this interval</div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Route -->
+    <div class="panel">
+      <div class="route-panel">
+        <div class="mini-map-wrap">
+          <svg viewBox="0 0 320 140" class="mini-map-svg">
+            <defs>
+              <linearGradient id="rg" x1="0" y1="0" x2="1" y2="0">
+                <stop offset="0%" stop-color="#38d9f5"/>
+                <stop offset="100%" stop-color="#c8ff5a"/>
+              </linearGradient>
+            </defs>
+            <rect width="320" height="140" fill="#0a0c14"/>
+            ${mapPts ? (()=>{
+              const pts=mapPts.split(' ');
+              const [sx,sy]=(pts[0]||'160,70').split(',');
+              const [ex,ey]=(pts[pts.length-1]||'160,70').split(',');
+              return `
+                <polyline fill="none" stroke="url(#rg)" stroke-width="3" stroke-linecap="round" stroke-linejoin="round" points="${mapPts}" opacity="0.9"/>
+                <circle cx="${sx}" cy="${sy}" r="5" fill="#38d9f5"/>
+                <circle cx="${ex}" cy="${ey}" r="5" fill="#c8ff5a"/>
+                <rect x="8" y="8" width="80" height="26" rx="8" fill="rgba(0,0,0,0.7)"/>
+                <text x="16" y="19" font-size="8" fill="#555e6e" font-family="JetBrains Mono,monospace">DIST</text>
+                <text x="16" y="30" font-size="10" font-weight="600" fill="#e8eaf2" font-family="JetBrains Mono,monospace">${fmt.dist(ST.dist)}</text>
+              `;
+            })() : `<text x="160" y="70" text-anchor="middle" fill="rgba(255,255,255,0.18)" font-size="11" font-family="JetBrains Mono,monospace">NO ROUTE YET</text>`}
+          </svg>
+        </div>
+        ${first||latest ? `
+          <div class="gps-row">
+            <div class="gps-tile"><strong>Start</strong>${first?`${first.lat.toFixed(5)}, ${first.lng.toFixed(5)}`:'—'}</div>
+            <div class="gps-tile"><strong>Current</strong>${latest?`${latest.lat.toFixed(5)}, ${latest.lng.toFixed(5)}`:'—'}</div>
+          </div>` : ''}
+        ${extUrl ? `<a href="${extUrl}" target="_blank" rel="noreferrer" style="display:flex;align-items:center;gap:6px;font-family:var(--font-mono);font-size:10px;color:var(--text-3);padding-top:4px">${IC.ext} Open in Google Maps</a>` : ''}
+        ${ST.gpsErr ? `<div class="error-row">⚠ ${ST.gpsErr}</div>` : ''}
+      </div>
+    </div>
+
+    <!-- Splits -->
+    <div class="panel">
+      <div class="splits-list">
+        ${ST.splits.map((sp,idx)=>{
+          const isCur=idx===ST.segIdx&&ST.started;
+          const curEl=Math.max(0,sp.plannedSec-ST.timeLeft);
+          const dDist=isCur?segDist:sp.dist;
+          const dSec=isCur?curEl:(sp.actualSec||sp.plannedSec);
+          const dPace=dDist>0?dSec/(dDist/1000):0;
+          return `<div class="split-row ${isCur?'active':''}">
+            <div>
+              <div class="split-name">${sp.label}</div>
+              <div class="split-type">${sp.type} · ${fmt.pace(dPace)}</div>
+            </div>
+            <div class="split-data">
+              <div>${fmt.dist(dDist)}</div>
+              <div>${fmt.dur(dSec)}</div>
+            </div>
+          </div>`;
+        }).join('')}
+      </div>
+    </div>
+
+  </div>
+</div>
+
+<!-- PANEL DOTS -->
+<div class="panel-dots">
+  ${['Stats','Route','Splits'].map((l,i)=>`<div class="panel-dot ${i===ST.panel?'active':''}" title="${l}"></div>`).join('')}
+</div>
+
+<!-- SHEET SCRIM -->
+<div id="sheet-scrim"></div>
+
+<!-- BOTTOM SHEET -->
+<div class="plan-sheet ${ST.sheetOpen?'open':''}" id="plan-sheet">
+  <div class="sheet-handle-area" id="sheet-handle">
+    <div class="sheet-handle"></div>
+    <div class="sheet-header">
+      <div>
+        <div class="sheet-title">Workout Plan</div>
+      </div>
+      <div style="display:flex;align-items:center;gap:8px">
+        <div class="sheet-tabs">
+          <button class="sheet-tab ${ST.sheetTab==='plan'?'active':''}" data-sheet-tab="plan">Plan</button>
+          <button class="sheet-tab ${ST.sheetTab==='history'?'active':''}" data-sheet-tab="history">History</button>
+        </div>
+        <span style="font-family:var(--font-mono);font-size:9px;color:var(--text-3)">${totalDone}/${totalAll}</span>
+      </div>
+    </div>
+  </div>
+
+  <div class="sheet-body">
+    ${ST.sheetTab==='plan' ? `
+      <div class="plan-weeks">
+        ${PROGRAM.map((wk,wi)=>{
+          const exp=ST.expandedWeek===wi;
+          return `<div class="week-block">
+            <div class="week-row" data-toggle-week="${wi}">
+              <div>
+                <div class="week-name">Week ${wk.week}</div>
+                <div class="week-meta">${wk.days.length} workouts · ${wk.days.map(d=>totalMin(d)).join(', ')} min</div>
+              </div>
+              <div class="week-chev ${exp?'open':''}">${IC.chev}</div>
+            </div>
+            ${exp ? `<div class="week-days">
+              ${wk.days.map((d,di)=>{
+                const sel=ST.selWeek===wi&&ST.selDay===di;
+                const done=ST.completed[dayKey(wi,di)];
+                return `<button class="day-btn ${sel?'selected':''}" data-sel-w="${wi}" data-sel-d="${di}">
+                  <div>
+                    <div class="day-name">${d.title}</div>
+                    <div class="day-meta">${totalMin(d)} min</div>
+                  </div>
+                  ${done?`<span class="done-badge">✓ Done</span>`:''}
+                </button>`;
+              }).join('')}
+            </div>` : ''}
+          </div>`;
+        }).join('')}
+      </div>
+    ` : `
+      <div class="history-list">
+        ${ST.history.length ? ST.history.map(r=>`
+          <div class="hist-row">
+            <div class="hist-head">
+              <div>
+                <div class="hist-title">Week ${r.week} · ${r.dayTitle}</div>
+                <div class="hist-date">${new Date(r.at).toLocaleString()}</div>
+              </div>
+              <div class="hist-data">
+                <div>${fmt.dist(r.dist)}</div>
+                <div>${fmt.dur(r.totalSec)}</div>
+              </div>
+            </div>
+            <div class="hist-tags">
+              <span class="tag">${fmt.pace(r.pace)}</span>
+              <span class="tag">${fmt.speed(r.speed)}</span>
+              <span class="tag">${r.splits.length} splits</span>
+            </div>
+          </div>`).join('')
+          : `<div class="empty-state">Complete a workout to see your history here.</div>`}
+        ${ST.history.length ? `<button id="btn-clear" style="margin-top:8px;width:100%;height:40px;border-radius:999px;background:rgba(255,255,255,0.04);border:1px solid var(--line);font-size:12px;font-weight:700;color:var(--text-3);cursor:pointer">Clear history</button>` : ''}
+      </div>
+    `}
+  </div>
+</div>
   `;
 
   bindEvents();
+  if(!_initDone){ _initDone=true; }
+
+  // Update map iframe src only if needed
+  if(ST.autoCenter && latest && embedUrl) {
+    const iframe=document.getElementById('map-iframe');
+    if(iframe && iframe.src!==embedUrl) iframe.src=embedUrl;
+  }
 }
 
-function init() {
-  loadState();
-  resetWorkoutState();
-  render();
+/* ─── BIND ───────────────────────────────────────────────────────── */
+function bindEvents() {
+  const $=id=>document.getElementById(id);
+  const btnStart=$('btn-start'), btnPause=$('btn-pause'), btnStop=$('btn-stop');
+  const btnSound=$('btn-sound'), btnPlan=$('btn-plan');
+  const sheet=$('plan-sheet'), handle=$('sheet-handle'), scrim=$('sheet-scrim');
+  const track=$('panels-track');
+  const btnClear=$('btn-clear');
+
+  if(btnStart) btnStart.onclick=e=>{ ripple(btnStart,e); start(); };
+  if(btnPause) btnPause.onclick=e=>{ ripple(btnPause,e); pause(); };
+  if(btnStop)  btnStop.onclick=e=>{ ripple(btnStop,e);  stop(); };
+  if(btnSound) btnSound.onclick=toggleSound;
+  if(btnPlan)  btnPlan.onclick=()=>{ ST.sheetOpen=!ST.sheetOpen; render(); };
+  if(btnClear) btnClear.onclick=clearHistory;
+
+  // Sheet tabs
+  document.querySelectorAll('[data-sheet-tab]').forEach(b=>{
+    b.onclick=()=>{ ST.sheetTab=b.dataset.sheetTab; render(); };
+  });
+
+  // Week toggles
+  document.querySelectorAll('[data-toggle-week]').forEach(b=>{
+    b.onclick=()=>{
+      const w=Number(b.dataset.toggleWeek);
+      ST.expandedWeek=ST.expandedWeek===w?-1:w;
+      render();
+    };
+  });
+
+  // Day select
+  document.querySelectorAll('[data-sel-w]').forEach(b=>{
+    b.onclick=()=>{ selectWorkout(Number(b.dataset.selW),Number(b.dataset.selD)); };
+  });
+
+  // Dot clicks
+  document.querySelectorAll('.panel-dot').forEach((d,i)=>{
+    d.onclick=()=>{ ST.panel=i; if(track) track.style.transform=`translateX(${-i*100}%)`; updateDots(); };
+  });
+
+  // Sheet scrim
+  if(scrim) scrim.onclick=()=>{ ST.sheetOpen=false; render(); };
+
+  // Sheet open/close from plan button in re-render
+  if(sheet) {
+    sheet.classList.toggle('open',ST.sheetOpen);
+    if(scrim) scrim.classList.toggle('visible',ST.sheetOpen);
+  }
+
+  // Init swipe (fresh each render since track is re-created)
+  if(track) initSwipe(track);
+
+  // Init sheet drag
+  if(sheet && handle) initSheet(sheet, handle);
 }
 
-init();
+/* ─── BOOT ───────────────────────────────────────────────────────── */
+runTests();
+load();
+resetTimer();
+render();
