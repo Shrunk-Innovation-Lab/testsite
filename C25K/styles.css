@@ -381,3 +381,51 @@ body.s-walk .seg-pip { animation: pip-walk 1.3s ease-in-out infinite; }
 .lp-ring svg { width: 44px; height: 44px; transform: rotate(-90deg); }
 .lp-track { fill: none; stroke: rgba(255,255,255,.15); stroke-width: 3; }
 .lp-arc   { fill: none; stroke: #fff; stroke-width: 3; stroke-linecap: round; }
+
+/* ── SWIPE TO DELETE ─────────────────────────────────────────────── */
+.hist-item {
+  position: relative; overflow: hidden;
+  border-radius: 12px; margin-bottom: 6px;
+}
+.hist-delete-bg {
+  position: absolute; inset: 0; right: 0;
+  background: #c0392b;
+  display: flex; align-items: center; justify-content: flex-end;
+  padding-right: 22px;
+  border-radius: 12px;
+  cursor: pointer;
+}
+.hist-delete-bg span {
+  font-family: var(--font-m); font-size: 11px; font-weight: 700;
+  letter-spacing: .08em; text-transform: uppercase; color: #fff;
+}
+.hist-item .hist-row {
+  position: relative; z-index: 1;
+  transform: translateX(0);
+  transition: transform 0.25s ease;
+  border-radius: 12px;
+  margin-bottom: 0;
+}
+.hist-confirm {
+  position: relative; z-index: 2;
+  background: rgba(192,57,43,0.15);
+  border: 1px solid rgba(192,57,43,0.4);
+  border-radius: 0 0 12px 12px;
+  padding: 10px 14px;
+  display: flex; align-items: center; gap: 10px;
+  font-family: var(--font-m); font-size: 10px; color: var(--text-2);
+}
+.hist-confirm.hidden { display: none; }
+.hc-yes {
+  margin-left: auto;
+  background: #c0392b; color: #fff;
+  border: none; border-radius: 999px;
+  padding: 5px 14px; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: var(--font-m);
+}
+.hc-no {
+  background: var(--panel-2); color: var(--text-2);
+  border: 1px solid var(--line); border-radius: 999px;
+  padding: 5px 12px; font-size: 11px; font-weight: 700;
+  cursor: pointer; font-family: var(--font-m);
+}
