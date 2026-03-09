@@ -362,14 +362,7 @@ body {
   100% { opacity: 1; }
 }
 
-/* Tick pulse for active timer */
-body.timer-active .big-time {
-  animation: tickPulse 1s ease-in-out infinite;
-}
-@keyframes tickPulse {
-  0%, 100% { opacity: 1; }
-  50%      { opacity: 0.88; }
-}
+
 
 /* ─── SESSION META ──────────────────────────────────────────────────────── */
 .session-meta {
