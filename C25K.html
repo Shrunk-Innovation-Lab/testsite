@@ -1,0 +1,1117 @@
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Progress } from "@/components/ui/progress";
+import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
+import {
+  ChevronDown,
+  ChevronUp,
+  ExternalLink,
+  Footprints,
+  Gauge,
+  History,
+  MapPin,
+  Pause,
+  Play,
+  RotateCcw,
+  Route,
+  Split,
+  Volume2,
+} from "lucide-react";
+import { motion } from "framer-motion";
+
+const STORAGE_KEYS = {
+  completed: "c25k-completed-v1",
+  soundEnabled: "c25k-sound-enabled-v1",
+  history: "c25k-history-v1",
+  selectedWorkout: "c25k-selected-workout-v1",
+};
+
+const PROGRAM = [
+  {
+    week: 1,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 1, walk: 1.5, repeat: 8 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 1, walk: 1.5, repeat: 8 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 1, walk: 1.5, repeat: 8 }] },
+    ],
+  },
+  {
+    week: 2,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 2, repeat: 6 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 2, repeat: 6 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 2, repeat: 6 }] },
+    ],
+  },
+  {
+    week: 3,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 1.5, repeat: 2 }, { run: 3, walk: 3, repeat: 2 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 1.5, walk: 1.5, repeat: 2 }, { run: 3, walk: 3, repeat: 2 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 2, walk: 2, repeat: 2 }, { run: 4, walk: 3, repeat: 2 }] },
+    ],
+  },
+  {
+    week: 4,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 3, walk: 1.5, repeat: 2 }, { run: 5, walk: 2.5, repeat: 2 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 3, walk: 1.5, repeat: 2 }, { run: 5, walk: 2.5, repeat: 2 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 4, walk: 2, repeat: 2 }, { run: 5, walk: 2, repeat: 2 }] },
+    ],
+  },
+  {
+    week: 5,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 5, walk: 3, repeat: 2 }, { run: 5, walk: 0, repeat: 1 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 8, walk: 5, repeat: 1 }, { run: 8, walk: 0, repeat: 1 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 20, walk: 0, repeat: 1 }] },
+    ],
+  },
+  {
+    week: 6,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 5, walk: 3, repeat: 1 }, { run: 8, walk: 3, repeat: 1 }, { run: 5, walk: 0, repeat: 1 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 10, walk: 3, repeat: 1 }, { run: 10, walk: 0, repeat: 1 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 22, walk: 0, repeat: 1 }] },
+    ],
+  },
+  {
+    week: 7,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 25, walk: 0, repeat: 1 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 25, walk: 0, repeat: 1 }] },
+      { title: "Day 3", warmup: 5, cooldown: 5, intervals: [{ run: 28, walk: 0, repeat: 1 }] },
+    ],
+  },
+  {
+    week: 8,
+    days: [
+      { title: "Day 1", warmup: 5, cooldown: 5, intervals: [{ run: 30, walk: 0, repeat: 1 }] },
+      { title: "Day 2", warmup: 5, cooldown: 5, intervals: [{ run: 30, walk: 0, repeat: 1 }] },
+      { title: "5K Day", warmup: 5, cooldown: 5, intervals: [{ run: 35, walk: 0, repeat: 1 }] },
+    ],
+  },
+];
+
+export function formatTime(seconds) {
+  const safe = Math.max(0, Math.floor(seconds || 0));
+  const mins = Math.floor(safe / 60);
+  const secs = safe % 60;
+  return `${mins}:${String(secs).padStart(2, "0")}`;
+}
+
+export function formatDurationLong(seconds) {
+  const safe = Math.max(0, Math.floor(seconds || 0));
+  const mins = Math.floor(safe / 60);
+  const secs = safe % 60;
+  return `${mins}m ${String(secs).padStart(2, "0")}s`;
+}
+
+export function getDayKey(weekIndex, dayIndex) {
+  return `w${weekIndex + 1}-d${dayIndex + 1}`;
+}
+
+export function haversineDistance(a, b) {
+  const R = 6371000;
+  const dLat = ((b.lat - a.lat) * Math.PI) / 180;
+  const dLon = ((b.lng - a.lng) * Math.PI) / 180;
+  const lat1 = (a.lat * Math.PI) / 180;
+  const lat2 = (b.lat * Math.PI) / 180;
+  const x =
+    Math.sin(dLat / 2) ** 2 +
+    Math.sin(dLon / 2) ** 2 * Math.cos(lat1) * Math.cos(lat2);
+  return 2 * R * Math.atan2(Math.sqrt(x), Math.sqrt(1 - x));
+}
+
+export function smoothRoutePoints(points) {
+  if (points.length <= 2) return points;
+
+  return points.map((point, index) => {
+    if (index === 0 || index === points.length - 1) return point;
+    const prev = points[index - 1];
+    const next = points[index + 1];
+    return {
+      ...point,
+      lat: (prev.lat + point.lat + next.lat) / 3,
+      lng: (prev.lng + point.lng + next.lng) / 3,
+    };
+  });
+}
+
+export function buildSegments(day) {
+  const segments = [{ label: "Warm up walk", type: "walk", seconds: Math.round(day.warmup * 60) }];
+  day.intervals.forEach((block) => {
+    for (let i = 0; i < block.repeat; i += 1) {
+      if (block.run) segments.push({ label: `Run ${block.run} min`, type: "run", seconds: Math.round(block.run * 60) });
+      if (block.walk) segments.push({ label: `Walk ${block.walk} min`, type: "walk", seconds: Math.round(block.walk * 60) });
+    }
+  });
+  segments.push({ label: "Cool down walk", type: "walk", seconds: Math.round(day.cooldown * 60) });
+  return segments;
+}
+
+export function totalMinutes(day) {
+  const base = day.warmup + day.cooldown;
+  const intervals = day.intervals.reduce((sum, item) => sum + (item.run + item.walk) * item.repeat, 0);
+  return base + intervals;
+}
+
+export function formatDistance(meters) {
+  if (!meters || meters < 1) return "0 m";
+  if (meters < 1000) return `${Math.round(meters)} m`;
+  return `${(meters / 1000).toFixed(2)} km`;
+}
+
+export function formatPace(secondsPerKm) {
+  if (!Number.isFinite(secondsPerKm) || secondsPerKm <= 0) return "--:-- /km";
+  const mins = Math.floor(secondsPerKm / 60);
+  const secs = Math.round(secondsPerKm % 60);
+  if (secs === 60) return `${mins + 1}:00 /km`;
+  return `${mins}:${String(secs).padStart(2, "0")} /km`;
+}
+
+export function formatSpeed(metersPerSecond) {
+  if (!Number.isFinite(metersPerSecond) || metersPerSecond <= 0) return "0.0 km/h";
+  return `${(metersPerSecond * 3.6).toFixed(1)} km/h`;
+}
+
+export function buildMiniMapPoints(points, width = 320, height = 180, padding = 16) {
+  if (!points.length) return "";
+  if (points.length === 1) return `${width / 2},${height / 2}`;
+
+  const lats = points.map((p) => p.lat);
+  const lngs = points.map((p) => p.lng);
+  const minLat = Math.min(...lats);
+  const maxLat = Math.max(...lats);
+  const minLng = Math.min(...lngs);
+  const maxLng = Math.max(...lngs);
+  const latRange = Math.max(maxLat - minLat, 0.00001);
+  const lngRange = Math.max(maxLng - minLng, 0.00001);
+
+  return points
+    .map((p) => {
+      const x = padding + ((p.lng - minLng) / lngRange) * (width - padding * 2);
+      const y = height - padding - ((p.lat - minLat) / latRange) * (height - padding * 2);
+      return `${x},${y}`;
+    })
+    .join(" ");
+}
+
+export function createEmptySplits(segments) {
+  return segments.map((segment, index) => ({
+    index,
+    label: segment.label,
+    type: segment.type,
+    plannedSeconds: segment.seconds,
+    actualSeconds: 0,
+    distance: 0,
+  }));
+}
+
+export function getGoogleMapsEmbedUrl(point) {
+  if (!point) return "";
+  return `https://www.google.com/maps?q=${point.lat},${point.lng}&z=16&output=embed`;
+}
+
+export function getGoogleMapsExternalUrl(point) {
+  if (!point) return "";
+  return `https://www.google.com/maps/search/?api=1&query=${point.lat},${point.lng}`;
+}
+
+export function buildWorkoutRecord({ selectedWeek, day, elapsedSeconds, distance, avgPace, avgSpeed, routePoints, splits }) {
+  return {
+    id: `${Date.now()}-${Math.random().toString(36).slice(2, 8)}`,
+    completedAt: new Date().toISOString(),
+    week: selectedWeek + 1,
+    dayTitle: day.title,
+    totalSeconds: elapsedSeconds,
+    distance,
+    averagePace: avgPace,
+    averageSpeed: avgSpeed,
+    routePoints,
+    splits,
+  };
+}
+
+export function createBeepScheduler(playTone) {
+  return {
+    startCountdown(value) {
+      if (value <= 0) playTone(1320, 0.22, "triangle", 0.06);
+      else playTone(value <= 3 ? 1046 : 880, value <= 3 ? 0.18 : 0.12, "sine", 0.05);
+    },
+    finalCountdown(value) {
+      playTone(value <= 3 ? 1046 : 880, value <= 3 ? 0.18 : 0.12, "sine", 0.05);
+    },
+    intervalChange(type) {
+      if (type === "run") {
+        playTone(880, 0.12, "triangle", 0.05);
+        if (typeof window !== "undefined") window.setTimeout(() => playTone(1174, 0.16, "triangle", 0.05), 120);
+      } else {
+        playTone(659, 0.12, "triangle", 0.05);
+        if (typeof window !== "undefined") window.setTimeout(() => playTone(523, 0.16, "triangle", 0.05), 120);
+      }
+    },
+    finish() {
+      playTone(784, 0.14, "triangle", 0.05);
+      if (typeof window !== "undefined") {
+        window.setTimeout(() => playTone(988, 0.18, "triangle", 0.05), 160);
+        window.setTimeout(() => playTone(1318, 0.24, "triangle", 0.05), 340);
+      }
+    },
+  };
+}
+
+export function __test__helpers() {
+  const d = haversineDistance({ lat: 0, lng: 0 }, { lat: 0, lng: 0.001 });
+  if (d <= 0) throw new Error("distance calc broken");
+  if (formatDistance(1200) !== "1.20 km") throw new Error("distance formatting failed");
+  if (formatPace(360) !== "6:00 /km") throw new Error("pace formatting failed");
+  if (formatSpeed(2.7777777778) !== "10.0 km/h") throw new Error("speed formatting failed");
+  if (formatTime(75) !== "1:15") throw new Error("formatTime failed");
+  if (formatDurationLong(75) !== "1m 15s") throw new Error("formatDurationLong failed");
+  if (getDayKey(0, 0) !== "w1-d1") throw new Error("getDayKey failed");
+
+  const smoothed = smoothRoutePoints([
+    { lat: 1, lng: 1 },
+    { lat: 2, lng: 2 },
+    { lat: 3, lng: 3 },
+  ]);
+  if (smoothed[1].lat !== 2 || smoothed[1].lng !== 2) throw new Error("route smoothing failed");
+
+  const path = buildMiniMapPoints([
+    { lat: -37.81, lng: 144.96 },
+    { lat: -37.82, lng: 144.97 },
+  ]);
+  if (!path.includes(",")) throw new Error("mini map points failed");
+
+  const splits = createEmptySplits([{ label: "Run 1 min", type: "run", seconds: 60 }]);
+  if (splits.length !== 1 || splits[0].distance !== 0) throw new Error("split creation failed");
+
+  const calls = [];
+  const scheduler = createBeepScheduler((freq) => calls.push(freq));
+  scheduler.startCountdown(3);
+  scheduler.finalCountdown(10);
+  if (calls.length !== 2) throw new Error("audio scheduler failed");
+
+  if (!getGoogleMapsEmbedUrl({ lat: -37.81, lng: 144.96 }).includes("output=embed")) {
+    throw new Error("google maps embed url failed");
+  }
+  if (!getGoogleMapsExternalUrl({ lat: -37.81, lng: 144.96 }).includes("query=")) {
+    throw new Error("google maps external url failed");
+  }
+
+  const record = buildWorkoutRecord({
+    selectedWeek: 0,
+    day: { title: "Day 1" },
+    elapsedSeconds: 600,
+    distance: 1200,
+    avgPace: 500,
+    avgSpeed: 2.4,
+    routePoints: [],
+    splits: [],
+  });
+  if (record.week !== 1 || record.dayTitle !== "Day 1") throw new Error("workout record failed");
+
+  const weekOneSegments = buildSegments(PROGRAM[0].days[0]);
+  if (weekOneSegments.length !== 18) throw new Error("buildSegments failed");
+
+  return true;
+}
+
+export default function CouchTo5KApp() {
+  const [selectedWeek, setSelectedWeek] = useState(0);
+  const [selectedDay, setSelectedDay] = useState(0);
+  const [timerActive, setTimerActive] = useState(false);
+  const [started, setStarted] = useState(false);
+  const [segmentIndex, setSegmentIndex] = useState(0);
+  const [timeLeft, setTimeLeft] = useState(0);
+  const [distance, setDistance] = useState(0);
+  const [routePoints, setRoutePoints] = useState([]);
+  const [gpsError, setGpsError] = useState("");
+  const [completed, setCompleted] = useState({});
+  const [splits, setSplits] = useState([]);
+  const [startCountdown, setStartCountdown] = useState(null);
+  const [soundEnabled, setSoundEnabled] = useState(true);
+  const [planExpandedWeek, setPlanExpandedWeek] = useState(0);
+  const [workoutHistory, setWorkoutHistory] = useState([]);
+  const [autoCenter, setAutoCenter] = useState(true);
+
+  const watchRef = useRef(null);
+  const lastPosRef = useRef(null);
+  const segmentIndexRef = useRef(0);
+  const currentSegmentDistanceRef = useRef(0);
+  const segmentStartedAtRef = useRef(Date.now());
+  const audioContextRef = useRef(null);
+  const startCountdownIntervalRef = useRef(null);
+  const lastTenSecondBeepRef = useRef(null);
+  const lastSegmentBeepRef = useRef(0);
+  const savedResultRef = useRef(false);
+  const iframeRef = useRef(null);
+
+  const day = PROGRAM[selectedWeek].days[selectedDay];
+  const segments = useMemo(() => buildSegments(day), [day]);
+  const totalWorkoutSeconds = useMemo(() => segments.reduce((sum, seg) => sum + seg.seconds, 0), [segments]);
+  const elapsedSeconds = useMemo(() => {
+    const finishedSeconds = segments.slice(0, segmentIndex).reduce((sum, seg) => sum + seg.seconds, 0);
+    const currentSegmentSeconds = segments[segmentIndex]?.seconds || 0;
+    return Math.max(0, finishedSeconds + (currentSegmentSeconds - timeLeft));
+  }, [segments, segmentIndex, timeLeft]);
+  const sessionProgress = totalWorkoutSeconds ? Math.round((elapsedSeconds / totalWorkoutSeconds) * 100) : 0;
+  const currentSegment = segments[segmentIndex] || null;
+  const avgPace = distance > 0 ? elapsedSeconds / (distance / 1000) : 0;
+  const avgSpeed = elapsedSeconds > 0 ? distance / elapsedSeconds : 0;
+  const smoothedRoutePoints = useMemo(() => smoothRoutePoints(routePoints), [routePoints]);
+  const miniMapPoints = useMemo(() => buildMiniMapPoints(smoothedRoutePoints), [smoothedRoutePoints]);
+  const currentSplitDistance = currentSegmentDistanceRef.current;
+  const latestPoint = routePoints[routePoints.length - 1] || lastPosRef.current;
+  const firstPoint = routePoints[0] || null;
+  const googleMapsEmbedUrl = getGoogleMapsEmbedUrl(latestPoint);
+  const googleMapsExternalUrl = getGoogleMapsExternalUrl(latestPoint);
+  const totalCompletedWorkouts = Object.values(completed).filter(Boolean).length;
+
+  useEffect(() => {
+    __test__helpers();
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    try {
+      const storedCompleted = window.localStorage.getItem(STORAGE_KEYS.completed);
+      const storedSound = window.localStorage.getItem(STORAGE_KEYS.soundEnabled);
+      const storedHistory = window.localStorage.getItem(STORAGE_KEYS.history);
+      const storedSelected = window.localStorage.getItem(STORAGE_KEYS.selectedWorkout);
+
+      if (storedCompleted) setCompleted(JSON.parse(storedCompleted));
+      if (storedSound !== null) setSoundEnabled(storedSound === "true");
+      if (storedHistory) setWorkoutHistory(JSON.parse(storedHistory));
+      if (storedSelected) {
+        const parsed = JSON.parse(storedSelected);
+        setSelectedWeek(parsed.week ?? 0);
+        setSelectedDay(parsed.day ?? 0);
+        setPlanExpandedWeek(parsed.week ?? 0);
+      }
+    } catch (error) {
+      console.error("Failed to restore saved data", error);
+    }
+  }, []);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(STORAGE_KEYS.completed, JSON.stringify(completed));
+  }, [completed]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(STORAGE_KEYS.soundEnabled, String(soundEnabled));
+  }, [soundEnabled]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(STORAGE_KEYS.history, JSON.stringify(workoutHistory));
+  }, [workoutHistory]);
+
+  useEffect(() => {
+    if (typeof window === "undefined") return;
+    window.localStorage.setItem(
+      STORAGE_KEYS.selectedWorkout,
+      JSON.stringify({ week: selectedWeek, day: selectedDay })
+    );
+  }, [selectedWeek, selectedDay]);
+
+  const playTone = useCallback(
+    (frequency = 880, duration = 0.12, type = "sine", volume = 0.05) => {
+      if (!soundEnabled || typeof window === "undefined") return;
+
+      try {
+        const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+        if (!AudioContextClass) return;
+
+        if (!audioContextRef.current) {
+          audioContextRef.current = new AudioContextClass();
+        }
+
+        const context = audioContextRef.current;
+        const now = context.currentTime;
+        const oscillator = context.createOscillator();
+        const gainNode = context.createGain();
+
+        oscillator.type = type;
+        oscillator.frequency.setValueAtTime(frequency, now);
+        gainNode.gain.cancelScheduledValues(now);
+        gainNode.gain.setValueAtTime(0.0001, now);
+        gainNode.gain.exponentialRampToValueAtTime(Math.max(0.0001, volume), now + 0.01);
+        gainNode.gain.exponentialRampToValueAtTime(0.0001, now + duration);
+
+        oscillator.connect(gainNode);
+        gainNode.connect(context.destination);
+        oscillator.start(now);
+        oscillator.stop(now + duration + 0.03);
+      } catch (error) {
+        console.error("Audio playback failed", error);
+      }
+    },
+    [soundEnabled]
+  );
+
+  const beeps = useMemo(() => createBeepScheduler(playTone), [playTone]);
+
+  const resumeAudio = useCallback(async () => {
+    if (typeof window === "undefined") return;
+    const AudioContextClass = window.AudioContext || window.webkitAudioContext;
+    if (!AudioContextClass) return;
+    if (!audioContextRef.current) audioContextRef.current = new AudioContextClass();
+    if (audioContextRef.current.state === "suspended") await audioContextRef.current.resume();
+  }, []);
+
+  const clearStartCountdown = useCallback(() => {
+    if (typeof window !== "undefined" && startCountdownIntervalRef.current) {
+      window.clearInterval(startCountdownIntervalRef.current);
+      startCountdownIntervalRef.current = null;
+    }
+    setStartCountdown(null);
+  }, []);
+
+  useEffect(() => {
+    setTimeLeft(segments[0]?.seconds || 0);
+    setSplits(createEmptySplits(segments));
+    setSegmentIndex(0);
+    segmentIndexRef.current = 0;
+    currentSegmentDistanceRef.current = 0;
+    segmentStartedAtRef.current = Date.now();
+    lastTenSecondBeepRef.current = null;
+    lastSegmentBeepRef.current = 0;
+    savedResultRef.current = false;
+    clearStartCountdown();
+  }, [segments, clearStartCountdown]);
+
+  useEffect(() => {
+    segmentIndexRef.current = segmentIndex;
+  }, [segmentIndex]);
+
+  useEffect(() => {
+    return () => {
+      clearStartCountdown();
+    };
+  }, [clearStartCountdown]);
+
+  useEffect(() => {
+    if (!started || !timerActive) {
+      lastTenSecondBeepRef.current = null;
+      return;
+    }
+
+    if (timeLeft <= 10 && timeLeft > 0 && lastTenSecondBeepRef.current !== timeLeft) {
+      beeps.finalCountdown(timeLeft);
+      lastTenSecondBeepRef.current = timeLeft;
+    }
+
+    if (timeLeft > 10) lastTenSecondBeepRef.current = null;
+  }, [timeLeft, timerActive, started, beeps]);
+
+  useEffect(() => {
+    if (!started || !timerActive) return;
+    if (segmentIndex !== lastSegmentBeepRef.current) {
+      if (segmentIndex > 0) beeps.intervalChange(segments[segmentIndex]?.type || "walk");
+      lastSegmentBeepRef.current = segmentIndex;
+    }
+  }, [segmentIndex, timerActive, started, segments, beeps]);
+
+  const finalizeSplit = useCallback((index, actualSecondsOverride = null) => {
+    setSplits((prev) =>
+      prev.map((split, i) => {
+        if (i !== index) return split;
+        return {
+          ...split,
+          distance: currentSegmentDistanceRef.current,
+          actualSeconds:
+            actualSecondsOverride ?? Math.max(0, Math.round((Date.now() - segmentStartedAtRef.current) / 1000)),
+        };
+      })
+    );
+    currentSegmentDistanceRef.current = 0;
+    segmentStartedAtRef.current = Date.now();
+  }, []);
+
+  useEffect(() => {
+    if (!started) {
+      if (watchRef.current && typeof navigator !== "undefined" && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchRef.current);
+        watchRef.current = null;
+      }
+      return;
+    }
+
+    if (typeof navigator === "undefined" || !navigator.geolocation) {
+      setGpsError("Geolocation is not available on this device/browser.");
+      return;
+    }
+
+    watchRef.current = navigator.geolocation.watchPosition(
+      (pos) => {
+        setGpsError("");
+
+        const accuracy = pos.coords.accuracy ?? 0;
+        const point = {
+          lat: pos.coords.latitude,
+          lng: pos.coords.longitude,
+          timestamp: pos.timestamp,
+          accuracy,
+        };
+
+        if (accuracy > 35) return;
+
+        setRoutePoints((prev) => [...prev, point]);
+        if (lastPosRef.current) {
+          const delta = haversineDistance(lastPosRef.current, point);
+          if (delta >= 0.8 && delta <= 80) {
+            setDistance((prev) => prev + delta);
+            currentSegmentDistanceRef.current += delta;
+          }
+        }
+
+        lastPosRef.current = point;
+      },
+      (error) => {
+        if (error.code === 1) setGpsError("Location permission was denied.");
+        else if (error.code === 2) setGpsError("Position unavailable. Move to a clearer outdoor area.");
+        else if (error.code === 3) setGpsError("Location request timed out.");
+        else setGpsError("Unable to track GPS location.");
+      },
+      { enableHighAccuracy: true, timeout: 10000, maximumAge: 1500 }
+    );
+
+    return () => {
+      if (watchRef.current && navigator.geolocation) {
+        navigator.geolocation.clearWatch(watchRef.current);
+        watchRef.current = null;
+      }
+    };
+  }, [started]);
+
+  useEffect(() => {
+    if (!timerActive || !started || typeof window === "undefined") return undefined;
+
+    const id = window.setInterval(() => {
+      setTimeLeft((currentTimeLeft) => {
+        if (currentTimeLeft > 1) return currentTimeLeft - 1;
+
+        const currentIndex = segmentIndexRef.current;
+        const nextIndex = currentIndex + 1;
+        finalizeSplit(currentIndex, segments[currentIndex]?.seconds || 0);
+
+        if (nextIndex >= segments.length) {
+          setTimerActive(false);
+          setStarted(false);
+          beeps.finish();
+          setCompleted((prev) => ({ ...prev, [getDayKey(selectedWeek, selectedDay)]: true }));
+          return 0;
+        }
+
+        setSegmentIndex(nextIndex);
+        return segments[nextIndex].seconds;
+      });
+    }, 1000);
+
+    return () => window.clearInterval(id);
+  }, [timerActive, started, segments, selectedWeek, selectedDay, finalizeSplit, beeps]);
+
+  useEffect(() => {
+    if (started || timerActive || timeLeft !== 0 || savedResultRef.current) return;
+    if (!segments.length || elapsedSeconds <= 0) return;
+
+    savedResultRef.current = true;
+    const record = buildWorkoutRecord({
+      selectedWeek,
+      day,
+      elapsedSeconds,
+      distance,
+      avgPace,
+      avgSpeed,
+      routePoints,
+      splits,
+    });
+    setWorkoutHistory((prev) => [record, ...prev].slice(0, 30));
+  }, [started, timerActive, timeLeft, segments.length, elapsedSeconds, selectedWeek, day, distance, avgPace, avgSpeed, routePoints, splits]);
+
+  const start = async () => {
+    await resumeAudio();
+
+    if (started) {
+      setTimerActive(true);
+      return;
+    }
+
+    clearStartCountdown();
+    setTimerActive(false);
+    setStarted(false);
+    setSegmentIndex(0);
+    segmentIndexRef.current = 0;
+    setTimeLeft(segments[0]?.seconds || 0);
+    savedResultRef.current = false;
+    setDistance(0);
+    setRoutePoints([]);
+    setGpsError("");
+    setSplits(createEmptySplits(segments));
+    lastPosRef.current = null;
+    currentSegmentDistanceRef.current = 0;
+    segmentStartedAtRef.current = Date.now();
+    lastTenSecondBeepRef.current = null;
+    lastSegmentBeepRef.current = 0;
+
+    let count = 3;
+    setStartCountdown(count);
+    beeps.startCountdown(count);
+
+    if (typeof window === "undefined") return;
+    startCountdownIntervalRef.current = window.setInterval(() => {
+      count -= 1;
+
+      if (count > 0) {
+        setStartCountdown(count);
+        beeps.startCountdown(count);
+        return;
+      }
+
+      setStartCountdown(0);
+      beeps.startCountdown(0);
+      window.clearInterval(startCountdownIntervalRef.current);
+      startCountdownIntervalRef.current = null;
+      window.setTimeout(() => {
+        clearStartCountdown();
+        setStarted(true);
+        setTimerActive(true);
+        setSegmentIndex(0);
+        segmentIndexRef.current = 0;
+        setTimeLeft(segments[0]?.seconds || 0);
+        segmentStartedAtRef.current = Date.now();
+        lastSegmentBeepRef.current = 0;
+      }, 250);
+    }, 1000);
+  };
+
+  const pause = () => {
+    clearStartCountdown();
+    setTimerActive(false);
+  };
+
+  const reset = () => {
+    clearStartCountdown();
+    setTimerActive(false);
+    setStarted(false);
+    setSegmentIndex(0);
+    segmentIndexRef.current = 0;
+    setTimeLeft(segments[0]?.seconds || 0);
+    savedResultRef.current = false;
+    setDistance(0);
+    setRoutePoints([]);
+    setGpsError("");
+    setSplits(createEmptySplits(segments));
+    lastPosRef.current = null;
+    currentSegmentDistanceRef.current = 0;
+    segmentStartedAtRef.current = Date.now();
+    lastTenSecondBeepRef.current = null;
+    lastSegmentBeepRef.current = 0;
+  };
+
+  const selectWorkout = (weekIndex, dayIndex) => {
+    clearStartCountdown();
+    savedResultRef.current = false;
+    setSelectedWeek(weekIndex);
+    setSelectedDay(dayIndex);
+    setTimerActive(false);
+    setStarted(false);
+    setDistance(0);
+    setRoutePoints([]);
+    setGpsError("");
+    lastPosRef.current = null;
+    currentSegmentDistanceRef.current = 0;
+    segmentStartedAtRef.current = Date.now();
+  };
+
+  useEffect(() => {
+    if (!autoCenter || !latestPoint || !googleMapsEmbedUrl) return;
+    if (iframeRef.current) {
+      iframeRef.current.src = googleMapsEmbedUrl;
+    }
+  }, [autoCenter, latestPoint, googleMapsEmbedUrl]);
+
+  return (
+    <div className="min-h-screen bg-gradient-to-b from-slate-50 via-white to-emerald-50 text-slate-900">
+      <div className="mx-auto max-w-md px-4 pb-20 pt-6">
+        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }}>
+          <div className="mb-4 flex items-center justify-between">
+            <div>
+              <p className="text-xs uppercase tracking-widest text-slate-500">Couch to 5K</p>
+              <h1 className="text-3xl font-bold">Run your first 5K</h1>
+              <p className="mt-1 text-sm text-slate-500">Week {selectedWeek + 1} • {day.title}</p>
+            </div>
+            <div className="rounded-xl bg-emerald-100 p-3">
+              <Footprints className="text-emerald-700" />
+            </div>
+          </div>
+        </motion.div>
+
+        <Card className="mb-4 border-slate-200 bg-white shadow-sm">
+          <CardContent className="p-5 text-center">
+            <p className="text-sm text-slate-500">Current interval</p>
+            <p className="mt-1 text-2xl font-semibold">{currentSegment?.label || "Ready"}</p>
+            <p className="mt-3 text-6xl font-bold">{formatTime(timeLeft)}</p>
+            <div className="mt-4 min-h-6 text-sm text-slate-500">
+              {startCountdown !== null ? (
+                <span className="font-semibold text-emerald-700">
+                  {startCountdown > 0 ? `Starting in ${startCountdown}` : "Go"}
+                </span>
+              ) : (
+                <span>Session progress {sessionProgress}%</span>
+              )}
+            </div>
+            <Progress value={sessionProgress} className="mt-2" />
+
+            <div className="mt-3 flex items-center justify-center gap-2 text-xs text-slate-500">
+              <Volume2 className="h-4 w-4" />
+              <button
+                type="button"
+                onClick={() => setSoundEnabled((value) => !value)}
+                className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 font-medium text-slate-700"
+              >
+                {soundEnabled ? "Sound on" : "Sound off"}
+              </button>
+            </div>
+
+            <div className="mt-5 grid grid-cols-3 gap-2">
+              <Button onClick={start} className="h-12 rounded-xl">
+                <Play className="mr-2 h-4 w-4" />Start
+              </Button>
+              <Button onClick={pause} variant="secondary" className="h-12 rounded-xl">
+                <Pause className="mr-2 h-4 w-4" />Pause
+              </Button>
+              <Button onClick={reset} variant="secondary" className="h-12 rounded-xl">
+                <RotateCcw className="mr-2 h-4 w-4" />Stop
+              </Button>
+            </div>
+          </CardContent>
+        </Card>
+
+        <Tabs defaultValue="stats" className="mb-4">
+          <TabsList className="grid w-full grid-cols-4 rounded-2xl border border-slate-200 bg-white p-1 shadow-sm">
+            <TabsTrigger value="stats" className="rounded-xl">Stats</TabsTrigger>
+            <TabsTrigger value="route" className="rounded-xl">Route</TabsTrigger>
+            <TabsTrigger value="splits" className="rounded-xl">Splits</TabsTrigger>
+            <TabsTrigger value="history" className="rounded-xl">History</TabsTrigger>
+          </TabsList>
+
+          <TabsContent value="stats" className="mt-4">
+            <div className="grid grid-cols-2 gap-3">
+              <Card className="border-slate-200 bg-white shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <MapPin className="h-4 w-4" /> Distance
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{formatDistance(distance)}</p>
+                  <p className="mt-1 text-xs text-slate-500">Live GPS tracked distance</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 bg-white shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Gauge className="h-4 w-4" /> Pace
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{formatPace(avgPace)}</p>
+                  <p className="mt-1 text-xs text-slate-500">Average pace</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 bg-white shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Route className="h-4 w-4" /> Speed
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{formatSpeed(avgSpeed)}</p>
+                  <p className="mt-1 text-xs text-slate-500">Average speed</p>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 bg-white shadow-sm">
+                <CardHeader className="pb-2">
+                  <CardTitle className="flex items-center gap-2 text-base">
+                    <Split className="h-4 w-4" /> Current split
+                  </CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <p className="text-2xl font-bold">{formatDistance(currentSplitDistance)}</p>
+                  <p className="mt-1 text-xs text-slate-500">Distance in this interval</p>
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="route" className="mt-4">
+            <div className="space-y-4">
+              <Card className="border-slate-200 bg-white shadow-sm">
+                <CardHeader>
+                  <div className="flex items-start justify-between gap-3">
+                    <div>
+                      <CardTitle className="flex items-center gap-2">
+                        <MapPin className="h-5 w-5" /> Google Maps
+                      </CardTitle>
+                      <CardDescription>
+                        {latestPoint ? "Centered on your latest tracked location" : "Start a workout and allow location access to open the map"}
+                      </CardDescription>
+                    </div>
+                    <div className="flex flex-col items-end gap-2">
+                      {googleMapsExternalUrl ? (
+                        <a
+                          href={googleMapsExternalUrl}
+                          target="_blank"
+                          rel="noreferrer"
+                          className="inline-flex items-center gap-1 rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700"
+                        >
+                          Open
+                          <ExternalLink className="h-3 w-3" />
+                        </a>
+                      ) : null}
+                      <button
+                        type="button"
+                        onClick={() => setAutoCenter((value) => !value)}
+                        className="rounded-full border border-slate-200 bg-slate-50 px-3 py-1 text-xs font-medium text-slate-700"
+                      >
+                        {autoCenter ? "Auto-center on" : "Auto-center off"}
+                      </button>
+                    </div>
+                  </div>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                    {googleMapsEmbedUrl ? (
+                      <iframe
+                        ref={iframeRef}
+                        title="Google Maps route"
+                        src={googleMapsEmbedUrl}
+                        className="h-56 w-full border-0"
+                        loading="lazy"
+                        referrerPolicy="no-referrer-when-downgrade"
+                      />
+                    ) : (
+                      <div className="flex h-56 items-center justify-center text-sm text-slate-400">No map yet</div>
+                    )}
+                  </div>
+                </CardContent>
+              </Card>
+
+              <Card className="border-slate-200 bg-white shadow-sm">
+                <CardHeader>
+                  <CardTitle className="flex items-center gap-2">
+                    <Route className="h-5 w-5" /> Route sketch
+                  </CardTitle>
+                  <CardDescription>
+                    {routePoints.length > 1 ? "Smoothed route with start, end, and distance overlay" : "Start a workout and allow location access to draw your route"}
+                  </CardDescription>
+                </CardHeader>
+                <CardContent>
+                  <div className="overflow-hidden rounded-2xl border border-slate-200 bg-slate-50">
+                    <svg viewBox="0 0 320 180" className="h-48 w-full">
+                      <rect x="0" y="0" width="320" height="180" fill="currentColor" className="text-slate-50" />
+                      {miniMapPoints ? (
+                        <>
+                          <polyline
+                            fill="none"
+                            stroke="currentColor"
+                            className="text-emerald-500"
+                            strokeWidth="4"
+                            strokeLinecap="round"
+                            strokeLinejoin="round"
+                            points={miniMapPoints}
+                          />
+                          {(() => {
+                            const coords = miniMapPoints.split(" ");
+                            const [startX, startY] = (coords[0] || "160,90").split(",");
+                            const [endX, endY] = (coords[coords.length - 1] || "160,90").split(",");
+                            return (
+                              <>
+                                <circle cx={startX} cy={startY} r="6" fill="currentColor" className="text-sky-500" />
+                                <circle cx={endX} cy={endY} r="6" fill="currentColor" className="text-emerald-700" />
+                                <rect x="12" y="12" width="100" height="34" rx="10" fill="currentColor" className="text-white" />
+                                <text x="24" y="26" className="fill-slate-500 text-[10px]">Distance</text>
+                                <text x="24" y="40" className="fill-slate-900 text-xs font-semibold">{formatDistance(distance)}</text>
+                              </>
+                            );
+                          })()}
+                        </>
+                      ) : (
+                        <text x="160" y="90" textAnchor="middle" className="fill-slate-400 text-sm">No route yet</text>
+                      )}
+                    </svg>
+                  </div>
+                  {firstPoint || latestPoint ? (
+                    <div className="mt-3 grid grid-cols-2 gap-2 text-xs text-slate-500">
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-2">
+                        <span className="font-medium text-slate-700">Start</span>
+                        <div>{firstPoint ? `${firstPoint.lat.toFixed(5)}, ${firstPoint.lng.toFixed(5)}` : "—"}</div>
+                      </div>
+                      <div className="rounded-xl border border-slate-200 bg-slate-50 p-2">
+                        <span className="font-medium text-slate-700">End</span>
+                        <div>{latestPoint ? `${latestPoint.lat.toFixed(5)}, ${latestPoint.lng.toFixed(5)}` : "—"}</div>
+                      </div>
+                    </div>
+                  ) : null}
+                  {gpsError ? <p className="mt-3 text-sm text-amber-600">{gpsError}</p> : null}
+                </CardContent>
+              </Card>
+            </div>
+          </TabsContent>
+
+          <TabsContent value="splits" className="mt-4">
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle>Split distance per interval</CardTitle>
+                <CardDescription>Each interval records its own distance and elapsed time.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {splits.map((split, index) => {
+                  const isCurrent = index === segmentIndex && started;
+                  const currentElapsed = Math.max(0, split.plannedSeconds - timeLeft);
+                  const displayDistance = isCurrent ? currentSplitDistance : split.distance;
+                  const displaySeconds = isCurrent ? currentElapsed : split.actualSeconds || split.plannedSeconds;
+                  const displayPace = displayDistance > 0 ? displaySeconds / (displayDistance / 1000) : 0;
+                  return (
+                    <div
+                      key={`${split.label}-${index}`}
+                      className={`rounded-2xl border p-3 ${isCurrent ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-slate-50"}`}
+                    >
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">{split.label}</p>
+                          <p className="text-sm capitalize text-slate-500">{split.type}</p>
+                        </div>
+                        <div className="text-right text-sm text-slate-600">
+                          <p>{formatDistance(displayDistance)}</p>
+                          <p>{formatDurationLong(displaySeconds)}</p>
+                        </div>
+                      </div>
+                      <div className="mt-2 text-xs text-slate-500">Pace: {formatPace(displayPace)}</div>
+                    </div>
+                  );
+                })}
+              </CardContent>
+            </Card>
+          </TabsContent>
+
+          <TabsContent value="history" className="mt-4">
+            <Card className="border-slate-200 bg-white shadow-sm">
+              <CardHeader>
+                <CardTitle className="flex items-center gap-2">
+                  <History className="h-5 w-5" /> Saved runs
+                </CardTitle>
+                <CardDescription>Your last 30 completed workouts are saved on this device with localStorage.</CardDescription>
+              </CardHeader>
+              <CardContent className="space-y-2">
+                {workoutHistory.length ? (
+                  workoutHistory.map((run) => (
+                    <div key={run.id} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                      <div className="flex items-start justify-between gap-3">
+                        <div>
+                          <p className="font-medium">Week {run.week} • {run.dayTitle}</p>
+                          <p className="text-sm text-slate-500">{new Date(run.completedAt).toLocaleString()}</p>
+                        </div>
+                        <div className="text-right text-sm text-slate-600">
+                          <p>{formatDistance(run.distance)}</p>
+                          <p>{formatDurationLong(run.totalSeconds)}</p>
+                        </div>
+                      </div>
+                      <div className="mt-2 flex flex-wrap gap-2 text-xs text-slate-500">
+                        <span className="rounded-full bg-white px-2 py-1">Pace {formatPace(run.averagePace)}</span>
+                        <span className="rounded-full bg-white px-2 py-1">Speed {formatSpeed(run.averageSpeed)}</span>
+                        <span className="rounded-full bg-white px-2 py-1">Splits {run.splits.length}</span>
+                      </div>
+                    </div>
+                  ))
+                ) : (
+                  <div className="rounded-2xl border border-dashed border-slate-200 bg-slate-50 p-6 text-center text-sm text-slate-500">
+                    No saved runs yet. Finish a workout to save it automatically.
+                  </div>
+                )}
+                {workoutHistory.length ? (
+                  <Button
+                    variant="secondary"
+                    className="w-full"
+                    onClick={() => {
+                      setWorkoutHistory([]);
+                      if (typeof window !== "undefined") window.localStorage.removeItem(STORAGE_KEYS.history);
+                    }}
+                  >
+                    Clear saved history
+                  </Button>
+                ) : null}
+              </CardContent>
+            </Card>
+          </TabsContent>
+        </Tabs>
+
+        <Card className="border-slate-200 bg-white shadow-sm">
+          <CardHeader>
+            <div className="flex items-start justify-between gap-3">
+              <div>
+                <CardTitle>Workout plan</CardTitle>
+                <CardDescription>Switch between workouts.</CardDescription>
+              </div>
+              <div className="rounded-full bg-slate-100 px-3 py-1 text-xs font-medium text-slate-700">
+                {totalCompletedWorkouts}/{PROGRAM.reduce((sum, week) => sum + week.days.length, 0)} done
+              </div>
+            </div>
+          </CardHeader>
+          <CardContent className="space-y-3">
+            {PROGRAM.map((week, weekIndex) => {
+              const expanded = planExpandedWeek === weekIndex;
+              return (
+                <div key={week.week} className="rounded-2xl border border-slate-200 bg-slate-50 p-3">
+                  <button
+                    type="button"
+                    onClick={() => setPlanExpandedWeek((current) => (current === weekIndex ? -1 : weekIndex))}
+                    className="flex w-full items-center justify-between text-left"
+                  >
+                    <div>
+                      <p className="font-semibold text-slate-900">Week {week.week}</p>
+                      <p className="text-sm text-slate-500">{week.days.length} workouts</p>
+                    </div>
+                    {expanded ? <ChevronUp className="h-5 w-5 text-slate-500" /> : <ChevronDown className="h-5 w-5 text-slate-500" />}
+                  </button>
+
+                  {expanded ? (
+                    <div className="mt-3 space-y-2">
+                      {week.days.map((item, dayIndex) => {
+                        const active = selectedWeek === weekIndex && selectedDay === dayIndex;
+                        const done = completed[getDayKey(weekIndex, dayIndex)];
+                        return (
+                          <button
+                            key={`${week.week}-${item.title}`}
+                            type="button"
+                            onClick={() => selectWorkout(weekIndex, dayIndex)}
+                            className={`flex w-full items-center justify-between rounded-xl border p-3 text-left ${active ? "border-emerald-200 bg-emerald-50" : "border-slate-200 bg-white"}`}
+                          >
+                            <div>
+                              <p className="font-medium">{item.title}</p>
+                              <p className="text-sm text-slate-500">{totalMinutes(item)} minutes</p>
+                            </div>
+                            {done ? <span className="rounded-full bg-emerald-100 px-2 py-1 text-xs font-medium text-emerald-700">Done</span> : null}
+                          </button>
+                        );
+                      })}
+                    </div>
+                  ) : null}
+                </div>
+              );
+            })}
+          </CardContent>
+        </Card>
+      </div>
+    </div>
+  );
+}
