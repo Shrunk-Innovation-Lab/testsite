@@ -367,6 +367,8 @@ function tickUpdate() {
 
   var rings = document.querySelectorAll('.ring-prog, .ring-glow');
   rings.forEach(function(el) { el.setAttribute('stroke-dashoffset', offset); });
+
+  if (ST.tab === 'route') mapUpdate();
 }
 
 /* ── ACTIONS ─────────────────────────────────────────────────────── */
@@ -440,8 +442,105 @@ function makeRing(tp, segPct) {
     '</svg>';
 }
 
-/* == PLAN VIEW == */
+/* == LEAFLET MAP == */
+var MAP = {
+  instance: null,
+  tile: null,
+  route: null,
+  dot: null,
+  dotPulse: null,
+};
+
+function mapInit() {
+  if (MAP.instance) return;
+  var el = document.getElementById('map-outer');
+  if (!el || typeof L === 'undefined') return;
+
+  MAP.instance = L.map(el, {
+    zoomControl: false,
+    attributionControl: false,
+    dragging: true,
+    tap: false,
+  }).setView([0, 0], 15);
+
+  L.tileLayer('https://{s}.basemaps.cartocdn.com/dark_all/{z}/{x}/{y}{r}.png', {
+    maxZoom: 19,
+  }).addTo(MAP.instance);
+
+  MAP.route = L.polyline([], {
+    color: '#c8ff5a',
+    weight: 4,
+    opacity: 0.9,
+    lineCap: 'round',
+    lineJoin: 'round',
+  }).addTo(MAP.instance);
+
+  // Current position dot
+  var dotIcon = L.divIcon({
+    className: '',
+    html: '<div style="width:14px;height:14px;border-radius:50%;background:#c8ff5a;border:2px solid #fff;box-shadow:0 0 10px rgba(200,255,90,0.8)"></div>',
+    iconSize: [14, 14],
+    iconAnchor: [7, 7],
+  });
+  MAP.dot = L.marker([0, 0], { icon: dotIcon, zIndexOffset: 1000 });
+}
+
+function mapUpdate() {
+  if (!MAP.instance) return;
+
+  var pts = ST.pts;
+  var lp  = latPt();
+
+  // Update route polyline
+  if (pts.length > 1) {
+    var latlngs = pts.map(function(p) { return [p.lat, p.lng]; });
+    MAP.route.setLatLngs(latlngs);
+  }
+
+  // Update current position dot
+  if (lp) {
+    if (!MAP.instance.hasLayer(MAP.dot)) MAP.dot.addTo(MAP.instance);
+    MAP.dot.setLatLng([lp.lat, lp.lng]);
+    MAP.instance.panTo([lp.lat, lp.lng], { animate: true, duration: 0.5 });
+  }
+
+  // Colour route by state
+  var col = document.body.classList.contains('s-run') ? '#ff6b35' :
+            document.body.classList.contains('s-walk') ? '#38d9f5' : '#c8ff5a';
+  MAP.route.setStyle({ color: col });
+  if (MAP.dot) {
+    MAP.dot.setIcon(L.divIcon({
+      className: '',
+      html: '<div style="width:14px;height:14px;border-radius:50%;background:' + col + ';border:2px solid #fff;box-shadow:0 0 10px ' + col + '88"></div>',
+      iconSize: [14, 14],
+      iconAnchor: [7, 7],
+    }));
+  }
+}
+
+function mapPosition() {
+  // Position map-outer over the .map-slot placeholder in the DOM
+  var slot = document.querySelector('.map-slot');
+  var outer = document.getElementById('map-outer');
+  if (!slot || !outer) { if (outer) outer.classList.remove('visible'); return; }
+  var r = slot.getBoundingClientRect();
+  outer.style.left   = r.left + 'px';
+  outer.style.top    = r.top  + 'px';
+  outer.style.width  = r.width  + 'px';
+  outer.style.height = r.height + 'px';
+  outer.classList.add('visible');
+  if (MAP.instance) MAP.instance.invalidateSize();
+  mapUpdate();
+}
+
+function mapHide() {
+  var outer = document.getElementById('map-outer');
+  if (outer) outer.classList.remove('visible');
+}
+
+
 function renderPlan() {
+  mapHide();
   var totDone = Object.values(ST.done).filter(Boolean).length;
   var totAll  = PROG.reduce(function(s, wk) { return s + wk.days.length; }, 0);
 
@@ -543,9 +642,7 @@ function render() {
     else if (!ST.started && e > 0 && ST.tl === 0) lbl = 'Workout complete!';
 
     // Sub label
-    var sub;
-    if (!ST.started) sub = (e > 0 && ST.tl === 0) ? '— done —' : '— tap start —';
-    else sub = tp === 'run' ? '— running —' : '— walking —';
+    var sub = ST.started ? (tp === 'run' ? '— running —' : '— walking —') : '';
 
     // Start button label
     var startLbl;
@@ -586,18 +683,11 @@ function render() {
       } else {
         mapContent = '<text x="180" y="80" text-anchor="middle" fill="rgba(255,255,255,.18)" font-size="11" font-family="monospace">NO ROUTE YET</text>';
       }
-      var gpsRows = (fp || lp) ?
-        '<div class="gps-row">' +
-          '<div class="gps-cell"><strong>Start</strong>' + (fp ? fp.lat.toFixed(5) + ', ' + fp.lng.toFixed(5) : '—') + '</div>' +
-          '<div class="gps-cell"><strong>Current</strong>' + (lp ? lp.lat.toFixed(5) + ', ' + lp.lng.toFixed(5) : '—') + '</div>' +
-        '</div>' : '';
       var extLink = extUrl ? '<a href="' + extUrl + '" target="_blank" rel="noreferrer" class="gps-ext">' + IC.ext + ' Open in Google Maps</a>' : '';
-      var errRow = ST.gpsErr ? '<div class="gps-err">⚠ ' + ST.gpsErr + '</div>' : '';
+      var errRow = ST.gpsErr ? '<div class="gps-err">&#9888; ' + ST.gpsErr + '</div>' : '';
       tabHTML = '<div class="route-card">' +
-        '<svg viewBox="0 0 360 160" class="mini-svg">' +
-          '<defs><linearGradient id="rg" x1="0" y1="0" x2="1" y2="0"><stop offset="0%" stop-color="#38d9f5"/><stop offset="100%" stop-color="#c8ff5a"/></linearGradient></defs>' +
-          '<rect width="360" height="160" fill="#0a0c14"/>' + mapContent +
-        '</svg>' + gpsRows + extLink + errRow +
+        '<div class="map-slot"></div>' +
+        extLink + errRow +
         '</div>';
     } else {
       // Splits
@@ -709,6 +799,26 @@ function render() {
 
     document.getElementById('app').innerHTML = html;
     bind();
+
+    // Map: show if route tab, hide otherwise
+    if (ST.tab === 'route' && ST.view !== 'plan') {
+      mapInit();
+      // If not yet tracking, get a one-shot position to centre the map
+      if (!ST.started && !latPt() && navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(function(pos) {
+          if (!MAP.instance) return;
+          MAP.instance.setView([pos.coords.latitude, pos.coords.longitude], 15);
+          var col = '#c8ff5a';
+          if (MAP.dot) {
+            MAP.dot.setLatLng([pos.coords.latitude, pos.coords.longitude]);
+            if (!MAP.instance.hasLayer(MAP.dot)) MAP.dot.addTo(MAP.instance);
+          }
+        }, null, { enableHighAccuracy: true, timeout: 8000 });
+      }
+      requestAnimationFrame(mapPosition);
+    } else {
+      mapHide();
+    }
   } catch(err) {
     console.error('Render error:', err);
     document.getElementById('app').innerHTML = '<div style="color:red;padding:40px;font-family:monospace">Error: ' + err.message + '</div>';
