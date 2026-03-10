@@ -695,8 +695,7 @@ function renderPlan() {
   var html =
     '<div class="topbar">' +
       '<div class="topbar-left">' +
-        '<div class="topbar-eyebrow">Couch to 5K</div>' +
-        '<div class="topbar-title">Week ' + (ST.w + 1) + ' - ' + curDay().t + '</div>' +
+        '<img src="https://i.imgur.com/kG2dDb7.png" class="topbar-logo" alt="NXTplay"/>' +
       '</div>' +
       '<div class="topbar-right">' +
         '<button id="b-snd" class="icon-btn' + (ST.snd ? ' lit' : '') + '">' + (ST.snd ? IC.vol : IC.mute) + '</button>' +
@@ -712,7 +711,8 @@ function renderPlan() {
     '</div>' +
     '<div class="plan-scroll">' +
       (ST.sheetTab === 'plan' ? planRows : histRows) +
-    '</div>';
+    '</div>' +
+    '<div class="app-footer">2026 &nbsp;|&nbsp; NXTplay Worldwide &nbsp;|&nbsp; All Rights Reserved</div>';
 
   document.getElementById('app').innerHTML = html;
   bind();
@@ -858,8 +858,7 @@ function render() {
     var html =
       '<div class="topbar">' +
         '<div class="topbar-left">' +
-          '<div class="topbar-eyebrow">Couch to 5K</div>' +
-          '<div class="topbar-title">Week ' + (ST.w + 1) + ' · ' + dy.t + '</div>' +
+          '<img src="https://i.imgur.com/kG2dDb7.png" class="topbar-logo" alt="NXTplay"/>' +
         '</div>' +
         '<div class="topbar-right">' +
           '<button id="b-snd" class="icon-btn' + (ST.snd ? ' lit' : '') + '">' + (ST.snd ? IC.vol : IC.mute) + '</button>' +
@@ -901,7 +900,8 @@ function render() {
         '<button class="tab-btn' + (ST.tab==='splits'?' active':'') + '" data-tab="splits">Splits</button>' +
       '</div>' +
 
-      '<div class="tab-content">' + tabHTML + '</div>';
+      '<div class="tab-content">' + tabHTML + '</div>' +
+      '<div class="app-footer">2026 &nbsp;|&nbsp; NXTplay Worldwide &nbsp;|&nbsp; All Rights Reserved</div>';
 
     document.getElementById('app').innerHTML = html;
     bind();
