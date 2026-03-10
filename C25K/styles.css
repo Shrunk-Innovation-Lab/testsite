@@ -435,7 +435,6 @@ body.s-walk .seg-pip { animation: pip-walk 1.3s ease-in-out infinite; }
   height: 32px; width: auto;
   display: block;
   object-fit: contain;
-  filter: brightness(0) invert(1);
 }
 .app-footer {
   flex-shrink: 0;
