@@ -1,0 +1,1929 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1"/>
+<title>Wizel · Admin Portal</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin/>
+<link href="https://fonts.googleapis.com/css2?family=Barlow+Condensed:ital,wght@0,300;0,400;0,500;0,600;0,700;0,800;1,400&family=Barlow:wght@300;400;500;600&family=DM+Mono:wght@300;400;500&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --black:   rgb(0,28,38);
+  --bg:      rgb(0,48,62);
+  --bg1:     rgb(0,62,80);
+  --bg2:     rgb(0,78,99);
+  --bg3:     rgb(0,96,118);
+  --line:    rgba(255,255,255,.08);
+  --line2:   rgba(255,255,255,.15);
+  --ink:     #EDF6F9;
+  --mid:     #7AB4C2;
+  --dim:     #2D6878;
+  --fire:    #C8A45A;
+  --fire2:   #DFC07E;
+  --red:     #E05555;
+  --green:   #4CAF50;
+  --blue:    #4a9eff;
+  --white:   #FFFFFF;
+  --sidebar: 220px;
+  --top:     52px;
+  --ease:    cubic-bezier(.22,.65,.3,1);
+  --spring:  cubic-bezier(.34,1.56,.64,1);
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%;overflow:hidden;font-family:'Barlow',sans-serif;background:var(--black);color:var(--ink);-webkit-font-smoothing:antialiased}
+a{color:inherit;text-decoration:none}
+button,input,select,textarea{font:inherit;border:0;background:none;color:inherit}
+img{display:block;max-width:100%;object-fit:cover}
+select{cursor:pointer}
+
+/* ══════════════════ SHELL ══════════════════ */
+.shell{display:grid;grid-template-columns:var(--sidebar) 1fr;grid-template-rows:var(--top) 1fr;height:100dvh}
+
+/* ══════════════════ TOPBAR ══════════════════ */
+.topbar{
+  grid-column:1/-1;grid-row:1;
+  display:flex;align-items:center;justify-content:space-between;
+  border-bottom:1px solid var(--line);
+  background:var(--black);position:relative;z-index:50;
+}
+.topbar-left{
+  display:flex;align-items:center;
+  width:var(--sidebar);height:100%;
+  padding:0 18px;gap:10px;flex-shrink:0;
+  border-right:1px solid var(--line);
+}
+.t-mark{
+  display:flex;align-items:center;justify-content:center;
+  flex-shrink:0;
+}
+.t-logo{
+  height:28px;width:auto;
+  /* Convert to gold #C8A45A */
+  filter: brightness(0) saturate(100%) invert(70%) sepia(40%) saturate(600%) hue-rotate(5deg) brightness(95%) contrast(90%);
+}
+.t-wordmark{display:flex;flex-direction:column}
+.t-eye{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.22em;text-transform:uppercase;color:var(--dim)}
+.t-name{font-family:'Barlow Condensed',sans-serif;font-size:.85rem;font-weight:800;letter-spacing:.1em;text-transform:uppercase;color:var(--ink)}
+.topbar-right{display:flex;align-items:center;gap:10px;padding:0 18px}
+.t-build{
+  font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--mid);
+  padding:5px 12px;border:1px solid var(--line2);margin-right:6px;
+}
+.t-admin-pill{
+  display:flex;align-items:center;gap:8px;
+  padding:5px 12px 5px 8px;border:1px solid var(--line2);
+  cursor:pointer;transition:background 150ms;
+}
+.t-admin-pill:hover{background:var(--bg1)}
+.t-avatar{
+  width:24px;height:24px;background:var(--fire);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-size:.6rem;font-weight:800;color:#fff;
+}
+.t-admin-name{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.1em;text-transform:uppercase;color:var(--mid)}
+.t-notif{
+  width:30px;height:30px;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  position:relative;transition:background 150ms;
+}
+.t-notif:hover{background:var(--bg1)}
+.t-notif svg{width:13px;height:13px;stroke:var(--mid)}
+.t-ndot{position:absolute;top:5px;right:5px;width:5px;height:5px;background:var(--red);border:1.5px solid var(--black)}
+
+/* ══════════════════ SIDEBAR ══════════════════ */
+.sidebar{
+  grid-column:1;grid-row:2;
+  display:flex;flex-direction:column;
+  border-right:1px solid var(--line);
+  background:var(--black);
+  overflow-y:auto;scrollbar-width:none;
+  padding:14px 0 16px;
+}
+.sidebar::-webkit-scrollbar{display:none}
+.nav-grp{
+  font-family:'DM Mono',monospace;
+  font-size:.44rem;letter-spacing:.24em;text-transform:uppercase;
+  color:var(--dim);padding:10px 16px 5px;
+}
+.nav-item{
+  display:flex;align-items:center;gap:10px;
+  padding:9px 16px;cursor:pointer;
+  color:var(--mid);
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:.84rem;font-weight:600;letter-spacing:.08em;text-transform:uppercase;
+  margin-bottom:1px;
+  transition:color 180ms,background 180ms;
+  position:relative;
+}
+.nav-item:hover{background:var(--bg1);color:var(--ink)}
+.nav-item.active{background:var(--bg1);color:var(--white)}
+.nav-item.active::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--red)}
+.nav-icon{width:13px;height:13px;flex-shrink:0;opacity:.5}
+.nav-item.active .nav-icon,.nav-item:hover .nav-icon{opacity:1}
+.nav-badge{
+  margin-left:auto;
+  font-family:'DM Mono',monospace;font-size:.46rem;
+  padding:2px 6px;letter-spacing:.05em;
+}
+.nav-badge.red{background:rgba(224,85,85,.18);color:var(--red)}
+.nav-badge.gold{background:rgba(200,164,90,.18);color:var(--fire)}
+.nav-badge.blue{background:rgba(74,158,255,.18);color:var(--blue)}
+.sb-sep{height:1px;background:var(--line);margin:10px 0}
+.sb-footer{margin-top:auto;padding:14px 16px;border-top:1px solid var(--line)}
+.sb-footer-label{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim);margin-bottom:4px}
+.sb-footer-val{font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase;color:var(--mid)}
+
+/* ══════════════════ MAIN ══════════════════ */
+.main{
+  grid-column:2;grid-row:2;
+  overflow-y:auto;scrollbar-width:thin;
+  scrollbar-color:var(--bg3) transparent;
+  background:var(--bg);
+}
+.main::-webkit-scrollbar{width:3px}
+.main::-webkit-scrollbar-thumb{background:var(--bg3)}
+
+.view{display:none}
+.view.active{display:block}
+
+/* ══════════════════ PAGE HEADER ══════════════════ */
+.page-hd{
+  display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:10px;
+  padding:16px 24px;
+  border-bottom:1px solid var(--line);
+  background:var(--bg1);
+}
+.page-hd-left{}
+.page-hd-eyebrow{
+  font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);margin-bottom:4px;
+  display:flex;align-items:center;gap:8px;
+}
+.page-hd-eyebrow::before{content:"";width:18px;height:1px;background:var(--mid)}
+.page-hd-title{font-family:'Barlow Condensed',sans-serif;font-size:1.5rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;color:var(--white);line-height:1}
+.page-hd-right{display:flex;align-items:center;gap:8px}
+.btn{
+  font-family:'Barlow Condensed',sans-serif;font-size:.72rem;font-weight:700;letter-spacing:.12em;text-transform:uppercase;
+  padding:8px 16px;border:1px solid var(--line2);cursor:pointer;
+  transition:background 180ms,border-color 180ms,color 180ms;
+  display:flex;align-items:center;gap:6px;white-space:nowrap;
+}
+.btn:hover{background:var(--bg2);border-color:var(--line2)}
+.btn svg{width:12px;height:12px;stroke:currentColor}
+.btn-primary{background:var(--fire);border-color:var(--fire);color:#fff}
+.btn-primary:hover{background:var(--fire2);border-color:var(--fire2)}
+.btn-danger{background:rgba(224,85,85,.12);border-color:rgba(224,85,85,.3);color:var(--red)}
+.btn-danger:hover{background:rgba(224,85,85,.22);border-color:var(--red)}
+.btn-blue{background:rgba(74,158,255,.12);border-color:rgba(74,158,255,.3);color:var(--blue)}
+.btn-blue:hover{background:rgba(74,158,255,.22);border-color:var(--blue)}
+.btn-sm{padding:5px 10px;font-size:.62rem}
+
+/* ══════════════════ KPI STRIP ══════════════════ */
+.kpi-strip{
+  display:grid;grid-template-columns:repeat(5,1fr);
+  border-bottom:1px solid var(--line);
+}
+.kpi-cell{
+  padding:16px 20px;border-right:1px solid var(--line);
+  background:var(--bg1);transition:background 150ms;cursor:default;
+}
+.kpi-cell:last-child{border-right:0}
+.kpi-cell:hover{background:var(--bg2)}
+.kpi-num{
+  font-family:'Barlow Condensed',sans-serif;
+  font-size:1.9rem;font-weight:800;letter-spacing:-.01em;line-height:1;
+  margin-bottom:4px;
+}
+.kpi-num.gold{color:var(--fire)}
+.kpi-num.red{color:var(--red)}
+.kpi-num.green{color:var(--green)}
+.kpi-num.blue{color:var(--blue)}
+.kpi-num.white{color:var(--white)}
+.kpi-lbl{font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.14em;text-transform:uppercase;color:var(--mid)}
+.kpi-delta{
+  font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.08em;margin-top:3px;
+  display:flex;align-items:center;gap:3px;
+}
+.kpi-delta.up{color:var(--green)}
+.kpi-delta.down{color:var(--red)}
+
+/* ══════════════════ SECTION PANEL ══════════════════ */
+.sec-panel{background:var(--bg1);border-bottom:1px solid var(--line)}
+.sec-ph{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:10px 18px;border-bottom:1px solid var(--line);
+}
+.sec-ph-label{
+  font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.2em;text-transform:uppercase;color:var(--mid);
+  display:flex;align-items:center;gap:8px;
+}
+.ph-dot{width:5px;height:5px;background:var(--fire);animation:phb 2s ease infinite}
+@keyframes phb{0%,100%{opacity:.35}50%{opacity:1;box-shadow:0 0 6px var(--fire)}}
+
+/* ══════════════════ DATA TABLE ══════════════════ */
+.tbl-wrap{overflow-x:auto}
+table{width:100%;border-collapse:collapse}
+th{
+  font-family:'DM Mono',monospace;font-size:.46rem;letter-spacing:.16em;text-transform:uppercase;
+  color:var(--dim);padding:10px 16px;
+  border-bottom:1px solid var(--line);text-align:left;
+  background:var(--black);white-space:nowrap;
+}
+td{
+  padding:11px 16px;border-bottom:1px solid var(--line);
+  font-size:.78rem;vertical-align:middle;
+}
+tr:last-child td{border-bottom:0}
+tr:hover td{background:rgba(255,255,255,.02)}
+.td-mono{font-family:'DM Mono',monospace;font-size:.62rem;letter-spacing:.06em}
+.td-cap{font-family:'Barlow Condensed',sans-serif;font-size:.88rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.td-sub{font-size:.66rem;color:var(--mid);margin-top:1px}
+.td-actions{display:flex;align-items:center;gap:6px;justify-content:flex-end}
+
+/* ══════════════════ TAGS/CHIPS ══════════════════ */
+.tag{
+  display:inline-block;
+  font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;
+  padding:3px 7px;border:1px solid;white-space:nowrap;
+}
+.tag-gold{border-color:rgba(200,164,90,.35);color:var(--fire);background:rgba(200,164,90,.08)}
+.tag-red{border-color:rgba(224,85,85,.35);color:var(--red);background:rgba(224,85,85,.08)}
+.tag-green{border-color:rgba(76,175,80,.35);color:var(--green);background:rgba(76,175,80,.08)}
+.tag-blue{border-color:rgba(74,158,255,.35);color:var(--blue);background:rgba(74,158,255,.08)}
+.tag-dim{border-color:var(--line2);color:var(--mid);background:transparent}
+.tag-orange{border-color:rgba(255,152,0,.35);color:#FF9800;background:rgba(255,152,0,.08)}
+
+/* ══════════════════ ICON BTN ══════════════════ */
+.icon-btn{
+  width:28px;height:28px;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  transition:background 150ms,border-color 150ms,color 150ms;
+  flex-shrink:0;color:var(--mid);
+}
+.icon-btn:hover{background:var(--bg2);color:var(--ink)}
+.icon-btn.red:hover{background:rgba(224,85,85,.15);border-color:rgba(224,85,85,.4);color:var(--red)}
+.icon-btn.gold:hover{background:rgba(200,164,90,.15);border-color:rgba(200,164,90,.4);color:var(--fire)}
+.icon-btn svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
+
+/* ══════════════════ DASHBOARD GRID ══════════════════ */
+.dash-grid{
+  display:grid;grid-template-columns:1.4fr 1fr;
+  border-top:1px solid var(--line);
+}
+.dash-col{border-right:1px solid var(--line);display:flex;flex-direction:column}
+.dash-col:last-child{border-right:0}
+
+/* Activity feed */
+.act-item{
+  display:flex;align-items:flex-start;gap:12px;
+  padding:12px 18px;border-bottom:1px solid var(--line);
+  position:relative;
+}
+.act-ico{
+  width:28px;height:28px;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;border:1px solid var(--line2);
+  margin-top:1px;
+}
+.act-ico svg{width:11px;height:11px;stroke:currentColor;fill:none;stroke-linecap:round;stroke-linejoin:round;stroke-width:2}
+.act-ico.gold{background:rgba(200,164,90,.1);border-color:rgba(200,164,90,.25);color:var(--fire)}
+.act-ico.blue{background:rgba(74,158,255,.1);border-color:rgba(74,158,255,.25);color:var(--blue)}
+.act-ico.green{background:rgba(76,175,80,.1);border-color:rgba(76,175,80,.25);color:var(--green)}
+.act-ico.red{background:rgba(224,85,85,.1);border-color:rgba(224,85,85,.25);color:var(--red)}
+.act-body{flex:1;min-width:0}
+.act-body strong{display:block;font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;line-height:1.2;margin-bottom:2px}
+.act-body p{font-size:.7rem;color:var(--mid);line-height:1.4}
+.act-time{font-family:'DM Mono',monospace;font-size:.44rem;letter-spacing:.1em;text-transform:uppercase;color:var(--dim);margin-top:3px}
+.act-unread{position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--fire)}
+
+/* Quick stats */
+.qs-row{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:11px 18px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background 150ms;
+}
+.qs-row:hover{background:var(--bg2)}
+.qs-label{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:600;letter-spacing:.04em;text-transform:uppercase}
+.qs-val{font-family:'DM Mono',monospace;font-size:.68rem;letter-spacing:.06em;color:var(--fire)}
+.qs-bar{flex:1;height:2px;background:var(--bg3);margin:0 14px;position:relative}
+.qs-fill{position:absolute;top:0;left:0;height:100%;background:var(--fire);transition:width .8s var(--ease)}
+
+/* Engagement chart placeholder */
+.chart-wrap{padding:20px 18px;flex:1;display:flex;flex-direction:column;gap:12px}
+.chart-label{font-family:'DM Mono',monospace;font-size:.48rem;letter-spacing:.18em;text-transform:uppercase;color:var(--mid)}
+.bar-chart{display:flex;align-items:flex-end;gap:4px;height:100px;flex:1}
+.bar-col{flex:1;display:flex;flex-direction:column;align-items:center;gap:3px}
+.bar{width:100%;background:var(--fire);opacity:.6;transition:opacity 200ms;cursor:pointer;min-height:4px}
+.bar:hover{opacity:1}
+.bar-lbl{font-family:'DM Mono',monospace;font-size:.38rem;letter-spacing:.06em;color:var(--dim);text-align:center}
+
+/* ══════════════════ FORM ══════════════════ */
+.form-grid{padding:20px 24px;display:flex;flex-direction:column;gap:14px}
+.form-row{display:grid;gap:14px}
+.form-row.col2{grid-template-columns:1fr 1fr}
+.form-row.col3{grid-template-columns:1fr 1fr 1fr}
+.field{display:flex;flex-direction:column;gap:5px}
+.field label{font-family:'DM Mono',monospace;font-size:.5rem;letter-spacing:.16em;text-transform:uppercase;color:var(--mid)}
+.field input,.field select,.field textarea{
+  background:var(--bg2);border:1px solid var(--line2);
+  padding:9px 11px;color:var(--ink);
+  font-family:'Barlow',sans-serif;font-size:.82rem;
+  transition:border-color 160ms;
+  -webkit-appearance:none;
+}
+.field input:focus,.field select:focus,.field textarea:focus{outline:none;border-color:var(--fire)}
+.field textarea{resize:vertical;min-height:80px}
+.field select option{background:var(--bg1)}
+.form-actions{display:flex;align-items:center;gap:8px;padding-top:4px}
+.field-hint{font-size:.66rem;color:var(--dim);margin-top:2px}
+
+/* ══════════════════ STAT CARDS ══════════════════ */
+.stat-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:0;border-bottom:1px solid var(--line)}
+.stat-card{
+  padding:20px;border-right:1px solid var(--line);
+  background:var(--bg1);transition:background 150ms;cursor:default;
+}
+.stat-card:last-child{border-right:0}
+.stat-num{font-family:'Barlow Condensed',sans-serif;font-size:2.4rem;font-weight:800;letter-spacing:.01em;line-height:1;color:var(--fire);margin-bottom:6px}
+.stat-name{font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.stat-desc{font-size:.7rem;color:var(--mid);line-height:1.5}
+
+/* Progress bars */
+.prog-row{display:flex;flex-direction:column;gap:4px;margin-bottom:10px}
+.prog-hd{display:flex;justify-content:space-between;font-family:'Barlow Condensed',sans-serif;font-size:.78rem;font-weight:700;letter-spacing:.04em;text-transform:uppercase}
+.prog-sub{font-size:.64rem;color:var(--dim)}
+.prog-track{height:2px;background:var(--bg3)}
+.prog-fill{height:100%;background:var(--fire);animation:fw 1s var(--ease) both}
+@keyframes fw{from{width:0!important}}
+
+/* ══════════════════ TOGGLE ══════════════════ */
+.toggle-wrap{display:flex;align-items:center;gap:8px}
+.toggle{
+  width:34px;height:18px;background:var(--bg3);border:1px solid var(--line2);
+  position:relative;cursor:pointer;flex-shrink:0;
+  transition:background 200ms,border-color 200ms;
+}
+.toggle.on{background:var(--fire);border-color:var(--fire)}
+.toggle::after{
+  content:"";position:absolute;top:2px;left:2px;
+  width:12px;height:12px;background:#fff;
+  transition:transform 200ms var(--spring);
+}
+.toggle.on::after{transform:translateX(16px)}
+.toggle-label{font-size:.74rem;color:var(--mid)}
+
+/* ══════════════════ FEEDBACK INBOX ══════════════════ */
+.fb-item{
+  display:grid;grid-template-columns:auto 1fr auto;
+  gap:12px;padding:14px 18px;border-bottom:1px solid var(--line);
+  cursor:pointer;transition:background 150ms;
+  align-items:flex-start;
+}
+.fb-item:hover{background:var(--bg2)}
+.fb-item.unread{position:relative}
+.fb-item.unread::before{content:"";position:absolute;left:0;top:0;bottom:0;width:2px;background:var(--fire)}
+.fb-avatar{
+  width:34px;height:34px;flex-shrink:0;
+  background:var(--bg2);border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  font-family:'Barlow Condensed',sans-serif;font-weight:800;font-size:.7rem;color:var(--mid);
+}
+.fb-meta strong{display:block;font-family:'Barlow Condensed',sans-serif;font-size:.86rem;font-weight:700;letter-spacing:.03em;text-transform:uppercase;margin-bottom:2px}
+.fb-meta p{font-size:.72rem;color:var(--mid);line-height:1.4}
+.fb-meta-right{display:flex;flex-direction:column;align-items:flex-end;gap:4px}
+
+/* ══════════════════ MODAL ══════════════════ */
+.modal-back{
+  position:fixed;inset:0;z-index:8000;
+  background:rgba(0,20,28,.88);backdrop-filter:blur(18px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 240ms ease;
+}
+.modal-back.open{opacity:1;pointer-events:auto}
+.modal{
+  background:var(--bg1);border:1px solid var(--line2);
+  width:100%;max-width:560px;
+  transform:translateY(16px) scale(.97);
+  transition:transform 300ms var(--spring);
+  max-height:90dvh;overflow-y:auto;
+  scrollbar-width:thin;scrollbar-color:var(--bg3) transparent;
+}
+.modal-back.open .modal{transform:translateY(0) scale(1)}
+.modal-lg{max-width:760px}
+.modal-hd{
+  display:flex;align-items:center;justify-content:space-between;
+  padding:16px 20px;border-bottom:1px solid var(--line);
+  position:sticky;top:0;background:var(--bg1);z-index:1;
+}
+.modal-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase}
+.modal-close{
+  width:28px;height:28px;border:1px solid var(--line2);
+  display:flex;align-items:center;justify-content:center;
+  cursor:pointer;color:var(--mid);font-size:.75rem;
+  transition:background 150ms,color 150ms;
+}
+.modal-close:hover{background:var(--bg2);color:var(--ink)}
+.modal-body{padding:20px 20px 24px}
+.modal-foot{
+  padding:14px 20px;border-top:1px solid var(--line);
+  display:flex;align-items:center;justify-content:flex-end;gap:8px;
+  position:sticky;bottom:0;background:var(--bg1);
+}
+
+/* ══════════════════ TOAST ══════════════════ */
+.toast{
+  position:fixed;bottom:24px;left:50%;
+  transform:translateX(-50%) translateY(14px);
+  z-index:9999;
+  background:var(--black);border:1px solid var(--line2);
+  color:var(--ink);padding:10px 18px;
+  font-family:'Barlow Condensed',sans-serif;font-size:.8rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  display:flex;align-items:center;gap:8px;white-space:nowrap;
+  box-shadow:0 8px 40px rgba(0,0,0,.6);
+  opacity:0;pointer-events:none;transition:opacity 230ms ease,transform 280ms var(--spring);
+}
+.toast.show{opacity:1;transform:translateX(-50%) translateY(0)}
+.toast-ico{width:16px;height:16px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:.55rem;flex-shrink:0}
+.toast-ico.success{background:var(--green);color:#fff}
+.toast-ico.error{background:var(--red);color:#fff}
+.toast-ico.info{background:var(--fire);color:#fff}
+
+/* ══════════════════ CONFIRM DIALOG ══════════════════ */
+.confirm-back{
+  position:fixed;inset:0;z-index:9000;
+  background:rgba(0,20,28,.88);backdrop-filter:blur(18px);
+  display:flex;align-items:center;justify-content:center;padding:20px;
+  opacity:0;pointer-events:none;transition:opacity 200ms;
+}
+.confirm-back.open{opacity:1;pointer-events:auto}
+.confirm-box{
+  background:var(--bg1);border:1px solid var(--line2);
+  padding:24px;max-width:380px;width:100%;
+  transform:scale(.96);transition:transform 250ms var(--spring);
+}
+.confirm-back.open .confirm-box{transform:scale(1)}
+.confirm-title{font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:8px}
+.confirm-body{font-size:.76rem;color:var(--mid);line-height:1.6;margin-bottom:18px}
+.confirm-actions{display:flex;gap:8px;justify-content:flex-end}
+
+/* ══════════════════ SEARCH BAR ══════════════════ */
+.search-bar{
+  display:flex;align-items:center;gap:0;
+  background:var(--bg1);border-bottom:1px solid var(--line);
+  padding:10px 18px;gap:10px;
+}
+.search-input-wrap{
+  display:flex;align-items:center;gap:8px;
+  flex:1;background:var(--bg2);border:1px solid var(--line2);
+  padding:7px 12px;
+}
+.search-input-wrap svg{width:12px;height:12px;stroke:var(--dim);flex-shrink:0}
+.search-input{
+  flex:1;background:none;border:0;font-size:.8rem;color:var(--ink);
+}
+.search-input:focus{outline:none}
+.search-input::placeholder{color:var(--dim)}
+
+/* ══════════════════ EMPTY STATE ══════════════════ */
+.empty-state{
+  display:flex;flex-direction:column;align-items:center;justify-content:center;
+  padding:48px 20px;gap:10px;
+}
+.empty-state svg{width:36px;height:36px;stroke:var(--dim);opacity:.5}
+.empty-state p{font-family:'DM Mono',monospace;font-size:.54rem;letter-spacing:.14em;text-transform:uppercase;color:var(--dim)}
+
+/* ══════════════════ SEPARATOR ══════════════════ */
+.hr{height:1px;background:var(--line)}
+
+/* ══════════════════ INLINE EDIT FIELDS ══════════════════ */
+.inline-field{
+  display:flex;align-items:center;gap:0;
+  border:1px solid var(--line2);overflow:hidden;
+}
+.inline-field input{
+  flex:1;padding:6px 10px;background:var(--bg2);
+  font-size:.78rem;color:var(--ink);border:0;
+}
+.inline-field input:focus{outline:none}
+.inline-field-btn{
+  padding:0 10px;height:30px;
+  background:var(--fire);color:#fff;cursor:pointer;
+  font-family:'Barlow Condensed',sans-serif;font-size:.62rem;font-weight:700;letter-spacing:.1em;text-transform:uppercase;
+  transition:background 150ms;flex-shrink:0;
+}
+.inline-field-btn:hover{background:var(--fire2)}
+
+/* ══════════════════ ESG INPUT ══════════════════ */
+.esg-input-grid{
+  display:grid;grid-template-columns:repeat(2,1fr);
+  gap:0;border-bottom:1px solid var(--line);
+}
+.esg-metric-card{
+  padding:20px;border-right:1px solid var(--line);border-bottom:1px solid var(--line);
+}
+.esg-metric-card:nth-child(2n){border-right:0}
+.esg-metric-title{font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:700;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px}
+.esg-metric-sub{font-size:.7rem;color:var(--mid);margin-bottom:12px}
+.esg-current{
+  font-family:'Barlow Condensed',sans-serif;font-size:2.2rem;font-weight:800;color:var(--fire);
+  line-height:1;margin-bottom:10px;
+}
+
+/* ══════════════════ SCROLLABLE INNER ══════════════════ */
+.inner-scroll{overflow-y:auto;scrollbar-width:thin;scrollbar-color:var(--bg3) transparent}
+.inner-scroll::-webkit-scrollbar{width:3px}
+.inner-scroll::-webkit-scrollbar-thumb{background:var(--bg3)}
+
+/* ══════════════════ RESPONSIVE ══════════════════ */
+@media(max-width:900px){
+  :root{--sidebar:200px}
+  .kpi-strip{grid-template-columns:repeat(3,1fr)}
+  .kpi-cell:nth-child(n+4){border-top:1px solid var(--line)}
+  .dash-grid{grid-template-columns:1fr}
+  .stat-grid{grid-template-columns:1fr 1fr}
+}
+@media(max-width:600px){
+  :root{--sidebar:0px}
+  .sidebar{display:none}
+  .topbar-left{width:auto}
+  .kpi-strip{grid-template-columns:1fr 1fr}
+}
+</style>
+</head>
+<body>
+
+<div class="shell">
+
+<!-- ═══════════ TOPBAR ═══════════ -->
+<header class="topbar">
+  <div class="topbar-left" onclick="nav('dashboard')" style="cursor:pointer">
+    <div class="t-mark">
+      <img class="t-logo" src="https://wizelpropertygroup.com/wp-content/uploads/2021/03/logo.svg" alt="Wizel" />
+    </div>
+    <div class="t-wordmark">
+      <span class="t-eye">Admin Portal</span>
+    </div>
+  </div>
+  <div class="topbar-right">
+    <div class="t-build">286 Albert Rd · Melbourne</div>
+    <div class="t-notif" title="Alerts" id="alertBtn">
+      <div class="t-ndot"></div>
+      <svg fill="none" viewBox="0 0 24 24"><path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"/><path d="M13.73 21a2 2 0 0 1-3.46 0"/></svg>
+    </div>
+    <div class="t-admin-pill" title="Admin user">
+      <div class="t-avatar">JW</div>
+      <span class="t-admin-name">James Wizel</span>
+    </div>
+  </div>
+</header>
+
+<!-- ═══════════ SIDEBAR ═══════════ -->
+<aside class="sidebar">
+
+  <div class="nav-grp">Overview</div>
+  <div class="nav-item active" data-view="dashboard">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/></svg>
+    Dashboard
+  </div>
+
+  <div class="sb-sep"></div>
+  <div class="nav-grp">Content</div>
+  <div class="nav-item" data-view="notices">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+    Notices
+    <span class="nav-badge gold">6</span>
+  </div>
+  <div class="nav-item" data-view="events">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+    Events
+    <span class="nav-badge gold">5</span>
+  </div>
+  <div class="nav-item" data-view="benefits">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+    Benefits
+  </div>
+  <div class="nav-item" data-view="polls">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg>
+    Polls
+  </div>
+
+  <div class="sb-sep"></div>
+  <div class="nav-grp">Community</div>
+  <div class="nav-item" data-view="tenants">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+    Tenants
+  </div>
+  <div class="nav-item" data-view="marketplace">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+    Marketplace
+    <span class="nav-badge red">3</span>
+  </div>
+  <div class="nav-item" data-view="feedback">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+    Feedback
+    <span class="nav-badge red">7</span>
+  </div>
+
+  <div class="sb-sep"></div>
+  <div class="nav-grp">Building</div>
+  <div class="nav-item" data-view="esg">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+    ESG Data
+  </div>
+  <div class="nav-item" data-view="team">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M6 20v-1a6 6 0 0 1 12 0v1"/></svg>
+    Team
+  </div>
+  <div class="nav-item" data-view="settings">
+    <svg class="nav-icon" fill="none" viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1-2.83 2.83l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-4 0v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83-2.83l.06-.06A1.65 1.65 0 0 0 4.68 15a1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1 0-4h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 2.83-2.83l.06.06A1.65 1.65 0 0 0 9 4.68a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 4 0v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 2.83l-.06.06A1.65 1.65 0 0 0 19.4 9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 0 4h-.09a1.65 1.65 0 0 0-1.51 1z"/></svg>
+    Settings
+  </div>
+
+  <div class="sb-footer">
+    <div class="sb-footer-label">Last login</div>
+    <div class="sb-footer-val">Today, 8:42 AM</div>
+  </div>
+</aside>
+
+<!-- ═══════════ MAIN ═══════════ -->
+<main class="main">
+
+  <!-- ─── DASHBOARD ─── -->
+  <div class="view active" id="view-dashboard">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Admin Overview</div>
+        <div class="page-hd-title">Dashboard</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn" onclick="showToast('Report exported','success')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export Report</div>
+        <div class="btn btn-primary" onclick="openModal('noticeModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Post Notice</div>
+      </div>
+    </div>
+
+    <div class="kpi-strip">
+      <div class="kpi-cell">
+        <div class="kpi-num gold">9</div>
+        <div class="kpi-lbl">Active Tenants</div>
+        <div class="kpi-delta up">↑ 1 this quarter</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-num white">84%</div>
+        <div class="kpi-lbl">Engagement Rate</div>
+        <div class="kpi-delta up">↑ 6% vs last month</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-num blue">47</div>
+        <div class="kpi-lbl">Event RSVPs</div>
+        <div class="kpi-delta up">↑ 12 this week</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-num red">7</div>
+        <div class="kpi-lbl">Unread Feedback</div>
+        <div class="kpi-delta down">↑ 3 since yesterday</div>
+      </div>
+      <div class="kpi-cell">
+        <div class="kpi-num green">63%</div>
+        <div class="kpi-lbl">Waste Diverted</div>
+        <div class="kpi-delta up">↑ 8% vs Q1 2025</div>
+      </div>
+    </div>
+
+    <div class="dash-grid">
+      <!-- LEFT: Activity + Chart -->
+      <div class="dash-col">
+        <div class="sec-ph">
+          <div class="sec-ph-label"><div class="ph-dot"></div>Recent Activity</div>
+          <div class="btn btn-sm" onclick="nav('feedback')">View all →</div>
+        </div>
+        <div class="act-item">
+          <div class="act-unread"></div>
+          <div class="act-ico gold"><svg viewBox="0 0 24 24"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+          <div class="act-body"><strong>New benefit claimed · Lobby Grounds Coffee</strong><p>Alex Kim · Northline Advisory · L6</p><div class="act-time">5 min ago</div></div>
+        </div>
+        <div class="act-item">
+          <div class="act-unread"></div>
+          <div class="act-ico blue"><svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg></div>
+          <div class="act-body"><strong>RSVP confirmed · Lobby Breakfast Mixer</strong><p>Sarah Park · Veritas Capital · L10</p><div class="act-time">18 min ago</div></div>
+        </div>
+        <div class="act-item">
+          <div class="act-unread"></div>
+          <div class="act-ico red"><svg viewBox="0 0 24 24"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>
+          <div class="act-body"><strong>New feedback submitted</strong><p>"The EOT showers are running cold in the mornings…"</p><div class="act-time">1 hr ago</div></div>
+        </div>
+        <div class="act-item">
+          <div class="act-ico gold"><svg viewBox="0 0 24 24"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>
+          <div class="act-body"><strong>Marketplace listing pending review</strong><p>Office Plants × 12 · Studio Meridian · L4</p><div class="act-time">2 hrs ago</div></div>
+        </div>
+        <div class="act-item">
+          <div class="act-ico green"><svg viewBox="0 0 24 24"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+          <div class="act-body"><strong>ESG metric updated · Water Savings</strong><p>184,000kL saved this quarter — record high</p><div class="act-time">3 hrs ago</div></div>
+        </div>
+        <div class="act-item">
+          <div class="act-ico blue"><svg viewBox="0 0 24 24"><line x1="18" y1="20" x2="18" y2="10"/><line x1="12" y1="20" x2="12" y2="4"/><line x1="6" y1="20" x2="6" y2="14"/></svg></div>
+          <div class="act-body"><strong>Poll results updated · March Activation</strong><p>Networking Drinks leading at 44%</p><div class="act-time">4 hrs ago</div></div>
+        </div>
+
+        <!-- Engagement chart -->
+        <div class="sec-ph" style="margin-top:auto">
+          <div class="sec-ph-label">Portal Engagement · Last 7 Days</div>
+        </div>
+        <div class="chart-wrap">
+          <div class="bar-chart" id="engChart"></div>
+        </div>
+      </div>
+
+      <!-- RIGHT: Quick stats -->
+      <div class="dash-col">
+        <div class="sec-ph">
+          <div class="sec-ph-label">Module Health</div>
+        </div>
+        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <div class="prog-row">
+            <div class="prog-hd"><span>Events · RSVPs</span><span style="color:var(--fire)">47 / 80</span></div>
+            <div class="prog-sub">5 upcoming events</div>
+            <div class="prog-track"><div class="prog-fill" style="width:59%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-hd"><span>Benefits · Claimed</span><span style="color:var(--fire)">34 / 60</span></div>
+            <div class="prog-sub">12 active offers</div>
+            <div class="prog-track"><div class="prog-fill" style="width:57%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-hd"><span>Marketplace · Listed</span><span style="color:var(--fire)">11 items</span></div>
+            <div class="prog-sub">3 pending approval</div>
+            <div class="prog-track"><div class="prog-fill" style="width:73%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-hd"><span>NABERS Energy</span><span style="color:var(--fire)">79%</span></div>
+            <div class="prog-sub">On track for 5-star FY25</div>
+            <div class="prog-track"><div class="prog-fill" style="width:79%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-hd"><span>Tenant Satisfaction</span><span style="color:var(--green)">4.7 / 5</span></div>
+            <div class="prog-sub">From 23 survey responses</div>
+            <div class="prog-track" style="background:rgba(76,175,80,.2)"><div class="prog-fill" style="width:94%;background:var(--green)"></div></div>
+          </div>
+        </div>
+
+        <div class="sec-ph">
+          <div class="sec-ph-label">Tenants by Floor</div>
+          <div class="btn btn-sm" onclick="nav('tenants')">Manage →</div>
+        </div>
+        <div class="qs-row" onclick="nav('tenants')">
+          <span class="qs-label" style="width:28px;font-size:.7rem;color:var(--fire)">L10</span>
+          <div class="qs-bar"><div class="qs-fill" style="width:100%"></div></div>
+          <span class="td-mono" style="font-size:.54rem">Veritas Capital</span>
+        </div>
+        <div class="qs-row" onclick="nav('tenants')">
+          <span class="qs-label" style="width:28px;font-size:.7rem;color:var(--fire)">L8</span>
+          <div class="qs-bar"><div class="qs-fill" style="width:97%"></div></div>
+          <span class="td-mono" style="font-size:.54rem">Harbour Legal</span>
+        </div>
+        <div class="qs-row" onclick="nav('tenants')">
+          <span class="qs-label" style="width:28px;font-size:.7rem;color:var(--fire)">L6</span>
+          <div class="qs-bar"><div class="qs-fill" style="width:100%"></div></div>
+          <span class="td-mono" style="font-size:.54rem">Northline Advisory</span>
+        </div>
+        <div class="qs-row" onclick="nav('tenants')">
+          <span class="qs-label" style="width:28px;font-size:.7rem;color:var(--fire)">L7</span>
+          <div class="qs-bar"><div class="qs-fill" style="width:77%"></div></div>
+          <span class="td-mono" style="font-size:.54rem">Atlas Analytics</span>
+        </div>
+        <div class="qs-row" onclick="nav('tenants')">
+          <span class="qs-label" style="width:28px;font-size:.7rem;color:var(--fire)">L5</span>
+          <div class="qs-bar"><div class="qs-fill" style="width:67%"></div></div>
+          <span class="td-mono" style="font-size:.54rem">Pinnacle PR</span>
+        </div>
+
+        <div class="sec-ph" style="margin-top:auto">
+          <div class="sec-ph-label">Quick Actions</div>
+        </div>
+        <div style="padding:12px 18px;display:flex;flex-direction:column;gap:6px">
+          <div class="btn" onclick="openModal('noticeModal')" style="justify-content:space-between"><span>Post a Notice</span><span style="color:var(--fire)">→</span></div>
+          <div class="btn" onclick="openModal('eventModal')" style="justify-content:space-between"><span>Create Event</span><span style="color:var(--fire)">→</span></div>
+          <div class="btn" onclick="openModal('benefitModal')" style="justify-content:space-between"><span>Add Benefit</span><span style="color:var(--fire)">→</span></div>
+          <div class="btn btn-blue" onclick="nav('feedback')" style="justify-content:space-between"><span>Review Feedback (7)</span><span>→</span></div>
+          <div class="btn" onclick="nav('marketplace')" style="justify-content:space-between"><span>Approve Listings (3)</span><span style="color:var(--red)">→</span></div>
+        </div>
+
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── NOTICES ─── -->
+  <div class="view" id="view-notices">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Content Management</div>
+        <div class="page-hd-title">Notices & Updates</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="openModal('noticeModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Notice</div>
+      </div>
+    </div>
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" placeholder="Search notices…" oninput="filterTable(this,'noticesTable')"/>
+      </div>
+      <div class="btn" style="margin-left:auto">Filter by type</div>
+    </div>
+    <div class="tbl-wrap">
+      <table id="noticesTable">
+        <thead>
+          <tr>
+            <th>Title</th>
+            <th>Category</th>
+            <th>Status</th>
+            <th>Posted</th>
+            <th>Views</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="td-cap">After-hours HVAC trial now open</div><div class="td-sub">Simplified booking flow launching next week</div></td>
+            <td><span class="tag tag-blue">Operations</span></td>
+            <td><span class="tag tag-green">Live</span></td>
+            <td class="td-mono">07 Mar 2026</td>
+            <td class="td-mono">142</td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('noticeModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('notice')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">End-of-trip amenity upgrade</div><div class="td-sub">Locker layout, shower finishes under review</div></td>
+            <td><span class="tag tag-gold">Amenity</span></td>
+            <td><span class="tag tag-green">Live</span></td>
+            <td class="td-mono">06 Mar 2026</td>
+            <td class="td-mono">98</td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('noticeModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('notice')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Waste diversion milestone — 63%</div><div class="td-sub">New separation points drove best result on record</div></td>
+            <td><span class="tag tag-green">Sustainability</span></td>
+            <td><span class="tag tag-green">Live</span></td>
+            <td class="td-mono">05 Mar 2026</td>
+            <td class="td-mono">214</td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('noticeModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('notice')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Level 9 lift lobby refresh</div><div class="td-sub">Full access maintained. 3-week duration.</div></td>
+            <td><span class="tag tag-orange">Works</span></td>
+            <td><span class="tag tag-green">Live</span></td>
+            <td class="td-mono">04 Mar 2026</td>
+            <td class="td-mono">187</td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('noticeModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('notice')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Tenant re-signs on Level 6</div><div class="td-sub">Long-term stability across the building community</div></td>
+            <td><span class="tag tag-dim">Leasing</span></td>
+            <td><span class="tag tag-green">Live</span></td>
+            <td class="td-mono">01 Mar 2026</td>
+            <td class="td-mono">93</td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('noticeModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('notice')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Visitor parking updated from 1 April</div><div class="td-sub">Level B2 bays refreshed. New allocation map.</div></td>
+            <td><span class="tag tag-blue">Operations</span></td>
+            <td><span class="tag tag-dim" style="color:#FF9800;border-color:rgba(255,152,0,.3)">Scheduled</span></td>
+            <td class="td-mono">01 Apr 2026</td>
+            <td class="td-mono">—</td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('noticeModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('notice')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── EVENTS ─── -->
+  <div class="view" id="view-events">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Content Management</div>
+        <div class="page-hd-title">Events</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="openModal('eventModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Event</div>
+      </div>
+    </div>
+
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-cell"><div class="kpi-num gold">5</div><div class="kpi-lbl">Upcoming Events</div></div>
+      <div class="kpi-cell"><div class="kpi-num blue">47</div><div class="kpi-lbl">Total RSVPs</div></div>
+      <div class="kpi-cell"><div class="kpi-num white">9.4</div><div class="kpi-lbl">Avg per Event</div></div>
+      <div class="kpi-cell"><div class="kpi-num green">76%</div><div class="kpi-lbl">RSVP Rate</div></div>
+    </div>
+
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Event</th>
+            <th>Date & Time</th>
+            <th>Location</th>
+            <th>RSVPs</th>
+            <th>Status</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="td-cap">Lobby Breakfast Mixer</div><div class="td-sub">Morning meet-and-greet for all tenants</div></td>
+            <td class="td-mono">Tue 18 Mar · 8:00am</td>
+            <td>Ground Floor Lobby</td>
+            <td><span class="td-cap" style="color:var(--fire)">18</span></td>
+            <td><span class="tag tag-green">Published</span></td>
+            <td><div class="td-actions"><div class="icon-btn" onclick="openModal('rsvpModal')" title="View RSVPs"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="icon-btn gold" onclick="openModal('eventModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('event')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Food Truck Thursday</div><div class="td-sub">Local vendor activation — rear laneway</div></td>
+            <td class="td-mono">Thu 27 Mar · 12:00pm</td>
+            <td>Rear Laneway</td>
+            <td><span class="td-cap" style="color:var(--fire)">11</span></td>
+            <td><span class="tag tag-green">Published</span></td>
+            <td><div class="td-actions"><div class="icon-btn" onclick="openModal('rsvpModal')" title="View RSVPs"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="icon-btn gold" onclick="openModal('eventModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('event')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Wellness Morning</div><div class="td-sub">Mindfulness + barista coffee on the terrace</div></td>
+            <td class="td-mono">Thu 3 Apr · 7:45am</td>
+            <td>Level 2 Terrace</td>
+            <td><span class="td-cap" style="color:var(--fire)">8</span></td>
+            <td><span class="tag tag-green">Published</span></td>
+            <td><div class="td-actions"><div class="icon-btn" onclick="openModal('rsvpModal')" title="View RSVPs"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="icon-btn gold" onclick="openModal('eventModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('event')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Networking Drinks</div><div class="td-sub">Cross-floor connections · Level 1 Lounge</div></td>
+            <td class="td-mono">Thu 24 Apr · 5:30pm</td>
+            <td>Level 1 Lounge</td>
+            <td><span class="td-cap" style="color:var(--fire)">6</span></td>
+            <td><span class="tag tag-green">Published</span></td>
+            <td><div class="td-actions"><div class="icon-btn" onclick="openModal('rsvpModal')" title="View RSVPs"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="icon-btn gold" onclick="openModal('eventModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('event')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Live Lobby Music</div><div class="td-sub">Curated live performance · Thursday morning</div></td>
+            <td class="td-mono">Thu 10 Apr · 8:30am</td>
+            <td>Ground Floor</td>
+            <td><span class="td-cap" style="color:var(--fire)">4</span></td>
+            <td><span class="tag tag-dim" style="color:#FF9800;border-color:rgba(255,152,0,.3)">Draft</span></td>
+            <td><div class="td-actions"><div class="icon-btn" onclick="openModal('rsvpModal')" title="View RSVPs"><svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div><div class="icon-btn gold" onclick="openModal('eventModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('event')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── BENEFITS ─── -->
+  <div class="view" id="view-benefits">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Content Management</div>
+        <div class="page-hd-title">Benefits & Offers</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="openModal('benefitModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Benefit</div>
+      </div>
+    </div>
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-cell"><div class="kpi-num gold">12</div><div class="kpi-lbl">Active Offers</div></div>
+      <div class="kpi-cell"><div class="kpi-num blue">34</div><div class="kpi-lbl">Total Claims</div></div>
+      <div class="kpi-cell"><div class="kpi-num white">9</div><div class="kpi-lbl">Partner Brands</div></div>
+      <div class="kpi-cell"><div class="kpi-num green">$420</div><div class="kpi-lbl">Est. Annual Value</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Benefit</th>
+            <th>Partner</th>
+            <th>Category</th>
+            <th>Code</th>
+            <th>Claims</th>
+            <th>Expires</th>
+            <th>Status</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="td-cap">Free Daily Coffee</div><div class="td-sub">One specialty coffee per person per day</div></td>
+            <td>Lobby Grounds</td>
+            <td><span class="tag tag-gold">Coffee</span></td>
+            <td class="td-mono">WIZEL-COFFEE-01</td>
+            <td class="td-mono">28</td>
+            <td class="td-mono">No expiry</td>
+            <td><span class="tag tag-green">Active</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('benefitModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('benefit')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">20% Off All Drinks</div><div class="td-sub">Exclusive tenant discount · no minimum spend</div></td>
+            <td>Burnley Roasters</td>
+            <td><span class="tag tag-gold">Coffee</span></td>
+            <td class="td-mono">BURN-WIZEL-20</td>
+            <td class="td-mono">3</td>
+            <td class="td-mono">31 May 2026</td>
+            <td><span class="tag tag-green">Active</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('benefitModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('benefit')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Free 30-Min Massage</div><div class="td-sub">Remedial or relaxation · Restore Wellness</div></td>
+            <td>Restore Wellness</td>
+            <td><span class="tag tag-blue">Wellbeing</span></td>
+            <td class="td-mono">REST-WIZEL-30M</td>
+            <td class="td-mono">2</td>
+            <td class="td-mono" style="color:var(--red)">31 Mar 2026</td>
+            <td><span class="tag tag-orange">Expiring Soon</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('benefitModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('benefit')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">First Month Free Gym</div><div class="td-sub">Fitness First Albert Rd · new members only</div></td>
+            <td>Fitness First</td>
+            <td><span class="tag tag-green">Fitness</span></td>
+            <td class="td-mono">FF-WIZEL-M1FREE</td>
+            <td class="td-mono">1</td>
+            <td class="td-mono">Ongoing</td>
+            <td><span class="tag tag-green">Active</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('benefitModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('benefit')" title="Delete"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── POLLS ─── -->
+  <div class="view" id="view-polls">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Engagement</div>
+        <div class="page-hd-title">Tenant Polls</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="openModal('pollModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>New Poll</div>
+      </div>
+    </div>
+    <div style="padding:20px 24px">
+      <!-- Active poll card -->
+      <div style="background:var(--bg1);border:1px solid var(--line2);margin-bottom:16px">
+        <div style="padding:14px 18px;border-bottom:1px solid var(--line);display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <span class="tag tag-green" style="margin-bottom:6px;display:inline-block">Active · 23 votes</span>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase">Which activation next month?</div>
+            <div style="font-size:.7rem;color:var(--mid);margin-top:2px">Tenant Pulse · March 2026 · Closes 31 Mar</div>
+          </div>
+          <div style="display:flex;gap:8px">
+            <div class="btn btn-sm" onclick="openModal('pollModal')">Edit</div>
+            <div class="btn btn-sm btn-danger" onclick="confirmDelete('poll')">End Poll</div>
+          </div>
+        </div>
+        <div style="padding:16px 18px;display:flex;flex-direction:column;gap:10px">
+          <div class="prog-row">
+            <div class="prog-hd"><span>Wellness morning</span><span style="color:var(--fire)">34% · 8 votes</span></div>
+            <div class="prog-track"><div class="prog-fill" style="width:34%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-hd"><span>Live lobby music</span><span style="color:var(--fire)">22% · 5 votes</span></div>
+            <div class="prog-track"><div class="prog-fill" style="width:22%"></div></div>
+          </div>
+          <div class="prog-row">
+            <div class="prog-hd"><span>Networking drinks</span><span style="color:var(--fire)">44% · 10 votes</span></div>
+            <div class="prog-track"><div class="prog-fill" style="width:44%"></div></div>
+          </div>
+        </div>
+      </div>
+      <!-- Past poll -->
+      <div style="background:var(--bg1);border:1px solid var(--line);opacity:.7">
+        <div style="padding:14px 18px;display:flex;align-items:center;justify-content:space-between">
+          <div>
+            <span class="tag tag-dim" style="margin-bottom:6px;display:inline-block">Closed · 31 votes</span>
+            <div style="font-family:'Barlow Condensed',sans-serif;font-size:1rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase">What would improve your morning commute?</div>
+            <div style="font-size:.7rem;color:var(--mid);margin-top:2px">February 2026 · Ended 28 Feb</div>
+          </div>
+          <div class="btn btn-sm">View Results</div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TENANTS ─── -->
+  <div class="view" id="view-tenants">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Community</div>
+        <div class="page-hd-title">Tenant Directory</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="openModal('tenantModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Tenant</div>
+      </div>
+    </div>
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-cell"><div class="kpi-num gold">9</div><div class="kpi-lbl">Active Tenants</div></div>
+      <div class="kpi-cell"><div class="kpi-num white">10</div><div class="kpi-lbl">Floors Occupied</div></div>
+      <div class="kpi-cell"><div class="kpi-num green">98%</div><div class="kpi-lbl">Occupancy Rate</div></div>
+      <div class="kpi-cell"><div class="kpi-num blue">4.2 yrs</div><div class="kpi-lbl">Avg Tenure</div></div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr>
+            <th>Company</th>
+            <th>Floor</th>
+            <th>Sector</th>
+            <th>Area</th>
+            <th>Since</th>
+            <th>Lease End</th>
+            <th>Status</th>
+            <th style="text-align:right">Actions</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="td-cap">Veritas Capital</div><div class="td-sub">Investment Management</div></td>
+            <td class="td-mono" style="color:var(--fire)">L10</td>
+            <td><span class="tag tag-blue">Finance</span></td>
+            <td class="td-mono">~780 m²</td>
+            <td class="td-mono">2019</td>
+            <td class="td-mono">Dec 2027</td>
+            <td><span class="tag tag-green">Active</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('tenantModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Harbour Legal</div><div class="td-sub">Commercial Law</div></td>
+            <td class="td-mono" style="color:var(--fire)">L8</td>
+            <td><span class="tag tag-gold">Legal</span></td>
+            <td class="td-mono">~760 m²</td>
+            <td class="td-mono">2018</td>
+            <td class="td-mono">Jun 2028</td>
+            <td><span class="tag tag-green">Active</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('tenantModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Northline Advisory</div><div class="td-sub">Financial Services · Founding tenant</div></td>
+            <td class="td-mono" style="color:var(--fire)">L6</td>
+            <td><span class="tag tag-blue">Finance</span></td>
+            <td class="td-mono">~780 m²</td>
+            <td class="td-mono">2016</td>
+            <td class="td-mono">Dec 2031</td>
+            <td><span class="tag tag-green">Active</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('tenantModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Atlas Analytics</div><div class="td-sub">Data & Technology</div></td>
+            <td class="td-mono" style="color:var(--fire)">L7</td>
+            <td><span class="tag tag-dim">Technology</span></td>
+            <td class="td-mono">~600 m²</td>
+            <td class="td-mono">2021</td>
+            <td class="td-mono">Mar 2026</td>
+            <td><span class="tag tag-orange">Renewal Due</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('tenantModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Meridian Ventures</div><div class="td-sub">Venture Capital</div></td>
+            <td class="td-mono" style="color:var(--fire)">L9</td>
+            <td><span class="tag tag-blue">Finance</span></td>
+            <td class="td-mono">~580 m²</td>
+            <td class="td-mono">2022</td>
+            <td class="td-mono">Sep 2025</td>
+            <td><span class="tag tag-red">Expired</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('tenantModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── MARKETPLACE ─── -->
+  <div class="view" id="view-marketplace">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Community</div>
+        <div class="page-hd-title">Marketplace Moderation</div>
+      </div>
+    </div>
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-cell"><div class="kpi-num white">11</div><div class="kpi-lbl">Active Listings</div></div>
+      <div class="kpi-cell"><div class="kpi-num red">3</div><div class="kpi-lbl">Pending Review</div></div>
+      <div class="kpi-cell"><div class="kpi-num blue">5</div><div class="kpi-lbl">Approved Trades</div></div>
+      <div class="kpi-cell"><div class="kpi-num green">2</div><div class="kpi-lbl">Free to Take</div></div>
+    </div>
+
+    <div class="sec-ph" style="background:var(--bg1)">
+      <div class="sec-ph-label" style="color:var(--red)">⚠ Pending Approval (3)</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Seller</th><th>Category</th><th>Price</th><th>Submitted</th><th>Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr style="background:rgba(224,85,85,.04)">
+            <td><div class="td-cap">Office Plants × 12</div><div class="td-sub">Pothos, peace lilies — moving office</div></td>
+            <td>Studio Meridian · L4</td>
+            <td><span class="tag tag-green">Free</span></td>
+            <td class="td-mono" style="color:var(--green)">FREE</td>
+            <td class="td-mono">Today</td>
+            <td><div class="td-actions"><div class="btn btn-sm btn-primary" onclick="showToast('Listing approved','success')">Approve</div><div class="btn btn-sm btn-danger" onclick="confirmDelete('listing')">Reject</div></div></td>
+          </tr>
+          <tr style="background:rgba(224,85,85,.04)">
+            <td><div class="td-cap">Branded Folding Tables × 2</div><div class="td-sub">6ft rectangular · black · carry bag included</div></td>
+            <td>Pinnacle PR · L5</td>
+            <td><span class="tag tag-green">Free</span></td>
+            <td class="td-mono" style="color:var(--green)">FREE</td>
+            <td class="td-mono">Yesterday</td>
+            <td><div class="td-actions"><div class="btn btn-sm btn-primary" onclick="showToast('Listing approved','success')">Approve</div><div class="btn btn-sm btn-danger" onclick="confirmDelete('listing')">Reject</div></div></td>
+          </tr>
+          <tr style="background:rgba(224,85,85,.04)">
+            <td><div class="td-cap">Whiteboard × 3</div><div class="td-sub">2400mm × 1200mm magnetic whiteboards</div></td>
+            <td>Atlas Analytics · L7</td>
+            <td><span class="tag tag-gold">Furniture</span></td>
+            <td class="td-mono">$80 each</td>
+            <td class="td-mono">2 days ago</td>
+            <td><div class="td-actions"><div class="btn btn-sm btn-primary" onclick="showToast('Listing approved','success')">Approve</div><div class="btn btn-sm btn-danger" onclick="confirmDelete('listing')">Reject</div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+
+    <div class="sec-ph" style="background:var(--bg1);margin-top:0">
+      <div class="sec-ph-label"><div class="ph-dot"></div>All Live Listings</div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Item</th><th>Seller</th><th>Category</th><th>Price</th><th>Views</th><th>Status</th><th style="text-align:right">Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr><td><div class="td-cap">Herman Miller Aerons × 4</div></td><td>Northline L6</td><td><span class="tag tag-gold">Furniture</span></td><td class="td-mono">$280 ea</td><td class="td-mono">47</td><td><span class="tag tag-green">Live</span></td><td><div class="td-actions"><div class="icon-btn red" onclick="confirmDelete('listing')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td></tr>
+          <tr><td><div class="td-cap">Sit-Stand Desks × 6</div></td><td>Veritas L10</td><td><span class="tag tag-gold">Furniture</span></td><td class="td-mono">$350 ea</td><td class="td-mono">38</td><td><span class="tag tag-green">Live</span></td><td><div class="td-actions"><div class="icon-btn red" onclick="confirmDelete('listing')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td></tr>
+          <tr><td><div class="td-cap">Dell 27" 4K Monitors × 8</div></td><td>Atlas L7</td><td><span class="tag tag-dim">IT & Tech</span></td><td class="td-mono">$180 ea</td><td class="td-mono">62</td><td><span class="tag tag-green">Live</span></td><td><div class="td-actions"><div class="icon-btn red" onclick="confirmDelete('listing')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td></tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── FEEDBACK ─── -->
+  <div class="view" id="view-feedback">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Community</div>
+        <div class="page-hd-title">Feedback Inbox</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn" onclick="showToast('All feedback exported','success')"><svg viewBox="0 0 24 24"><path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"/><polyline points="7 10 12 15 17 10"/><line x1="12" y1="15" x2="12" y2="3"/></svg>Export</div>
+      </div>
+    </div>
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-cell"><div class="kpi-num red">7</div><div class="kpi-lbl">Unread</div></div>
+      <div class="kpi-cell"><div class="kpi-num white">23</div><div class="kpi-lbl">Total This Month</div></div>
+      <div class="kpi-cell"><div class="kpi-num green">4.7</div><div class="kpi-lbl">Avg Satisfaction</div></div>
+      <div class="kpi-cell"><div class="kpi-num blue">18h</div><div class="kpi-lbl">Avg Response Time</div></div>
+    </div>
+    <div class="search-bar">
+      <div class="search-input-wrap">
+        <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+        <input class="search-input" placeholder="Search feedback…"/>
+      </div>
+      <select style="background:var(--bg2);border:1px solid var(--line2);padding:7px 12px;color:var(--ink);font-size:.78rem;margin-left:8px">
+        <option>All Types</option>
+        <option>Building Amenity</option>
+        <option>Operations</option>
+        <option>Community Event</option>
+        <option>Sustainability</option>
+      </select>
+    </div>
+
+    <div class="fb-item unread" onclick="openModal('fbDetailModal')">
+      <div class="fb-avatar">SK</div>
+      <div class="fb-meta">
+        <strong>EOT Showers Running Cold in Mornings</strong>
+        <p>Building Amenity · "The showers on B1 have been running cold before 8am for the past two weeks. Can this be looked at?"</p>
+        <div class="act-time" style="margin-top:4px">Sarah K · Veritas Capital · 1 hr ago</div>
+      </div>
+      <div class="fb-meta-right">
+        <span class="tag tag-red">Urgent</span>
+        <div class="btn btn-sm" onclick="event.stopPropagation();showToast('Marked as resolved','success')">Resolve</div>
+      </div>
+    </div>
+    <div class="fb-item unread" onclick="openModal('fbDetailModal')">
+      <div class="fb-avatar">TN</div>
+      <div class="fb-meta">
+        <strong>Request for More Bike Racks on B1</strong>
+        <p>Building Amenity · "The bike racks are consistently full by 8:30am. Would love to see 10–15 more added."</p>
+        <div class="act-time" style="margin-top:4px">Tom N · Atlas Analytics · 3 hrs ago</div>
+      </div>
+      <div class="fb-meta-right">
+        <span class="tag tag-blue">Feature Request</span>
+        <div class="btn btn-sm" onclick="event.stopPropagation();showToast('Marked as resolved','success')">Resolve</div>
+      </div>
+    </div>
+    <div class="fb-item unread" onclick="openModal('fbDetailModal')">
+      <div class="fb-avatar">MP</div>
+      <div class="fb-meta">
+        <strong>Level 7 Temperature Too Cold</strong>
+        <p>Operations · "It's consistently below 20°C on level 7 in the afternoon. We've submitted HVAC requests but nothing's changed."</p>
+        <div class="act-time" style="margin-top:4px">Michelle P · Atlas Analytics · 5 hrs ago</div>
+      </div>
+      <div class="fb-meta-right">
+        <span class="tag tag-orange">In Progress</span>
+        <div class="btn btn-sm" onclick="event.stopPropagation();showToast('Marked as resolved','success')">Resolve</div>
+      </div>
+    </div>
+    <div class="fb-item" onclick="openModal('fbDetailModal')">
+      <div class="fb-avatar">RB</div>
+      <div class="fb-meta">
+        <strong>Loved the Breakfast Mixer Idea</strong>
+        <p>Community Event · "Great initiative. The lobby activation last month was brilliant. Keep them coming!"</p>
+        <div class="act-time" style="margin-top:4px">Raj B · Northline Advisory · Yesterday</div>
+      </div>
+      <div class="fb-meta-right">
+        <span class="tag tag-green">Positive</span>
+        <span class="tag tag-dim" style="margin-top:4px">Read</span>
+      </div>
+    </div>
+    <div class="fb-item" onclick="openModal('fbDetailModal')">
+      <div class="fb-avatar">AL</div>
+      <div class="fb-meta">
+        <strong>Sustainability Idea — Rooftop Garden</strong>
+        <p>Sustainability · "Has there been consideration of a small rooftop herb garden for tenant use? Great for morale and ESG."</p>
+        <div class="act-time" style="margin-top:4px">Amy L · Flow Health · 2 days ago</div>
+      </div>
+      <div class="fb-meta-right">
+        <span class="tag tag-green">Idea</span>
+        <span class="tag tag-dim" style="margin-top:4px">Read</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── ESG ─── -->
+  <div class="view" id="view-esg">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Building</div>
+        <div class="page-hd-title">ESG Data Management</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="showToast('ESG data published to portal','success')"><svg viewBox="0 0 24 24"><path d="M22 2L11 13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>Publish to Portal</div>
+      </div>
+    </div>
+    <div class="kpi-strip" style="grid-template-columns:repeat(4,1fr)">
+      <div class="kpi-cell"><div class="kpi-num green">63%</div><div class="kpi-lbl">Waste Diverted</div><div class="kpi-delta up">↑ 8% YOY</div></div>
+      <div class="kpi-cell"><div class="kpi-num gold">12%</div><div class="kpi-lbl">Energy Reduction</div><div class="kpi-delta up">↑ 4% YOY</div></div>
+      <div class="kpi-cell"><div class="kpi-num blue">184kL</div><div class="kpi-lbl">Water Saved</div><div class="kpi-delta up">Record high</div></div>
+      <div class="kpi-cell"><div class="kpi-num white">FY28</div><div class="kpi-lbl">Net Zero Target</div><div class="kpi-delta up">On track</div></div>
+    </div>
+
+    <div class="esg-input-grid">
+      <div class="esg-metric-card">
+        <div class="esg-metric-title">Waste Diverted From Landfill</div>
+        <div class="esg-metric-sub">Q1 2026 · Updated weekly</div>
+        <div class="esg-current">63%</div>
+        <div class="form-row col2">
+          <div class="field"><label>Current (%)</label><input type="number" value="63" min="0" max="100"/></div>
+          <div class="field"><label>Target (%)</label><input type="number" value="70" min="0" max="100"/></div>
+        </div>
+        <div style="margin-top:10px"><div class="btn btn-sm btn-primary" onclick="showToast('Waste data saved','success')">Save</div></div>
+      </div>
+      <div class="esg-metric-card">
+        <div class="esg-metric-title">Energy Reduction YOY</div>
+        <div class="esg-metric-sub">vs Q1 2025 · Base building controls</div>
+        <div class="esg-current">12%</div>
+        <div class="form-row col2">
+          <div class="field"><label>Current (%)</label><input type="number" value="12" min="0" max="100"/></div>
+          <div class="field"><label>Target (%)</label><input type="number" value="18" min="0" max="100"/></div>
+        </div>
+        <div style="margin-top:10px"><div class="btn btn-sm btn-primary" onclick="showToast('Energy data saved','success')">Save</div></div>
+      </div>
+      <div class="esg-metric-card">
+        <div class="esg-metric-title">Water Saved (kL)</div>
+        <div class="esg-metric-sub">This quarter vs Q1 2025</div>
+        <div class="esg-current">184kL</div>
+        <div class="form-row col2">
+          <div class="field"><label>Saved (kL)</label><input type="number" value="184"/></div>
+          <div class="field"><label>Target (kL)</label><input type="number" value="200"/></div>
+        </div>
+        <div style="margin-top:10px"><div class="btn btn-sm btn-primary" onclick="showToast('Water data saved','success')">Save</div></div>
+      </div>
+      <div class="esg-metric-card">
+        <div class="esg-metric-title">NABERS Energy Rating</div>
+        <div class="esg-metric-sub">Progress to 5-star FY25</div>
+        <div class="esg-current">79%</div>
+        <div class="form-row col2">
+          <div class="field"><label>Progress (%)</label><input type="number" value="79" min="0" max="100"/></div>
+          <div class="field"><label>Star Target</label><input type="text" value="5★"/></div>
+        </div>
+        <div style="margin-top:10px"><div class="btn btn-sm btn-primary" onclick="showToast('NABERS data saved','success')">Save</div></div>
+      </div>
+    </div>
+
+    <div style="padding:20px 24px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.9rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:4px">Community Reinvestment Fund</div>
+      <div style="font-size:.74rem;color:var(--mid);margin-bottom:12px">Amount earmarked for events, amenity upgrades, and activations</div>
+      <div class="form-row col3">
+        <div class="field"><label>Q1 Amount ($)</label><input type="text" value="$8,500"/></div>
+        <div class="field"><label>Allocation</label><input type="text" value="Events · Amenity · Activations"/></div>
+        <div class="field"><label>Net Zero Target Year</label><input type="text" value="FY2028"/></div>
+      </div>
+      <div class="form-actions">
+        <div class="btn btn-primary" onclick="showToast('ESG data saved successfully','success')">Save All Changes</div>
+        <div class="btn" onclick="showToast('ESG data published to portal','info')">Publish to Portal</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─── TEAM ─── -->
+  <div class="view" id="view-team">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Building</div>
+        <div class="page-hd-title">Team Management</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="openModal('teamModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Add Staff Member</div>
+      </div>
+    </div>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>Name</th><th>Role</th><th>Department</th><th>Phone</th><th>Email</th><th>Hours</th><th>Status</th><th style="text-align:right">Actions</th></tr>
+        </thead>
+        <tbody>
+          <tr>
+            <td><div class="td-cap">James Hartwell</div><div class="td-sub">Primary escalation point</div></td>
+            <td>Property Manager</td>
+            <td><span class="tag tag-gold">Management</span></td>
+            <td class="td-mono">9876 1200</td>
+            <td class="td-mono" style="font-size:.58rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="ef9f82afddd7d98e838d8a9d9bc18c8082c18e9a">[email&#160;protected]</a></td>
+            <td class="td-mono" style="font-size:.58rem">M–F 8–5:30</td>
+            <td><span class="tag tag-green">Available</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('teamModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('staff member')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Sarah Okonkwo</div></td>
+            <td>Leasing Manager</td>
+            <td><span class="tag tag-blue">Leasing</span></td>
+            <td class="td-mono">9876 1201</td>
+            <td class="td-mono" style="font-size:.58rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="7d11181c0e14131a3d4f454b1c111f180f09531e1210531c08">[email&#160;protected]</a></td>
+            <td class="td-mono" style="font-size:.58rem">M–F 8:30–5</td>
+            <td><span class="tag tag-green">Available</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('teamModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('staff member')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Marcus Riley</div></td>
+            <td>Head of Security</td>
+            <td><span class="tag tag-red">Security</span></td>
+            <td class="td-mono">9876 1210</td>
+            <td class="td-mono" style="font-size:.58rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="96e5f3f5e3e4ffe2efd6a4aea0f7faf4f3e4e2b8f5f9fbb8f7e3">[email&#160;protected]</a></td>
+            <td class="td-mono" style="font-size:.58rem">24/7 on-call</td>
+            <td><span class="tag tag-green">On Duty</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('teamModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('staff member')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+          <tr>
+            <td><div class="td-cap">Diana Santos</div></td>
+            <td>Head of Cleaning & Facilities</td>
+            <td><span class="tag tag-dim">Facilities</span></td>
+            <td class="td-mono">9876 1215</td>
+            <td class="td-mono" style="font-size:.58rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="670106040e0b0e130e021427555f51060b050215134904080a490612">[email&#160;protected]</a></td>
+            <td class="td-mono" style="font-size:.58rem">M–F 6am–4pm</td>
+            <td><span class="tag tag-dim">Off Duty</span></td>
+            <td><div class="td-actions"><div class="icon-btn gold" onclick="openModal('teamModal')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('staff member')" title="Remove"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td>
+          </tr>
+        </tbody>
+      </table>
+    </div>
+  </div>
+
+  <!-- ─── SETTINGS ─── -->
+  <div class="view" id="view-settings">
+    <div class="page-hd">
+      <div class="page-hd-left">
+        <div class="page-hd-eyebrow">Building</div>
+        <div class="page-hd-title">Portal Settings</div>
+      </div>
+      <div class="page-hd-right">
+        <div class="btn btn-primary" onclick="showToast('Settings saved','success')">Save Changes</div>
+      </div>
+    </div>
+    <div style="display:grid;grid-template-columns:1fr 1fr;border-bottom:1px solid var(--line)">
+      <div style="padding:24px;border-right:1px solid var(--line)">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Building Identity</div>
+        <div style="font-size:.72rem;color:var(--mid);margin-bottom:18px">Displayed across the tenant portal</div>
+        <div class="form-grid" style="padding:0">
+          <div class="field"><label>Building Name</label><input type="text" value="286 Albert Rd"/></div>
+          <div class="field"><label>Tagline / Strapline</label><input type="text" value="Shine On"/></div>
+          <div class="field"><label>Emergency Phone</label><input type="text" value="1800 286 100"/></div>
+          <div class="field"><label>Management Email</label><input type="email" value="hello@286albert.com.au"/></div>
+          <div class="field"><label>Portal Greeting (Tenant name prefix)</label><input type="text" value="GOOD MORNING,"/></div>
+        </div>
+      </div>
+      <div style="padding:24px">
+        <div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Module Visibility</div>
+        <div style="font-size:.72rem;color:var(--mid);margin-bottom:18px">Toggle portal sections on or off</div>
+        <div style="display:flex;flex-direction:column;gap:12px">
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Notices & Updates</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Events</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Benefits</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Marketplace</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">Tenant Poll</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">ESG Dashboard</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+          <div style="display:flex;align-items:center;justify-content:space-between;padding:10px 14px;background:var(--bg2);border:1px solid var(--line)">
+            <span style="font-family:'Barlow Condensed',sans-serif;font-size:.82rem;font-weight:700;text-transform:uppercase;letter-spacing:.04em">AI Building Assistant</span>
+            <div class="toggle on" onclick="this.classList.toggle('on')"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+    <div style="padding:24px">
+      <div style="font-family:'Barlow Condensed',sans-serif;font-size:.95rem;font-weight:800;letter-spacing:.06em;text-transform:uppercase;margin-bottom:3px">Admin Access</div>
+      <div style="font-size:.72rem;color:var(--mid);margin-bottom:18px">Users with management access to this portal</div>
+      <div class="tbl-wrap">
+        <table>
+          <thead><tr><th>Name</th><th>Email</th><th>Role</th><th>Last Login</th><th style="text-align:right">Actions</th></tr></thead>
+          <tbody>
+            <tr><td><div class="td-cap">James Wizel</div></td><td class="td-mono" style="font-size:.62rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="096368646c7a497e60736c65276a666427687c">[email&#160;protected]</a></td><td><span class="tag tag-gold">Super Admin</span></td><td class="td-mono">Today 8:42am</td><td><div class="td-actions"><div class="icon-btn gold" onclick="showToast('Edit user permissions','info')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div></div></td></tr>
+            <tr><td><div class="td-cap">James Hartwell</div></td><td class="td-mono" style="font-size:.62rem"><a href="/cdn-cgi/l/email-protection" class="__cf_email__" data-cfemail="cba1aaa6aeb8e5a38bbca2b1aea7e5a8a4a6e5aabe">[email&#160;protected]</a></td><td><span class="tag tag-blue">Property Manager</span></td><td class="td-mono">Today 9:15am</td><td><div class="td-actions"><div class="icon-btn gold" onclick="showToast('Edit user permissions','info')" title="Edit"><svg viewBox="0 0 24 24"><path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"/><path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"/></svg></div><div class="icon-btn red" onclick="confirmDelete('admin user')" title="Revoke"><svg viewBox="0 0 24 24"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/></svg></div></div></td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div style="margin-top:12px"><div class="btn" onclick="openModal('inviteModal')"><svg viewBox="0 0 24 24"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>Invite Admin User</div></div>
+    </div>
+  </div>
+
+</main>
+</div>
+
+<!-- ═══════ MODALS ═══════ -->
+
+<!-- Notice Modal -->
+<div class="modal-back" id="noticeModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Post Notice</div><div class="modal-close" onclick="closeModal('noticeModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="field"><label>Headline</label><input type="text" placeholder="e.g. Level 9 Lift Lobby Refresh Starts Monday"/></div>
+        <div class="form-row col2">
+          <div class="field"><label>Category</label><select><option>Select…</option><option>Operations</option><option>Amenity</option><option>Works</option><option>Sustainability</option><option>Leasing</option><option>Community</option></select></div>
+          <div class="field"><label>Status</label><select><option>Live (publish now)</option><option>Scheduled</option><option>Draft</option></select></div>
+        </div>
+        <div class="field"><label>Summary / Body Copy</label><textarea placeholder="Full notice text visible to tenants…"></textarea></div>
+        <div class="form-row col2">
+          <div class="field"><label>Schedule Date (optional)</label><input type="date"/></div>
+          <div class="field"><label>Expiry Date (optional)</label><input type="date"/></div>
+        </div>
+        <div class="field"><label>Emoji Icon (optional)</label><input type="text" placeholder="🔧 or leave blank"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('noticeModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('noticeModal');showToast('Notice published successfully','success')">Publish Notice</div>
+    </div>
+  </div>
+</div>
+
+<!-- Event Modal -->
+<div class="modal-back" id="eventModalBack">
+  <div class="modal modal-lg">
+    <div class="modal-hd"><div class="modal-title">Create Event</div><div class="modal-close" onclick="closeModal('eventModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="field"><label>Event Name</label><input type="text" placeholder="e.g. Lobby Breakfast Mixer"/></div>
+        <div class="form-row col3">
+          <div class="field"><label>Date</label><input type="date"/></div>
+          <div class="field"><label>Start Time</label><input type="time" value="08:00"/></div>
+          <div class="field"><label>End Time</label><input type="time" value="09:30"/></div>
+        </div>
+        <div class="form-row col2">
+          <div class="field"><label>Location</label><input type="text" placeholder="e.g. Ground Floor Lobby"/></div>
+          <div class="field"><label>Capacity (leave blank = unlimited)</label><input type="number" placeholder="80"/></div>
+        </div>
+        <div class="field"><label>Description</label><textarea placeholder="Brief description shown to tenants…"></textarea></div>
+        <div class="form-row col2">
+          <div class="field"><label>RSVP Closes</label><input type="date"/></div>
+          <div class="field"><label>Status</label><select><option>Published</option><option>Draft</option><option>Cancelled</option></select></div>
+        </div>
+        <div class="field"><label>Cover Image URL</label><input type="url" placeholder="https://images.unsplash.com/…"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('eventModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('eventModal');showToast('Event created and published','success')">Create Event</div>
+    </div>
+  </div>
+</div>
+
+<!-- RSVP Detail Modal -->
+<div class="modal-back" id="rsvpModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">RSVPs · Lobby Breakfast Mixer</div><div class="modal-close" onclick="closeModal('rsvpModal')">✕</div></div>
+    <div class="modal-body">
+      <div style="margin-bottom:12px;display:flex;gap:8px">
+        <span class="tag tag-green" style="font-size:.56rem">18 Confirmed</span>
+        <span class="tag tag-dim">Cap: Unlimited</span>
+      </div>
+      <table style="width:100%">
+        <thead><tr><th>Name</th><th>Company</th><th>Floor</th><th>RSVP'd</th></tr></thead>
+        <tbody>
+          <tr><td>Alex Kim</td><td class="td-mono" style="font-size:.62rem">Northline Advisory</td><td class="td-mono">L6</td><td class="td-mono" style="font-size:.56rem">5 min ago</td></tr>
+          <tr><td>Sarah Park</td><td class="td-mono" style="font-size:.62rem">Veritas Capital</td><td class="td-mono">L10</td><td class="td-mono" style="font-size:.56rem">18 min ago</td></tr>
+          <tr><td>Tom Nguyen</td><td class="td-mono" style="font-size:.62rem">Atlas Analytics</td><td class="td-mono">L7</td><td class="td-mono" style="font-size:.56rem">2 hrs ago</td></tr>
+          <tr><td>Michelle Park</td><td class="td-mono" style="font-size:.62rem">Atlas Analytics</td><td class="td-mono">L7</td><td class="td-mono" style="font-size:.56rem">3 hrs ago</td></tr>
+          <tr><td>Raj Bhaskar</td><td class="td-mono" style="font-size:.62rem">Northline Advisory</td><td class="td-mono">L6</td><td class="td-mono" style="font-size:.56rem">4 hrs ago</td></tr>
+        </tbody>
+      </table>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="showToast('RSVP list exported','success')">Export CSV</div>
+      <div class="btn" onclick="closeModal('rsvpModal')">Close</div>
+    </div>
+  </div>
+</div>
+
+<!-- Benefit Modal -->
+<div class="modal-back" id="benefitModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Add / Edit Benefit</div><div class="modal-close" onclick="closeModal('benefitModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="field"><label>Benefit Title</label><input type="text" placeholder="e.g. 20% Off All Drinks"/></div>
+        <div class="form-row col2">
+          <div class="field"><label>Partner Name</label><input type="text" placeholder="e.g. Burnley Roasters"/></div>
+          <div class="field"><label>Category</label><select><option>Coffee</option><option>Food & Drink</option><option>Fitness</option><option>Wellbeing</option><option>Retail</option><option>Parking</option></select></div>
+        </div>
+        <div class="field"><label>Description</label><textarea placeholder="Offer details visible to tenants…"></textarea></div>
+        <div class="form-row col2">
+          <div class="field"><label>Voucher / Redemption Code</label><input type="text" placeholder="e.g. WIZEL-COFFEE-01"/></div>
+          <div class="field"><label>Expiry Date</label><input type="date"/></div>
+        </div>
+        <div class="form-row col2">
+          <div class="field"><label>Remaining Uses (blank = unlimited)</label><input type="number" placeholder="unlimited"/></div>
+          <div class="field"><label>Partner Location</label><input type="text" placeholder="e.g. Ground Floor · Albert Rd"/></div>
+        </div>
+        <div class="field"><label>Image URL</label><input type="url" placeholder="https://images.unsplash.com/…"/></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('benefitModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('benefitModal');showToast('Benefit saved and published','success')">Save Benefit</div>
+    </div>
+  </div>
+</div>
+
+<!-- Poll Modal -->
+<div class="modal-back" id="pollModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Create Poll</div><div class="modal-close" onclick="closeModal('pollModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="field"><label>Poll Question</label><input type="text" placeholder="e.g. Which activation next month?"/></div>
+        <div class="field"><label>Subtitle / Context</label><input type="text" placeholder="e.g. Your vote goes directly to the property team"/></div>
+        <div class="field"><label>Option 1</label><input type="text" placeholder="e.g. Wellness morning — coffee + recovery"/></div>
+        <div class="field"><label>Option 2</label><input type="text" placeholder="e.g. Live lobby music on Thursdays"/></div>
+        <div class="field"><label>Option 3</label><input type="text" placeholder="e.g. Tenant networking drinks"/></div>
+        <div class="field"><label>Option 4 (optional)</label><input type="text" placeholder=""/></div>
+        <div class="form-row col2">
+          <div class="field"><label>Closes On</label><input type="date"/></div>
+          <div class="field"><label>Show Results After Voting?</label><select><option>Yes — show live results</option><option>No — hide until closed</option></select></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('pollModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('pollModal');showToast('Poll published to portal','success')">Publish Poll</div>
+    </div>
+  </div>
+</div>
+
+<!-- Tenant Modal -->
+<div class="modal-back" id="tenantModalBack">
+  <div class="modal modal-lg">
+    <div class="modal-hd"><div class="modal-title">Add / Edit Tenant</div><div class="modal-close" onclick="closeModal('tenantModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="form-row col2">
+          <div class="field"><label>Company Name</label><input type="text" placeholder="e.g. Northline Advisory"/></div>
+          <div class="field"><label>Industry / Sector</label><input type="text" placeholder="e.g. Financial Services"/></div>
+        </div>
+        <div class="form-row col3">
+          <div class="field"><label>Floor Level</label><input type="text" placeholder="e.g. Level 6"/></div>
+          <div class="field"><label>Area (m²)</label><input type="text" placeholder="~780 m²"/></div>
+          <div class="field"><label>Tenancy Type</label><select><option>Full floor</option><option>Part floor</option></select></div>
+        </div>
+        <div class="form-row col2">
+          <div class="field"><label>Lease Start</label><input type="date"/></div>
+          <div class="field"><label>Lease End</label><input type="date"/></div>
+        </div>
+        <div class="field"><label>Directory Description</label><textarea placeholder="Public description shown in tenant directory…"></textarea></div>
+        <div class="form-row col2">
+          <div class="field"><label>Primary Contact Name</label><input type="text" placeholder="e.g. Alex Kim"/></div>
+          <div class="field"><label>Primary Contact Email</label><input type="email" placeholder="alex@company.com.au"/></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('tenantModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('tenantModal');showToast('Tenant saved to directory','success')">Save Tenant</div>
+    </div>
+  </div>
+</div>
+
+<!-- Team Modal -->
+<div class="modal-back" id="teamModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Add / Edit Staff Member</div><div class="modal-close" onclick="closeModal('teamModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="form-row col2">
+          <div class="field"><label>Full Name</label><input type="text" placeholder="e.g. James Hartwell"/></div>
+          <div class="field"><label>Role Title</label><input type="text" placeholder="e.g. Property Manager"/></div>
+        </div>
+        <div class="form-row col2">
+          <div class="field"><label>Department</label><select><option>Management</option><option>Leasing</option><option>Security</option><option>Facilities</option></select></div>
+          <div class="field"><label>Phone</label><input type="tel" placeholder="+61 3 9876 1200"/></div>
+        </div>
+        <div class="field"><label>Email</label><input type="email" placeholder="james@286albert.com.au"/></div>
+        <div class="field"><label>Bio (shown in portal)</label><textarea placeholder="Brief professional bio…"></textarea></div>
+        <div class="form-row col2">
+          <div class="field"><label>Working Hours</label><input type="text" placeholder="Mon–Fri · 8:00am – 5:30pm"/></div>
+          <div class="field"><label>Profile Image URL</label><input type="url" placeholder="https://images.unsplash.com/…"/></div>
+        </div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('teamModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('teamModal');showToast('Staff member saved','success')">Save</div>
+    </div>
+  </div>
+</div>
+
+<!-- Feedback Detail Modal -->
+<div class="modal-back" id="fbDetailModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Feedback Detail</div><div class="modal-close" onclick="closeModal('fbDetailModal')">✕</div></div>
+    <div class="modal-body">
+      <div style="display:flex;align-items:flex-start;gap:14px;margin-bottom:18px;padding-bottom:16px;border-bottom:1px solid var(--line)">
+        <div class="fb-avatar" style="width:38px;height:38px;font-size:.75rem">SK</div>
+        <div>
+          <div style="font-family:'Barlow Condensed',sans-serif;font-size:.96rem;font-weight:800;letter-spacing:.04em;text-transform:uppercase;margin-bottom:3px">EOT Showers Running Cold in Mornings</div>
+          <div style="font-size:.7rem;color:var(--mid)">Sarah K · Veritas Capital · L10 · Today 1 hr ago</div>
+          <span class="tag tag-red" style="margin-top:6px">Building Amenity</span>
+        </div>
+      </div>
+      <div style="font-size:.78rem;color:var(--mid);line-height:1.7;margin-bottom:18px">"The showers on B1 have been running cold before 8am for the past two weeks. Multiple people in our office have mentioned it. Can this be escalated to facilities? It's really impacting end-of-trip usage."</div>
+      <div class="field"><label>Internal Response / Action Note</label><textarea placeholder="e.g. Escalated to Diana Santos — plumber booked for 10 Mar…"></textarea></div>
+      <div class="form-row col2">
+        <div class="field"><label>Status</label><select><option>Unread</option><option>In Progress</option><option selected>Resolved</option></select></div>
+        <div class="field"><label>Priority</label><select><option>Normal</option><option selected>Urgent</option><option>Low</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn btn-danger" onclick="closeModal('fbDetailModal');showToast('Feedback archived','info')">Archive</div>
+      <div class="btn btn-primary" onclick="closeModal('fbDetailModal');showToast('Feedback marked as resolved','success')">Mark Resolved</div>
+    </div>
+  </div>
+</div>
+
+<!-- Invite Admin Modal -->
+<div class="modal-back" id="inviteModalBack">
+  <div class="modal">
+    <div class="modal-hd"><div class="modal-title">Invite Admin User</div><div class="modal-close" onclick="closeModal('inviteModal')">✕</div></div>
+    <div class="modal-body">
+      <div class="form-grid" style="padding:0">
+        <div class="field"><label>Full Name</label><input type="text" placeholder="e.g. Sarah Okonkwo"/></div>
+        <div class="field"><label>Email Address</label><input type="email" placeholder="sarah@wizel.com.au"/></div>
+        <div class="field"><label>Role / Permissions</label><select><option>Property Manager</option><option>Leasing Manager</option><option>Content Editor</option><option>Read Only</option></select></div>
+      </div>
+    </div>
+    <div class="modal-foot">
+      <div class="btn" onclick="closeModal('inviteModal')">Cancel</div>
+      <div class="btn btn-primary" onclick="closeModal('inviteModal');showToast('Invitation sent','success')">Send Invite</div>
+    </div>
+  </div>
+</div>
+
+<!-- Confirm Dialog -->
+<div class="confirm-back" id="confirmBack">
+  <div class="confirm-box">
+    <div class="confirm-title" id="confirmTitle">Confirm Delete</div>
+    <div class="confirm-body" id="confirmBody">Are you sure you want to delete this item? This cannot be undone.</div>
+    <div class="confirm-actions">
+      <div class="btn" onclick="closeConfirm()">Cancel</div>
+      <div class="btn btn-danger" id="confirmOk">Delete</div>
+    </div>
+  </div>
+</div>
+
+<!-- Toast -->
+<div class="toast" id="toast">
+  <div class="toast-ico" id="toastIco">✓</div>
+  <span id="toastMsg">Done</span>
+</div>
+
+<script>
+/* ── Navigation ── */
+function nav(id){
+  document.querySelectorAll('.nav-item').forEach(n=>n.classList.toggle('active',n.dataset.view===id));
+  document.querySelectorAll('.view').forEach(v=>v.classList.toggle('active',v.id==='view-'+id));
+  document.querySelector('.main').scrollTo({top:0,behavior:'smooth'});
+}
+document.querySelectorAll('.nav-item[data-view]').forEach(n=>n.addEventListener('click',()=>nav(n.dataset.view)));
+
+/* ── Modals ── */
+function openModal(id){
+  var b=document.getElementById(id+'Back');
+  if(b){b.classList.add('open');document.body.style.overflow='hidden'}
+}
+function closeModal(id){
+  var b=document.getElementById(id+'Back');
+  if(b){b.classList.remove('open');document.body.style.overflow=''}
+}
+document.querySelectorAll('.modal-back').forEach(b=>{
+  b.addEventListener('click',e=>{if(e.target===b){b.classList.remove('open');document.body.style.overflow=''}});
+});
+
+/* ── Confirm dialog ── */
+var pendingConfirmMsg='';
+function confirmDelete(type){
+  pendingConfirmMsg=type;
+  document.getElementById('confirmTitle').textContent='Delete '+type.charAt(0).toUpperCase()+type.slice(1);
+  document.getElementById('confirmBody').textContent='Are you sure you want to delete this '+type+'? This action cannot be undone.';
+  document.getElementById('confirmBack').classList.add('open');
+  document.body.style.overflow='hidden';
+}
+function closeConfirm(){
+  document.getElementById('confirmBack').classList.remove('open');
+  document.body.style.overflow='';
+}
+document.getElementById('confirmOk').addEventListener('click',()=>{
+  closeConfirm();
+  showToast(pendingConfirmMsg.charAt(0).toUpperCase()+pendingConfirmMsg.slice(1)+' deleted','error');
+});
+document.getElementById('confirmBack').addEventListener('click',e=>{if(e.target===document.getElementById('confirmBack'))closeConfirm()});
+
+/* ── Toast ── */
+var toastTimer;
+function showToast(msg,type){
+  type=type||'info';
+  var t=document.getElementById('toast');
+  var tm=document.getElementById('toastMsg');
+  var ti=document.getElementById('toastIco');
+  tm.textContent=msg;
+  ti.className='toast-ico '+type;
+  ti.textContent=type==='success'?'✓':type==='error'?'✕':'!';
+  t.classList.add('show');
+  clearTimeout(toastTimer);
+  toastTimer=setTimeout(()=>t.classList.remove('show'),3000);
+}
+
+/* ── Table search filter ── */
+function filterTable(input,tableId){
+  var q=input.value.toLowerCase();
+  var tbl=document.getElementById(tableId);
+  if(!tbl)return;
+  tbl.querySelectorAll('tbody tr').forEach(row=>{
+    row.style.display=row.textContent.toLowerCase().includes(q)?'':'none';
+  });
+}
+
+/* ── Engagement bar chart ── */
+(function(){
+  var data=[
+    {d:'Mon',v:62},{d:'Tue',v:78},{d:'Wed',v:55},{d:'Thu',v:91},
+    {d:'Fri',v:84},{d:'Sat',v:18},{d:'Sun',v:22}
+  ];
+  var max=Math.max(...data.map(d=>d.v));
+  var wrap=document.getElementById('engChart');
+  if(!wrap)return;
+  data.forEach(item=>{
+    var col=document.createElement('div');
+    col.style.cssText='display:flex;flex-direction:column;align-items:center;gap:4px;flex:1';
+    var bar=document.createElement('div');
+    var pct=Math.round((item.v/max)*100);
+    bar.style.cssText='width:100%;background:var(--fire);opacity:.85;border-radius:2px 2px 0 0;transition:height .4s ease';
+    bar.style.height=pct+'%';
+    bar.title=item.d+': '+item.v+'%';
+    var lbl=document.createElement('div');
+    lbl.textContent=item.d;
+    lbl.style.cssText='font-family:"DM Mono",monospace;font-size:.45rem;letter-spacing:.08em;color:var(--dim);text-transform:uppercase';
+    col.appendChild(bar);
+    col.appendChild(lbl);
+    wrap.appendChild(col);
+  });
+})();
+</script>
+</body>
+</html>
