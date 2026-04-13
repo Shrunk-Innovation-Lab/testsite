@@ -1,0 +1,1429 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Scrappy — Autonomous Recycling Robot</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bebas+Neue&family=DM+Sans:ital,opsz,wght@0,9..40,300;0,9..40,400;0,9..40,500;1,9..40,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --red: #F40009;
+    --red-dark: #C0000A;
+    --black: #0A0A0A;
+    --white: #FAFAFA;
+    --grey: #1A1A1A;
+    --grey-mid: #2E2E2E;
+    --grey-light: #888;
+    --accent: #FF1A1A;
+  }
+
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  html { scroll-behavior: smooth; }
+  body {
+    background: var(--black);
+    color: var(--white);
+    font-family: 'DM Sans', sans-serif;
+    font-weight: 300;
+    overflow-x: hidden;
+    cursor: none;
+  }
+
+  .cursor {
+    position: fixed;
+    width: 10px; height: 10px;
+    background: var(--red);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9999;
+    transform: translate(-50%, -50%);
+    transition: transform 0.1s ease, width 0.2s ease, height 0.2s ease;
+    mix-blend-mode: difference;
+  }
+  .cursor-ring {
+    position: fixed;
+    width: 36px; height: 36px;
+    border: 1px solid rgba(244,0,9,0.5);
+    border-radius: 50%;
+    pointer-events: none;
+    z-index: 9998;
+    transform: translate(-50%, -50%);
+    transition: left 0.12s ease, top 0.12s ease, width 0.2s ease, height 0.2s ease;
+  }
+
+  nav {
+    position: fixed;
+    top: 0; left: 0; right: 0;
+    z-index: 100;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 24px 48px;
+    background: rgba(10,10,10,0.96);
+    backdrop-filter: blur(8px);
+    -webkit-backdrop-filter: blur(8px);
+    border-bottom: 1px solid rgba(255,255,255,0.04);
+    transition: background 0.3s;
+  }
+  .nav-logo {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.12em;
+    color: var(--white);
+    text-decoration: none;
+  }
+  .nav-logo span { color: var(--red); }
+  .nav-badge {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    border: 1px solid var(--grey-mid);
+    padding: 6px 14px;
+    border-radius: 2px;
+  }
+
+  #hero {
+    position: relative;
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    padding: 0 48px;
+    overflow: hidden;
+  }
+  .hero-bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 60% 60% at 80% 50%, rgba(244,0,9,0.08) 0%, transparent 70%),
+      radial-gradient(ellipse 40% 80% at 20% 80%, rgba(244,0,9,0.04) 0%, transparent 60%);
+  }
+  .grid-lines {
+    position: absolute;
+    inset: 0;
+    overflow: hidden;
+    opacity: 0.07;
+  }
+  .grid-lines::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+      linear-gradient(var(--grey-mid) 1px, transparent 1px),
+      linear-gradient(90deg, var(--grey-mid) 1px, transparent 1px);
+    background-size: 60px 60px;
+    animation: gridDrift 20s linear infinite;
+  }
+  @keyframes gridDrift {
+    from { transform: translate(0,0); }
+    to { transform: translate(60px, 60px); }
+  }
+  .circle-accent {
+    position: absolute;
+    right: -120px;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 700px; height: 700px;
+    border: 1px solid rgba(244,0,9,0.15);
+    border-radius: 50%;
+    animation: rotateSlow 30s linear infinite;
+  }
+  .circle-accent::before {
+    content: '';
+    position: absolute;
+    inset: 40px;
+    border: 1px solid rgba(244,0,9,0.08);
+    border-radius: 50%;
+    animation: rotateSlow 20s linear infinite reverse;
+  }
+  .circle-accent::after {
+    content: '';
+    position: absolute;
+    inset: 110px;
+    border: 1px solid rgba(244,0,9,0.05);
+    border-radius: 50%;
+  }
+  @keyframes rotateSlow {
+    from { transform: translateY(-50%) rotate(0deg); }
+    to { transform: translateY(-50%) rotate(360deg); }
+  }
+  .hero-eyebrow {
+    font-size: 0.65rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease 0.2s forwards;
+    display: flex;
+    align-items: center;
+    gap: 16px;
+  }
+  .hero-eyebrow::before {
+    content: '';
+    display: block;
+    width: 40px;
+    height: 1px;
+    background: var(--red);
+  }
+  .hero-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(5rem, 14vw, 13rem);
+    line-height: 0.9;
+    letter-spacing: 0.02em;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.35s forwards;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-title .line-red { color: var(--red); }
+  .hero-sub {
+    max-width: 480px;
+    margin-top: 32px;
+    font-size: 1rem;
+    line-height: 1.7;
+    color: rgba(250,250,250,0.6);
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.55s forwards;
+    position: relative;
+    z-index: 1;
+  }
+  .hero-stats {
+    display: flex;
+    gap: 48px;
+    margin-top: 56px;
+    opacity: 0;
+    animation: fadeUp 0.9s ease 0.75s forwards;
+    position: relative;
+    z-index: 1;
+  }
+  .stat-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 2.8rem;
+    color: var(--white);
+    line-height: 1;
+    letter-spacing: 0.04em;
+  }
+  .stat-num span { color: var(--red); }
+  .stat-label {
+    font-size: 0.65rem;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+    margin-top: 4px;
+  }
+  .scroll-hint {
+    position: absolute;
+    bottom: 40px;
+    left: 50%;
+    transform: translateX(-50%);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 8px;
+    opacity: 0;
+    animation: fadeIn 1s ease 1.4s forwards;
+  }
+  .scroll-hint span {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--grey-light);
+  }
+  .scroll-line {
+    width: 1px;
+    height: 48px;
+    background: linear-gradient(to bottom, var(--red), transparent);
+    animation: scrollPulse 2s ease-in-out infinite;
+  }
+  @keyframes scrollPulse {
+    0%, 100% { opacity: 0.3; transform: scaleY(1); }
+    50% { opacity: 1; transform: scaleY(1.2); }
+  }
+
+  section {
+    padding: 120px 48px;
+    max-width: 1200px;
+    margin: 0 auto;
+  }
+  .section-label {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .section-label::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--red);
+  }
+  .section-eyebrow {
+    font-size: 0.6rem;
+    letter-spacing: 0.35em;
+    text-transform: uppercase;
+    color: var(--red);
+    display: flex;
+    align-items: center;
+    gap: 16px;
+    margin-bottom: 48px;
+  }
+  .section-eyebrow::before {
+    content: '';
+    display: block;
+    width: 30px;
+    height: 1px;
+    background: var(--red);
+  }
+  .section-heading {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: clamp(2.8rem, 6vw, 5.5rem);
+    line-height: 0.95;
+    letter-spacing: 0.03em;
+    margin-bottom: 24px;
+  }
+  .divider {
+    width: 100%;
+    height: 1px;
+    background: linear-gradient(to right, transparent, var(--grey-mid), transparent);
+    margin: 0 48px;
+    max-width: calc(100% - 96px);
+  }
+
+  #how { position: relative; }
+  #how::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0;
+    width: 3px;
+    height: 100%;
+    background: linear-gradient(to bottom, var(--red), transparent);
+  }
+  .how-intro {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+    margin-bottom: 96px;
+  }
+  .how-intro p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: rgba(250,250,250,0.6);
+  }
+  .how-intro p + p { margin-top: 16px; }
+  .phases {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 2px;
+  }
+  .phase-card {
+    background: var(--grey);
+    padding: 40px;
+    position: relative;
+    overflow: hidden;
+    transition: background 0.3s ease;
+  }
+  .phase-card:hover { background: #222; }
+  .phase-card::after {
+    content: '';
+    position: absolute;
+    bottom: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.4s ease;
+  }
+  .phase-card:hover::after { transform: scaleX(1); }
+  .phase-number {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 5rem;
+    color: rgba(244,0,9,0.1);
+    position: absolute;
+    top: 16px; right: 24px;
+    line-height: 1;
+    pointer-events: none;
+    transition: color 0.3s ease;
+  }
+  .phase-card:hover .phase-number { color: rgba(244,0,9,0.2); }
+  .phase-tag {
+    font-size: 0.6rem;
+    letter-spacing: 0.25em;
+    text-transform: uppercase;
+    color: var(--red);
+    margin-bottom: 12px;
+  }
+  .phase-title {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.6rem;
+    letter-spacing: 0.05em;
+    margin-bottom: 16px;
+  }
+  .phase-body {
+    font-size: 0.88rem;
+    line-height: 1.75;
+    color: rgba(250,250,250,0.55);
+  }
+  .phase-bullets {
+    list-style: none;
+    margin-top: 20px;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+  }
+  .phase-bullets li {
+    font-size: 0.82rem;
+    color: rgba(250,250,250,0.45);
+    padding-left: 16px;
+    position: relative;
+  }
+  .phase-bullets li::before {
+    content: '—';
+    position: absolute;
+    left: 0;
+    color: var(--red);
+    font-size: 0.7rem;
+  }
+
+  #impact {
+    background: var(--grey);
+    max-width: 100%;
+    padding: 120px 48px;
+    position: relative;
+    overflow: hidden;
+  }
+  #impact::before {
+    content: 'IMPACT';
+    position: absolute;
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 20vw;
+    color: rgba(244,0,9,0.04);
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    white-space: nowrap;
+    pointer-events: none;
+    letter-spacing: 0.1em;
+  }
+  .impact-inner { max-width: 1200px; margin: 0 auto; }
+  .impact-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 2px;
+    margin-top: 64px;
+  }
+  .impact-card {
+    background: var(--black);
+    padding: 48px 40px;
+    position: relative;
+    overflow: hidden;
+  }
+  .impact-card::before {
+    content: '';
+    position: absolute;
+    top: 0; left: 0; right: 0;
+    height: 2px;
+    background: var(--red);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.5s ease;
+  }
+  .impact-card:hover::before { transform: scaleX(1); }
+  .impact-num {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 4.5rem;
+    line-height: 1;
+    letter-spacing: 0.02em;
+    color: var(--white);
+    margin-bottom: 8px;
+  }
+  .impact-num .unit { color: var(--red); }
+  .impact-desc {
+    font-size: 0.85rem;
+    line-height: 1.6;
+    color: rgba(250,250,250,0.5);
+  }
+
+  #team { position: relative; }
+  .team-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 80px;
+    align-items: start;
+  }
+  .team-text p {
+    font-size: 1rem;
+    line-height: 1.8;
+    color: rgba(250,250,250,0.6);
+    margin-bottom: 16px;
+  }
+  .partner-block {
+    margin-top: 48px;
+    padding: 32px;
+    border: 1px solid var(--grey-mid);
+    position: relative;
+  }
+  .partner-block::before {
+    content: 'PARTNER';
+    position: absolute;
+    top: -8px; left: 20px;
+    font-size: 0.55rem;
+    letter-spacing: 0.3em;
+    text-transform: uppercase;
+    color: var(--red);
+    background: var(--black);
+    padding: 0 8px;
+  }
+  .partner-name {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.8rem;
+    letter-spacing: 0.08em;
+    margin-bottom: 8px;
+  }
+  .partner-desc {
+    font-size: 0.82rem;
+    color: rgba(250,250,250,0.45);
+    line-height: 1.6;
+  }
+  .values-list {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+  }
+  .value-item {
+    display: flex;
+    align-items: center;
+    gap: 20px;
+    padding: 24px 28px;
+    background: var(--grey);
+    transition: background 0.3s ease;
+  }
+  .value-item:hover { background: #222; }
+  .value-icon {
+    width: 36px; height: 36px;
+    border-radius: 50%;
+    border: 1px solid var(--red);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    font-size: 0.8rem;
+    color: var(--red);
+  }
+  .value-title {
+    font-size: 0.9rem;
+    font-weight: 500;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    margin-bottom: 2px;
+  }
+  .value-desc { font-size: 0.8rem; color: rgba(250,250,250,0.45); }
+
+  footer {
+    border-top: 1px solid var(--grey-mid);
+    padding: 48px;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+  }
+  .footer-brand {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 1.4rem;
+    letter-spacing: 0.1em;
+  }
+  .footer-brand span { color: var(--red); }
+  .footer-copy {
+    font-size: 0.72rem;
+    letter-spacing: 0.15em;
+    color: var(--grey-light);
+    text-transform: uppercase;
+  }
+  .footer-dot {
+    width: 8px; height: 8px;
+    background: var(--red);
+    border-radius: 50%;
+    animation: pulse 2s ease-in-out infinite;
+  }
+  @keyframes pulse {
+    0%, 100% { opacity: 1; transform: scale(1); }
+    50% { opacity: 0.4; transform: scale(0.8); }
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(30px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+  @keyframes fadeIn {
+    from { opacity: 0; }
+    to { opacity: 1; }
+  }
+  .reveal {
+    opacity: 0;
+    transform: translateY(40px);
+    transition: opacity 0.7s ease, transform 0.7s ease;
+  }
+  .reveal.visible { opacity: 1; transform: translateY(0); }
+
+  #hero-canvas-fade { display: none; }
+  #hero-canvas {
+    position: absolute;
+    right: 0; top: 0;
+    width: 55%; height: 100%;
+    z-index: 4;
+    pointer-events: auto;
+    cursor: default;
+    opacity: 0;
+    animation: fadeIn 1.4s ease 0.8s forwards;
+  }
+  @media (max-width: 768px) {
+    #hero-canvas {
+      position: relative;
+      width: 100%; height: 78vh;
+      min-height: 500px;
+      top: auto; right: auto;
+      display: block;
+      opacity: 0;
+      animation: fadeIn 1.4s ease 0.8s forwards;
+    }
+  }
+
+  .ticker-wrap {
+    background: var(--red);
+    overflow: hidden;
+    padding: 14px 0;
+    white-space: nowrap;
+  }
+  .ticker {
+    display: inline-flex;
+    animation: ticker 18s linear infinite;
+  }
+  .ticker-item {
+    font-family: 'Bebas Neue', sans-serif;
+    font-size: 0.9rem;
+    letter-spacing: 0.2em;
+    padding: 0 40px;
+    color: var(--white);
+  }
+  .ticker-dot { color: rgba(255,255,255,0.4); }
+  @keyframes ticker {
+    from { transform: translateX(0); }
+    to { transform: translateX(-50%); }
+  }
+
+  @media (max-width: 768px) {
+    .cursor, .cursor-ring { display: none; }
+    body { cursor: auto; }
+    nav { padding: 14px 18px; position: fixed; top:0; left:0; right:0; z-index:100; background: rgba(10,10,10,0.98); backdrop-filter:blur(6px); -webkit-backdrop-filter:blur(6px); }
+    .nav-badge { display: none; }
+    #hero { position:relative; min-height:auto!important; padding:0!important; padding-top:52px!important; display:flex; flex-direction:column; justify-content:flex-start; overflow:hidden; }
+    #hero-canvas { order:-1; flex-shrink:0; }
+    .hero-eyebrow,.hero-bg,.grid-lines,.circle-accent { display:none; }
+    #hero-canvas-fade { display:block; width:100%; height:160px; margin-top:-160px; background:linear-gradient(to bottom,transparent 0%,rgba(10,10,10,0.85) 60%,#0a0a0a 100%); pointer-events:none; z-index:5; position:relative; order:0; }
+    .hero-title { position:relative; font-size:clamp(2.4rem,12vw,4.5rem); padding:0 18px; margin-top:-100px; line-height:0.88; z-index:6; text-shadow:0 2px 20px rgba(0,0,0,0.95); order:1; }
+    .hero-sub { display:block!important; position:relative; padding:4px 18px 16px; font-size:0.78rem; margin-top:0; max-width:100%; z-index:6; text-shadow:0 1px 8px rgba(0,0,0,0.9); order:2; }
+    .hero-stats { display:none; }
+    .scroll-hint { display:none; }
+    #status-text { top:8px!important; font-size:0.58rem; letter-spacing:0.2em; }
+    section { padding:50px 18px; }
+    #how { padding-left:22px!important; }
+    .section-heading { font-size:clamp(2rem,10vw,3.8rem); }
+    .how-intro { grid-template-columns:1fr; gap:20px; }
+    .phases { grid-template-columns:1fr; gap:2px; }
+    .phase-card { padding:24px 20px; }
+    .phase-number { font-size:3rem; }
+    #impact { padding:50px 18px; }
+    .impact-grid { grid-template-columns:1fr; gap:2px; }
+    .impact-card { padding:28px 24px; }
+    .impact-num { font-size:2.8rem; }
+    .team-layout { grid-template-columns:1fr; gap:36px; }
+    .partner-block { padding:20px; }
+    .value-item { padding:18px; }
+    footer { flex-direction:column; gap:14px; text-align:center; padding:28px 18px; }
+    .footer-copy { font-size:0.60rem; }
+    .ticker-item { padding:0 20px; font-size:0.75rem; }
+    .divider { margin:0 18px; max-width:calc(100% - 36px); }
+    .phase-card:nth-child(3) { background:linear-gradient(135deg,#1a1a1a 0%,#1f0000 100%); }
+  }
+  @media (max-width: 390px) {
+    .hero-title { font-size:clamp(2.6rem,13vw,4.5rem); }
+    .hero-stats { gap:14px; }
+    .stat-num { font-size:1.6rem; }
+  }
+
+  #back-top {
+    position: fixed;
+    bottom: 28px; right: 24px;
+    width: 44px; height: 44px;
+    background: var(--red);
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    z-index: 200;
+    opacity: 0;
+    transform: translateY(12px);
+    transition: opacity 0.3s, transform 0.3s;
+    border: none;
+    box-shadow: 0 2px 12px rgba(244,0,9,0.4);
+  }
+  #back-top.visible { opacity:1; transform:translateY(0); }
+  #back-top:hover { background:#cc0007; }
+  #back-top svg { display:block; }
+  @media (max-width: 768px) { #back-top { bottom:20px; right:16px; width:40px; height:40px; } }
+
+  .hiw-layout {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 56px;
+    margin-top: 52px;
+    align-items: start;
+  }
+  .hiw-media { display:flex; flex-direction:column; gap:12px; }
+  .hiw-media-item { border-radius:3px; overflow:hidden; border:1px solid rgba(255,255,255,0.07); }
+  .hiw-img { width:100%; display:block; aspect-ratio:16/9; object-fit:cover; }
+  .hiw-steps { display:flex; flex-direction:column; gap:36px; padding-top:4px; }
+  .hiw-step { display:flex; gap:18px; align-items:flex-start; }
+  .hiw-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--red); line-height:1; flex-shrink:0; width:38px; opacity:0.8; }
+  .hiw-title { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:0.1em; color:var(--white); margin:0 0 8px; }
+  .hiw-desc { font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--grey-light); line-height:1.65; margin:0; }
+  @media (max-width: 768px) {
+    #how-it-works { padding:56px 18px!important; }
+    .hiw-layout { grid-template-columns:1fr; gap:36px; margin-top:36px; }
+    .hiw-num { font-size:1.7rem; width:32px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="cursor" id="cursor"></div>
+<div class="cursor-ring" id="cursorRing"></div>
+
+<nav>
+  <a class="nav-logo" href="#" style="color:var(--red);display:flex;align-items:center;gap:8px;"><img src="https://i.imgur.com/qNT8SrA.png" alt="" style="height:20px;width:auto;vertical-align:middle;opacity:0.9;">SCRAPPY</a>
+  <div class="nav-badge">R&amp;D Live Deployment · QPAC</div>
+</nav>
+
+<section id="hero" style="max-width:100%;padding-left:48px;padding-right:48px;min-height:100vh;">
+  <div class="hero-bg"></div>
+  <div class="grid-lines"></div>
+  <div class="circle-accent"></div>
+  <div class="hero-eyebrow">World-First Autonomous Recycling Robot</div>
+  <h1 class="hero-title">MEET<br><span class="line-red">SCRAPPY.</span></h1>
+  <p class="hero-sub">An autonomous robotic system recovering eligible containers in live venue environments. Reducing waste, improving recycling outcomes and building a smarter circular economy.</p>
+  <div class="hero-stats">
+    <div class="stat-item">
+      <div class="stat-num">1,005<span>+</span></div>
+      <div class="stat-label">Containers Recovered</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">2<span>×</span></div>
+      <div class="stat-label">Live Phases Completed</div>
+    </div>
+    <div class="stat-item">
+      <div class="stat-num">24<span>/7</span></div>
+      <div class="stat-label">Operational Deployment</div>
+    </div>
+  </div>
+  <canvas id="hero-canvas"></canvas>
+  <div id="hero-canvas-fade"></div>
+  <div class="scroll-hint">
+    <span>Scroll</span>
+    <div class="scroll-line"></div>
+  </div>
+</section>
+
+<div class="ticker-wrap">
+  <div class="ticker">
+    <span class="ticker-item">AUTONOMOUS RECYCLING <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">LIVE AT QPAC <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">CIRCULAR ECONOMY <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">1,005+ CONTAINERS RECOVERED <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">COCA-COLA PARTNERSHIP <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">WORLD-FIRST DEPLOYMENT <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">AUTONOMOUS RECYCLING <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">LIVE AT QPAC <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">CIRCULAR ECONOMY <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">1,005+ CONTAINERS RECOVERED <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">COCA-COLA PARTNERSHIP <span class="ticker-dot">✦</span></span>
+    <span class="ticker-item">WORLD-FIRST DEPLOYMENT <span class="ticker-dot">✦</span></span>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;">
+<section id="how">
+  <div class="section-label reveal">How It Works</div>
+  <h2 class="section-heading reveal">THINKING<br><span style="color:var(--red)">OUTSIDE</span><br>THE LOOP<br>TO CLOSE<br>THE LOOP.</h2>
+  <div class="how-intro reveal">
+    <div>
+      <p>Scrappy is an autonomous robotic system designed to recover eligible containers in high-traffic public environments. Built to work alongside existing F&B, facilities management and cleaning operations teams, Scrappy slots into real-world workflows without disruption.</p>
+      <p>The system is being validated across two deployment phases at QPAC — one of Australia's premier performing arts venues, seeking to prove that robotics can meaningfully improve recycling outcomes at scale.</p>
+    </div>
+    <div>
+      <p>Each phase is pushing the boundary of what autonomous recycling robots can achieve in high traffic public spaces. The learnings from each iteration directly informing the next, improving mechanical handling, enclosure design and operational picking speed.</p>
+      <p>Scrappy isn't just a robot. It's a platform for rethinking how we close the loop on waste in public areas.</p>
+    </div>
+  </div>
+  <div class="phases">
+    <div class="phase-card reveal">
+      <div class="phase-number">01</div>
+      <div class="phase-tag">Phase 1 · Baseline</div>
+      <div class="phase-title">Research &amp; Validation</div>
+      <p class="phase-body">Initial feasibility study establishing the baseline opportunity for container recovery at QPAC. Identifying eligible container volumes, operational constraints and integration requirements with site teams.</p>
+      <ul class="phase-bullets">
+        <li>Container volume audit &amp; opportunity sizing</li>
+        <li>Operational workflow mapping</li>
+        <li>Prototype development &amp; bench testing</li>
+      </ul>
+    </div>
+    <div class="phase-card reveal" style="transition-delay:0.1s">
+      <div class="phase-number">02</div>
+      <div class="phase-tag">Phase 2 · Live Deployment</div>
+      <div class="phase-title">Operational at QPAC</div>
+      <p class="phase-body">Scrappy is deployed into a live environment for the first time, operating during large events alongside venue teams. Over 1,005 containers have been recovered in this trial so far.</p>
+      <ul class="phase-bullets">
+        <li>Real-world handling, positioning &amp; speed assessment</li>
+        <li>Enclosure design &amp; serviceability refinement</li>
+        <li>Performance under fluctuating waste volumes</li>
+      </ul>
+    </div>
+    <div class="phase-card reveal" style="transition-delay:0.2s;background:linear-gradient(135deg,#1a1a1a 0%,#1f0000 100%);">
+      <div class="phase-number">03</div>
+      <div class="phase-tag">Phase 3 · Next</div>
+      <div class="phase-title">Engineering Iteration</div>
+      <p class="phase-body">Live deployment confirmed the opportunity and surfaced clear areas for improvement. The next phase focuses on speed, robot performance and enclosure optimisation, all engineered for higher accuracy and throughput.</p>
+      <ul class="phase-bullets">
+        <li>Improved mechanical arm geometry</li>
+        <li>Faster cycle times &amp; throughput</li>
+        <li>Expanded venue deployment</li>
+      </ul>
+    </div>
+    <div class="phase-card reveal" style="transition-delay:0.3s">
+      <div class="phase-number">∞</div>
+      <div class="phase-tag">The Vision</div>
+      <div class="phase-title">Public spaces at Scale</div>
+      <p class="phase-body">Scrappy is designed to scale. The goal is a network of autonomous recycling robots operating across stadiums, arts venues, and large public spaces, making circular economy outcomes the default, not the exception.</p>
+      <ul class="phase-bullets">
+        <li>Multi-venue rollout capability</li>
+        <li>Integrated container deposit scheme</li>
+        <li>Real-time recycling analytics dashboard</li>
+      </ul>
+    </div>
+  </div>
+</section>
+</div>
+
+<div class="divider"></div>
+<div class="divider"></div>
+
+<section id="how-it-works" style="padding:80px 48px;max-width:100%;">
+  <p class="section-eyebrow reveal">The Technology</p>
+  <h2 class="section-heading reveal">ROBOT AT<br><span style="color:var(--red)">WORK.</span></h2>
+  <div class="hiw-layout">
+    <div class="hiw-media">
+      <div class="hiw-media-item">
+        <img src="https://i.imgur.com/OiIXE4N.jpg" alt="Scrappy robot in deployment" class="hiw-img" loading="lazy">
+      </div>
+    </div>
+    <div class="hiw-steps">
+      <div class="hiw-step reveal">
+        <span class="hiw-num">01</span>
+        <div>
+          <h3 class="hiw-title">Computer Vision</h3>
+          <p class="hiw-desc">An overhead camera continuously scans the waste stream, using a custom-trained AI model to detect and classify eligible containers, aluminium cans and plastic bottles, in real time.</p>
+        </div>
+      </div>
+      <div class="hiw-step reveal">
+        <span class="hiw-num">02</span>
+        <div>
+          <h3 class="hiw-title">AI Decision Making</h3>
+          <p class="hiw-desc">The AI calculates each container's position, orientation and retrieval priority, scoring picks based on accessibility and recycling value before issuing a command to the robot arm.</p>
+        </div>
+      </div>
+      <div class="hiw-step reveal">
+        <span class="hiw-num">03</span>
+        <div>
+          <h3 class="hiw-title">Robotic Retrieval</h3>
+          <p class="hiw-desc">A 6-axis robotic arm executes each pick with sub-centimetre precision, extracting containers from general waste and depositing them into the recycling stream, fully autonomously, no human required.</p>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<div id="impact">
+  <div class="impact-inner">
+    <div class="section-label reveal">Impact</div>
+    <h2 class="section-heading reveal">NUMBERS<br>THAT <span style="color:var(--red)">MATTER.</span></h2>
+    <div class="impact-grid">
+      <div class="impact-card reveal">
+        <div class="impact-num">1,005<span class="unit">+</span></div>
+        <div class="impact-desc">Eligible containers recovered during Phase 2 live deployment at QPAC so far.</div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.1s">
+        <div class="impact-num">2<span class="unit">×</span></div>
+        <div class="impact-desc">Full deployment phases completed in a real, high-foot-traffic public space alongside day to day operations.</div>
+      </div>
+      <div class="impact-card reveal" style="transition-delay:0.2s">
+        <div class="impact-num">0<span class="unit">kg</span><br><span style="font-size:1.8rem">to landfill</span></div>
+        <div class="impact-desc">Every container Scrappy recovers is diverted from general waste, directly improving venue recycling rates.</div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<div style="max-width:1200px;margin:0 auto;">
+<section id="team">
+  <div class="section-label reveal">About</div>
+  <h2 class="section-heading reveal">BUILT THROUGH<br><span style="color:var(--red)">PARTNERSHIP.</span></h2>
+  <div class="team-layout">
+    <div class="team-text reveal">
+      <p>Scrappy is an independent R&D project bringing together robotics engineers, venue operations specialists and sustainability advocates. We believe the path to a circular economy runs through the places people actually gather and that automation is the key to making recycling effortless at scale.</p>
+      <p>Our approach is hands-on, iterative, and firmly rooted in real-world deployment. We don't test in labs, we test in high traffic public spaces, with real teams, during real events.</p>
+      <p>The collaboration and hands-on support from the QPAC team has been instrumental in making this ongoing R&D possible. Their involvement is helping us refine a system that operates effectively in real environments while delivering stronger recycling and sustainability outcomes.</p>
+      <div class="partner-block">
+        <div class="partner-name">Coca-Cola</div>
+        <div class="partner-desc">In partnership with Coca-Cola, Scrappy is helping close the loop on one of the world's most recognised beverage containers, turning post-event waste into recovered resource.</div>
+      </div>
+      <div class="partner-block" style="margin-top:16px;">
+        <div class="partner-name">QPAC</div>
+        <div class="partner-desc">Queensland Performing Arts Centre is providing the venue environment for Phases 1 and 2, working closely with the broader Scrappy technical team to integrate robotics into day-to-day operations.</div>
+      </div>
+      <div class="partner-block" style="margin-top:16px;">
+        <div class="partner-name">Shrunk</div>
+        <div class="partner-desc">Shrunk Innovation Group built and engineered Scrappy, delivering the embedded firmware, robotics hardware, and IoT systems that power the platform. Based in Melbourne, Shrunk specialises in end-to-end IoT, computer vision, and hardware solutions across all areas of sustainability.</div>
+      </div>
+    </div>
+    <div class="values-list reveal" style="transition-delay:0.15s">
+      <div class="value-item">
+        <div class="value-icon">⟳</div>
+        <div>
+          <div class="value-title">Circular by Design</div>
+          <div class="value-desc">Every hardware and software decision is made with end-of-life recovery in mind.</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">
+          <svg width="16" height="16" viewBox="0 0 16 16" fill="none" xmlns="http://www.w3.org/2000/svg">
+            <circle cx="8" cy="8" r="6.5" stroke="#F40009" stroke-width="1.1"/>
+            <ellipse cx="8" cy="8" rx="3" ry="6.5" stroke="#F40009" stroke-width="0.9"/>
+            <line x1="1.5" y1="8" x2="14.5" y2="8" stroke="#F40009" stroke-width="0.9"/>
+            <path d="M2.5 5 Q8 6.5 13.5 5" fill="none" stroke="#F40009" stroke-width="0.9"/>
+            <path d="M2.5 11 Q8 9.5 13.5 11" fill="none" stroke="#F40009" stroke-width="0.9"/>
+          </svg>
+        </div>
+        <div>
+          <div class="value-title">Real-World First</div>
+          <div class="value-desc">We ship to high traffic public spaces, not controlled labs. More public testing, makes better robots.</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">◎</div>
+        <div>
+          <div class="value-title">Iterative R&D</div>
+          <div class="value-desc">Each phase informs the next. Speed, handling and container recoverability all improve with every deployment.</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">▲</div>
+        <div>
+          <div class="value-title">Scalable Platform</div>
+          <div class="value-desc">Designed from day one to grow from one public space to many, across Australia and beyond.</div>
+        </div>
+      </div>
+      <div class="value-item">
+        <div class="value-icon">✦</div>
+        <div>
+          <div class="value-title">People + Robots</div>
+          <div class="value-desc">Scrappy works with venue teams, not instead of them. Integration and trust are core to the model.</div>
+        </div>
+      </div>
+    </div>
+  </div>
+</section>
+</div>
+
+<footer>
+  <div class="footer-brand"><span style="color:var(--red)">SCRAPPY</span> <span style="color:var(--grey-light);font-size:0.8rem;font-family:'DM Sans',sans-serif;font-weight:300;letter-spacing:0.05em">× Coca-Cola × QPAC × Shrunk</span></div>
+  <div class="footer-copy">Autonomous Recycling · Live R&D Deployment · 2025</div>
+  <div class="footer-dot"></div>
+</footer>
+
+<script>
+  const cursor = document.getElementById('cursor');
+  const ring   = document.getElementById('cursorRing');
+  document.addEventListener('mousemove', e => {
+    cursor.style.left = e.clientX + 'px'; cursor.style.top = e.clientY + 'px';
+    ring.style.left   = e.clientX + 'px'; ring.style.top   = e.clientY + 'px';
+  });
+  const reveals = document.querySelectorAll('.reveal');
+  const observer = new IntersectionObserver(entries => {
+    entries.forEach(e => { if(e.isIntersecting) e.target.classList.add('visible'); });
+  }, {threshold:0.1, rootMargin:'0px 0px -60px 0px'});
+  reveals.forEach(el => observer.observe(el));
+  document.querySelectorAll('.phase-card,.impact-card,.value-item').forEach((el,i) => {
+    if(!el.style.transitionDelay) el.style.transitionDelay = (i%4)*0.08+'s';
+  });
+  window.addEventListener('touchstart', () => { cursor.style.display='none'; ring.style.display='none'; });
+</script>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r128/three.min.js"></script>
+<style>
+  #status-text{position:absolute;top:84px;left:50%;transform:translateX(-50%);font-family:'Bebas Neue',sans-serif;font-size:0.70rem;letter-spacing:0.30em;color:rgba(244,0,9,0.55);pointer-events:none;z-index:10;white-space:nowrap;transition:opacity 0.3s;}
+  @media(max-width:768px){#status-text{top:72px;font-size:0.62rem;}}
+</style>
+<script>
+(function(){
+  const canvasEl = document.getElementById('hero-canvas');
+  const hero     = document.getElementById('hero');
+
+  const statusEl = Object.assign(document.createElement('div'),{id:'status-text',textContent:'STANDBY'});
+  hero.appendChild(statusEl);
+
+  const renderer = new THREE.WebGLRenderer({canvas:canvasEl,antialias:true,alpha:true});
+  renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
+  renderer.setClearColor(0x000000,0);
+
+  const scene  = new THREE.Scene();
+  const camera = new THREE.PerspectiveCamera(52,1,0.1,80);
+  camera.position.set(0,1.5,11);
+  camera.lookAt(0,-0.8,0);
+
+  const RED    = new THREE.Color(0xF40009);
+  const YELLOW = new THREE.Color(0xFFCC00);
+  const GLOW   = new THREE.Color(0xFF5555);
+  const STEEL  = new THREE.Color(0x2a3a3a);
+  const DIM    = new THREE.Color(0x3a0a0a);
+  const YDIM   = new THREE.Color(0x3a3000);
+
+  function wMat(c,op=1){return new THREE.LineBasicMaterial({color:c,transparent:op<1,opacity:op});}
+  function wEdge(g,m){return new THREE.LineSegments(new THREE.EdgesGeometry(g),m);}
+
+  /* ── FLOOR GRID ── */
+  const grid = new THREE.GridHelper(20,26,0x1a0000,0x120000);
+  grid.position.y = -3.0; scene.add(grid);
+
+  /* ── ARM ── */
+  const base = new THREE.Group(); scene.add(base);
+  const col = wEdge(new THREE.CylinderGeometry(0.22,0.30,1.8,10),wMat(STEEL,0.50));
+  col.position.y=-2.1; base.add(col);
+  for(let i=0;i<3;i++){const cr=wEdge(new THREE.CylinderGeometry(0.27,0.27,0.055,10),wMat(DIM,0.45));cr.position.y=-2.95+i*0.55;base.add(cr);}
+  const plinth=wEdge(new THREE.BoxGeometry(1.4,0.28,1.4),wMat(STEEL,0.52)); plinth.position.y=-2.94; base.add(plinth);
+  const rotRing=wEdge(new THREE.TorusGeometry(0.42,0.035,6,24),wMat(RED,0.60));
+  rotRing.rotation.x=Math.PI/2; rotRing.position.y=-1.82; base.add(rotRing);
+
+  const shoulder=new THREE.Group(); shoulder.position.y=-1.8; base.add(shoulder);
+  shoulder.add(wEdge(new THREE.CylinderGeometry(0.20,0.24,0.34,10),wMat(RED,0.85)));
+
+  const upperArm=new THREE.Group(); upperArm.position.y=0.18; shoulder.add(upperArm);
+  const ua1=wEdge(new THREE.BoxGeometry(0.195,2.7,0.155),wMat(STEEL,0.72)); ua1.position.y=1.35; upperArm.add(ua1);
+  const ua2=wEdge(new THREE.BoxGeometry(0.085,2.45,0.10),wMat(STEEL,0.30)); ua2.position.set(0.18,1.35,0); upperArm.add(ua2);
+  for(let i=0;i<5;i++){const b=wEdge(new THREE.BoxGeometry(0.24,0.055,0.14),wMat(DIM,0.45));b.position.y=0.22+i*0.52;upperArm.add(b);}
+  const elbSph=wEdge(new THREE.SphereGeometry(0.21,8,6),wMat(RED,0.88)); elbSph.position.y=2.7; upperArm.add(elbSph);
+
+  const forearm=new THREE.Group(); forearm.position.y=2.7; upperArm.add(forearm);
+  const fa1=wEdge(new THREE.BoxGeometry(0.155,2.15,0.13),wMat(STEEL,0.68)); fa1.position.y=1.075; forearm.add(fa1);
+  const fa2=wEdge(new THREE.BoxGeometry(0.075,1.95,0.09),wMat(STEEL,0.28)); fa2.position.set(0.16,1.075,0); forearm.add(fa2);
+  for(let i=0;i<4;i++){const fb=wEdge(new THREE.BoxGeometry(0.21,0.05,0.12),wMat(DIM,0.40));fb.position.y=0.22+i*0.50;forearm.add(fb);}
+  const wristSph=wEdge(new THREE.SphereGeometry(0.165,8,6),wMat(RED,0.82)); wristSph.position.y=2.15; forearm.add(wristSph);
+
+  const wristHead=new THREE.Group(); wristHead.position.y=2.15; forearm.add(wristHead);
+  wristHead.add(wEdge(new THREE.BoxGeometry(0.44,0.23,0.36),wMat(STEEL,0.62)));
+  wristHead.add(wEdge(new THREE.TorusGeometry(0.20,0.038,8,24),wMat(RED,0.88)));
+  const wSpoke=wEdge(new THREE.BoxGeometry(0.045,0.38,0.045),wMat(GLOW,0.88));
+  wSpoke.position.set(0,0.19,0); wristHead.add(wSpoke);
+  wristHead.add(wEdge(new THREE.SphereGeometry(0.07,8,6),wMat(RED,0.95)));
+
+  const gripperGroup=new THREE.Group(); gripperGroup.position.y=0.25; wristHead.add(gripperGroup);
+  function makeGripFinger(side){
+    const fg=new THREE.Group();
+    const s1=wEdge(new THREE.BoxGeometry(0.11,0.42,0.11),wMat(RED,0.84)); s1.position.y=0.21; fg.add(s1);
+    const j1=wEdge(new THREE.SphereGeometry(0.065,6,4),wMat(GLOW,0.74)); j1.position.y=0.435; fg.add(j1);
+    const s2=wEdge(new THREE.BoxGeometry(0.09,0.33,0.09),wMat(STEEL,0.64)); s2.position.y=0.60; fg.add(s2);
+    const tp=wEdge(new THREE.BoxGeometry(0.08,0.09,0.12),wMat(GLOW,0.68)); tp.position.y=0.79; fg.add(tp);
+    fg.position.x=side*0.19; return fg;
+  }
+  const fingerL=makeGripFinger(-1); gripperGroup.add(fingerL);
+  const fingerR=makeGripFinger( 1); gripperGroup.add(fingerR);
+
+  /* ── CONTAINERS ── */
+  const containers=[];
+  const CONT_Y=-2.64;
+  function buildCan(px,py,pz,op){
+    const g=new THREE.Group(); g.position.set(px,py,pz); scene.add(g);
+    const mat=wMat(YELLOW,op);
+    g.add(wEdge(new THREE.CylinderGeometry(0.17,0.17,0.72,12),mat));
+    const lid=wEdge(new THREE.CircleGeometry(0.17,12),wMat(YELLOW,op*0.8));
+    lid.rotation.x=-Math.PI/2; lid.position.y=0.36; g.add(lid);
+    const ring=wEdge(new THREE.CylinderGeometry(0.175,0.175,0.04,10),wMat(YELLOW,op*0.6));
+    ring.position.y=-0.30; g.add(ring);
+    const wires=[mat]; g.traverse(c=>{if(c.material?.isLineBasicMaterial&&!wires.includes(c.material))wires.push(c.material);});
+    const hm=new THREE.Mesh(new THREE.CylinderGeometry(0.50,0.50,0.90,8),new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide}));
+    hm.userData._cont=null; g.add(hm);
+    return{group:g,homePos:new THREE.Vector3(px,py,pz),label:'CAN',wires,picked:false,queued:false,hitMesh:hm};
+  }
+  function buildBottle(px,py,pz,op=0.58){
+    const g=new THREE.Group(); g.position.set(px,py,pz); scene.add(g);
+    const mat=wMat(YELLOW,op);
+    g.add(wEdge(new THREE.CylinderGeometry(0.145,0.125,0.57,10),mat));
+    const neck=wEdge(new THREE.CylinderGeometry(0.06,0.135,0.26,10),wMat(YELLOW,op*0.75)); neck.position.y=0.415; g.add(neck);
+    const cap=wEdge(new THREE.CylinderGeometry(0.065,0.065,0.09,8),wMat(YELLOW,op*0.9)); cap.position.y=0.595; g.add(cap);
+    const wires=[mat]; g.traverse(c=>{if(c.material?.isLineBasicMaterial&&!wires.includes(c.material))wires.push(c.material);});
+    const hm=new THREE.Mesh(new THREE.CylinderGeometry(0.50,0.50,0.90,8),new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide}));
+    hm.userData._cont=null; g.add(hm);
+    return{group:g,homePos:new THREE.Vector3(px,py,pz),label:'BOTTLE',wires,picked:false,queued:false,hitMesh:hm};
+  }
+  const itemDefs=[
+    ['can',    -3.80,CONT_Y,0.35, 0.00, 0.00,0.72],
+    ['bottle', -3.00,CONT_Y,0.35, 0.00, 0.00,0.65],
+    ['can',    -2.20,CONT_Y,0.35, 0.00, 0.00,0.62],
+    ['can',    -3.80,CONT_Y,0.85, 0.35,-1.20,0.52],
+    ['bottle', -3.00,CONT_Y,0.85,-0.70, 0.55,0.48],
+    ['can',    -2.20,CONT_Y,0.85, 0.00,-1.15,0.52],
+    ['bottle', -3.80,CONT_Y,1.35, 0.40, 0.12,0.48],
+    ['can',    -3.00,CONT_Y,1.35,-0.30, 0.18,0.52],
+    ['can',    -2.20,CONT_Y,1.35,-0.42,-0.85,0.50],
+    ['bottle', -3.80,CONT_Y,1.85,-0.40,-1.05,0.45],
+    ['can',    -3.00,CONT_Y,1.85, 0.88, 0.27,0.52],
+    ['can',    -2.20,CONT_Y,1.85, 0.00,-0.90,0.50],
+  ];
+  const containerReachPoses=[
+    {sh:1.1,el:1.5,wr: 0.20,br:-1.4790},
+    {sh:1.1,el:1.5,wr: 0.50,br:-1.4547},
+    {sh:1.1,el:1.5,wr: 0.80,br:-1.4130},
+    {sh:1.1,el:1.5,wr:-0.20,br:-1.3507},
+    {sh:1.1,el:1.5,wr: 0.40,br:-1.2947},
+    {sh:1.1,el:1.5,wr: 0.90,br:-1.2021},
+    {sh:1.1,el:1.5,wr: 0.10,br:-1.2294},
+    {sh:1.1,el:1.5,wr: 0.60,br:-1.1479},
+    {sh:1.1,el:1.5,wr: 1.10,br:-1.0204},
+    {sh:1.1,el:1.5,wr: 0.30,br:-1.1177},
+    {sh:1.1,el:1.5,wr: 0.70,br:-1.0182},
+    {sh:1.1,el:1.5,wr: 1.20,br:-0.8716},
+  ];
+  itemDefs.forEach(([type,px,py,pz,rx,rz,op])=>{
+    const c=type==='can'?buildCan(px,py,pz,op):buildBottle(px,py,pz,op);
+    c.group.rotation.x=rx; c.group.rotation.z=rz; containers.push(c);
+  });
+
+  /* ── BINS ── */
+  function buildBin(wx,wy,wz,rimColor,bodyColor,dimColor,scale){
+    const BS=scale,BW=0.52*BS,BT=0.46*BS;
+    const g=new THREE.Group(); g.position.set(wx,wy,wz); scene.add(g);
+    const rimO=wEdge(new THREE.BoxGeometry(BW*2+0.07,0.055,BT*2+0.07),wMat(rimColor,0.82)); rimO.position.y=0.04; g.add(rimO);
+    const rimI=wEdge(new THREE.BoxGeometry(BW*2-0.04,0.035,BT*2-0.04),wMat(rimColor,0.52)); rimI.position.y=0.01; g.add(rimI);
+    for(const[cx,cz]of[[-BW,-BT],[BW,-BT],[BW,BT],[-BW,BT]]){
+      const post=wEdge(new THREE.BoxGeometry(0.07,1.3,0.07),wMat(STEEL,0.42)); post.position.set(cx,-0.65,cz); g.add(post);
+    }
+    const BW2=BW*0.87,BT2=BT*0.87;
+    const bodyPts=[[-BW,0,-BT],[BW,0,-BT],[BW,0,BT],[-BW,0,BT],[-BW2,-1.2,-BT2],[BW2,-1.2,-BT2],[BW2,-1.2,BT2],[-BW2,-1.2,BT2]];
+    const bodyIdx=[0,1,1,2,2,3,3,0,0,4,1,5,2,6,3,7];
+    const bv=[]; bodyIdx.forEach(i=>bv.push(...bodyPts[i]));
+    const bGeo=new THREE.BufferGeometry(); bGeo.setAttribute('position',new THREE.BufferAttribute(new Float32Array(bv),3));
+    g.add(new THREE.LineSegments(bGeo,wMat(bodyColor,0.42)));
+    for(let r=1;r<=2;r++){
+      const t=r/3,rw=BW+(BW2-BW)*t,rt=BT+(BT2-BT)*t,ry=-1.2*t;
+      const rp=[[-rw,ry,-rt],[rw,ry,-rt],[rw,ry,rt],[-rw,ry,rt],[-rw,ry,-rt]];
+      const rv=[]; for(let i=0;i<4;i++)rv.push(...rp[i],...rp[i+1]);
+      const rg=new THREE.BufferGeometry(); rg.setAttribute('position',new THREE.BufferAttribute(new Float32Array(rv),3));
+      g.add(new THREE.LineSegments(rg,wMat(dimColor,0.50)));
+    }
+    const hdl=wEdge(new THREE.CylinderGeometry(0.03,0.03,BW*1.4,5),wMat(STEEL,0.52));
+    hdl.rotation.z=Math.PI/2; hdl.position.set(0,0.09,-BT+0.05); g.add(hdl);
+    const lbl=wEdge(new THREE.BoxGeometry(BW*0.85,0.18,0.02),wMat(dimColor,0.35)); lbl.position.set(0,-0.24,BT+0.02); g.add(lbl);
+    return{group:g,rimMat:rimO.material};
+  }
+  const redBin    = buildBin(-2.80,-1.534,1.00, RED,    RED,    DIM,  2.6);
+  const yellowBin = buildBin( 2.80,-1.534,0.80, YELLOW, YELLOW, YDIM, 2.6);
+
+  /* ── PARTICLES ── */
+  const ptG=new THREE.BufferGeometry();
+  const ptP=new Float32Array(220*3);
+  for(let i=0;i<220;i++){ptP[i*3]=(Math.random()-.5)*16;ptP[i*3+1]=(Math.random()-.5)*10;ptP[i*3+2]=(Math.random()-.5)*7;}
+  ptG.setAttribute('position',new THREE.BufferAttribute(ptP,3));
+  scene.add(new THREE.Points(ptG,new THREE.PointsMaterial({color:RED,size:0.022,transparent:true,opacity:0.18})));
+
+  /* ── RAYCASTER ── */
+  const raycaster=new THREE.Raycaster();
+  containers.forEach(c=>{c.hitMesh.userData._cont=c;});
+  const hitMeshes=containers.map(c=>c.hitMesh);
+  function getNDC(e){const r=canvasEl.getBoundingClientRect();return new THREE.Vector2(((e.clientX-r.left)/r.width)*2-1,-((e.clientY-r.top)/r.height)*2+1);}
+  function getHit(e){raycaster.setFromCamera(getNDC(e),camera);const hits=raycaster.intersectObjects(hitMeshes,false);return hits.length?hits[0].object.userData._cont:null;}
+  function tintContainer(c,col){c.wires.forEach(m=>m.color.copy(col));}
+  let hovered=null;
+  canvasEl.addEventListener('mousemove',e=>{
+    const c=getHit(e); if(c===hovered)return;
+    if(hovered&&!hovered.queued&&!hovered.picked)tintContainer(hovered,YELLOW),canvasEl.style.cursor='default';
+    hovered=c;
+    if(c&&!c.queued&&!c.picked)tintContainer(c,new THREE.Color(0xFFFFAA)),canvasEl.style.cursor='pointer';
+  });
+  function tryQueue(c){
+    if(!c||c.queued||c.picked)return;
+    c.queued=true; tintContainer(c,new THREE.Color(0xFFFFAA)); pickQueue.push(c);
+    if(robotState==='IDLE') kickOff();
+  }
+  canvasEl.addEventListener('click',e=>tryQueue(getHit(e)));
+  canvasEl.addEventListener('touchend',e=>{e.preventDefault();tryQueue(getHit(e.changedTouches[0]));},{passive:false});
+
+  const pickQueue=[];
+
+  /* ══════════════════════════════════════════════
+     STATE MACHINE
+  ══════════════════════════════════════════════ */
+  let robotState='IDLE', stateT=0;
+  let currentTarget=null, currentTargetIdx=-1, currentHeld=null;
+  let sh=-.3, el=.5, wr=0, by=0, gr=.30;
+  let F={sh:-.3,el:.5,wr:0,by:0,gr:.30};
+  let T={sh:-.3,el:.5,wr:0,by:0,gr:.30};
+
+  const DUR={IDLE:99,SWING_TO_TARGET:1.3,REACH_DOWN:2.0,GRASP:0.65,EXTRACT:1.4,CARRY:1.6,APPROACH:1.2,DEPOSIT:1.1,SWING_BACK:1.3,LOWER:1.0};
+  const LABELS={IDLE:'STANDBY',SWING_TO_TARGET:'TARGETING',REACH_DOWN:'REACHING INTO SOURCE BIN',GRASP:'GRASPING CONTAINER',EXTRACT:'EXTRACTING',CARRY:'TRANSPORTING',APPROACH:'APPROACHING RECYCLING BIN',DEPOSIT:'DEPOSITING',SWING_BACK:'RETURNING',LOWER:'STANDBY'};
+
+  function snap(){return{sh,el,wr,by,gr};}
+  function go(state){
+    robotState=state; stateT=0; F=snap();
+    statusEl.textContent=LABELS[state]||state; statusEl.style.opacity='1';
+    const rp=containerReachPoses[currentTargetIdx]||{sh:1.2,el:1.3,wr:1.4,br:-1.3};
+    const tby=rp.br||0;
+    switch(state){
+      case 'SWING_TO_TARGET': T={sh:-.3,el:.6,wr:-0.60,by:tby,gr:.32}; break;
+      case 'REACH_DOWN':      T={sh:rp.sh,el:rp.el,wr:rp.wr,by:tby,gr:.32}; break;
+      case 'GRASP':           T={...F,wr:F.wr+0.20,gr:.01}; break;
+      case 'EXTRACT':         T={sh:0.2,el:1.57,wr:-0.20,by:F.by,gr:.01}; break;
+      case 'CARRY':           T={sh:-0.1,el:1.57,wr:0.0,by:1.2925,gr:.01}; break;
+      case 'APPROACH':        T={sh:0.1,el:1.57,wr:0.0,by:1.2925,gr:.01}; break;
+      case 'DEPOSIT':         T={...F,sh:0.4,el:1.9,wr:0.10,by:1.2925,gr:.32}; break;
+      case 'SWING_BACK':      T={sh:-.2,el:.7,wr:0.0,by:0,gr:.30}; break;
+      case 'LOWER':           T={sh:-.3,el:.5,wr:0,by:0,gr:.30}; break;
+      case 'IDLE':            T={sh:-.3,el:.5,wr:0,by:0,gr:.30}; statusEl.style.opacity='.4'; break;
+    }
+  }
+  function kickOff(){
+    if(!pickQueue.length){go('IDLE');return;}
+    currentTarget=pickQueue.shift(); currentTargetIdx=containers.indexOf(currentTarget); go('SWING_TO_TARGET');
+  }
+  let autoPickFired=false;
+  setTimeout(()=>{
+    if(autoPickFired||pickQueue.length||robotState!=='IDLE')return;
+    autoPickFired=true;
+    containers.filter(c=>!c.picked&&!c.queued).forEach(c=>{c.queued=true;tintContainer(c,new THREE.Color(0xFFFFAA));});
+    pickQueue.push(...containers.filter(c=>c.queued&&!c.picked).slice(0,12));
+    kickOff();
+  },10000);
+
+  /* ── CELEBRATION ── */
+  const ringGeo=new THREE.RingGeometry(0.05,0.12,32);
+  const ringMat=new THREE.MeshBasicMaterial({color:YELLOW,transparent:true,opacity:0,side:THREE.DoubleSide});
+  const pulseRing1=new THREE.Mesh(ringGeo,ringMat.clone());
+  const pulseRing2=new THREE.Mesh(ringGeo.clone(),ringMat.clone());
+  pulseRing1.rotation.x=-Math.PI/2; pulseRing2.rotation.x=-Math.PI/2;
+  pulseRing1.position.set(yellowBin.group.position.x,yellowBin.group.position.y+0.1,yellowBin.group.position.z);
+  pulseRing2.position.set(yellowBin.group.position.x,yellowBin.group.position.y+0.1,yellowBin.group.position.z);
+  scene.add(pulseRing1); scene.add(pulseRing2);
+  const burstCount=24;
+  const burstGeo=new THREE.BufferGeometry();
+  const burstPos=new Float32Array(burstCount*3);
+  burstGeo.setAttribute('position',new THREE.BufferAttribute(burstPos,3));
+  const burstMat=new THREE.PointsMaterial({color:YELLOW,size:0.10,transparent:true,opacity:0});
+  scene.add(new THREE.Points(burstGeo,burstMat));
+  const flyupEl=document.createElement('div');
+  flyupEl.style.cssText='position:absolute;pointer-events:none;z-index:20;font-family:Bebas Neue,sans-serif;font-size:1.0rem;letter-spacing:0.18em;color:#FFCC00;opacity:0;transition:none;white-space:nowrap;';
+  flyupEl.textContent='+1 RECYCLED ✓'; hero.appendChild(flyupEl);
+  let celebT=-1, ring1T=0, ring2T=0;
+  const burstVels=[];
+  for(let i=0;i<burstCount;i++){const a=(i/burstCount)*Math.PI*2,sp=0.04+Math.random()*0.04;burstVels.push({vx:Math.cos(a)*sp,vy:0.02+Math.random()*0.03,vz:Math.sin(a)*sp});}
+  const burstOrigin=new THREE.Vector3(yellowBin.group.position.x,yellowBin.group.position.y+0.2,yellowBin.group.position.z);
+  function triggerCelebration(){
+    ring1T=0; ring2T=-0.3; celebT=0;
+    for(let i=0;i<burstCount;i++){burstPos[i*3]=burstOrigin.x;burstPos[i*3+1]=burstOrigin.y;burstPos[i*3+2]=burstOrigin.z;}
+    burstGeo.attributes.position.needsUpdate=true; burstMat.opacity=0.95;
+    flyupEl.style.opacity='1'; flyupEl.style.left='72%'; flyupEl.style.top='60%'; flyupEl.style.transform='translateY(0px)'; flyupEl.style.transition='none';
+    requestAnimationFrame(()=>requestAnimationFrame(()=>{
+      flyupEl.style.transition='opacity 0.5s ease-in 0.6s, transform 1.4s ease-out';
+      flyupEl.style.transform='translateY(-80px)'; flyupEl.style.opacity='0';
+    }));
+    yellowBin.rimMat.opacity=0.99; setTimeout(()=>yellowBin.rimMat.opacity=0.82,350);
+  }
+  function updateCelebration(dt){
+    if(celebT<0)return; celebT+=dt; ring1T+=dt*1.8; ring2T+=dt*1.8;
+    const ur=(ring,t)=>{if(t<0||t>1.2){ring.material.opacity=0;return;}const s=1+t*8;ring.scale.set(s,s,s);ring.material.opacity=Math.max(0,(1-t/1.2)*0.7);};
+    ur(pulseRing1,ring1T); ur(pulseRing2,ring2T);
+    if(celebT<1.5){
+      burstMat.opacity=Math.max(0,1-celebT/1.5)*0.95;
+      for(let i=0;i<burstCount;i++){burstPos[i*3]+=burstVels[i].vx;burstPos[i*3+1]+=burstVels[i].vy;burstPos[i*3+2]+=burstVels[i].vz;burstVels[i].vy-=0.001;}
+      burstGeo.attributes.position.needsUpdate=true;
+    } else burstMat.opacity=0;
+    if(celebT>2.0)celebT=-1;
+  }
+
+  /* ══════════════════════════════════════════════
+     IDLE — discrete robotic pose sequencer
+     The arm moves briskly to a target pose, locks
+     on arrival, holds dead-still for a defined dwell
+     time, then snaps to the next pose.
+     No sinusoidal sweeps or organic tremor.
+  ══════════════════════════════════════════════ */
+
+  // Named standby poses. hold = seconds to remain perfectly still.
+  const IDLE_POSES=[
+    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:2.4},  // home / rest
+    {sh:-.10, el:.72, wr:-0.48, by:-0.38, gr:.30, hold:1.6},  // scan left (red bin)
+    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:0.5},  // snap back to home
+    {sh:-.18, el:.62, wr: 0.68, by: 0.00, gr:.30, hold:1.4},  // wrist articulation check
+    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:0.4},  // snap home
+    {sh:-.08, el:.78, wr: 0.28, by: 0.44, gr:.30, hold:1.6},  // scan right (yellow bin)
+    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:0.5},  // snap home
+    {sh: .06, el:.44, wr: 0.12, by: 0.00, gr:.30, hold:1.8},  // alert / attentive raise
+    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:1.2},  // settle home
+  ];
+  const IDLE_MOVE_DUR=0.48; // seconds — fast, servo-like transition
+
+  // Ease: rapid acceleration then hard stop (industrial servo feel)
+  // Reaches ~97% at t=0.75, then clamps — mimics velocity-limited servo
+  function easeServo(t){
+    const c=Math.min(t,1);
+    return c<0.55 ? (c/0.55)*(c/0.55) : 1-(1-c)*(1-c)*0.18;
+  }
+
+  let idlePoseIdx  = 0;
+  let idleMoveT    = 1.0;   // 1.0 = arrived / holding
+  let idleHoldT    = 0;
+  let idlePoseFrom = {...IDLE_POSES[0]};
+  let idlePoseTo   = {...IDLE_POSES[0]};
+
+  function nextIdlePose(){
+    idlePoseIdx=(idlePoseIdx+1)%IDLE_POSES.length;
+    idlePoseFrom={sh,el,wr,by,gr};
+    idlePoseTo={...IDLE_POSES[idlePoseIdx]};
+    idleMoveT=0; idleHoldT=0;
+  }
+
+  function lerp(a,b,t){return a+(b-a)*t;}
+  function easeTask(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
+
+  let clock=0, last=performance.now();
+
+  function animate(now){
+    requestAnimationFrame(animate);
+    const dt=Math.min((now-last)/1000,.05); last=now; clock+=dt;
+
+    if(robotState!=='IDLE'){
+      // Task motion — smooth ease-in-out (unchanged)
+      stateT+=dt/DUR[robotState];
+      const et=easeTask(Math.min(stateT,1));
+      sh=lerp(F.sh,T.sh,et); el=lerp(F.el,T.el,et);
+      wr=lerp(F.wr,T.wr,et); by=lerp(F.by,T.by,et); gr=lerp(F.gr,T.gr,et);
+      if(stateT>=1){
+        sh=T.sh; el=T.el; wr=T.wr; by=T.by; gr=T.gr;
+        if(robotState==='SWING_TO_TARGET') go('REACH_DOWN');
+        else if(robotState==='REACH_DOWN')  go('GRASP');
+        else if(robotState==='GRASP'){currentHeld=currentTarget;currentTarget.picked=true;go('EXTRACT');}
+        else if(robotState==='EXTRACT')     go('CARRY');
+        else if(robotState==='CARRY')       go('APPROACH');
+        else if(robotState==='APPROACH')    go('DEPOSIT');
+        else if(robotState==='DEPOSIT'){
+          if(currentHeld){
+            const falling=currentHeld; falling.picked=true;
+            let fallT=0;
+            const fallStart=falling.group.position.y, fallTarget=yellowBin.group.position.y-0.3;
+            const fa=setInterval(()=>{
+              fallT+=0.04;
+              falling.group.position.y=fallStart+(fallTarget-fallStart)*Math.min(fallT*fallT,1);
+              falling.group.rotation.x+=0.06; falling.group.rotation.z+=0.04;
+              if(fallT>=1.0){clearInterval(fa);falling.group.visible=false;}
+            },16);
+          }
+          currentHeld=null; triggerCelebration(); go('SWING_BACK');
+        }
+        else if(robotState==='SWING_BACK') go('LOWER');
+        else if(robotState==='LOWER'){
+          // Re-anchor idle sequencer at home pose so it starts fresh
+          idlePoseIdx=0; idleMoveT=1.0; idleHoldT=0;
+          idlePoseTo={...IDLE_POSES[0]}; idlePoseFrom={sh,el,wr,by,gr};
+          kickOff();
+        }
+      }
+
+    } else {
+      // ── IDLE: discrete servo-style point-to-point motion ──
+      if(idleMoveT<1.0){
+        idleMoveT=Math.min(idleMoveT+dt/IDLE_MOVE_DUR,1.0);
+        const et=easeServo(idleMoveT);
+        sh=lerp(idlePoseFrom.sh,idlePoseTo.sh,et);
+        el=lerp(idlePoseFrom.el,idlePoseTo.el,et);
+        wr=lerp(idlePoseFrom.wr,idlePoseTo.wr,et);
+        by=lerp(idlePoseFrom.by,idlePoseTo.by,et);
+        gr=lerp(idlePoseFrom.gr,idlePoseTo.gr,et);
+      } else {
+        // Perfectly rigid hold — no drift, no tremor
+        sh=idlePoseTo.sh; el=idlePoseTo.el;
+        wr=idlePoseTo.wr; by=idlePoseTo.by; gr=idlePoseTo.gr;
+        idleHoldT+=dt;
+        if(idleHoldT>=idlePoseTo.hold) nextIdlePose();
+      }
+    }
+
+    shoulder.rotation.x=sh; forearm.rotation.x=el; wristHead.rotation.x=wr;
+    base.rotation.y=by; fingerL.position.x=-.19-gr; fingerR.position.x=.19+gr;
+
+    if(currentHeld){
+      const gp=new THREE.Vector3(), gq=new THREE.Quaternion();
+      gripperGroup.getWorldPosition(gp); gripperGroup.getWorldQuaternion(gq);
+      const off=new THREE.Vector3(0,0.40,0).applyQuaternion(gq);
+      currentHeld.group.position.copy(gp).add(off);
+    }
+
+    containers.forEach(c=>{
+      if(c.queued&&!c.picked){
+        const p=.5+.5*Math.sin(clock*5);
+        c.wires.forEach(m=>m.color.setRGB(1,0.75+p*0.25,p*0.35));
+      }
+    });
+
+    const yp=0.72+Math.sin(clock*1.2)*0.10;
+    yellowBin.rimMat.opacity=Math.max(0.72,yp);
+    rotRing.material.opacity=.28+Math.sin(clock*2.5)*.18;
+    updateCelebration(dt);
+    renderer.render(scene,camera);
+  }
+
+  const CAM={
+    mobile: {fov:76,x:0,y:1.5,z:11,lookY:-1.2},
+    tablet: {fov:68,x:0,y:1.5,z:11,lookY:-1.2},
+    desktop:{fov:52,x:0,y:1.5,z:11,lookY:-0.8},
+  };
+  function resize(){
+    const w=canvasEl.offsetWidth,h=canvasEl.offsetHeight;
+    if(!w||!h)return;
+    renderer.setSize(w,h);
+    const c=w<500?CAM.mobile:w<768?CAM.tablet:CAM.desktop;
+    camera.fov=c.fov; camera.position.set(c.x,c.y,c.z);
+    camera.lookAt(0,c.lookY,0); camera.aspect=w/h; camera.updateProjectionMatrix();
+  }
+  window.addEventListener('resize',resize); resize();
+  go('IDLE'); requestAnimationFrame(animate);
+})();
+</script>
+
+<button id="back-top" aria-label="Back to top">
+  <svg width="18" height="18" viewBox="0 0 18 18" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M3 12L9 6L15 12" stroke="white" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"/>
+  </svg>
+</button>
+<script>
+(function(){
+  const btn=document.getElementById('back-top');
+  window.addEventListener('scroll',()=>btn.classList.toggle('visible',window.scrollY>300),{passive:true});
+  btn.addEventListener('click',()=>window.scrollTo({top:0,behavior:'smooth'}));
+})();
+</script>
+</body>
+</html>
