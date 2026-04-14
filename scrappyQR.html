@@ -116,10 +116,7 @@
     background-size: 60px 60px;
     animation: gridDrift 20s linear infinite;
   }
-  @keyframes gridDrift {
-    from { transform: translate(0,0); }
-    to { transform: translate(60px, 60px); }
-  }
+  @keyframes gridDrift { from { transform: translate(0,0); } to { transform: translate(60px, 60px); } }
   .circle-accent {
     position: absolute;
     right: -120px;
@@ -161,13 +158,7 @@
     align-items: center;
     gap: 16px;
   }
-  .hero-eyebrow::before {
-    content: '';
-    display: block;
-    width: 40px;
-    height: 1px;
-    background: var(--red);
-  }
+  .hero-eyebrow::before { content: ''; display: block; width: 40px; height: 1px; background: var(--red); }
   .hero-title {
     font-family: 'Bebas Neue', sans-serif;
     font-size: clamp(5rem, 14vw, 13rem);
@@ -199,21 +190,9 @@
     position: relative;
     z-index: 1;
   }
-  .stat-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 2.8rem;
-    color: var(--white);
-    line-height: 1;
-    letter-spacing: 0.04em;
-  }
+  .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: var(--white); line-height: 1; letter-spacing: 0.04em; }
   .stat-num span { color: var(--red); }
-  .stat-label {
-    font-size: 0.65rem;
-    letter-spacing: 0.2em;
-    text-transform: uppercase;
-    color: var(--grey-light);
-    margin-top: 4px;
-  }
+  .stat-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey-light); margin-top: 4px; }
   .scroll-hint {
     position: absolute;
     bottom: 40px;
@@ -226,350 +205,71 @@
     opacity: 0;
     animation: fadeIn 1s ease 1.4s forwards;
   }
-  .scroll-hint span {
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--grey-light);
-  }
-  .scroll-line {
-    width: 1px;
-    height: 48px;
-    background: linear-gradient(to bottom, var(--red), transparent);
-    animation: scrollPulse 2s ease-in-out infinite;
-  }
-  @keyframes scrollPulse {
-    0%, 100% { opacity: 0.3; transform: scaleY(1); }
-    50% { opacity: 1; transform: scaleY(1.2); }
-  }
+  .scroll-hint span { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--grey-light); }
+  .scroll-line { width: 1px; height: 48px; background: linear-gradient(to bottom, var(--red), transparent); animation: scrollPulse 2s ease-in-out infinite; }
+  @keyframes scrollPulse { 0%, 100% { opacity: 0.3; transform: scaleY(1); } 50% { opacity: 1; transform: scaleY(1.2); } }
 
-  section {
-    padding: 120px 48px;
-    max-width: 1200px;
-    margin: 0 auto;
-  }
-  .section-label {
-    font-size: 0.6rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--red);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 48px;
-  }
-  .section-label::before {
-    content: '';
-    display: block;
-    width: 30px;
-    height: 1px;
-    background: var(--red);
-  }
-  .section-eyebrow {
-    font-size: 0.6rem;
-    letter-spacing: 0.35em;
-    text-transform: uppercase;
-    color: var(--red);
-    display: flex;
-    align-items: center;
-    gap: 16px;
-    margin-bottom: 48px;
-  }
-  .section-eyebrow::before {
-    content: '';
-    display: block;
-    width: 30px;
-    height: 1px;
-    background: var(--red);
-  }
-  .section-heading {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: clamp(2.8rem, 6vw, 5.5rem);
-    line-height: 0.95;
-    letter-spacing: 0.03em;
-    margin-bottom: 24px;
-  }
-  .divider {
-    width: 100%;
-    height: 1px;
-    background: linear-gradient(to right, transparent, var(--grey-mid), transparent);
-    margin: 0 48px;
-    max-width: calc(100% - 96px);
-  }
+  section { padding: 120px 48px; max-width: 1200px; margin: 0 auto; }
+  .section-label { font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--red); display: flex; align-items: center; gap: 16px; margin-bottom: 48px; }
+  .section-label::before { content: ''; display: block; width: 30px; height: 1px; background: var(--red); }
+  .section-eyebrow { font-size: 0.6rem; letter-spacing: 0.35em; text-transform: uppercase; color: var(--red); display: flex; align-items: center; gap: 16px; margin-bottom: 48px; }
+  .section-eyebrow::before { content: ''; display: block; width: 30px; height: 1px; background: var(--red); }
+  .section-heading { font-family: 'Bebas Neue', sans-serif; font-size: clamp(2.8rem, 6vw, 5.5rem); line-height: 0.95; letter-spacing: 0.03em; margin-bottom: 24px; }
+  .divider { width: 100%; height: 1px; background: linear-gradient(to right, transparent, var(--grey-mid), transparent); margin: 0 48px; max-width: calc(100% - 96px); }
 
   #how { position: relative; }
-  #how::before {
-    content: '';
-    position: absolute;
-    left: 0; top: 0;
-    width: 3px;
-    height: 100%;
-    background: linear-gradient(to bottom, var(--red), transparent);
-  }
-  .how-intro {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: start;
-    margin-bottom: 96px;
-  }
-  .how-intro p {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: rgba(250,250,250,0.6);
-  }
+  #how::before { content: ''; position: absolute; left: 0; top: 0; width: 3px; height: 100%; background: linear-gradient(to bottom, var(--red), transparent); }
+  .how-intro { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; margin-bottom: 96px; }
+  .how-intro p { font-size: 1rem; line-height: 1.8; color: rgba(250,250,250,0.6); }
   .how-intro p + p { margin-top: 16px; }
-  .phases {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 2px;
-  }
-  .phase-card {
-    background: var(--grey);
-    padding: 40px;
-    position: relative;
-    overflow: hidden;
-    transition: background 0.3s ease;
-  }
+  .phases { display: grid; grid-template-columns: 1fr 1fr; gap: 2px; }
+  .phase-card { background: var(--grey); padding: 40px; position: relative; overflow: hidden; transition: background 0.3s ease; }
   .phase-card:hover { background: #222; }
-  .phase-card::after {
-    content: '';
-    position: absolute;
-    bottom: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--red);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.4s ease;
-  }
+  .phase-card::after { content: ''; position: absolute; bottom: 0; left: 0; right: 0; height: 2px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform 0.4s ease; }
   .phase-card:hover::after { transform: scaleX(1); }
-  .phase-number {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 5rem;
-    color: rgba(244,0,9,0.1);
-    position: absolute;
-    top: 16px; right: 24px;
-    line-height: 1;
-    pointer-events: none;
-    transition: color 0.3s ease;
-  }
+  .phase-number { font-family: 'Bebas Neue', sans-serif; font-size: 5rem; color: rgba(244,0,9,0.1); position: absolute; top: 16px; right: 24px; line-height: 1; pointer-events: none; transition: color 0.3s ease; }
   .phase-card:hover .phase-number { color: rgba(244,0,9,0.2); }
-  .phase-tag {
-    font-size: 0.6rem;
-    letter-spacing: 0.25em;
-    text-transform: uppercase;
-    color: var(--red);
-    margin-bottom: 12px;
-  }
-  .phase-title {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.6rem;
-    letter-spacing: 0.05em;
-    margin-bottom: 16px;
-  }
-  .phase-body {
-    font-size: 0.88rem;
-    line-height: 1.75;
-    color: rgba(250,250,250,0.55);
-  }
-  .phase-bullets {
-    list-style: none;
-    margin-top: 20px;
-    display: flex;
-    flex-direction: column;
-    gap: 8px;
-  }
-  .phase-bullets li {
-    font-size: 0.82rem;
-    color: rgba(250,250,250,0.45);
-    padding-left: 16px;
-    position: relative;
-  }
-  .phase-bullets li::before {
-    content: '—';
-    position: absolute;
-    left: 0;
-    color: var(--red);
-    font-size: 0.7rem;
-  }
+  .phase-tag { font-size: 0.6rem; letter-spacing: 0.25em; text-transform: uppercase; color: var(--red); margin-bottom: 12px; }
+  .phase-title { font-family: 'Bebas Neue', sans-serif; font-size: 1.6rem; letter-spacing: 0.05em; margin-bottom: 16px; }
+  .phase-body { font-size: 0.88rem; line-height: 1.75; color: rgba(250,250,250,0.55); }
+  .phase-bullets { list-style: none; margin-top: 20px; display: flex; flex-direction: column; gap: 8px; }
+  .phase-bullets li { font-size: 0.82rem; color: rgba(250,250,250,0.45); padding-left: 16px; position: relative; }
+  .phase-bullets li::before { content: '—'; position: absolute; left: 0; color: var(--red); font-size: 0.7rem; }
 
-  #impact {
-    background: var(--grey);
-    max-width: 100%;
-    padding: 120px 48px;
-    position: relative;
-    overflow: hidden;
-  }
-  #impact::before {
-    content: 'IMPACT';
-    position: absolute;
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 20vw;
-    color: rgba(244,0,9,0.04);
-    top: 50%;
-    left: 50%;
-    transform: translate(-50%, -50%);
-    white-space: nowrap;
-    pointer-events: none;
-    letter-spacing: 0.1em;
-  }
+  #impact { background: var(--grey); max-width: 100%; padding: 120px 48px; position: relative; overflow: hidden; }
+  #impact::before { content: 'IMPACT'; position: absolute; font-family: 'Bebas Neue', sans-serif; font-size: 20vw; color: rgba(244,0,9,0.04); top: 50%; left: 50%; transform: translate(-50%, -50%); white-space: nowrap; pointer-events: none; letter-spacing: 0.1em; }
   .impact-inner { max-width: 1200px; margin: 0 auto; }
-  .impact-grid {
-    display: grid;
-    grid-template-columns: repeat(3, 1fr);
-    gap: 2px;
-    margin-top: 64px;
-  }
-  .impact-card {
-    background: var(--black);
-    padding: 48px 40px;
-    position: relative;
-    overflow: hidden;
-  }
-  .impact-card::before {
-    content: '';
-    position: absolute;
-    top: 0; left: 0; right: 0;
-    height: 2px;
-    background: var(--red);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.5s ease;
-  }
+  .impact-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2px; margin-top: 64px; }
+  .impact-card { background: var(--black); padding: 48px 40px; position: relative; overflow: hidden; }
+  .impact-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 2px; background: var(--red); transform: scaleX(0); transform-origin: left; transition: transform 0.5s ease; }
   .impact-card:hover::before { transform: scaleX(1); }
-  .impact-num {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 4.5rem;
-    line-height: 1;
-    letter-spacing: 0.02em;
-    color: var(--white);
-    margin-bottom: 8px;
-  }
+  .impact-num { font-family: 'Bebas Neue', sans-serif; font-size: 4.5rem; line-height: 1; letter-spacing: 0.02em; color: var(--white); margin-bottom: 8px; }
   .impact-num .unit { color: var(--red); }
-  .impact-desc {
-    font-size: 0.85rem;
-    line-height: 1.6;
-    color: rgba(250,250,250,0.5);
-  }
+  .impact-desc { font-size: 0.85rem; line-height: 1.6; color: rgba(250,250,250,0.5); }
 
   #team { position: relative; }
-  .team-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 80px;
-    align-items: start;
-  }
-  .team-text p {
-    font-size: 1rem;
-    line-height: 1.8;
-    color: rgba(250,250,250,0.6);
-    margin-bottom: 16px;
-  }
-  .partner-block {
-    margin-top: 48px;
-    padding: 32px;
-    border: 1px solid var(--grey-mid);
-    position: relative;
-  }
-  .partner-block::before {
-    content: 'PARTNER';
-    position: absolute;
-    top: -8px; left: 20px;
-    font-size: 0.55rem;
-    letter-spacing: 0.3em;
-    text-transform: uppercase;
-    color: var(--red);
-    background: var(--black);
-    padding: 0 8px;
-  }
-  .partner-name {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.8rem;
-    letter-spacing: 0.08em;
-    margin-bottom: 8px;
-  }
-  .partner-desc {
-    font-size: 0.82rem;
-    color: rgba(250,250,250,0.45);
-    line-height: 1.6;
-  }
-  .values-list {
-    display: flex;
-    flex-direction: column;
-    gap: 2px;
-  }
-  .value-item {
-    display: flex;
-    align-items: center;
-    gap: 20px;
-    padding: 24px 28px;
-    background: var(--grey);
-    transition: background 0.3s ease;
-  }
+  .team-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 80px; align-items: start; }
+  .team-text p { font-size: 1rem; line-height: 1.8; color: rgba(250,250,250,0.6); margin-bottom: 16px; }
+  .partner-block { margin-top: 48px; padding: 32px; border: 1px solid var(--grey-mid); position: relative; }
+  .partner-block::before { content: 'PARTNER'; position: absolute; top: -8px; left: 20px; font-size: 0.55rem; letter-spacing: 0.3em; text-transform: uppercase; color: var(--red); background: var(--black); padding: 0 8px; }
+  .partner-name { font-family: 'Bebas Neue', sans-serif; font-size: 1.8rem; letter-spacing: 0.08em; margin-bottom: 8px; }
+  .partner-desc { font-size: 0.82rem; color: rgba(250,250,250,0.45); line-height: 1.6; }
+  .values-list { display: flex; flex-direction: column; gap: 2px; }
+  .value-item { display: flex; align-items: center; gap: 20px; padding: 24px 28px; background: var(--grey); transition: background 0.3s ease; }
   .value-item:hover { background: #222; }
-  .value-icon {
-    width: 36px; height: 36px;
-    border-radius: 50%;
-    border: 1px solid var(--red);
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    flex-shrink: 0;
-    font-size: 0.8rem;
-    color: var(--red);
-  }
-  .value-title {
-    font-size: 0.9rem;
-    font-weight: 500;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    margin-bottom: 2px;
-  }
+  .value-icon { width: 36px; height: 36px; border-radius: 50%; border: 1px solid var(--red); display: flex; align-items: center; justify-content: center; flex-shrink: 0; font-size: 0.8rem; color: var(--red); }
+  .value-title { font-size: 0.9rem; font-weight: 500; letter-spacing: 0.05em; text-transform: uppercase; margin-bottom: 2px; }
   .value-desc { font-size: 0.8rem; color: rgba(250,250,250,0.45); }
 
-  footer {
-    border-top: 1px solid var(--grey-mid);
-    padding: 48px;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-  }
-  .footer-brand {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 1.4rem;
-    letter-spacing: 0.1em;
-  }
+  footer { border-top: 1px solid var(--grey-mid); padding: 48px; display: flex; justify-content: space-between; align-items: center; }
+  .footer-brand { font-family: 'Bebas Neue', sans-serif; font-size: 1.4rem; letter-spacing: 0.1em; }
   .footer-brand span { color: var(--red); }
-  .footer-copy {
-    font-size: 0.72rem;
-    letter-spacing: 0.15em;
-    color: var(--grey-light);
-    text-transform: uppercase;
-  }
-  .footer-dot {
-    width: 8px; height: 8px;
-    background: var(--red);
-    border-radius: 50%;
-    animation: pulse 2s ease-in-out infinite;
-  }
-  @keyframes pulse {
-    0%, 100% { opacity: 1; transform: scale(1); }
-    50% { opacity: 0.4; transform: scale(0.8); }
-  }
-
-  @keyframes fadeUp {
-    from { opacity: 0; transform: translateY(30px); }
-    to { opacity: 1; transform: translateY(0); }
-  }
-  @keyframes fadeIn {
-    from { opacity: 0; }
-    to { opacity: 1; }
-  }
-  .reveal {
-    opacity: 0;
-    transform: translateY(40px);
-    transition: opacity 0.7s ease, transform 0.7s ease;
-  }
+  .footer-copy { font-size: 0.72rem; letter-spacing: 0.15em; color: var(--grey-light); text-transform: uppercase; }
+  .footer-dot { width: 8px; height: 8px; background: var(--red); border-radius: 50%; animation: pulse 2s ease-in-out infinite; }
+  @keyframes pulse { 0%, 100% { opacity: 1; transform: scale(1); } 50% { opacity: 0.4; transform: scale(0.8); } }
+  @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
+  @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+  .reveal { opacity: 0; transform: translateY(40px); transition: opacity 0.7s ease, transform 0.7s ease; }
   .reveal.visible { opacity: 1; transform: translateY(0); }
 
   #hero-canvas-fade { display: none; }
@@ -584,39 +284,14 @@
     animation: fadeIn 1.4s ease 0.8s forwards;
   }
   @media (max-width: 768px) {
-    #hero-canvas {
-      position: relative;
-      width: 100%; height: 78vh;
-      min-height: 500px;
-      top: auto; right: auto;
-      display: block;
-      opacity: 0;
-      animation: fadeIn 1.4s ease 0.8s forwards;
-    }
+    #hero-canvas { position: relative; width: 100%; height: 78vh; min-height: 500px; top: auto; right: auto; display: block; opacity: 0; animation: fadeIn 1.4s ease 0.8s forwards; }
   }
 
-  .ticker-wrap {
-    background: var(--red);
-    overflow: hidden;
-    padding: 14px 0;
-    white-space: nowrap;
-  }
-  .ticker {
-    display: inline-flex;
-    animation: ticker 18s linear infinite;
-  }
-  .ticker-item {
-    font-family: 'Bebas Neue', sans-serif;
-    font-size: 0.9rem;
-    letter-spacing: 0.2em;
-    padding: 0 40px;
-    color: var(--white);
-  }
+  .ticker-wrap { background: var(--red); overflow: hidden; padding: 14px 0; white-space: nowrap; }
+  .ticker { display: inline-flex; animation: ticker 18s linear infinite; }
+  .ticker-item { font-family: 'Bebas Neue', sans-serif; font-size: 0.9rem; letter-spacing: 0.2em; padding: 0 40px; color: var(--white); }
   .ticker-dot { color: rgba(255,255,255,0.4); }
-  @keyframes ticker {
-    from { transform: translateX(0); }
-    to { transform: translateX(-50%); }
-  }
+  @keyframes ticker { from { transform: translateX(0); } to { transform: translateX(-50%); } }
 
   @media (max-width: 768px) {
     .cursor, .cursor-ring { display: none; }
@@ -652,41 +327,15 @@
     .divider { margin:0 18px; max-width:calc(100% - 36px); }
     .phase-card:nth-child(3) { background:linear-gradient(135deg,#1a1a1a 0%,#1f0000 100%); }
   }
-  @media (max-width: 390px) {
-    .hero-title { font-size:clamp(2.6rem,13vw,4.5rem); }
-    .hero-stats { gap:14px; }
-    .stat-num { font-size:1.6rem; }
-  }
+  @media (max-width: 390px) { .hero-title { font-size:clamp(2.6rem,13vw,4.5rem); } .hero-stats { gap:14px; } .stat-num { font-size:1.6rem; } }
 
-  #back-top {
-    position: fixed;
-    bottom: 28px; right: 24px;
-    width: 44px; height: 44px;
-    background: var(--red);
-    border-radius: 50%;
-    display: flex;
-    align-items: center;
-    justify-content: center;
-    cursor: pointer;
-    z-index: 200;
-    opacity: 0;
-    transform: translateY(12px);
-    transition: opacity 0.3s, transform 0.3s;
-    border: none;
-    box-shadow: 0 2px 12px rgba(244,0,9,0.4);
-  }
+  #back-top { position: fixed; bottom: 28px; right: 24px; width: 44px; height: 44px; background: var(--red); border-radius: 50%; display: flex; align-items: center; justify-content: center; cursor: pointer; z-index: 200; opacity: 0; transform: translateY(12px); transition: opacity 0.3s, transform 0.3s; border: none; box-shadow: 0 2px 12px rgba(244,0,9,0.4); }
   #back-top.visible { opacity:1; transform:translateY(0); }
   #back-top:hover { background:#cc0007; }
   #back-top svg { display:block; }
   @media (max-width: 768px) { #back-top { bottom:20px; right:16px; width:40px; height:40px; } }
 
-  .hiw-layout {
-    display: grid;
-    grid-template-columns: 1fr 1fr;
-    gap: 56px;
-    margin-top: 52px;
-    align-items: start;
-  }
+  .hiw-layout { display: grid; grid-template-columns: 1fr 1fr; gap: 56px; margin-top: 52px; align-items: start; }
   .hiw-media { display:flex; flex-direction:column; gap:12px; }
   .hiw-media-item { border-radius:3px; overflow:hidden; border:1px solid rgba(255,255,255,0.07); }
   .hiw-img { width:100%; display:block; aspect-ratio:16/9; object-fit:cover; }
@@ -695,11 +344,7 @@
   .hiw-num { font-family:'Bebas Neue',sans-serif; font-size:2rem; color:var(--red); line-height:1; flex-shrink:0; width:38px; opacity:0.8; }
   .hiw-title { font-family:'Bebas Neue',sans-serif; font-size:1.05rem; letter-spacing:0.1em; color:var(--white); margin:0 0 8px; }
   .hiw-desc { font-family:'DM Sans',sans-serif; font-size:0.88rem; color:var(--grey-light); line-height:1.65; margin:0; }
-  @media (max-width: 768px) {
-    #how-it-works { padding:56px 18px!important; }
-    .hiw-layout { grid-template-columns:1fr; gap:36px; margin-top:36px; }
-    .hiw-num { font-size:1.7rem; width:32px; }
-  }
+  @media (max-width: 768px) { #how-it-works { padding:56px 18px!important; } .hiw-layout { grid-template-columns:1fr; gap:36px; margin-top:36px; } .hiw-num { font-size:1.7rem; width:32px; } }
 </style>
 </head>
 <body>
@@ -905,10 +550,7 @@
     <div class="values-list reveal" style="transition-delay:0.15s">
       <div class="value-item">
         <div class="value-icon">⟳</div>
-        <div>
-          <div class="value-title">Circular by Design</div>
-          <div class="value-desc">Every hardware and software decision is made with end-of-life recovery in mind.</div>
-        </div>
+        <div><div class="value-title">Circular by Design</div><div class="value-desc">Every hardware and software decision is made with end-of-life recovery in mind.</div></div>
       </div>
       <div class="value-item">
         <div class="value-icon">
@@ -920,31 +562,19 @@
             <path d="M2.5 11 Q8 9.5 13.5 11" fill="none" stroke="#F40009" stroke-width="0.9"/>
           </svg>
         </div>
-        <div>
-          <div class="value-title">Real-World First</div>
-          <div class="value-desc">We ship to high traffic public spaces, not controlled labs. More public testing, makes better robots.</div>
-        </div>
+        <div><div class="value-title">Real-World First</div><div class="value-desc">We ship to high traffic public spaces, not controlled labs. More public testing, makes better robots.</div></div>
       </div>
       <div class="value-item">
         <div class="value-icon">◎</div>
-        <div>
-          <div class="value-title">Iterative R&D</div>
-          <div class="value-desc">Each phase informs the next. Speed, handling and container recoverability all improve with every deployment.</div>
-        </div>
+        <div><div class="value-title">Iterative R&D</div><div class="value-desc">Each phase informs the next. Speed, handling and container recoverability all improve with every deployment.</div></div>
       </div>
       <div class="value-item">
         <div class="value-icon">▲</div>
-        <div>
-          <div class="value-title">Scalable Platform</div>
-          <div class="value-desc">Designed from day one to grow from one public space to many, across Australia and beyond.</div>
-        </div>
+        <div><div class="value-title">Scalable Platform</div><div class="value-desc">Designed from day one to grow from one public space to many, across Australia and beyond.</div></div>
       </div>
       <div class="value-item">
         <div class="value-icon">✦</div>
-        <div>
-          <div class="value-title">People + Robots</div>
-          <div class="value-desc">Scrappy works with venue teams, not instead of them. Integration and trust are core to the model.</div>
-        </div>
+        <div><div class="value-title">People + Robots</div><div class="value-desc">Scrappy works with venue teams, not instead of them. Integration and trust are core to the model.</div></div>
       </div>
     </div>
   </div>
@@ -953,7 +583,7 @@
 
 <footer>
   <div class="footer-brand"><span style="color:var(--red)">SCRAPPY</span> <span style="color:var(--grey-light);font-size:0.8rem;font-family:'DM Sans',sans-serif;font-weight:300;letter-spacing:0.05em">× Coca-Cola × QPAC × Shrunk</span></div>
-  <div class="footer-copy">Autonomous Recycling · Live R&D Deployment · 2025</div>
+  <div class="footer-copy">Autonomous Recycling · Live R&D Deployment · 2026</div>
   <div class="footer-dot"></div>
 </footer>
 
@@ -982,67 +612,87 @@
 </style>
 <script>
 (function(){
-  const canvasEl = document.getElementById('hero-canvas');
-  const hero     = document.getElementById('hero');
-
-  const statusEl = Object.assign(document.createElement('div'),{id:'status-text',textContent:'STANDBY'});
+  const canvasEl=document.getElementById('hero-canvas');
+  const hero=document.getElementById('hero');
+  const statusEl=Object.assign(document.createElement('div'),{id:'status-text',textContent:'STANDBY'});
   hero.appendChild(statusEl);
 
-  const renderer = new THREE.WebGLRenderer({canvas:canvasEl,antialias:true,alpha:true});
+  const renderer=new THREE.WebGLRenderer({canvas:canvasEl,antialias:true,alpha:true});
   renderer.setPixelRatio(Math.min(window.devicePixelRatio,2));
   renderer.setClearColor(0x000000,0);
+  const scene=new THREE.Scene();
+  const camera=new THREE.PerspectiveCamera(58,1,0.1,80);
+  camera.position.set(-1.2,1.5,13); camera.lookAt(-1.2,-0.8,0);
 
-  const scene  = new THREE.Scene();
-  const camera = new THREE.PerspectiveCamera(52,1,0.1,80);
-  camera.position.set(0,1.5,11);
-  camera.lookAt(0,-0.8,0);
-
-  const RED    = new THREE.Color(0xF40009);
-  const YELLOW = new THREE.Color(0xFFCC00);
-  const GLOW   = new THREE.Color(0xFF5555);
-  const STEEL  = new THREE.Color(0x2a3a3a);
-  const DIM    = new THREE.Color(0x3a0a0a);
-  const YDIM   = new THREE.Color(0x3a3000);
+  const RED=new THREE.Color(0xF40009);
+  const YELLOW=new THREE.Color(0xFFCC00);
+  const GLOW=new THREE.Color(0xFF5555);
+  const STEEL=new THREE.Color(0x5a7a7a);
+  const DIM=new THREE.Color(0x6a2a2a);
+  const YDIM=new THREE.Color(0x3a3000);
+  const JOINT=new THREE.Color(0xFF2200);
 
   function wMat(c,op=1){return new THREE.LineBasicMaterial({color:c,transparent:op<1,opacity:op});}
   function wEdge(g,m){return new THREE.LineSegments(new THREE.EdgesGeometry(g),m);}
+  function drum(r,h,seg,mat,opacity){return wEdge(new THREE.CylinderGeometry(r,r,h,seg),wMat(mat,opacity));}
+  function box(w,h,d,mat,opacity){return wEdge(new THREE.BoxGeometry(w,h,d),wMat(mat,opacity));}
 
   /* ── FLOOR GRID ── */
-  const grid = new THREE.GridHelper(20,26,0x1a0000,0x120000);
-  grid.position.y = -3.0; scene.add(grid);
+  const grid=new THREE.GridHelper(20,26,0x1a0000,0x120000);
+  grid.position.y=-3.0; scene.add(grid);
 
-  /* ── ARM ── */
-  const base = new THREE.Group(); scene.add(base);
-  const col = wEdge(new THREE.CylinderGeometry(0.22,0.30,1.8,10),wMat(STEEL,0.50));
-  col.position.y=-2.1; base.add(col);
-  for(let i=0;i<3;i++){const cr=wEdge(new THREE.CylinderGeometry(0.27,0.27,0.055,10),wMat(DIM,0.45));cr.position.y=-2.95+i*0.55;base.add(cr);}
-  const plinth=wEdge(new THREE.BoxGeometry(1.4,0.28,1.4),wMat(STEEL,0.52)); plinth.position.y=-2.94; base.add(plinth);
-  const rotRing=wEdge(new THREE.TorusGeometry(0.42,0.035,6,24),wMat(RED,0.60));
-  rotRing.rotation.x=Math.PI/2; rotRing.position.y=-1.82; base.add(rotRing);
+  /* ── BASE PEDESTAL ── */
+  const base=new THREE.Group(); scene.add(base);
+  const foot=wEdge(new THREE.CylinderGeometry(0.90,0.95,0.18,6),wMat(STEEL,0.55)); foot.position.y=-2.92; base.add(foot);
+  const ped1=wEdge(new THREE.CylinderGeometry(0.62,0.80,1.10,8),wMat(STEEL,0.50)); ped1.position.y=-2.28; base.add(ped1);
+  const yawRing=drum(0.68,0.14,16,RED,0.80); yawRing.position.y=-1.72; base.add(yawRing);
+  const yawInner=drum(0.54,0.10,16,STEEL,0.45); yawInner.position.y=-1.72; base.add(yawInner);
 
-  const shoulder=new THREE.Group(); shoulder.position.y=-1.8; base.add(shoulder);
-  shoulder.add(wEdge(new THREE.CylinderGeometry(0.20,0.24,0.34,10),wMat(RED,0.85)));
+  const shoulderCast=new THREE.Group(); shoulderCast.position.y=-1.55; base.add(shoulderCast);
+  shoulderCast.add(box(1.10,0.72,0.68,STEEL,0.65));
+  const ribL=box(0.06,0.65,0.58,DIM,0.50); ribL.position.x=-0.42; shoulderCast.add(ribL);
+  const ribR=box(0.06,0.65,0.58,DIM,0.50); ribR.position.x= 0.42; shoulderCast.add(ribR);
+  const j2L=drum(0.22,0.28,12,JOINT,0.88); j2L.rotation.z=Math.PI/2; j2L.position.set(-0.68,0,0); shoulderCast.add(j2L);
+  const j2R=drum(0.22,0.28,12,JOINT,0.88); j2R.rotation.z=Math.PI/2; j2R.position.set( 0.68,0,0); shoulderCast.add(j2R);
+  const cableL=box(0.16,0.26,0.14,DIM,0.40); cableL.position.set(-0.50,0.26,0.20); shoulderCast.add(cableL);
 
-  const upperArm=new THREE.Group(); upperArm.position.y=0.18; shoulder.add(upperArm);
-  const ua1=wEdge(new THREE.BoxGeometry(0.195,2.7,0.155),wMat(STEEL,0.72)); ua1.position.y=1.35; upperArm.add(ua1);
-  const ua2=wEdge(new THREE.BoxGeometry(0.085,2.45,0.10),wMat(STEEL,0.30)); ua2.position.set(0.18,1.35,0); upperArm.add(ua2);
-  for(let i=0;i<5;i++){const b=wEdge(new THREE.BoxGeometry(0.24,0.055,0.14),wMat(DIM,0.45));b.position.y=0.22+i*0.52;upperArm.add(b);}
-  const elbSph=wEdge(new THREE.SphereGeometry(0.21,8,6),wMat(RED,0.88)); elbSph.position.y=2.7; upperArm.add(elbSph);
+  /* ── UPPER ARM ── */
+  const upperArm=new THREE.Group(); shoulderCast.add(upperArm);
+  const uaMain=box(0.44,2.60,0.34,STEEL,0.72); uaMain.position.y=1.30; upperArm.add(uaMain);
+  const uaSpine=box(0.14,2.42,0.14,DIM,0.40); uaSpine.position.y=1.30; upperArm.add(uaSpine);
+  for(let i=0;i<5;i++){const rib=box(0.42,0.06,0.30,DIM,0.45);rib.position.y=0.14+i*0.56;upperArm.add(rib);}
+  const counterLug=box(0.38,0.52,0.28,STEEL,0.50); counterLug.position.set(0,0.38,-0.36); upperArm.add(counterLug);
+  const cbDetail=box(0.26,0.35,0.12,DIM,0.35); cbDetail.position.set(0,0.38,-0.50); upperArm.add(cbDetail);
+  const elbowGroup=new THREE.Group(); elbowGroup.position.y=2.60; upperArm.add(elbowGroup);
+  elbowGroup.add(box(0.82,0.58,0.52,STEEL,0.68));
+  const j3L=drum(0.20,0.26,12,JOINT,0.85); j3L.rotation.z=Math.PI/2; j3L.position.set(-0.56,0,0); elbowGroup.add(j3L);
+  const j3R=drum(0.20,0.26,12,JOINT,0.85); j3R.rotation.z=Math.PI/2; j3R.position.set( 0.56,0,0); elbowGroup.add(j3R);
+  for(const s of[-1,1]){const er=box(0.06,0.52,0.46,DIM,0.40);er.position.x=s*0.30;elbowGroup.add(er);}
 
-  const forearm=new THREE.Group(); forearm.position.y=2.7; upperArm.add(forearm);
-  const fa1=wEdge(new THREE.BoxGeometry(0.155,2.15,0.13),wMat(STEEL,0.68)); fa1.position.y=1.075; forearm.add(fa1);
-  const fa2=wEdge(new THREE.BoxGeometry(0.075,1.95,0.09),wMat(STEEL,0.28)); fa2.position.set(0.16,1.075,0); forearm.add(fa2);
-  for(let i=0;i<4;i++){const fb=wEdge(new THREE.BoxGeometry(0.21,0.05,0.12),wMat(DIM,0.40));fb.position.y=0.22+i*0.50;forearm.add(fb);}
-  const wristSph=wEdge(new THREE.SphereGeometry(0.165,8,6),wMat(RED,0.82)); wristSph.position.y=2.15; forearm.add(wristSph);
+  /* ── FOREARM ── */
+  const forearm=new THREE.Group(); elbowGroup.add(forearm);
+  const faTube=wEdge(new THREE.CylinderGeometry(0.22,0.28,2.10,10),wMat(STEEL,0.70)); faTube.position.y=1.05; forearm.add(faTube);
+  const faBox=box(0.36,2.00,0.28,DIM,0.32); faBox.position.y=1.05; forearm.add(faBox);
+  for(let i=0;i<4;i++){const band=drum(0.26,0.055,10,DIM,0.42);band.position.y=0.22+i*0.54;forearm.add(band);}
+  const conduit=wEdge(new THREE.CylinderGeometry(0.04,0.04,1.85,6),wMat(DIM,0.38)); conduit.position.set(0.28,0.95,0.05); forearm.add(conduit);
 
-  const wristHead=new THREE.Group(); wristHead.position.y=2.15; forearm.add(wristHead);
-  wristHead.add(wEdge(new THREE.BoxGeometry(0.44,0.23,0.36),wMat(STEEL,0.62)));
-  wristHead.add(wEdge(new THREE.TorusGeometry(0.20,0.038,8,24),wMat(RED,0.88)));
-  const wSpoke=wEdge(new THREE.BoxGeometry(0.045,0.38,0.045),wMat(GLOW,0.88));
-  wSpoke.position.set(0,0.19,0); wristHead.add(wSpoke);
-  wristHead.add(wEdge(new THREE.SphereGeometry(0.07,8,6),wMat(RED,0.95)));
+  /* ── WRIST ── */
+  const wristGroup=new THREE.Group(); wristGroup.position.y=2.10; forearm.add(wristGroup);
+  wristGroup.add(box(0.56,0.42,0.50,STEEL,0.72));
+  wristGroup.add(drum(0.18,0.52,12,JOINT,0.85));
+  const j5Housing=new THREE.Group(); j5Housing.position.y=0.0; wristGroup.add(j5Housing);
+  const j5L=drum(0.15,0.22,10,JOINT,0.82); j5L.rotation.z=Math.PI/2; j5L.position.set(-0.40,0.16,0); j5Housing.add(j5L);
+  const j5R=drum(0.15,0.22,10,JOINT,0.82); j5R.rotation.z=Math.PI/2; j5R.position.set( 0.40,0.16,0); j5Housing.add(j5R);
+  const j5Body=box(0.62,0.30,0.38,STEEL,0.60); j5Body.position.y=0.16; j5Housing.add(j5Body);
 
-  const gripperGroup=new THREE.Group(); gripperGroup.position.y=0.25; wristHead.add(gripperGroup);
+  /* ── FLANGE ── */
+  const flangeGroup=new THREE.Group(); flangeGroup.position.y=0.36; j5Housing.add(flangeGroup);
+  flangeGroup.add(drum(0.24,0.08,12,RED,0.88));
+  for(let i=0;i<6;i++){const a=(i/6)*Math.PI*2;const bolt=drum(0.025,0.06,6,STEEL,0.60);bolt.position.set(Math.cos(a)*0.18,0,Math.sin(a)*0.18);flangeGroup.add(bolt);}
+  const toolAdapter=box(0.30,0.14,0.30,STEEL,0.62); toolAdapter.position.y=0.12; flangeGroup.add(toolAdapter);
+
+  /* ── GRIPPER — original makeGripFinger, mounted on flangeGroup ── */
+  const gripperGroup=new THREE.Group(); gripperGroup.position.y=0.28; flangeGroup.add(gripperGroup);
   function makeGripFinger(side){
     const fg=new THREE.Group();
     const s1=wEdge(new THREE.BoxGeometry(0.11,0.42,0.11),wMat(RED,0.84)); s1.position.y=0.21; fg.add(s1);
@@ -1053,6 +703,18 @@
   }
   const fingerL=makeGripFinger(-1); gripperGroup.add(fingerL);
   const fingerR=makeGripFinger( 1); gripperGroup.add(fingerR);
+
+  /* ── JOINT APPLY — maps state vars to industrial arm joints ── */
+  function applyJoints(){
+    shoulderCast.rotation.x=sh;
+    forearm.rotation.x=el;
+    j5Housing.rotation.x=wr;
+    base.rotation.y=by;
+    wristGroup.rotation.y=0;
+    fingerL.position.x=-.19-gr;
+    fingerR.position.x= .19+gr;
+    yawRing.material.opacity=.55+Math.sin(clock*2.3)*.22;
+  }
 
   /* ── CONTAINERS ── */
   const containers=[];
@@ -1074,40 +736,31 @@
     const g=new THREE.Group(); g.position.set(px,py,pz); scene.add(g);
     const mat=wMat(YELLOW,op);
     g.add(wEdge(new THREE.CylinderGeometry(0.145,0.125,0.57,10),mat));
-    const neck=wEdge(new THREE.CylinderGeometry(0.06,0.135,0.26,10),wMat(YELLOW,op*0.75)); neck.position.y=0.415; g.add(neck);
-    const cap=wEdge(new THREE.CylinderGeometry(0.065,0.065,0.09,8),wMat(YELLOW,op*0.9)); cap.position.y=0.595; g.add(cap);
+    const neck=wEdge(new THREE.CylinderGeometry(0.06,0.135,0.26,10),wMat(YELLOW,op*0.75));
+    neck.position.y=0.415; g.add(neck);
+    const cap=wEdge(new THREE.CylinderGeometry(0.065,0.065,0.09,8),wMat(YELLOW,op*0.9));
+    cap.position.y=0.595; g.add(cap);
     const wires=[mat]; g.traverse(c=>{if(c.material?.isLineBasicMaterial&&!wires.includes(c.material))wires.push(c.material);});
     const hm=new THREE.Mesh(new THREE.CylinderGeometry(0.50,0.50,0.90,8),new THREE.MeshBasicMaterial({visible:false,side:THREE.DoubleSide}));
     hm.userData._cont=null; g.add(hm);
     return{group:g,homePos:new THREE.Vector3(px,py,pz),label:'BOTTLE',wires,picked:false,queued:false,hitMesh:hm};
   }
   const itemDefs=[
-    ['can',    -3.80,CONT_Y,0.35, 0.00, 0.00,0.72],
-    ['bottle', -3.00,CONT_Y,0.35, 0.00, 0.00,0.65],
-    ['can',    -2.20,CONT_Y,0.35, 0.00, 0.00,0.62],
-    ['can',    -3.80,CONT_Y,0.85, 0.35,-1.20,0.52],
-    ['bottle', -3.00,CONT_Y,0.85,-0.70, 0.55,0.48],
-    ['can',    -2.20,CONT_Y,0.85, 0.00,-1.15,0.52],
-    ['bottle', -3.80,CONT_Y,1.35, 0.40, 0.12,0.48],
-    ['can',    -3.00,CONT_Y,1.35,-0.30, 0.18,0.52],
-    ['can',    -2.20,CONT_Y,1.35,-0.42,-0.85,0.50],
-    ['bottle', -3.80,CONT_Y,1.85,-0.40,-1.05,0.45],
-    ['can',    -3.00,CONT_Y,1.85, 0.88, 0.27,0.52],
-    ['can',    -2.20,CONT_Y,1.85, 0.00,-0.90,0.50],
+    ['can',   -3.80,CONT_Y,0.35, 0.00, 0.00,0.72],['bottle',-3.00,CONT_Y,0.35, 0.00, 0.00,0.65],
+    ['can',   -2.20,CONT_Y,0.35, 0.00, 0.00,0.62],['can',   -3.80,CONT_Y,0.85, 0.35,-1.20,0.52],
+    ['bottle',-3.00,CONT_Y,0.85,-0.70, 0.55,0.48],['can',   -2.20,CONT_Y,0.85, 0.00,-1.15,0.52],
+    ['bottle',-3.80,CONT_Y,1.35, 0.40, 0.12,0.48],['can',   -3.00,CONT_Y,1.35,-0.30, 0.18,0.52],
+    ['can',   -2.20,CONT_Y,1.35,-0.42,-0.85,0.50],['bottle',-3.80,CONT_Y,1.85,-0.40,-1.05,0.45],
+    ['can',   -3.00,CONT_Y,1.85, 0.88, 0.27,0.52],['can',   -2.20,CONT_Y,1.85, 0.00,-0.90,0.50],
   ];
+  /* Reach poses — original tuned values from reference document */
   const containerReachPoses=[
-    {sh:1.1,el:1.5,wr: 0.20,br:-1.4790},
-    {sh:1.1,el:1.5,wr: 0.50,br:-1.4547},
-    {sh:1.1,el:1.5,wr: 0.80,br:-1.4130},
-    {sh:1.1,el:1.5,wr:-0.20,br:-1.3507},
-    {sh:1.1,el:1.5,wr: 0.40,br:-1.2947},
-    {sh:1.1,el:1.5,wr: 0.90,br:-1.2021},
-    {sh:1.1,el:1.5,wr: 0.10,br:-1.2294},
-    {sh:1.1,el:1.5,wr: 0.60,br:-1.1479},
-    {sh:1.1,el:1.5,wr: 1.10,br:-1.0204},
-    {sh:1.1,el:1.5,wr: 0.30,br:-1.1177},
-    {sh:1.1,el:1.5,wr: 0.70,br:-1.0182},
-    {sh:1.1,el:1.5,wr: 1.20,br:-0.8716},
+    {sh:1.1,el:1.5,wr: 0.20,br:-1.4790},{sh:1.1,el:1.5,wr: 0.50,br:-1.4547},
+    {sh:1.1,el:1.5,wr: 0.80,br:-1.4130},{sh:1.1,el:1.5,wr:-0.20,br:-1.3507},
+    {sh:1.1,el:1.5,wr: 0.40,br:-1.2947},{sh:1.1,el:1.5,wr: 0.90,br:-1.2021},
+    {sh:1.1,el:1.5,wr: 0.10,br:-1.2294},{sh:1.1,el:1.5,wr: 0.60,br:-1.1479},
+    {sh:1.1,el:1.5,wr: 1.10,br:-1.0204},{sh:1.1,el:1.5,wr: 0.30,br:-1.1177},
+    {sh:1.1,el:1.5,wr: 0.70,br:-1.0182},{sh:1.1,el:1.5,wr: 1.20,br:-0.8716},
   ];
   itemDefs.forEach(([type,px,py,pz,rx,rz,op])=>{
     const c=type==='can'?buildCan(px,py,pz,op):buildBottle(px,py,pz,op);
@@ -1118,10 +771,13 @@
   function buildBin(wx,wy,wz,rimColor,bodyColor,dimColor,scale){
     const BS=scale,BW=0.52*BS,BT=0.46*BS;
     const g=new THREE.Group(); g.position.set(wx,wy,wz); scene.add(g);
-    const rimO=wEdge(new THREE.BoxGeometry(BW*2+0.07,0.055,BT*2+0.07),wMat(rimColor,0.82)); rimO.position.y=0.04; g.add(rimO);
-    const rimI=wEdge(new THREE.BoxGeometry(BW*2-0.04,0.035,BT*2-0.04),wMat(rimColor,0.52)); rimI.position.y=0.01; g.add(rimI);
+    const rimO=wEdge(new THREE.BoxGeometry(BW*2+0.07,0.055,BT*2+0.07),wMat(rimColor,0.82));
+    rimO.position.y=0.04; g.add(rimO);
+    const rimI=wEdge(new THREE.BoxGeometry(BW*2-0.04,0.035,BT*2-0.04),wMat(rimColor,0.52));
+    rimI.position.y=0.01; g.add(rimI);
     for(const[cx,cz]of[[-BW,-BT],[BW,-BT],[BW,BT],[-BW,BT]]){
-      const post=wEdge(new THREE.BoxGeometry(0.07,1.3,0.07),wMat(STEEL,0.42)); post.position.set(cx,-0.65,cz); g.add(post);
+      const post=wEdge(new THREE.BoxGeometry(0.07,1.3,0.07),wMat(STEEL,0.42));
+      post.position.set(cx,-0.65,cz); g.add(post);
     }
     const BW2=BW*0.87,BT2=BT*0.87;
     const bodyPts=[[-BW,0,-BT],[BW,0,-BT],[BW,0,BT],[-BW,0,BT],[-BW2,-1.2,-BT2],[BW2,-1.2,-BT2],[BW2,-1.2,BT2],[-BW2,-1.2,BT2]];
@@ -1138,11 +794,12 @@
     }
     const hdl=wEdge(new THREE.CylinderGeometry(0.03,0.03,BW*1.4,5),wMat(STEEL,0.52));
     hdl.rotation.z=Math.PI/2; hdl.position.set(0,0.09,-BT+0.05); g.add(hdl);
-    const lbl=wEdge(new THREE.BoxGeometry(BW*0.85,0.18,0.02),wMat(dimColor,0.35)); lbl.position.set(0,-0.24,BT+0.02); g.add(lbl);
+    const lbl=wEdge(new THREE.BoxGeometry(BW*0.85,0.18,0.02),wMat(dimColor,0.35));
+    lbl.position.set(0,-0.24,BT+0.02); g.add(lbl);
     return{group:g,rimMat:rimO.material};
   }
-  const redBin    = buildBin(-2.80,-1.534,1.00, RED,    RED,    DIM,  2.6);
-  const yellowBin = buildBin( 2.80,-1.534,0.80, YELLOW, YELLOW, YDIM, 2.6);
+  const redBin=buildBin(-2.80,-1.534,1.00,RED,RED,DIM,2.6);
+  const yellowBin=buildBin(2.80,-1.534,0.80,YELLOW,YELLOW,YDIM,2.6);
 
   /* ── PARTICLES ── */
   const ptG=new THREE.BufferGeometry();
@@ -1172,26 +829,23 @@
   }
   canvasEl.addEventListener('click',e=>tryQueue(getHit(e)));
   canvasEl.addEventListener('touchend',e=>{e.preventDefault();tryQueue(getHit(e.changedTouches[0]));},{passive:false});
-
   const pickQueue=[];
 
-  /* ══════════════════════════════════════════════
-     STATE MACHINE
-  ══════════════════════════════════════════════ */
-  let robotState='IDLE', stateT=0;
-  let currentTarget=null, currentTargetIdx=-1, currentHeld=null;
-  let sh=-.3, el=.5, wr=0, by=0, gr=.30;
+  /* ── STATE MACHINE — original working version ── */
+  let robotState='IDLE',stateT=0;
+  let currentTarget=null,currentTargetIdx=-1,currentHeld=null;
+  let sh=-.3,el=.5,wr=0,by=0,gr=.30;
   let F={sh:-.3,el:.5,wr:0,by:0,gr:.30};
   let T={sh:-.3,el:.5,wr:0,by:0,gr:.30};
 
   const DUR={IDLE:99,SWING_TO_TARGET:1.3,REACH_DOWN:2.0,GRASP:0.65,EXTRACT:1.4,CARRY:1.6,APPROACH:1.2,DEPOSIT:1.1,SWING_BACK:1.3,LOWER:1.0};
-  const LABELS={IDLE:'STANDBY',SWING_TO_TARGET:'TARGETING',REACH_DOWN:'REACHING INTO SOURCE BIN',GRASP:'GRASPING CONTAINER',EXTRACT:'EXTRACTING',CARRY:'TRANSPORTING',APPROACH:'APPROACHING RECYCLING BIN',DEPOSIT:'DEPOSITING',SWING_BACK:'RETURNING',LOWER:'STANDBY'};
+  const LABELS={IDLE:'STANDBY',SWING_TO_TARGET:'TARGETING',REACH_DOWN:'REACHING',GRASP:'GRASPING',EXTRACT:'EXTRACTING',CARRY:'TRANSPORTING',APPROACH:'APPROACHING',DEPOSIT:'DEPOSITING',SWING_BACK:'RETURNING',LOWER:'STANDBY'};
 
   function snap(){return{sh,el,wr,by,gr};}
   function go(state){
     robotState=state; stateT=0; F=snap();
     statusEl.textContent=LABELS[state]||state; statusEl.style.opacity='1';
-    const rp=containerReachPoses[currentTargetIdx]||{sh:1.2,el:1.3,wr:1.4,br:-1.3};
+    const rp=containerReachPoses[currentTargetIdx]||{sh:1.1,el:1.5,wr:0.5,br:-1.3};
     const tby=rp.br||0;
     switch(state){
       case 'SWING_TO_TARGET': T={sh:-.3,el:.6,wr:-0.60,by:tby,gr:.32}; break;
@@ -1214,8 +868,7 @@
   setTimeout(()=>{
     if(autoPickFired||pickQueue.length||robotState!=='IDLE')return;
     autoPickFired=true;
-    containers.filter(c=>!c.picked&&!c.queued).forEach(c=>{c.queued=true;tintContainer(c,new THREE.Color(0xFFFFAA));});
-    pickQueue.push(...containers.filter(c=>c.queued&&!c.picked).slice(0,12));
+    containers.filter(c=>!c.picked&&!c.queued).forEach(c=>{c.queued=true;tintContainer(c,new THREE.Color(0xFFFFAA));pickQueue.push(c);});
     kickOff();
   },10000);
 
@@ -1228,24 +881,22 @@
   pulseRing1.position.set(yellowBin.group.position.x,yellowBin.group.position.y+0.1,yellowBin.group.position.z);
   pulseRing2.position.set(yellowBin.group.position.x,yellowBin.group.position.y+0.1,yellowBin.group.position.z);
   scene.add(pulseRing1); scene.add(pulseRing2);
-  const burstCount=24;
-  const burstGeo=new THREE.BufferGeometry();
-  const burstPos=new Float32Array(burstCount*3);
+  const burstCount=24,burstGeo=new THREE.BufferGeometry(),burstPos=new Float32Array(burstCount*3);
   burstGeo.setAttribute('position',new THREE.BufferAttribute(burstPos,3));
   const burstMat=new THREE.PointsMaterial({color:YELLOW,size:0.10,transparent:true,opacity:0});
   scene.add(new THREE.Points(burstGeo,burstMat));
   const flyupEl=document.createElement('div');
   flyupEl.style.cssText='position:absolute;pointer-events:none;z-index:20;font-family:Bebas Neue,sans-serif;font-size:1.0rem;letter-spacing:0.18em;color:#FFCC00;opacity:0;transition:none;white-space:nowrap;';
   flyupEl.textContent='+1 RECYCLED ✓'; hero.appendChild(flyupEl);
-  let celebT=-1, ring1T=0, ring2T=0;
+  let celebT=-1,ring1T=0,ring2T=0;
   const burstVels=[];
   for(let i=0;i<burstCount;i++){const a=(i/burstCount)*Math.PI*2,sp=0.04+Math.random()*0.04;burstVels.push({vx:Math.cos(a)*sp,vy:0.02+Math.random()*0.03,vz:Math.sin(a)*sp});}
   const burstOrigin=new THREE.Vector3(yellowBin.group.position.x,yellowBin.group.position.y+0.2,yellowBin.group.position.z);
   function triggerCelebration(){
-    ring1T=0; ring2T=-0.3; celebT=0;
+    ring1T=0;ring2T=-0.3;celebT=0;
     for(let i=0;i<burstCount;i++){burstPos[i*3]=burstOrigin.x;burstPos[i*3+1]=burstOrigin.y;burstPos[i*3+2]=burstOrigin.z;}
     burstGeo.attributes.position.needsUpdate=true; burstMat.opacity=0.95;
-    flyupEl.style.opacity='1'; flyupEl.style.left='72%'; flyupEl.style.top='60%'; flyupEl.style.transform='translateY(0px)'; flyupEl.style.transition='none';
+    flyupEl.style.opacity='1';flyupEl.style.left='72%';flyupEl.style.top='60%';flyupEl.style.transform='translateY(0px)';flyupEl.style.transition='none';
     requestAnimationFrame(()=>requestAnimationFrame(()=>{
       flyupEl.style.transition='opacity 0.5s ease-in 0.6s, transform 1.4s ease-out';
       flyupEl.style.transform='translateY(-80px)'; flyupEl.style.opacity='0';
@@ -1264,79 +915,55 @@
     if(celebT>2.0)celebT=-1;
   }
 
-  /* ══════════════════════════════════════════════
-     IDLE — discrete robotic pose sequencer
-     The arm moves briskly to a target pose, locks
-     on arrival, holds dead-still for a defined dwell
-     time, then snaps to the next pose.
-     No sinusoidal sweeps or organic tremor.
-  ══════════════════════════════════════════════ */
-
-  // Named standby poses. hold = seconds to remain perfectly still.
+  /* ── IDLE POSE SEQUENCER ── */
   const IDLE_POSES=[
-    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:2.4},  // home / rest
-    {sh:-.10, el:.72, wr:-0.48, by:-0.38, gr:.30, hold:1.6},  // scan left (red bin)
-    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:0.5},  // snap back to home
-    {sh:-.18, el:.62, wr: 0.68, by: 0.00, gr:.30, hold:1.4},  // wrist articulation check
-    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:0.4},  // snap home
-    {sh:-.08, el:.78, wr: 0.28, by: 0.44, gr:.30, hold:1.6},  // scan right (yellow bin)
-    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:0.5},  // snap home
-    {sh: .06, el:.44, wr: 0.12, by: 0.00, gr:.30, hold:1.8},  // alert / attentive raise
-    {sh:-.30, el:.50, wr: 0.00, by: 0.00, gr:.30, hold:1.2},  // settle home
+    {sh:-.30,el:.50,wr: 0.00,by: 0.00,gr:.30,hold:2.4},
+    {sh:-.10,el:.72,wr:-0.48,by:-0.38,gr:.30,hold:1.6},
+    {sh:-.30,el:.50,wr: 0.00,by: 0.00,gr:.30,hold:0.5},
+    {sh:-.18,el:.62,wr: 0.68,by: 0.00,gr:.30,hold:1.4},
+    {sh:-.30,el:.50,wr: 0.00,by: 0.00,gr:.30,hold:0.4},
+    {sh:-.08,el:.78,wr: 0.28,by: 0.44,gr:.30,hold:1.6},
+    {sh:-.30,el:.50,wr: 0.00,by: 0.00,gr:.30,hold:0.5},
+    {sh: .06,el:.44,wr: 0.12,by: 0.00,gr:.30,hold:1.8},
+    {sh:-.30,el:.50,wr: 0.00,by: 0.00,gr:.30,hold:1.2},
   ];
-  const IDLE_MOVE_DUR=0.48; // seconds — fast, servo-like transition
-
-  // Ease: rapid acceleration then hard stop (industrial servo feel)
-  // Reaches ~97% at t=0.75, then clamps — mimics velocity-limited servo
-  function easeServo(t){
-    const c=Math.min(t,1);
-    return c<0.55 ? (c/0.55)*(c/0.55) : 1-(1-c)*(1-c)*0.18;
-  }
-
-  let idlePoseIdx  = 0;
-  let idleMoveT    = 1.0;   // 1.0 = arrived / holding
-  let idleHoldT    = 0;
-  let idlePoseFrom = {...IDLE_POSES[0]};
-  let idlePoseTo   = {...IDLE_POSES[0]};
-
+  const IDLE_MOVE_DUR=0.48;
+  function easeServo(t){const c=Math.min(t,1);return c<0.55?(c/0.55)*(c/0.55):1-(1-c)*(1-c)*0.18;}
+  let idlePoseIdx=0,idleMoveT=1.0,idleHoldT=0;
+  let idlePoseFrom={...IDLE_POSES[0]},idlePoseTo={...IDLE_POSES[0]};
   function nextIdlePose(){
     idlePoseIdx=(idlePoseIdx+1)%IDLE_POSES.length;
-    idlePoseFrom={sh,el,wr,by,gr};
-    idlePoseTo={...IDLE_POSES[idlePoseIdx]};
+    idlePoseFrom={sh,el,wr,by,gr}; idlePoseTo={...IDLE_POSES[idlePoseIdx]};
     idleMoveT=0; idleHoldT=0;
   }
 
   function lerp(a,b,t){return a+(b-a)*t;}
   function easeTask(t){return t<.5?2*t*t:-1+(4-2*t)*t;}
-
-  let clock=0, last=performance.now();
+  let clock=0,last=performance.now();
 
   function animate(now){
     requestAnimationFrame(animate);
     const dt=Math.min((now-last)/1000,.05); last=now; clock+=dt;
 
     if(robotState!=='IDLE'){
-      // Task motion — smooth ease-in-out (unchanged)
       stateT+=dt/DUR[robotState];
       const et=easeTask(Math.min(stateT,1));
       sh=lerp(F.sh,T.sh,et); el=lerp(F.el,T.el,et);
       wr=lerp(F.wr,T.wr,et); by=lerp(F.by,T.by,et); gr=lerp(F.gr,T.gr,et);
       if(stateT>=1){
-        sh=T.sh; el=T.el; wr=T.wr; by=T.by; gr=T.gr;
+        sh=T.sh;el=T.el;wr=T.wr;by=T.by;gr=T.gr;
         if(robotState==='SWING_TO_TARGET') go('REACH_DOWN');
         else if(robotState==='REACH_DOWN')  go('GRASP');
         else if(robotState==='GRASP'){currentHeld=currentTarget;currentTarget.picked=true;go('EXTRACT');}
-        else if(robotState==='EXTRACT')     go('CARRY');
-        else if(robotState==='CARRY')       go('APPROACH');
-        else if(robotState==='APPROACH')    go('DEPOSIT');
+        else if(robotState==='EXTRACT')    go('CARRY');
+        else if(robotState==='CARRY')      go('APPROACH');
+        else if(robotState==='APPROACH')   go('DEPOSIT');
         else if(robotState==='DEPOSIT'){
           if(currentHeld){
-            const falling=currentHeld; falling.picked=true;
-            let fallT=0;
-            const fallStart=falling.group.position.y, fallTarget=yellowBin.group.position.y-0.3;
+            const falling=currentHeld; falling.picked=true; let fallT=0;
+            const fallStart=falling.group.position.y,fallTarget=yellowBin.group.position.y-0.3;
             const fa=setInterval(()=>{
-              fallT+=0.04;
-              falling.group.position.y=fallStart+(fallTarget-fallStart)*Math.min(fallT*fallT,1);
+              fallT+=0.04; falling.group.position.y=fallStart+(fallTarget-fallStart)*Math.min(fallT*fallT,1);
               falling.group.rotation.x+=0.06; falling.group.rotation.z+=0.04;
               if(fallT>=1.0){clearInterval(fa);falling.group.visible=false;}
             },16);
@@ -1345,37 +972,30 @@
         }
         else if(robotState==='SWING_BACK') go('LOWER');
         else if(robotState==='LOWER'){
-          // Re-anchor idle sequencer at home pose so it starts fresh
-          idlePoseIdx=0; idleMoveT=1.0; idleHoldT=0;
-          idlePoseTo={...IDLE_POSES[0]}; idlePoseFrom={sh,el,wr,by,gr};
+          idlePoseIdx=0;idleMoveT=1.0;idleHoldT=0;
+          idlePoseTo={...IDLE_POSES[0]};idlePoseFrom={sh,el,wr,by,gr};
           kickOff();
         }
       }
-
     } else {
-      // ── IDLE: discrete servo-style point-to-point motion ──
       if(idleMoveT<1.0){
         idleMoveT=Math.min(idleMoveT+dt/IDLE_MOVE_DUR,1.0);
         const et=easeServo(idleMoveT);
-        sh=lerp(idlePoseFrom.sh,idlePoseTo.sh,et);
-        el=lerp(idlePoseFrom.el,idlePoseTo.el,et);
-        wr=lerp(idlePoseFrom.wr,idlePoseTo.wr,et);
-        by=lerp(idlePoseFrom.by,idlePoseTo.by,et);
+        sh=lerp(idlePoseFrom.sh,idlePoseTo.sh,et); el=lerp(idlePoseFrom.el,idlePoseTo.el,et);
+        wr=lerp(idlePoseFrom.wr,idlePoseTo.wr,et); by=lerp(idlePoseFrom.by,idlePoseTo.by,et);
         gr=lerp(idlePoseFrom.gr,idlePoseTo.gr,et);
       } else {
-        // Perfectly rigid hold — no drift, no tremor
-        sh=idlePoseTo.sh; el=idlePoseTo.el;
-        wr=idlePoseTo.wr; by=idlePoseTo.by; gr=idlePoseTo.gr;
+        sh=idlePoseTo.sh;el=idlePoseTo.el;wr=idlePoseTo.wr;by=idlePoseTo.by;gr=idlePoseTo.gr;
         idleHoldT+=dt;
         if(idleHoldT>=idlePoseTo.hold) nextIdlePose();
       }
     }
 
-    shoulder.rotation.x=sh; forearm.rotation.x=el; wristHead.rotation.x=wr;
-    base.rotation.y=by; fingerL.position.x=-.19-gr; fingerR.position.x=.19+gr;
+    applyJoints();
 
+    /* ── HELD CONTAINER follows gripper ── */
     if(currentHeld){
-      const gp=new THREE.Vector3(), gq=new THREE.Quaternion();
+      const gp=new THREE.Vector3(),gq=new THREE.Quaternion();
       gripperGroup.getWorldPosition(gp); gripperGroup.getWorldQuaternion(gq);
       const off=new THREE.Vector3(0,0.40,0).applyQuaternion(gq);
       currentHeld.group.position.copy(gp).add(off);
@@ -1388,17 +1008,15 @@
       }
     });
 
-    const yp=0.72+Math.sin(clock*1.2)*0.10;
-    yellowBin.rimMat.opacity=Math.max(0.72,yp);
-    rotRing.material.opacity=.28+Math.sin(clock*2.5)*.18;
+    yellowBin.rimMat.opacity=Math.max(0.72,0.72+Math.sin(clock*1.2)*0.10);
     updateCelebration(dt);
     renderer.render(scene,camera);
   }
 
   const CAM={
-    mobile: {fov:76,x:0,y:1.5,z:11,lookY:-1.2},
-    tablet: {fov:68,x:0,y:1.5,z:11,lookY:-1.2},
-    desktop:{fov:52,x:0,y:1.5,z:11,lookY:-0.8},
+    mobile:{fov:76,x:0,y:1.5,z:11,lookY:-1.2,lookX:0},
+    tablet:{fov:68,x:0,y:1.5,z:11,lookY:-1.2,lookX:0},
+    desktop:{fov:58,x:-1.2,y:1.5,z:13,lookY:-0.8,lookX:-1.2},
   };
   function resize(){
     const w=canvasEl.offsetWidth,h=canvasEl.offsetHeight;
@@ -1406,7 +1024,7 @@
     renderer.setSize(w,h);
     const c=w<500?CAM.mobile:w<768?CAM.tablet:CAM.desktop;
     camera.fov=c.fov; camera.position.set(c.x,c.y,c.z);
-    camera.lookAt(0,c.lookY,0); camera.aspect=w/h; camera.updateProjectionMatrix();
+    camera.lookAt(c.lookX||0,c.lookY,0); camera.aspect=w/h; camera.updateProjectionMatrix();
   }
   window.addEventListener('resize',resize); resize();
   go('IDLE'); requestAnimationFrame(animate);
