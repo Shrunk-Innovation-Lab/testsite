@@ -480,9 +480,31 @@
   @media (min-width: 640px){
     .navDock{ right: calc((100vw - min(92vw, 560px))/2 - 14px); }
   }
+
+  /* MOBILE FIX: on narrow screens (phones), put the nav arrows at the BOTTOM
+     of the screen, side by side. This keeps them clear of the card stack
+     entirely so they can never get hidden behind a 3D-transformed card. */
+  @media (max-width: 639px){
+    .navDock{
+      top: auto;
+      bottom: max(60px, calc(40px + env(safe-area-inset-bottom)));
+      right: 50%;
+      transform: translateX(50%);
+    }
+    .navPill{
+      flex-direction: row;
+      gap: 14px;
+      padding: 10px;
+    }
+    .navArrow{
+      width: 56px;
+      height: 56px;
+      font-size: 26px;
+    }
+  }
+
   @media (max-width: 420px){
     .emoji{ font-size: 42px; }
-    .navArrow{ width: 50px; height: 50px; font-size: 22px; }
   }
 </style>
 </head>
