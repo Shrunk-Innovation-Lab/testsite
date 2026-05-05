@@ -430,18 +430,29 @@
     gap: 8px;
     padding: 8px;
     border-radius: 999px;
-    background: rgba(0,0,0,.66);
-    border: 1px solid rgba(255,255,255,.22);
+    /* FIX: opaque-enough background so the pill is visible even when
+       backdrop-filter is unsupported / fails (Android Chrome on some GPUs). */
+    background: rgba(0,0,0,.82);
+    border: 1px solid rgba(255,255,255,.35);
+    -webkit-backdrop-filter: blur(10px);
     backdrop-filter: blur(10px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+    box-shadow: 0 12px 28px rgba(0,0,0,.45);
     pointer-events: auto;
   }
+  /* Progressive enhancement: when backdrop-filter IS supported, lighten the
+     pill so the blur shows through. */
+  @supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
+    .navPill{ background: rgba(0,0,0,.55); }
+  }
+
   .navArrow{
     width: 52px;
     height: 52px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.24);
-    background: rgba(255,255,255,.14);
+    border: 2px solid rgba(255,255,255,.55);
+    /* FIX: solid pink fill so arrows are clearly visible against any background.
+       Previously rgba(255,255,255,.14) was nearly invisible on Android Chrome. */
+    background: var(--pink1);
     color: #fff;
     font-size: 24px;
     font-weight: 900;
@@ -452,10 +463,12 @@
     line-height: 1;
     /* FIX: prevent Android from treating taps as gestures (zoom/scroll) */
     touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(255,61,154,.35);
+    -webkit-tap-highlight-color: rgba(255,255,255,.4);
     pointer-events: auto;
     /* FIX: ensure the button itself is the hit target, not children */
     position: relative;
+    /* Subtle inner shadow for depth */
+    box-shadow: 0 2px 8px rgba(0,0,0,.3);
   }
   .navArrow:active{ transform: translateY(1px); }
   .navArrow:focus{
