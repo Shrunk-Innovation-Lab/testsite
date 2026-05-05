@@ -449,10 +449,8 @@
     width: 52px;
     height: 52px;
     border-radius: 999px;
-    border: 2px solid rgba(255,255,255,.55);
-    /* FIX: solid pink fill so arrows are clearly visible against any background.
-       Previously rgba(255,255,255,.14) was nearly invisible on Android Chrome. */
-    background: var(--pink1);
+    border: 1px solid rgba(255,255,255,.24);
+    background: rgba(255,255,255,.14);
     color: #fff;
     font-size: 24px;
     font-weight: 900;
@@ -463,12 +461,10 @@
     line-height: 1;
     /* FIX: prevent Android from treating taps as gestures (zoom/scroll) */
     touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(255,255,255,.4);
+    -webkit-tap-highlight-color: rgba(255,61,154,.35);
     pointer-events: auto;
     /* FIX: ensure the button itself is the hit target, not children */
     position: relative;
-    /* Subtle inner shadow for depth */
-    box-shadow: 0 2px 8px rgba(0,0,0,.3);
   }
   .navArrow:active{ transform: translateY(1px); }
   .navArrow:focus{
@@ -487,19 +483,26 @@
   @media (max-width: 639px){
     .navDock{
       top: auto;
-      bottom: max(60px, calc(40px + env(safe-area-inset-bottom)));
-      right: 50%;
-      transform: translateX(50%);
+      right: auto;
+      left: 50%;
+      bottom: 24px;
+      bottom: calc(24px + env(safe-area-inset-bottom));
+      transform: translateX(-50%);
     }
     .navPill{
       flex-direction: row;
       gap: 14px;
       padding: 10px;
+      /* Force-visible regardless of backdrop-filter support */
+      background: rgba(0,0,0,.85) !important;
     }
     .navArrow{
       width: 56px;
       height: 56px;
       font-size: 26px;
+      /* More visible on Android — increase contrast of the translucent fill */
+      background: rgba(255,255,255,.22);
+      border: 1px solid rgba(255,255,255,.45);
     }
   }
 
