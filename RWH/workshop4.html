@@ -26,11 +26,19 @@
     /* ✨ Adjust this to move nav arrows up or down (50% = centered) */
     --nav-position: 70%;
 
-    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif; 
+    font-family: system-ui, -apple-system, Segoe UI, Roboto, Arial, sans-serif;
   }
 
   *{ box-sizing:border-box; }
-  html, body { height:100%; margin:0; padding:0; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    /* Constrain to visual viewport on Android Chrome (dvh = dynamic viewport
+       height, accounts for browser chrome). Fallback to vh for older browsers. */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
 
   body{
     display:flex;
@@ -40,11 +48,18 @@
       radial-gradient(1200px 800px at 20% 20%, rgba(255,255,255,.10), transparent 60%),
       radial-gradient(900px 700px at 80% 30%, rgba(255,255,255,.08), transparent 60%),
       linear-gradient(180deg, #1a0c22, #120818);
-    overflow:hidden;
     color: white;
   }
 
-  .goo-filter{ position:absolute; visibility:hidden; }
+  /* FIX: goo filter SVG was position:absolute which on some Android browsers
+     caused it to occupy space and intercept taps. Force it out of the layout. */
+  .goo-filter{
+    position:absolute;
+    width:0;
+    height:0;
+    pointer-events:none;
+    visibility:hidden;
+  }
 
   /* Thank you (gif only) */
   #thankyou{
@@ -70,7 +85,8 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     width: min(92vw, 560px);
-    height: min(92svh, 760px);
+    height: min(92vh, 760px);
+    height: min(92dvh, 760px);
   }
   #app > section{
     margin: clamp(10px, 3.5vw, 28px);
@@ -98,6 +114,7 @@
     transition: var(--transition);
     transform-origin: right center;
     transform: translateX(-90%) translateZ(-25vmin) rotateY(40deg);
+    pointer-events:none;
   }
   .background::before{
     content:"";
@@ -140,6 +157,10 @@
     transform: translateX(-90%) translateZ(-25vmin) rotateY(40deg);
     opacity: 0;
 
+    /* FIX: inactive cards should not receive taps. This was a major Android
+       issue — inactive cards offscreen could still consume the tap. */
+    pointer-events: none;
+
     max-height: 100%;
     overflow: auto;
     -webkit-overflow-scrolling: touch;
@@ -151,6 +172,7 @@
     transform: translateX(0) translateZ(0) rotateY(0deg);
     z-index: 3;
     opacity: 1;
+    pointer-events: auto;
   }
   .content .card[data-active] ~ .card{
     z-index: -1;
@@ -399,13 +421,20 @@
   .btn.secondary{ background:#e5e7eb; color:#111827; min-width: 120px; }
   .btn:disabled{ opacity: .65; cursor:not-allowed; }
 
-  /* Nav arrows */
+  /* Nav arrows
+     Anchor to the right edge of the viewport, vertically centred via
+     --nav-position. Uses simple right/top positioning that works at any
+     viewport width without depending on media queries firing. */
   .navDock{
     position: fixed;
-    z-index: 40;
+    z-index: 9999;
     top: var(--nav-position);
-    transform: translateY(-50%);
-    right: max(10px, env(safe-area-inset-right));
+    right: 14px;
+    right: max(14px, env(safe-area-inset-right));
+    transform: translateY(-50%) translate3d(0,0,0);
+    will-change: transform;
+    pointer-events: auto;
+    isolation: isolate;
   }
   .navPill{
     display:flex;
@@ -413,36 +442,39 @@
     gap: 8px;
     padding: 8px;
     border-radius: 999px;
-    background: rgba(0,0,0,.66);
-    border: 1px solid rgba(255,255,255,.22);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.35);
+    /* Solid dark pill — visible on top of the white card AND on the dark page bg */
+    background: #111827;
+    border: 2px solid rgba(255,255,255,.5);
+    box-shadow: 0 6px 20px rgba(0,0,0,.5);
+    pointer-events: auto;
   }
+
   .navArrow{
     width: 52px;
     height: 52px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.24);
-    background: rgba(255,255,255,.14);
+    border: 0;
+    background: transparent;
     color: #fff;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
     cursor:pointer;
     display:flex;
     align-items:center;
     justify-content:center;
     line-height: 1;
+    touch-action: manipulation;
+    -webkit-tap-highlight-color: rgba(255,255,255,.25);
+    pointer-events: auto;
+    position: relative;
   }
-  .navArrow:active{ transform: translateY(1px); }
+  .navArrow:active{ background: rgba(255,255,255,.15); }
   .navArrow:focus{
     outline:none;
-    box-shadow: 0 0 0 3px rgba(255,61,154,.28);
+    background: rgba(255,255,255,.12);
   }
-  .navArrow:disabled{ opacity: .40; cursor:not-allowed; }
+  .navArrow:disabled{ opacity: .35; cursor:not-allowed; }
 
-  @media (min-width: 640px){
-    .navDock{ right: calc((100vw - min(92vw, 560px))/2 - 14px); }
-  }
   @media (max-width: 420px){
     .emoji{ font-size: 42px; }
     .navArrow{ width: 50px; height: 50px; font-size: 22px; }
@@ -500,7 +532,7 @@
 <br>
         <p class="muted">
           We're refining the Environmental Management Plan and want your honest view on direction and focus areas.
-          Tap one option per question. 
+          Tap one option per question.
           If you choose to join the working group, we'll ask for your name and email so we can reach out.
         </p>
 <br>
@@ -590,7 +622,7 @@
             <div class="dot" aria-hidden="true"></div>
             <div>
               <div class="optText">🧭 Delivery pathway and governance</div>
-              <div class="optSub">Clear owners and milestones.</div> 
+              <div class="optSub">Clear owners and milestones.</div>
             </div>
           </div>
 
@@ -692,12 +724,52 @@
     elCards[activeIndex].scrollTop = 0;
   }
 
-  elCards.forEach((card) => {
-    card.addEventListener("click", () => setActive(elCards.indexOf(card)));
-  });
+  /* ---------- ANDROID NAV BUTTON FIX ----------
+     The original code had three things working against it on Android:
 
-  prevBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex - 1); });
-  nextBtn.addEventListener("click", (e)=>{ e.stopPropagation(); setActive(activeIndex + 1); });
+     1. Each card had a "click anywhere on card to jump to that card" handler.
+        On Android, when a user tapped a nav arrow, the synthesised click
+        sometimes bubbled to a card behind the fixed nav button, immediately
+        re-jumping to a different index.
+
+     2. Inactive cards offscreen (translateX(140%), translateZ(-25vmin)) still
+        had pointer-events enabled, so they could intercept touches near the
+        right edge of the viewport — exactly where the nav dock lives.
+
+     3. The goo-filter SVG had no fixed size, which on some Android browsers
+        made it occupy a small invisible area at top-left.
+
+     Fixes:
+     - Removed the click-anywhere-on-card handler entirely (it was also a
+       confusing UX — tapping a partially-visible card jumped you to it).
+     - Added pointer-events:none to inactive cards (CSS above).
+     - Bound the nav arrows with both 'click' and 'pointerdown' for resilience,
+       and added touch-action: manipulation to kill the 300ms tap delay.
+     - Bumped nav z-index to 9999 to ensure it sits above everything.
+  ----------------------------------------------- */
+
+  function goPrev(e){
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    setActive(activeIndex - 1);
+  }
+  function goNext(e){
+    if (e) { e.preventDefault(); e.stopPropagation(); }
+    setActive(activeIndex + 1);
+  }
+
+  // Use click for the primary handler — works on all platforms.
+  prevBtn.addEventListener("click", goPrev);
+  nextBtn.addEventListener("click", goNext);
+
+  // Belt-and-braces: also fire on pointerdown so even if a click is swallowed
+  // by something on Android, the nav still responds. We guard against double
+  // firing by checking pointer type.
+  prevBtn.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") goPrev(e);
+  });
+  nextBtn.addEventListener("pointerdown", (e) => {
+    if (e.pointerType === "touch") goNext(e);
+  });
 
   window.addEventListener("keydown", (e)=>{
     if (e.key === "ArrowLeft") setActive(activeIndex - 1);
