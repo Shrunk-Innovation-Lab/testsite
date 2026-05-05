@@ -434,25 +434,21 @@
     gap: 8px;
     padding: 8px;
     border-radius: 999px;
-    background: rgba(0,0,0,.82);
-    border: 1px solid rgba(255,255,255,.35);
-    -webkit-backdrop-filter: blur(10px);
-    backdrop-filter: blur(10px);
-    box-shadow: 0 12px 28px rgba(0,0,0,.45);
+    /* Solid dark pill — visible on top of the white card AND on the dark page bg */
+    background: #111827;
+    border: 2px solid rgba(255,255,255,.5);
+    box-shadow: 0 6px 20px rgba(0,0,0,.5);
     pointer-events: auto;
-  }
-  @supports ((-webkit-backdrop-filter: blur(10px)) or (backdrop-filter: blur(10px))) {
-    .navPill{ background: rgba(0,0,0,.55); }
   }
 
   .navArrow{
     width: 52px;
     height: 52px;
     border-radius: 999px;
-    border: 1px solid rgba(255,255,255,.24);
-    background: rgba(255,255,255,.14);
+    border: 0;
+    background: transparent;
     color: #fff;
-    font-size: 24px;
+    font-size: 26px;
     font-weight: 900;
     cursor:pointer;
     display:flex;
@@ -460,16 +456,16 @@
     justify-content:center;
     line-height: 1;
     touch-action: manipulation;
-    -webkit-tap-highlight-color: rgba(255,61,154,.35);
+    -webkit-tap-highlight-color: rgba(255,255,255,.25);
     pointer-events: auto;
     position: relative;
   }
-  .navArrow:active{ transform: translateY(1px); }
+  .navArrow:active{ background: rgba(255,255,255,.15); }
   .navArrow:focus{
     outline:none;
-    box-shadow: 0 0 0 3px rgba(255,61,154,.28);
+    background: rgba(255,255,255,.12);
   }
-  .navArrow:disabled{ opacity: .40; cursor:not-allowed; }
+  .navArrow:disabled{ opacity: .35; cursor:not-allowed; }
 
   @media (max-width: 420px){
     .emoji{ font-size: 42px; }
