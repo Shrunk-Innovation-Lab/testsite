@@ -30,7 +30,15 @@
   }
 
   *{ box-sizing:border-box; }
-  html, body { height:100%; margin:0; padding:0; }
+  html, body {
+    margin: 0;
+    padding: 0;
+    /* Constrain to visual viewport on Android Chrome (dvh = dynamic viewport
+       height, accounts for browser chrome). Fallback to vh for older browsers. */
+    height: 100vh;
+    height: 100dvh;
+    overflow: hidden;
+  }
 
   body{
     display:flex;
@@ -40,7 +48,6 @@
       radial-gradient(1200px 800px at 20% 20%, rgba(255,255,255,.10), transparent 60%),
       radial-gradient(900px 700px at 80% 30%, rgba(255,255,255,.08), transparent 60%),
       linear-gradient(180deg, #1a0c22, #120818);
-    overflow:hidden;
     color: white;
   }
 
@@ -78,7 +85,8 @@
     grid-template-columns: 1fr;
     grid-template-rows: 1fr;
     width: min(92vw, 560px);
-    height: min(92svh, 760px);
+    height: min(92vh, 760px);
+    height: min(92dvh, 760px);
   }
   #app > section{
     margin: clamp(10px, 3.5vw, 28px);
