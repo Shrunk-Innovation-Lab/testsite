@@ -80,6 +80,19 @@
     width: min(92vw, 560px);
     height: min(92svh, 760px);
   }
+
+  /* MOBILE: shrink app height so there's guaranteed space below the card
+     for the nav arrows. The card stack uses transform-style:preserve-3d
+     which can promote it onto a compositor layer that sits above fixed
+     elements in Android Chrome — putting the arrows in their own region
+     of the viewport sidesteps the issue entirely. */
+  @media (max-width: 639px){
+    body{ align-items: flex-start; padding-top: 16px; }
+    #app{
+      height: min(78svh, 78vh, 720px);
+    }
+  }
+
   #app > section{
     margin: clamp(10px, 3.5vw, 28px);
     grid-area: 1 / 1;
@@ -415,14 +428,19 @@
 
   /* Nav arrows
      FIX: bumped z-index way up, made sure pointer-events are explicit,
-     added touch-action for Android. */
+     added touch-action for Android.
+     CRITICAL: translate3d forces own compositor layer so this sits above
+     the 3D-transformed cards (which Android Chrome was promoting above
+     fixed-position elements regardless of z-index). */
   .navDock{
     position: fixed;
     z-index: 9999;
     top: var(--nav-position);
-    transform: translateY(-50%);
+    transform: translateY(-50%) translate3d(0,0,0);
+    will-change: transform;
     right: max(10px, env(safe-area-inset-right));
     pointer-events: auto;
+    isolation: isolate;
   }
   .navPill{
     display:flex;
@@ -487,7 +505,7 @@
       left: 50%;
       bottom: 24px;
       bottom: calc(24px + env(safe-area-inset-bottom));
-      transform: translateX(-50%);
+      transform: translateX(-50%) translate3d(0,0,0);
     }
     .navPill{
       flex-direction: row;
