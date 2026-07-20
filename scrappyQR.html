@@ -210,7 +210,7 @@
     opacity: 0;
     animation: fadeUp 0.9s ease 0.35s forwards;
     position: relative;
-    z-index: 1;
+    z-index: 5;
   }
   .hero-title .line-red { color: var(--red); }
   .hero-sub {
@@ -222,7 +222,7 @@
     opacity: 0;
     animation: fadeUp 0.9s ease 0.55s forwards;
     position: relative;
-    z-index: 1;
+    z-index: 5;
   }
   .hero-stats {
     display: flex;
@@ -231,15 +231,15 @@
     opacity: 0;
     animation: fadeUp 0.9s ease 0.75s forwards;
     position: relative;
-    z-index: 1;
+    z-index: 5;
   }
   .stat-num { font-family: 'Bebas Neue', sans-serif; font-size: 2.8rem; color: var(--white); line-height: 1; letter-spacing: 0.04em; }
   .stat-num span { color: var(--red); }
   .stat-label { font-size: 0.65rem; letter-spacing: 0.2em; text-transform: uppercase; color: var(--grey-light); margin-top: 4px; }
   .scroll-hint {
     position: absolute;
-    bottom: 40px;
-    left: 72%;                 /* under the robot canvas, clear of the hero stats */
+    bottom: 22px;
+    left: 50%;                 /* centered on the page */
     transform: translateX(-50%);
     display: flex;
     flex-direction: column;
@@ -742,8 +742,8 @@
     const bx2=HX*taper, bz2=HZ*taper;              // tapered bottom half-extents
     const g=new THREE.Group(); g.position.set(wx,wy,wz); scene.add(g);
 
-    /* top rim (the opening) */
-    const rimO=wEdge(new THREE.BoxGeometry(HX*2+0.07,0.07,HZ*2+0.07),wMat(rimColor,0.85));
+    /* top rim (the opening) — wireframe only so the mouth stays see-through */
+    const rimO=wEdge(new THREE.BoxGeometry(HX*2+0.07,0.07,HZ*2+0.07),wMat(rimColor,0.85),false);
     rimO.position.y=0.035; g.add(rimO);
     const rimI=wEdge(new THREE.BoxGeometry(HX*2-0.10,0.04,HZ*2-0.10),wMat(rimColor,0.5),false);
     g.add(rimI);
@@ -781,14 +781,6 @@
       up.position.set(sx*HX*0.82,0.04,-HZ-0.07); g.add(up);
     }
 
-    /* wheels + axle at the back-bottom (resting on the floor) */
-    const wheelY=-(bodyH-0.15);
-    const axle=wEdge(new THREE.CylinderGeometry(0.03,0.03,bx2*1.7,6),wMat(STEEL,0.45),false);
-    axle.rotation.z=Math.PI/2; axle.position.set(0,wheelY,-bz2-0.04); g.add(axle);
-    for(const sx of [-1,1]){
-      const wheel=wEdge(new THREE.CylinderGeometry(0.2,0.2,0.14,12),wMat(dimColor,0.6));
-      wheel.rotation.z=Math.PI/2; wheel.position.set(sx*bx2*0.82,wheelY,-bz2-0.04); g.add(wheel);
-    }
 
     /* front number/label panel */
     const lbl=wEdge(new THREE.BoxGeometry(HX*0.9,0.55,0.03),wMat(dimColor,0.35),false);
@@ -1037,7 +1029,7 @@
   const CAM={
     mobile:{fov:70,x:0,y:1.4,z:8.8,lookY:-1.35,lookX:0},
     tablet:{fov:68,x:0,y:1.5,z:11,lookY:-1.2,lookX:0},
-    desktop:{fov:55,x:-0.7,y:1.4,z:10.8,lookY:-0.7,lookX:-0.6},
+    desktop:{fov:55,x:-0.7,y:1.5,z:12.2,lookY:-0.7,lookX:-0.6},
   };
   function resize(){
     const w=canvasEl.offsetWidth,h=canvasEl.offsetHeight;
