@@ -1,0 +1,533 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Analytics · Mildura Hospital · mobile</title>
+<script src="./support.js"></script>
+<script src="three.min.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F2F2F7;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.gl{--bg:#F2F2F7;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F2F7;--fill:rgba(120,120,128,.16);--fill2:rgba(120,120,128,.08);
+--label:#1D1D1F;--label2:#6E6E73;--label3:#AEAEB2;--sep:rgba(60,60,67,.14);
+--accent:#16A34A;--accent-text:#15803D;--accent-fill:rgba(22,163,74,.12);--on-accent:#FFFFFF;
+--success:#34C759;--success-text:#248A3D;--warning:#FF9F0A;--warning-text:#B25000;--warning-fill:rgba(255,159,10,.14);
+--error:#FF3B30;--error-text:#D70015;--error-fill:rgba(255,59,48,.1);--info:#0A84FF;--info-text:#0066CC;--info-fill:rgba(10,132,255,.1);
+--glass:rgba(255,255,255,.62);--glass-edge:rgba(255,255,255,.85);--glass-line:rgba(0,0,0,.06);--card:rgba(255,255,255,.58);
+--shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px -12px rgba(0,0,0,.12);--focus:#0A84FF;
+font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:var(--label);font-size:17px;line-height:1.35;letter-spacing:-.01em}
+
+
+html{scrollbar-color:rgba(120,120,128,.45) transparent;scrollbar-width:thin}
+.gl,.gl *{scrollbar-width:thin;scrollbar-color:var(--label3) transparent}
+.gl::-webkit-scrollbar,.gl ::-webkit-scrollbar{width:10px;height:10px}
+.gl::-webkit-scrollbar-track,.gl ::-webkit-scrollbar-track{background:transparent}
+.gl::-webkit-scrollbar-corner,.gl ::-webkit-scrollbar-corner{background:transparent}
+.gl::-webkit-scrollbar-thumb,.gl ::-webkit-scrollbar-thumb{background:var(--label3);border-radius:6px;border:3px solid transparent;background-clip:content-box;min-height:40px}
+.gl::-webkit-scrollbar-thumb:hover,.gl ::-webkit-scrollbar-thumb:hover{background:var(--label2);background-clip:content-box}
+.tn{font-variant-numeric:tabular-nums}
+.lt{font-size:34px;font-weight:700;letter-spacing:-.022em;line-height:1.1}
+.t1{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.t2{font-size:22px;font-weight:700;letter-spacing:-.018em;line-height:1.2}
+.t3{font-size:20px;font-weight:600;letter-spacing:-.016em}
+.hl{font-size:17px;font-weight:600}
+.callout{font-size:16px}
+.sub{font-size:15px;color:var(--label2)}
+.foot{font-size:13px;color:var(--label2);letter-spacing:0}
+.cap{font-size:12px;color:var(--label2);letter-spacing:0}
+/* Content surfaces: solid. ("glass" kept as the class name for content cards.) */
+.glass,.card{background:var(--card);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border-radius:11px;box-shadow:inset 0 0 0 .5px var(--glass-line),inset 0 1px 0 var(--glass-edge),0 10px 30px -18px rgba(0,0,0,.18);box-sizing:border-box;min-width:0;min-height:0}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass,.card{background:var(--surface)}}
+.ribbons{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}
+.ribbons .rb{animation:ribdrift 34s ease-in-out infinite alternate;transform-origin:50% 50%}
+.ribbons .rb1{animation-duration:41s;animation-delay:-12s}
+.ribbons .rb2{animation-duration:37s;animation-delay:-20s}
+@keyframes ribdrift{0%{transform:translate(-40px,-10px) rotate(-1.2deg)}50%{transform:translate(30px,14px) rotate(.8deg)}100%{transform:translate(60px,-6px) rotate(1.6deg)}}
+@media (prefers-reduced-motion:reduce){.ribbons .rb{animation:none}}
+.ph{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;background:var(--fill2);color:var(--label3);white-space:nowrap}
+.ph i{width:6px;height:6px;border-radius:3px;background:currentColor;opacity:.6}
+.ph:not(.on):not(.bad) i{display:none}
+.phs{flex-wrap:nowrap}
+.ph.done{color:var(--label2)}
+.ph.on{background:var(--accent-fill);color:var(--success-text);font-weight:600}
+.ph.on i{opacity:1;background:var(--success);box-shadow:0 0 0 3px var(--accent-fill)}
+.ph.bad{background:var(--error-fill);color:var(--error-text);font-weight:600}
+.ph.bad i{opacity:1;background:var(--error)}
+.phs{display:flex;flex-wrap:wrap;gap:4px}
+/* Liquid Glass material: navigation, toolbars, menus, popovers only */
+.mat{background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);box-shadow:inset 0 0 0 .5px var(--glass-line),inset 0 1px 0 var(--glass-edge),0 8px 30px -14px rgba(0,0,0,.18)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.mat{background:var(--surface)}}
+.deco{display:none}
+.eyebrow{font-size:13px;font-weight:600;color:var(--label2);letter-spacing:0}
+.pill{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:6px;background:var(--accent-fill);color:var(--success-text);font-weight:600;font-size:15px}
+.pill i{width:8px;height:8px;border-radius:4px;background:var(--success)}
+.ib{width:44px;height:44px;border-radius:7px;border:0;background:transparent;color:var(--label);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background .15s}
+.ib:hover{background:var(--fill2)}
+.ib:active{background:var(--fill)}
+.seg{display:inline-flex;gap:2px;padding:2px;border-radius:6px;background:var(--fill2)}
+.seg button{min-width:52px;height:32px;padding:0 12px;border:0;border-radius:4px;background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--label);cursor:pointer;transition:background .18s}
+.seg button[aria-pressed="true"]{background:var(--bg2);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+.mc{transition:transform .15s,box-shadow .15s;cursor:pointer;text-align:left;font:inherit;color:inherit;border:0}
+.mc:hover{transform:translateY(-1px)}
+.mc:active{transform:scale(.99)}
+.row{display:flex;align-items:center;gap:12px}
+.al{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:7px;background:transparent;padding:10px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer;box-sizing:border-box;transition:background .15s}
+.al:hover{background:var(--fill2)}
+.tile{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:none}
+.bar{transition:opacity .15s}
+.bar:hover{opacity:.8}
+.ghost{display:inline-flex;align-items:center;gap:4px;border:0;background:none;font:inherit;font-size:15px;font-weight:500;color:var(--accent-text);cursor:pointer;min-height:36px;padding:0 8px;border-radius:4px}
+.ghost:hover{background:var(--accent-fill)}
+.pop{position:absolute;z-index:60;background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border-radius:8px;padding:6px;box-shadow:inset 0 0 0 .5px var(--glass-line),0 18px 50px -12px rgba(0,0,0,.3);animation:popin .2s cubic-bezier(.2,.8,.2,1) both}
+.pop a,.pop button.mi{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0 10px;border:0;border-radius:4px;background:none;color:var(--label);text-decoration:none;font:inherit;font-size:15px;cursor:pointer;box-sizing:border-box}
+.pop a:hover,.pop button.mi:hover{background:var(--accent);color:#FFFFFF}
+.gl :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+@keyframes popin{from{opacity:0;transform:scale(.96) translateY(-4px)}}
+@keyframes ring{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes draw{from{stroke-dashoffset:100}}
+.ringa{animation:ring 1s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+.grow{transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.2,1) both}
+.draw{stroke-dasharray:100;animation:draw .9s cubic-bezier(.2,.8,.2,1) both}
+@media (prefers-reduced-motion:reduce){.ringa,.rise,.grow,.draw,.pop{animation:none}.mc:hover{transform:none}}
+.wrap{position:relative;height:100vh;overflow-x:hidden;overflow-y:auto;background:var(--bg)}
+.page{position:relative;z-index:1;padding:0 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.mbar{position:sticky;top:0;z-index:30;margin:0 -16px;padding:calc(4px + env(safe-area-inset-top)) 8px 4px 16px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.seg.thm{display:flex;margin:6px 4px 4px}
+.seg.thm button{flex:1;min-width:0;font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;white-space:nowrap;border-radius:7px;border:0;font:inherit;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s,transform .12s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.4;cursor:default}
+.btn.p{background:var(--accent);color:var(--on-accent)}
+.btn.p:hover{filter:brightness(.95)}
+.btn.s{background:var(--fill2);color:var(--accent-text)}
+.btn.s:hover{background:var(--fill)}
+.btn.d{background:var(--error-fill);color:var(--error-text)}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--label2)}
+.inp{height:44px;border-radius:6px;border:0;background:var(--fill2);padding:0 12px;font:inherit;font-size:17px;color:var(--label);box-sizing:border-box;width:100%;transition:background .15s,box-shadow .15s}
+textarea.inp{height:auto;min-height:88px;padding:10px 12px;resize:vertical;line-height:1.4}
+.inp::placeholder{color:var(--label3)}
+.inp:focus{outline:0;background:var(--surface);box-shadow:0 0 0 3px var(--focus)}
+.inp[aria-invalid="true"]{box-shadow:0 0 0 2px var(--error)}
+.sw{position:relative;width:46px;height:28px;border-radius:14px;border:0;padding:0;cursor:pointer;flex:none;transition:background .2s;background:var(--fill)}
+.sw[aria-checked="true"]{background:var(--success) !important}
+.sw[aria-checked="false"]{background:var(--fill) !important}
+.sw span{position:absolute;top:2px;width:24px;height:24px;border-radius:12px;background:#FFFFFF;box-shadow:0 2px 4px rgba(0,0,0,.18);transition:left .2s}
+.sw[aria-checked="true"] span{left:20px !important}
+.sw[aria-checked="false"] span{left:2px !important}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:600}
+.scrim{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s both}
+.modal{width:min(480px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border-radius:12px;padding:24px;box-sizing:border-box;box-shadow:0 30px 80px -20px rgba(0,0,0,.45);animation:sheet .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fade{from{opacity:0}}
+@keyframes sheet{from{opacity:0;transform:translateY(16px) scale(.98)}}
+@media (prefers-reduced-motion:reduce){.scrim,.modal{animation:none}}
+.h2{margin:0}
+.ddb{display:inline-flex;align-items:center;gap:10px;height:44px;min-width:220px;padding:0 12px 0 14px;border-radius:7px;border:0;background:var(--surface);box-shadow:var(--shadow);font:inherit;font-size:15px;font-weight:500;color:var(--label);cursor:pointer;box-sizing:border-box;transition:background .15s}
+.ddb:hover{background:var(--surface2)}
+.opt{display:flex;align-items:center;gap:10px;width:100%;min-height:48px;padding:6px 10px;border:0;border-radius:4px;background:none;font:inherit;color:var(--label);text-align:left;cursor:pointer;box-sizing:border-box;transition:background .12s}
+.opt:hover{background:var(--fill2)}
+.opt[aria-selected="true"]{background:var(--accent-fill)}
+.wfr{display:grid;grid-template-columns:minmax(0,1fr) 76px;align-items:end;gap:6px 12px}
+.track{grid-column:1 / -1;position:relative;height:10px;border-radius:4px;background:var(--fill2)}
+.sbar{position:absolute;top:0;bottom:0;border-radius:4px;transform-origin:left;animation:growx .6s cubic-bezier(.2,.8,.2,1) both}
+.crumb{display:inline-flex;align-items:center;height:32px;padding:0 12px;border-radius:6px;border:0;background:var(--fill2);font:inherit;font-size:13px;font-weight:500;color:var(--label);cursor:pointer;transition:background .15s}
+.crumb:hover{background:var(--fill)}
+.crumb[aria-current="page"]{background:var(--accent-fill);color:var(--accent-text);font-weight:600;cursor:default}
+.dbar{display:block;width:100%;height:100%;padding:0;border:0;border-radius:4px 8px 3px 3px;cursor:pointer;background:var(--accent);transition:opacity .15s}
+.dbar:hover{opacity:.78}
+.dbar:active{opacity:.65}
+.bwrap:hover .vlab{color:var(--label)}
+.vlab{position:absolute;left:50%;bottom:100%;transform:translateX(-50%);margin-bottom:5px;font-size:12px;font-weight:600;color:var(--label2);white-space:nowrap;pointer-events:none}
+.gA{transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.2,1) both}
+.gB{transform-origin:bottom;animation:grow2 .5s cubic-bezier(.2,.8,.2,1) both}
+@keyframes grow2{from{transform:scaleY(0)}}
+@keyframes growx{from{transform:scaleX(0)}}
+.rowsep{border-top:.5px solid var(--sep)}
+.cyc{display:grid;grid-template-columns:minmax(0,1.5fr) repeat(4,minmax(0,1fr));gap:8px;align-items:center;padding:10px 4px;font-size:15px}
+.cyc + .cyc{border-top:.5px solid var(--sep)}
+.lnk{display:flex;align-items:center;gap:10px;height:44px;padding:0 12px;border-radius:6px;background:var(--fill2);font-size:15px;color:var(--label2);overflow:hidden;white-space:nowrap}
+.bigfig{font-weight:700;letter-spacing:-.025em;line-height:1.05}
+@media (prefers-reduced-motion:reduce){.gA,.gB,.sbar{animation:none}}
+.sumb{display:flex;align-items:center;gap:12px;min-width:0;border:0;background:transparent;font:inherit;color:inherit;text-align:left;cursor:pointer;padding:8px 16px;border-radius:7px;transition:background .15s}
+.sumb:hover{background:var(--fill2)}
+.sumb[aria-pressed="true"]{background:var(--accent-fill)}
+.sumb + .sumb{position:relative}
+.sumb + .sumb::before{content:"";position:absolute;left:-4px;top:12px;bottom:12px;border-left:.5px solid var(--sep)}
+.seg.tabs button{height:36px;padding:0 18px;font-size:15px}
+.view{position:absolute;inset:0;display:flex;flex-direction:column}
+.big{position:relative;flex:1;min-height:0}
+.big svg{position:absolute;inset:0}
+.note{display:flex;gap:12px;align-items:flex-start;padding:14px 0}
+.note + .note{border-top:.5px solid var(--sep)}
+.crumb{height:40px;padding:0 14px}
+</style>
+</helmet>
+<div class="gl wrap" data-theme="light" onKeyDown="{{onKey}}">
+  <svg class="ribbons" ref="{{ribRef}}" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="rbG" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".5"></stop><stop offset=".35" stop-color="#fff" stop-opacity="1"></stop><stop offset=".7" stop-color="#fff" stop-opacity=".75"></stop><stop offset="1" stop-color="#fff" stop-opacity=".45"></stop></linearGradient><mask id="rbM" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1840" height="1300"><rect x="-200" y="-200" width="1840" height="1300" fill="url(#rbG)"></rect></mask></defs><g class="rb rb0"><path d="M-160 164.7 L-120 174.9 L-80 188.7 L-40 205.2 L0 223.0 L40 240.8 L80 257.3 L120 271.1 L160 281.3 L200 287.4 L240 289.2 L280 287.1 L320 281.5 L360 273.7 L400 264.5 L440 255.3 L480 246.9 L520 240.2 L560 235.5 L600 232.9 L640 232.1 L680 232.4 L720 233.0 L760 233.0 L800 231.6 L840 227.9 L880 221.8 L920 213.2 L960 202.4 L1000 190.3 L1040 177.8 L1080 166.3 L1120 156.8 L1160 150.5 L1200 148.2 L1240 150.5 L1280 157.4 L1320 168.4 L1360 182.7 L1400 199.3 L1440 216.8 L1480 233.8 L1520 249.0 L1560 261.3 L1600 270.2 L1600 368.5 L1560 359.5 L1520 348.6 L1480 336.5 L1440 323.9 L1400 311.8 L1360 301.2 L1320 292.9 L1280 287.7 L1240 285.8 L1200 287.3 L1160 291.8 L1120 298.8 L1080 307.2 L1040 316.1 L1000 324.4 L960 331.4 L920 336.2 L880 338.7 L840 339.0 L800 337.4 L760 334.8 L720 332.1 L680 330.4 L640 330.8 L600 333.9 L560 340.2 L520 349.9 L480 362.3 L440 376.8 L400 392.1 L360 406.6 L320 418.9 L280 427.5 L240 431.1 L200 429.1 L160 421.1 L120 407.4 L80 388.9 L40 366.9 L0 343.0 L-40 319.1 L-80 297.1 L-120 278.6 L-160 264.9 Z" fill="#34C759" fill-opacity="0.3" mask="url(#rbM)"><animate attributeName="d" dur="26s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M-160 164.7 L-120 174.9 L-80 188.7 L-40 205.2 L0 223.0 L40 240.8 L80 257.3 L120 271.1 L160 281.3 L200 287.4 L240 289.2 L280 287.1 L320 281.5 L360 273.7 L400 264.5 L440 255.3 L480 246.9 L520 240.2 L560 235.5 L600 232.9 L640 232.1 L680 232.4 L720 233.0 L760 233.0 L800 231.6 L840 227.9 L880 221.8 L920 213.2 L960 202.4 L1000 190.3 L1040 177.8 L1080 166.3 L1120 156.8 L1160 150.5 L1200 148.2 L1240 150.5 L1280 157.4 L1320 168.4 L1360 182.7 L1400 199.3 L1440 216.8 L1480 233.8 L1520 249.0 L1560 261.3 L1600 270.2 L1600 368.5 L1560 359.5 L1520 348.6 L1480 336.5 L1440 323.9 L1400 311.8 L1360 301.2 L1320 292.9 L1280 287.7 L1240 285.8 L1200 287.3 L1160 291.8 L1120 298.8 L1080 307.2 L1040 316.1 L1000 324.4 L960 331.4 L920 336.2 L880 338.7 L840 339.0 L800 337.4 L760 334.8 L720 332.1 L680 330.4 L640 330.8 L600 333.9 L560 340.2 L520 349.9 L480 362.3 L440 376.8 L400 392.1 L360 406.6 L320 418.9 L280 427.5 L240 431.1 L200 429.1 L160 421.1 L120 407.4 L80 388.9 L40 366.9 L0 343.0 L-40 319.1 L-80 297.1 L-120 278.6 L-160 264.9 Z;M-160 303.7 L-120 311.6 L-80 315.7 L-40 315.8 L0 312.3 L40 305.7 L80 296.6 L120 286.1 L160 274.9 L200 263.9 L240 253.7 L280 244.9 L320 237.5 L360 231.5 L400 226.6 L440 222.3 L480 218.2 L520 213.7 L560 208.6 L600 202.6 L640 195.8 L680 188.5 L720 181.3 L760 174.8 L800 169.8 L840 167.0 L880 167.2 L920 170.7 L960 177.8 L1000 188.3 L1040 201.7 L1080 217.4 L1120 234.4 L1160 251.5 L1200 267.8 L1240 282.1 L1280 293.7 L1320 302.0 L1360 306.8 L1400 308.0 L1440 306.1 L1480 301.6 L1520 295.3 L1560 288.0 L1600 280.4 L1600 381.1 L1560 396.5 L1520 412.5 L1480 427.7 L1440 440.6 L1400 449.8 L1360 454.2 L1320 452.9 L1280 445.7 L1240 432.7 L1200 414.6 L1160 392.5 L1120 367.9 L1080 342.4 L1040 317.8 L1000 295.8 L960 277.6 L920 264.5 L880 256.9 L840 255.1 L800 258.6 L760 266.8 L720 278.7 L680 293.0 L640 308.6 L600 324.3 L560 339.0 L520 352.1 L480 363.1 L440 371.8 L400 378.3 L360 383.1 L320 386.5 L280 389.0 L240 391.2 L200 393.2 L160 395.4 L120 397.8 L80 400.1 L40 402.3 L0 403.8 L-40 404.4 L-80 403.8 L-120 401.7 L-160 398.1 Z;M-160 259.3 L-120 241.2 L-80 224.4 L-40 209.9 L0 198.3 L40 189.8 L80 184.2 L120 181.1 L160 179.6 L200 178.8 L240 178.1 L280 176.6 L320 174.0 L360 170.3 L400 165.7 L440 160.8 L480 156.4 L520 153.7 L560 153.5 L600 156.6 L640 163.7 L680 174.9 L720 189.9 L760 208.2 L800 228.6 L840 250.0 L880 270.6 L920 289.2 L960 304.4 L1000 315.2 L1040 320.8 L1080 321.3 L1120 316.7 L1160 307.9 L1200 295.9 L1240 281.8 L1280 267.1 L1320 252.7 L1360 239.8 L1400 229.0 L1440 220.4 L1480 214.1 L1520 209.5 L1560 205.9 L1600 202.7 L1600 332.3 L1560 340.7 L1520 348.1 L1480 355.2 L1440 362.4 L1400 370.1 L1360 378.5 L1320 387.5 L1280 396.7 L1240 405.7 L1200 413.6 L1160 419.7 L1120 423.2 L1080 423.5 L1040 420.2 L1000 413.2 L960 402.9 L920 389.8 L880 374.8 L840 359.0 L800 343.3 L760 329.0 L720 316.7 L680 307.2 L640 300.5 L600 296.7 L560 295.2 L520 295.5 L480 296.5 L440 297.6 L400 298.0 L360 297.1 L320 294.8 L280 291.3 L240 287.1 L200 283.0 L160 280.1 L120 279.5 L80 282.3 L40 289.1 L0 300.5 L-40 316.3 L-80 336.1 L-120 358.9 L-160 383.1 Z;M-160 192.8 L-120 194.3 L-80 196.7 L-40 199.3 L0 201.6 L40 203.2 L80 204.0 L120 204.1 L160 203.8 L200 203.7 L240 204.3 L280 206.3 L320 210.2 L360 216.3 L400 224.6 L440 235.0 L480 247.1 L520 260.1 L560 273.1 L600 285.2 L640 295.3 L680 302.7 L720 306.8 L760 307.2 L800 303.9 L840 297.2 L880 287.7 L920 276.2 L960 263.7 L1000 251.1 L1040 239.3 L1080 229.0 L1120 220.6 L1160 214.5 L1200 210.4 L1240 208.1 L1280 207.0 L1320 206.6 L1360 206.3 L1400 205.6 L1440 204.1 L1480 201.8 L1520 198.8 L1560 195.5 L1600 192.5 L1600 344.5 L1560 346.4 L1520 346.3 L1480 343.7 L1440 338.7 L1400 331.7 L1360 323.5 L1320 315.2 L1280 307.8 L1240 302.5 L1200 300.5 L1160 302.6 L1120 309.2 L1080 320.4 L1040 335.8 L1000 354.6 L960 375.4 L920 396.7 L880 417.0 L840 434.6 L800 448.0 L760 456.2 L720 458.4 L680 454.5 L640 444.8 L600 430.0 L560 411.4 L520 390.5 L480 368.8 L440 347.8 L400 329.1 L360 313.6 L320 302.2 L280 295.2 L240 292.4 L200 293.5 L160 297.6 L120 304.0 L80 311.5 L40 319.3 L0 326.6 L-40 332.9 L-80 337.7 L-120 341.2 L-160 343.4 Z;M-160 164.7 L-120 174.9 L-80 188.7 L-40 205.2 L0 223.0 L40 240.8 L80 257.3 L120 271.1 L160 281.3 L200 287.4 L240 289.2 L280 287.1 L320 281.5 L360 273.7 L400 264.5 L440 255.3 L480 246.9 L520 240.2 L560 235.5 L600 232.9 L640 232.1 L680 232.4 L720 233.0 L760 233.0 L800 231.6 L840 227.9 L880 221.8 L920 213.2 L960 202.4 L1000 190.3 L1040 177.8 L1080 166.3 L1120 156.8 L1160 150.5 L1200 148.2 L1240 150.5 L1280 157.4 L1320 168.4 L1360 182.7 L1400 199.3 L1440 216.8 L1480 233.8 L1520 249.0 L1560 261.3 L1600 270.2 L1600 368.5 L1560 359.5 L1520 348.6 L1480 336.5 L1440 323.9 L1400 311.8 L1360 301.2 L1320 292.9 L1280 287.7 L1240 285.8 L1200 287.3 L1160 291.8 L1120 298.8 L1080 307.2 L1040 316.1 L1000 324.4 L960 331.4 L920 336.2 L880 338.7 L840 339.0 L800 337.4 L760 334.8 L720 332.1 L680 330.4 L640 330.8 L600 333.9 L560 340.2 L520 349.9 L480 362.3 L440 376.8 L400 392.1 L360 406.6 L320 418.9 L280 427.5 L240 431.1 L200 429.1 L160 421.1 L120 407.4 L80 388.9 L40 366.9 L0 343.0 L-40 319.1 L-80 297.1 L-120 278.6 L-160 264.9 Z"></animate></path></g><g class="rb rb1"><path d="M-160 516.2 L-120 529.5 L-80 539.1 L-40 544.6 L0 545.9 L40 543.3 L80 537.1 L120 528.1 L160 516.9 L200 504.6 L240 491.8 L280 479.5 L320 468.1 L360 458.2 L400 449.9 L440 443.2 L480 437.8 L520 433.4 L560 429.3 L600 425.2 L640 420.5 L680 414.9 L720 408.0 L760 399.9 L800 390.8 L840 381.2 L880 371.5 L920 362.6 L960 355.2 L1000 350.2 L1040 348.1 L1080 349.6 L1120 355.0 L1160 364.2 L1200 377.1 L1240 393.1 L1280 411.6 L1320 431.6 L1360 452.0 L1400 471.8 L1440 490.0 L1480 505.7 L1520 518.2 L1560 527.1 L1600 532.3 L1600 704.3 L1560 698.5 L1520 687.7 L1480 672.1 L1440 652.3 L1400 629.3 L1360 604.2 L1320 578.4 L1280 553.2 L1240 530.0 L1200 510.1 L1160 494.3 L1120 483.4 L1080 477.7 L1040 477.1 L1000 481.4 L960 489.8 L920 501.4 L880 515.3 L840 530.3 L800 545.4 L760 559.6 L720 572.2 L680 582.7 L640 591.0 L600 597.0 L560 601.2 L520 603.9 L480 605.9 L440 607.7 L400 609.9 L360 613.1 L320 617.7 L280 623.6 L240 631.0 L200 639.4 L160 648.3 L120 657.2 L80 665.2 L40 671.6 L0 675.9 L-40 677.3 L-80 675.6 L-120 670.7 L-160 662.7 Z" fill="#C63527" fill-opacity="0.16" mask="url(#rbM)"><animate attributeName="d" dur="32s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M-160 516.2 L-120 529.5 L-80 539.1 L-40 544.6 L0 545.9 L40 543.3 L80 537.1 L120 528.1 L160 516.9 L200 504.6 L240 491.8 L280 479.5 L320 468.1 L360 458.2 L400 449.9 L440 443.2 L480 437.8 L520 433.4 L560 429.3 L600 425.2 L640 420.5 L680 414.9 L720 408.0 L760 399.9 L800 390.8 L840 381.2 L880 371.5 L920 362.6 L960 355.2 L1000 350.2 L1040 348.1 L1080 349.6 L1120 355.0 L1160 364.2 L1200 377.1 L1240 393.1 L1280 411.6 L1320 431.6 L1360 452.0 L1400 471.8 L1440 490.0 L1480 505.7 L1520 518.2 L1560 527.1 L1600 532.3 L1600 704.3 L1560 698.5 L1520 687.7 L1480 672.1 L1440 652.3 L1400 629.3 L1360 604.2 L1320 578.4 L1280 553.2 L1240 530.0 L1200 510.1 L1160 494.3 L1120 483.4 L1080 477.7 L1040 477.1 L1000 481.4 L960 489.8 L920 501.4 L880 515.3 L840 530.3 L800 545.4 L760 559.6 L720 572.2 L680 582.7 L640 591.0 L600 597.0 L560 601.2 L520 603.9 L480 605.9 L440 607.7 L400 609.9 L360 613.1 L320 617.7 L280 623.6 L240 631.0 L200 639.4 L160 648.3 L120 657.2 L80 665.2 L40 671.6 L0 675.9 L-40 677.3 L-80 675.6 L-120 670.7 L-160 662.7 Z;M-160 528.7 L-120 513.1 L-80 496.9 L-40 480.9 L0 465.6 L40 451.5 L80 438.8 L120 427.8 L160 418.3 L200 410.2 L240 403.3 L280 397.3 L320 392.0 L360 387.0 L400 382.3 L440 377.9 L480 373.9 L520 370.5 L560 368.0 L600 366.9 L640 367.7 L680 370.6 L720 376.1 L760 384.4 L800 395.6 L840 409.4 L880 425.6 L920 443.7 L960 463.0 L1000 482.7 L1040 502.1 L1080 520.1 L1120 536.1 L1160 549.4 L1200 559.4 L1240 565.8 L1280 568.5 L1320 567.5 L1360 563.2 L1400 556.1 L1440 546.6 L1480 535.5 L1520 523.3 L1560 510.8 L1600 498.2 L1600 663.0 L1560 668.2 L1520 672.9 L1480 677.3 L1440 681.1 L1400 684.2 L1360 686.3 L1320 687.2 L1280 686.6 L1240 684.2 L1200 680.1 L1160 674.1 L1120 666.4 L1080 657.1 L1040 646.6 L1000 635.1 L960 623.1 L920 610.9 L880 598.9 L840 587.3 L800 576.4 L760 566.4 L720 557.3 L680 549.1 L640 541.7 L600 535.1 L560 529.2 L520 524.0 L480 519.6 L440 516.0 L400 513.5 L360 512.4 L320 513.1 L280 516.0 L240 521.3 L200 529.5 L160 540.8 L120 555.1 L80 572.3 L40 592.2 L0 614.0 L-40 637.2 L-80 660.7 L-120 683.5 L-160 704.5 Z;M-160 388.1 L-120 388.9 L-80 391.1 L-40 394.0 L0 397.0 L40 399.6 L80 401.3 L120 402.0 L160 401.6 L200 400.4 L240 398.8 L280 397.3 L320 396.6 L360 397.2 L400 399.9 L440 404.9 L480 412.6 L520 422.9 L560 435.6 L600 450.2 L640 466.0 L680 482.1 L720 497.5 L760 511.4 L800 522.8 L840 531.0 L880 535.5 L920 536.0 L960 532.5 L1000 525.3 L1040 515.0 L1080 502.3 L1120 488.1 L1160 473.3 L1200 458.9 L1240 445.6 L1280 434.0 L1320 424.6 L1360 417.5 L1400 412.8 L1440 410.0 L1480 408.7 L1520 408.4 L1560 408.4 L1600 408.2 L1600 545.4 L1560 541.7 L1520 538.7 L1480 537.2 L1440 538.0 L1400 541.6 L1360 548.5 L1320 558.9 L1280 572.5 L1240 589.0 L1200 607.6 L1160 627.5 L1120 647.4 L1080 666.2 L1040 682.6 L1000 695.6 L960 704.2 L920 707.9 L880 706.2 L840 699.3 L800 687.6 L760 671.8 L720 652.8 L680 632.0 L640 610.6 L600 589.7 L560 570.8 L520 554.6 L480 541.8 L440 533.0 L400 528.2 L360 527.0 L320 529.0 L280 533.6 L240 539.7 L200 546.4 L160 553.1 L120 558.7 L80 563.0 L40 565.5 L0 566.1 L-40 565.2 L-80 563.1 L-120 560.4 L-160 557.8 Z;M-160 409.5 L-120 414.7 L-80 419.9 L-40 425.3 L0 431.2 L40 438.0 L80 445.9 L120 455.0 L160 465.4 L200 476.9 L240 489.4 L280 502.4 L320 515.3 L360 527.5 L400 538.4 L440 547.2 L480 553.3 L520 556.4 L560 556.0 L600 552.1 L640 544.7 L680 534.3 L720 521.3 L760 506.2 L800 490.0 L840 473.3 L880 456.9 L920 441.6 L960 427.8 L1000 416.1 L1040 406.6 L1080 399.3 L1120 394.3 L1160 391.2 L1200 389.6 L1240 389.3 L1280 389.7 L1320 390.6 L1360 391.7 L1400 392.9 L1440 394.1 L1480 395.5 L1520 397.3 L1560 399.8 L1600 403.5 L1600 521.8 L1560 520.3 L1520 521.6 L1480 525.3 L1440 530.5 L1400 536.8 L1360 543.5 L1320 550.2 L1280 556.4 L1240 562.1 L1200 567.3 L1160 571.9 L1120 576.3 L1080 580.6 L1040 585.3 L1000 590.5 L960 596.5 L920 603.3 L880 611.1 L840 619.6 L800 628.6 L760 637.9 L720 647.1 L680 655.8 L640 663.5 L600 670.1 L560 675.1 L520 678.6 L480 680.2 L440 680.2 L400 678.5 L360 675.4 L320 671.0 L280 665.6 L240 659.3 L200 652.4 L160 644.8 L120 636.6 L80 627.7 L40 618.3 L0 608.0 L-40 597.0 L-80 585.2 L-120 572.7 L-160 559.7 Z;M-160 516.2 L-120 529.5 L-80 539.1 L-40 544.6 L0 545.9 L40 543.3 L80 537.1 L120 528.1 L160 516.9 L200 504.6 L240 491.8 L280 479.5 L320 468.1 L360 458.2 L400 449.9 L440 443.2 L480 437.8 L520 433.4 L560 429.3 L600 425.2 L640 420.5 L680 414.9 L720 408.0 L760 399.9 L800 390.8 L840 381.2 L880 371.5 L920 362.6 L960 355.2 L1000 350.2 L1040 348.1 L1080 349.6 L1120 355.0 L1160 364.2 L1200 377.1 L1240 393.1 L1280 411.6 L1320 431.6 L1360 452.0 L1400 471.8 L1440 490.0 L1480 505.7 L1520 518.2 L1560 527.1 L1600 532.3 L1600 704.3 L1560 698.5 L1520 687.7 L1480 672.1 L1440 652.3 L1400 629.3 L1360 604.2 L1320 578.4 L1280 553.2 L1240 530.0 L1200 510.1 L1160 494.3 L1120 483.4 L1080 477.7 L1040 477.1 L1000 481.4 L960 489.8 L920 501.4 L880 515.3 L840 530.3 L800 545.4 L760 559.6 L720 572.2 L680 582.7 L640 591.0 L600 597.0 L560 601.2 L520 603.9 L480 605.9 L440 607.7 L400 609.9 L360 613.1 L320 617.7 L280 623.6 L240 631.0 L200 639.4 L160 648.3 L120 657.2 L80 665.2 L40 671.6 L0 675.9 L-40 677.3 L-80 675.6 L-120 670.7 L-160 662.7 Z"></animate></path></g><g class="rb rb2"><path d="M-160 762.1 L-120 748.0 L-80 730.8 L-40 712.4 L0 694.9 L40 679.8 L80 668.1 L120 660.3 L160 655.9 L200 654.1 L240 653.5 L280 653.0 L320 651.2 L360 647.5 L400 641.8 L440 634.5 L480 626.8 L520 620.1 L560 616.0 L600 616.0 L640 621.1 L680 631.8 L720 647.8 L760 667.9 L800 690.4 L840 713.3 L880 734.2 L920 751.2 L960 762.8 L1000 768.0 L1040 766.9 L1080 760.1 L1120 749.0 L1160 735.3 L1200 720.9 L1240 707.5 L1280 696.3 L1320 688.1 L1360 682.6 L1400 679.3 L1440 677.2 L1480 674.9 L1520 671.1 L1560 665.1 L1600 656.5 L1600 777.5 L1560 791.6 L1520 801.4 L1480 806.8 L1440 808.6 L1400 807.9 L1360 806.5 L1320 805.9 L1280 807.3 L1240 811.4 L1200 818.4 L1160 827.7 L1120 838.1 L1080 848.1 L1040 856.0 L1000 860.4 L960 860.3 L920 855.1 L880 845.1 L840 831.0 L800 814.3 L760 796.4 L720 779.1 L680 763.8 L640 751.4 L600 742.5 L560 737.0 L520 734.5 L480 734.2 L440 735.1 L400 736.6 L360 738.1 L320 739.5 L280 741.2 L240 744.0 L200 748.8 L160 756.4 L120 767.6 L80 782.5 L40 800.8 L0 821.3 L-40 842.7 L-80 862.7 L-120 879.4 L-160 890.7 Z" fill="#30B0A0" fill-opacity="0.24" mask="url(#rbM)"><animate attributeName="d" dur="29s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M-160 762.1 L-120 748.0 L-80 730.8 L-40 712.4 L0 694.9 L40 679.8 L80 668.1 L120 660.3 L160 655.9 L200 654.1 L240 653.5 L280 653.0 L320 651.2 L360 647.5 L400 641.8 L440 634.5 L480 626.8 L520 620.1 L560 616.0 L600 616.0 L640 621.1 L680 631.8 L720 647.8 L760 667.9 L800 690.4 L840 713.3 L880 734.2 L920 751.2 L960 762.8 L1000 768.0 L1040 766.9 L1080 760.1 L1120 749.0 L1160 735.3 L1200 720.9 L1240 707.5 L1280 696.3 L1320 688.1 L1360 682.6 L1400 679.3 L1440 677.2 L1480 674.9 L1520 671.1 L1560 665.1 L1600 656.5 L1600 777.5 L1560 791.6 L1520 801.4 L1480 806.8 L1440 808.6 L1400 807.9 L1360 806.5 L1320 805.9 L1280 807.3 L1240 811.4 L1200 818.4 L1160 827.7 L1120 838.1 L1080 848.1 L1040 856.0 L1000 860.4 L960 860.3 L920 855.1 L880 845.1 L840 831.0 L800 814.3 L760 796.4 L720 779.1 L680 763.8 L640 751.4 L600 742.5 L560 737.0 L520 734.5 L480 734.2 L440 735.1 L400 736.6 L360 738.1 L320 739.5 L280 741.2 L240 744.0 L200 748.8 L160 756.4 L120 767.6 L80 782.5 L40 800.8 L0 821.3 L-40 842.7 L-80 862.7 L-120 879.4 L-160 890.7 Z;M-160 668.5 L-120 664.0 L-80 662.5 L-40 663.2 L0 665.3 L40 667.6 L80 669.4 L120 670.0 L160 669.3 L200 667.5 L240 665.4 L280 663.7 L320 663.6 L360 666.0 L400 671.4 L440 680.0 L480 691.6 L520 705.2 L560 719.8 L600 733.8 L640 745.8 L680 754.5 L720 759.0 L760 758.9 L800 754.3 L840 745.8 L880 734.6 L920 722.1 L960 709.6 L1000 698.3 L1040 689.2 L1080 682.7 L1120 678.8 L1160 677.1 L1200 676.6 L1240 676.5 L1280 675.9 L1320 674.1 L1360 670.9 L1400 666.4 L1440 661.2 L1480 656.2 L1520 652.4 L1560 651.1 L1600 653.0 L1600 795.0 L1560 790.9 L1520 787.0 L1480 783.0 L1440 778.5 L1400 773.5 L1360 768.0 L1320 762.6 L1280 758.0 L1240 755.1 L1200 754.9 L1160 758.3 L1120 766.0 L1080 778.2 L1040 794.4 L1000 813.8 L960 834.7 L920 855.4 L880 873.7 L840 887.6 L800 895.5 L760 896.4 L720 890.0 L680 876.8 L640 858.1 L600 835.8 L560 812.4 L520 790.2 L480 771.5 L440 758.0 L400 750.7 L360 749.8 L320 754.7 L280 763.9 L240 775.7 L200 788.0 L160 798.8 L120 806.5 L80 810.2 L40 809.6 L0 805.1 L-40 797.8 L-80 789.3 L-120 781.3 L-160 775.6 Z;M-160 654.0 L-120 658.9 L-80 661.3 L-40 661.5 L0 660.5 L40 659.6 L80 660.1 L120 663.3 L160 670.1 L200 680.7 L240 694.6 L280 710.8 L320 727.5 L360 742.9 L400 755.0 L440 762.2 L480 763.3 L520 758.1 L560 746.9 L600 731.1 L640 712.3 L680 692.6 L720 674.1 L760 658.5 L800 647.1 L840 640.4 L880 638.1 L920 639.4 L960 643.0 L1000 647.5 L1040 651.2 L1080 653.3 L1120 653.2 L1160 650.9 L1200 647.2 L1240 643.4 L1280 640.8 L1320 641.0 L1360 645.1 L1400 653.8 L1440 666.9 L1480 683.6 L1520 702.6 L1560 721.9 L1600 739.4 L1600 858.4 L1560 834.0 L1520 807.7 L1480 782.2 L1440 760.1 L1400 743.3 L1360 733.2 L1320 729.8 L1280 732.5 L1240 739.9 L1200 749.9 L1160 760.5 L1120 769.8 L1080 776.2 L1040 779.1 L1000 778.5 L960 775.0 L920 770.1 L880 765.4 L840 762.4 L800 762.7 L760 767.1 L720 775.8 L680 788.3 L640 803.5 L600 819.6 L560 835.1 L520 848.0 L480 857.2 L440 861.6 L400 861.1 L360 856.1 L320 847.4 L280 836.4 L240 824.3 L200 812.5 L160 801.7 L120 792.5 L80 785.0 L40 778.6 L0 772.7 L-40 766.6 L-80 759.8 L-120 752.1 L-160 743.6 Z;M-160 703.1 L-120 710.1 L-80 718.7 L-40 728.7 L0 739.8 L40 751.1 L80 761.4 L120 769.4 L160 773.9 L200 773.8 L240 768.8 L280 758.7 L320 744.2 L360 726.4 L400 706.9 L440 687.2 L480 669.0 L520 653.7 L560 642.3 L600 635.3 L640 632.5 L680 633.3 L720 636.9 L760 642.1 L800 648.0 L840 653.6 L880 658.5 L920 662.6 L960 666.3 L1000 670.2 L1040 675.1 L1080 681.7 L1120 690.5 L1160 701.8 L1200 715.3 L1240 730.1 L1280 745.2 L1320 759.1 L1360 770.4 L1400 777.7 L1440 780.1 L1480 777.1 L1520 768.8 L1560 756.0 L1600 739.8 L1600 829.7 L1560 839.0 L1520 847.8 L1480 855.1 L1440 860.6 L1400 863.6 L1360 864.2 L1320 862.5 L1280 858.9 L1240 853.7 L1200 847.3 L1160 840.1 L1120 832.1 L1080 823.3 L1040 813.5 L1000 802.5 L960 790.2 L920 776.6 L880 762.2 L840 747.7 L800 734.1 L760 722.7 L720 715.0 L680 712.2 L640 715.3 L600 724.9 L560 740.8 L520 762.3 L480 787.7 L440 815.2 L400 842.4 L360 866.7 L320 886.2 L280 899.1 L240 904.4 L200 902.1 L160 892.9 L120 878.3 L80 860.2 L40 841.0 L0 822.9 L-40 807.7 L-80 796.8 L-120 790.6 L-160 789.0 Z;M-160 762.1 L-120 748.0 L-80 730.8 L-40 712.4 L0 694.9 L40 679.8 L80 668.1 L120 660.3 L160 655.9 L200 654.1 L240 653.5 L280 653.0 L320 651.2 L360 647.5 L400 641.8 L440 634.5 L480 626.8 L520 620.1 L560 616.0 L600 616.0 L640 621.1 L680 631.8 L720 647.8 L760 667.9 L800 690.4 L840 713.3 L880 734.2 L920 751.2 L960 762.8 L1000 768.0 L1040 766.9 L1080 760.1 L1120 749.0 L1160 735.3 L1200 720.9 L1240 707.5 L1280 696.3 L1320 688.1 L1360 682.6 L1400 679.3 L1440 677.2 L1480 674.9 L1520 671.1 L1560 665.1 L1600 656.5 L1600 777.5 L1560 791.6 L1520 801.4 L1480 806.8 L1440 808.6 L1400 807.9 L1360 806.5 L1320 805.9 L1280 807.3 L1240 811.4 L1200 818.4 L1160 827.7 L1120 838.1 L1080 848.1 L1040 856.0 L1000 860.4 L960 860.3 L920 855.1 L880 845.1 L840 831.0 L800 814.3 L760 796.4 L720 779.1 L680 763.8 L640 751.4 L600 742.5 L560 737.0 L520 734.5 L480 734.2 L440 735.1 L400 736.6 L360 738.1 L320 739.5 L280 741.2 L240 744.0 L200 748.8 L160 756.4 L120 767.6 L80 782.5 L40 800.8 L0 821.3 L-40 842.7 L-80 862.7 L-120 879.4 L-160 890.7 Z"></animate></path></g></svg>
+  <div class="page">
+    <header class="mbar mat">
+      <a href="Glass-Today-Mobile.dc.html" aria-label="Home" style="display: inline-flex"><img src="logo.png" alt="enrich360: Food · Farm · Future" style="height: 24px; width: auto"></a>
+      <div style="display: flex">
+        <button class="ib" type="button" aria-label="Notifications, 3 new" onClick="{{bell}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span aria-hidden="true" style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 4px; background: var(--error); box-shadow: 0 0 0 2px var(--bg)"></span></button>
+        <button class="ib" type="button" aria-label="Menu" aria-expanded="{{menuOpen}}" onClick="{{toggleMenu}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{menuIcon}}"></path></svg></button>
+      </div>
+      <sc-if value="{{menuShow}}" hint-placeholder-val="{{false}}">
+        <nav class="pop" aria-label="Main" style="top: 52px; right: 8px; width: 250px">
+          <a href="Glass-Today-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Overview</a><a href="Glass-Devices-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM9 7h6"></path></svg>Devices</a><a href="Glass-Analytics-Mobile.dc.html" aria-current="page" style="font-weight: 600; color: var(--accent-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V11M12 20V5M18 20v-6"></path></svg>Analytics</a><a href="Glass-Insights-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"></path></svg>Insights</a><a href="Glass-Alerts-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"></path></svg>Alerts</a><a href="Glass-Service-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"></path></svg>Service</a><a href="Glass-Parts-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"></path></svg>Parts</a><a href="Glass-Rewards-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>Rewards</a>
+          <div style="height: .5px; background: var(--sep); margin: 6px 4px"></div>
+          <a href="Glass-Profile-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"></path></svg>Alex Carter</a><a href="Glass-Login-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"></path></svg>Sign out</a>
+          </nav>
+      </sc-if>
+    </header>
+    <section class="rise" style="position: relative; z-index: 15; padding-top: 4px">
+      <h1 class="lt" style="margin: 0">Analytics</h1>
+      <div class="foot" style="margin-top: 4px">{{scope}}</div>
+    </section>
+
+    <div class="glass rise" role="group" aria-label="This month at a glance" style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 4px; padding: 4px; animation-delay: 30ms">
+      <sc-for list="{{sumItems}}" as="x" hint-placeholder-count="3">
+        <button class="sumb" type="button" aria-pressed="{{x.on}}" aria-label="{{x.aria}}" onClick="{{x.go}}" style="flex-direction: column; align-items: flex-start; gap: 2px; padding: 8px 10px; min-height: 56px">
+          <span class="cap" style="white-space: nowrap; overflow: hidden; text-overflow: ellipsis; max-width: 100%">{{x.ks}} in Oct</span><span class="tn" style="font-size: 17px; font-weight: 700">{{x.v}}</span>
+        </button>
+      </sc-for>
+    </div>
+
+    <div style="display: flex; gap: 8px; position: relative; z-index: 14">
+      <div style="position: relative; flex: 1; min-width: 0">
+          <button class="ddb" type="button" aria-haspopup="listbox" aria-expanded="{{ddOpen}}" aria-label="Device: {{devLab}}" onClick="{{toggleDd}}" style="width: 100%; min-width: 0"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--accent-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM9 7h6"></path></svg></span><span style="flex: 1; text-align: left; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{devLab}}</span><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--label2)"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 9l6 6 6-6"></path></svg></span></button>
+          <sc-if value="{{ddShow}}" hint-placeholder-val="{{false}}">
+            <div class="pop" role="listbox" aria-label="Choose device" style="top: 50px; left: 0; right: -96px">
+              <sc-for list="{{devOpts}}" as="o" hint-placeholder-count="4">
+                <button class="opt" type="button" role="option" aria-selected="{{o.sel}}" onClick="{{o.pick}}">
+                  <span style="flex: 1; min-width: 0"><span style="display: block; font-size: 15px; font-weight: 500">{{o.lab}}</span><span class="cap" style="display: block">{{o.sub}}</span></span>
+                  <sc-if value="{{o.chk}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--accent-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg></span></sc-if>
+                </button>
+              </sc-for>
+            </div>
+          </sc-if>
+        </div>
+      <button class="btn p" type="button" onClick="{{openShare}}" aria-haspopup="dialog" style="padding: 0 16px"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 12v7a1 1 0 0 0 1 1h14a1 1 0 0 0 1-1v-7M12 3v13M7 8l5-5 5 5"></path></svg>Share</button>
+    </div>
+
+    <div class="seg tabs" role="group" aria-label="Analytics view" style="display: flex"><sc-for list="{{tabs}}" as="tb" hint-placeholder-count="4"><button type="button" aria-pressed="{{tb.on}}" onClick="{{tb.go}}" style="flex: 1; min-width: 0; padding: 0 4px; font-size: 14px">{{tb.label}}</button></sc-for></div>
+
+    <sc-if value="{{tabSav}}" hint-placeholder-val="{{true}}">
+      <article class="glass rise" aria-labelledby="svHm" style="padding: 18px 16px 16px">
+        <h2 id="svHm" class="h2 sub" style="font-weight: 400">You saved</h2>
+        <div class="bigfig tn" style="font-size: 48px">{{netT}}</div>
+        <p class="sub" style="margin: 4px 0 0">this month versus normal collection</p>
+        <h3 class="hl" style="margin: 22px 0 12px">How it adds up</h3>
+        <div role="img" aria-label="{{savAria}}" style="display: flex; flex-direction: column; gap: 16px">
+            <sc-for list="{{wf}}" as="r" hint-placeholder-count="4">
+              <div class="wfr" title="{{r.tip}}">
+                <div style="min-width: 0"><div style="font-size: 15px; font-weight: {{r.kw}}">{{r.k}}</div><div class="cap tn" style="margin-top: 1px">{{r.f}}</div></div>
+                <div class="tn" style="text-align: right; font-size: 17px; font-weight: 600; color: {{r.vc}}">{{r.v}}</div>
+                <div class="track"><span class="sbar" style="left: {{r.left}}; width: {{r.w}}; background: {{r.bg}}; animation-delay: {{r.delay}}"></span></div>
+              </div>
+            </sc-for>
+          </div>
+        <h3 class="hl" style="margin: 24px 0 0">Monthly savings</h3>
+        <div style="display: flex; align-items: baseline; gap: 8px; margin-top: 2px"><span class="foot">Year to date</span><span class="tn" style="font-size: 17px; font-weight: 700">{{ytdT}}</span><span class="chip tn" style="margin-left: auto; background: var(--accent-fill); color: var(--accent-text); white-space: nowrap">{{vsSep}}</span></div>
+        <div role="img" aria-label="{{monAria}}" style="margin-top: 10px">
+          <div style="height: 90px; display: flex; align-items: flex-end; gap: 8px"><sc-for list="{{savBars}}" as="b" hint-placeholder-count="6"><span class="bar grow" title="{{b.tip}}" style="flex: 1; height: {{b.h}}; border-radius: 4px 4px 2px 2px; background: var(--accent); opacity: {{b.op}}; animation-delay: {{b.delay}}"></span></sc-for></div>
+          <div aria-hidden="true" class="tn" style="display: flex; gap: 8px; margin-top: 4px"><sc-for list="{{savBars}}" as="b" hint-placeholder-count="6"><span style="flex: 1; text-align: center; min-width: 0"><span style="display: block; font-size: 11px; color: var(--label2)">{{b.lab}}</span><span style="display: block; font-size: 11px; font-weight: 600">{{b.v}}</span></span></sc-for></div>
+        </div>
+        <div class="rowsep" style="margin-top: 18px; padding-top: 14px">
+          <div style="font-size: 15px; font-weight: 600">Using your rates from Profile</div>
+          <div class="cap tn" style="margin-top: 2px">$210 per t collection · $169.79 per t levy · $0.32 per kWh</div>
+          <a class="btn s" href="Glass-Profile-Mobile.dc.html" style="margin-top: 10px; width: 100%; box-sizing: border-box">View rates in Profile</a>
+        </div>
+      </article>
+    </sc-if>
+
+    <sc-if value="{{tabFood}}" hint-placeholder-val="{{false}}">
+      <article class="glass rise" aria-labelledby="dcHm" style="padding: 16px 14px 12px">
+        <div style="display: flex; align-items: flex-start; gap: 10px">
+          <div style="flex: 1; min-width: 0"><h2 id="dcHm" class="hl h2">Food waste diverted</h2><div class="cap" style="margin-top: 1px">{{chSub}}</div></div>
+          <div class="tn" style="font-size: 17px; font-weight: 700; white-space: nowrap">{{chTotal}}</div>
+        </div>
+        <div style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap; margin-top: 12px">
+          <sc-if value="{{canBack}}" hint-placeholder-val="{{false}}"><button class="btn s" type="button" onClick="{{back}}" style="min-height: 32px; height: 32px; padding: 0 12px 0 6px; font-size: 13px; border-radius: 6px" aria-label="Back up one level"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 6l-6 6 6 6"></path></svg>Back</button></sc-if>
+          <nav aria-label="Chart level" style="display: flex; align-items: center; gap: 4px; flex-wrap: wrap">
+            <sc-for list="{{crumbs}}" as="c" hint-placeholder-count="2">
+              <sc-if value="{{c.sep}}" hint-placeholder-val="{{false}}"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--label3)"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span></sc-if>
+              <button class="crumb" type="button" aria-current="{{c.cur}}" onClick="{{c.go}}">{{c.lab}}</button>
+            </sc-for>
+          </nav>
+        </div>
+        <div role="img" aria-label="{{chAria}}" style="position: relative; height: 300px; margin-top: 2px">
+          <div style="position: absolute; left: 0; right: 0; top: 26px; bottom: 38px">
+            <sc-for list="{{ticks}}" as="t" hint-placeholder-count="5">
+              <div aria-hidden="true" style="position: absolute; left: 44px; right: 0; bottom: {{t.p}}; border-top: .5px solid var(--sep)"><span class="tn" style="position: absolute; right: 100%; top: 0; transform: translateY(-50%); margin-right: 8px; font-size: 11px; color: var(--label2); white-space: nowrap">{{t.lab}}</span></div>
+            </sc-for>
+          </div>
+          <div style="position: absolute; left: 44px; right: 0; top: 26px; bottom: 0; display: flex">
+            <sc-for list="{{dbars}}" as="b" hint-placeholder-count="6">
+              <div style="flex: 1; min-width: 0; display: flex; flex-direction: column; align-items: center">
+                <div style="flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; min-height: 0">
+                  <div class="bwrap" style="position: relative; height: {{b.h}}; width: {{barW}}; max-width: 64px">
+                    <span class="vlab tn" aria-hidden="true">{{b.vl}}</span>
+                    <button class="{{b.cls}}" type="button" title="{{b.tip}}" aria-label="{{b.aria}}" onClick="{{b.go}}" style="animation-delay: {{b.delay}}"></button>
+                  </div>
+                </div>
+                <div aria-hidden="true" style="height: 38px; box-sizing: border-box; padding-top: 7px; text-align: center; line-height: 1.25; white-space: nowrap"><div style="font-size: 12px; font-weight: 500; color: var(--label)">{{b.lab}}</div><div class="tn" style="font-size: 11px; color: var(--label2)">{{b.sub}}</div></div>
+              </div>
+            </sc-for>
+          </div>
+        </div>
+        <div class="cap" style="text-align: center; margin-top: 8px">{{hint}}</div>
+      </article>
+    </sc-if>
+
+    <sc-if value="{{tabImp}}" hint-placeholder-val="{{false}}">
+      <article class="glass rise" aria-labelledby="imHm" style="padding: 18px 16px 8px">
+        <h2 id="imHm" class="h2 sub" style="font-weight: 400">CO₂e avoided this month</h2>
+        <div class="bigfig tn" style="font-size: 48px">{{co2T}}<span style="font-size: 22px; font-weight: 600; margin-left: 4px">t</span></div>
+        <p class="callout" style="margin: 4px 0 0; color: var(--accent-text)">Like taking {{cars}} cars off the road for a month</p>
+        <h3 class="hl" style="margin: 22px 0 0">By month</h3>
+        <div class="big" role="img" aria-label="{{coAria}}" style="height: 130px; flex: none; margin-top: 12px"><div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between"><span style="border-top: .5px solid var(--sep)"></span><span style="border-top: .5px solid var(--sep)"></span><span style="border-top: .5px solid var(--sep)"></span><span style="border-top: .5px solid var(--sep)"></span></div><svg viewBox="0 0 100 50" preserveAspectRatio="none" width="100%" height="100%" aria-hidden="true" style="display: block; overflow: visible">
+                <defs><linearGradient id="Gcom" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: var(--accent); stop-opacity: .22"></stop><stop offset="1" style="stop-color: var(--accent); stop-opacity: 0"></stop></linearGradient></defs>
+                <path d="{{coA.area}}" fill="url(#Gcom)"></path>
+                <path d="{{coA.line}}" fill="none" style="stroke: var(--accent)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+              </svg></div>
+        <div aria-hidden="true" class="tn" style="display: flex; justify-content: space-between; margin-top: 10px"><sc-for list="{{monVals}}" as="mv" hint-placeholder-count="6"><span style="text-align: center; min-width: 0"><span style="display: block; font-size: 12px; color: var(--label2)">{{mv.l}}</span><span style="display: block; font-size: 12px; font-weight: {{mv.cur}}">{{mv.co}}</span></span></sc-for></div>
+        <div style="margin-top: 10px">
+          <div class="note rowsep"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--info)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3s6 6.5 6 11a6 6 0 0 1-12 0c0-4.5 6-11 6-11z"></path></svg></span><div><div class="tn" style="font-size: 18px; font-weight: 700">{{waterT}} L</div><div class="foot">Water removed from food waste this month</div></div></div>
+          <div class="note"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--accent-text)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M4 14h6v6M20 10h-6V4M14 10l7-7M3 21l7-7"></path></svg></span><div><div class="tn" style="font-size: 18px; font-weight: 700">90%</div><div class="foot">Volume reduction compared with untreated waste</div></div></div>
+        </div>
+      </article>
+    </sc-if>
+
+    <sc-if value="{{tabEn}}" hint-placeholder-val="{{false}}">
+      <article class="glass rise" aria-labelledby="enHm" style="padding: 18px 16px 8px">
+        <h2 id="enHm" class="h2 sub" style="font-weight: 400">Energy per kilogram this month</h2>
+        <div style="display: flex; align-items: baseline; gap: 6px"><span class="bigfig tn" style="font-size: 48px">{{kpkT}}</span><span class="sub">kWh per kg</span></div>
+        <span class="chip" style="margin-top: 8px; background: var(--accent-fill); color: var(--accent-text)"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Best in 3 months</span>
+        <h3 class="hl" style="margin: 22px 0 0">By month</h3>
+        <div class="big" role="img" aria-label="{{enAria}}" style="height: 130px; flex: none; margin-top: 12px"><div aria-hidden="true" style="position: absolute; inset: 0; display: flex; flex-direction: column; justify-content: space-between"><span style="border-top: .5px solid var(--sep)"></span><span style="border-top: .5px solid var(--sep)"></span><span style="border-top: .5px solid var(--sep)"></span><span style="border-top: .5px solid var(--sep)"></span></div><svg viewBox="0 0 100 50" preserveAspectRatio="none" width="100%" height="100%" aria-hidden="true" style="display: block; overflow: visible">
+                <defs><linearGradient id="Genm" x1="0" y1="0" x2="0" y2="1"><stop offset="0" style="stop-color: var(--info); stop-opacity: .22"></stop><stop offset="1" style="stop-color: var(--info); stop-opacity: 0"></stop></linearGradient></defs>
+                <path d="{{enA.area}}" fill="url(#Genm)"></path>
+                <path d="{{enA.line}}" fill="none" style="stroke: var(--info)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" vector-effect="non-scaling-stroke"></path>
+              </svg></div>
+        <div aria-hidden="true" class="tn" style="display: flex; justify-content: space-between; margin-top: 10px"><sc-for list="{{monVals}}" as="mv" hint-placeholder-count="6"><span style="text-align: center; min-width: 0"><span style="display: block; font-size: 12px; color: var(--label2)">{{mv.l}}</span><span style="display: block; font-size: 12px; font-weight: {{mv.cur}}">{{mv.kp}}</span></span></sc-for></div>
+        <div style="margin-top: 10px">
+          <div class="note rowsep"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--info)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M13 2L4 14h7l-1 8 9-12h-7z"></path></svg></span><div><div class="tn" style="font-size: 18px; font-weight: 700">{{kwhT}} kWh</div><div class="foot">Used in October, about {{elecT}} at $0.32 per kWh</div></div></div>
+          <div class="note"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--accent-text)"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 19c0-8 5-14 15-15-1 10-7 15-15 15zM5 19l7-7"></path></svg></span><div><div style="font-size: 15px; font-weight: 600">Lower is better</div><div class="foot">Full loads and a clean exhaust filter keep energy per kilogram down.</div></div></div>
+        </div>
+      </article>
+    </sc-if>
+    <footer style="font-size: 11px; color: var(--label2); text-align: center; padding-top: 4px">Copyright © 2026 enrich360 Pty Ltd. All Rights Reserved.</footer>
+  </div>
+<sc-if value="{{toastOn}}" hint-placeholder-val="{{false}}">
+  <div role="status" class="mat" style="position: fixed; left: 16px; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 90; color: var(--label); padding: 12px 18px; border-radius: 8px; font-size: 15px; font-weight: 500">{{toastMsg}}</div>
+</sc-if>
+<sc-if value="{{shareShow}}" hint-placeholder-val="{{false}}">
+  <div class="scrim" onClick="{{closeShare}}" style="align-items: flex-end; padding: 0">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="shH" onClick="{{stop}}" style="width: 100%; border-radius: 22px 22px 0 0; padding: 10px 18px calc(24px + env(safe-area-inset-bottom))">
+      <div aria-hidden="true" style="width: 36px; height: 5px; border-radius: 3px; background: var(--fill); margin: 0 auto 10px"></div><div style="display: flex; align-items: center; gap: 12px"><h2 id="shH" class="t3 h2" style="flex: 1">Share report</h2><button class="ib" type="button" aria-label="Close" onClick="{{closeShare}}"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--label2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></span></button></div>
+      <p class="sub" style="margin: 6px 0 0; line-height: 1.45">Send this October report to your team. Anyone with the link can view it for 30 days. Your rates stay private.</p>
+      <div class="lnk" style="margin-top: 16px"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--label2)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M10 14a4 4 0 0 0 5.7 0l3-3a4 4 0 0 0-5.7-5.7l-1 1M14 10a4 4 0 0 0-5.7 0l-3 3a4 4 0 0 0 5.7 5.7l1-1"></path></svg></span><span style="overflow: hidden; text-overflow: ellipsis">enrich360.app/r/mildura-hospital-oct-2026</span></div>
+      <div style="display: flex; gap: 10px; margin-top: 16px; flex-direction: column">
+        <button class="btn p" type="button" onClick="{{copyLink}}" style="flex: 1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 9h10v10H9zM5 15V5h10"></path></svg>Copy link</button>
+        <button class="btn s" type="button" onClick="{{pdf}}" style="flex: 1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 4v11M7 10l5 5 5-5M5 20h14"></path></svg>Download PDF</button>
+      </div>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{dayShow}}" hint-placeholder-val="{{false}}">
+  <div class="scrim" onClick="{{closeDay}}" style="align-items: flex-end; padding: 0">
+    <div class="modal" role="dialog" aria-modal="true" aria-labelledby="dyH" onClick="{{stop}}" style="width: 100%; border-radius: 22px 22px 0 0; padding: 10px 18px calc(22px + env(safe-area-inset-bottom)); max-height: 82vh">
+      <div aria-hidden="true" style="width: 36px; height: 5px; border-radius: 3px; background: var(--fill); margin: 0 auto 10px"></div>
+      <div style="display: flex; align-items: center; gap: 10px"><div style="flex: 1; min-width: 0"><h2 id="dyH" class="t3 h2">{{dv.title}}</h2><div class="foot" style="margin-top: 2px">{{dv.sub}}</div></div><button class="ib" type="button" aria-label="Close" onClick="{{closeDay}}"><span aria-hidden="true" style="display: inline-flex; flex: none; color: var(--label2)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></span></button></div>
+      <div style="display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: 8px; margin-top: 14px; padding: 12px; border-radius: 14px; background: var(--fill2)">
+        <div><div class="cap">Food in</div><div class="tn" style="font-size: 17px; font-weight: 700">{{dv.kin}}</div></div>
+        <div><div class="cap">Dry out</div><div class="tn" style="font-size: 17px; font-weight: 700">{{dv.kout}}</div></div>
+        <div><div class="cap">Energy</div><div class="tn" style="font-size: 17px; font-weight: 700">{{dv.kwh}}</div></div>
+      </div>
+      <div style="margin-top: 6px">
+        <sc-for list="{{dv.cycles}}" as="c" hint-placeholder-count="4">
+          <div class="rowsep" style="padding: 12px 0">
+            <div style="display: flex; justify-content: space-between; font-size: 15px"><span style="font-weight: 600">{{c.dev}}</span><span class="foot tn">Started {{c.start}}</span></div>
+            <div class="tn" style="display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: 6px; margin-top: 6px; font-size: 14px">
+              <div><div class="cap">In</div><div style="font-weight: 600">{{c.kinT}}</div></div>
+              <div><div class="cap">Out</div><div style="font-weight: 600">{{c.koutT}}</div></div>
+              <div><div class="cap">Energy</div><div style="font-weight: 600">{{c.kwhT}}</div></div>
+              <div><div class="cap">Time</div><div style="font-weight: 600">{{c.dur}}</div></div>
+            </div>
+          </div>
+        </sc-for>
+      </div>
+    </div>
+  </div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { tab: 'sav', dev: 'all', dd: false, share: false, path: [], anim: 0, day: null, toast: '', menu: false };
+    this.ribRef = (el) => { if (el && el.pauseAnimations && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) el.pauseAnimations(); };
+  }
+  componentWillUnmount() { clearTimeout(this.tt); clearInterval(this.cd); if (this.unit) cancelAnimationFrame(this.unit.raf); }
+  toast(m) { clearTimeout(this.tt); this.setState({ toast: m }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  split(total, w) {
+    const sw = w.reduce((a, b) => a + b, 0), raw = w.map((x) => x * total / sw), fl = raw.map(Math.floor);
+    const rem = total - fl.reduce((a, b) => a + b, 0);
+    raw.map((x, i) => [x - fl[i], i]).sort((a, b) => b[0] - a[0]).slice(0, rem).forEach((p) => { fl[p[1]] += 1; });
+    return fl;
+  }
+  build() {
+    if (this.D) return this.D;
+    let t = 20261024;
+    const rnd = () => { t = (t + 0x6D2B79F5) | 0; let r = Math.imul(t ^ (t >>> 15), 1 | t); r = (r + Math.imul(r ^ (r >>> 7), 61 | r)) ^ r; return ((r ^ (r >>> 14)) >>> 0) / 4294967296; };
+    const MT = [2380, 2290, 2520, 2470, 2610, 2720, 2930, 3050, 2980, 3120];
+    const KPK = [0.092, 0.091, 0.090, 0.088, 0.084, 0.088, 0.093, 0.091, 0.089, 268 / 3120];
+    const MN = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October'];
+    this.D = MT.map((tot, mi) => {
+      const nd = mi === 9 ? 24 : new Date(2026, mi + 1, 0).getDate(), w = [];
+      for (let d = 1; d <= nd; d++) { const dw = new Date(2026, mi, d).getDay(); w.push((0.72 + rnd() * 0.56) * (dw === 0 || dw === 6 ? 0.8 : 1)); }
+      const days = this.split(tot, w).map((k, i) => {
+        const d04 = Math.round(k * (0.58 + rnd() * 0.08)), d02 = Math.round(k * (0.24 + rnd() * 0.05));
+        return { d: i + 1, dt: new Date(2026, mi, i + 1), by: { all: k, d04, d02, d05: k - d04 - d02 }, seed: rnd() };
+      });
+      const off = (new Date(2026, mi, 1).getDay() + 6) % 7, weeks = [];
+      days.forEach((x) => { const wi = Math.floor((x.d - 1 + off) / 7); (weeks[wi] = weeks[wi] || []).push(x); });
+      return { mi, name: MN[mi], kpk: KPK[mi], days, weeks: weeks.filter(Boolean) };
+    });
+    return this.D;
+  }
+  drill(p) { this.setState({ path: p, anim: this.state.anim + 1, day: null }); }
+  renderVals() {
+    const s = this.state;
+    const M = this.build(), dev = s.dev, vis = M.slice(4), oct = M[9];
+    const nf = (n) => Math.round(n).toLocaleString('en-AU'), money = (n) => '$' + nf(n), pc = (x) => (x * 100).toFixed(2) + '%';
+    const sumD = (days) => days.reduce((a, x) => a + x.by[dev], 0);
+    const econ = (m) => { const kg = sumD(m.days), kwh = Math.round(kg * m.kpk), c = Math.round(kg / 1000 * 210), l = Math.round(kg / 1000 * 169.79), e = Math.round(kwh * 0.32); return { kg, kwh, c, l, e, net: c + l - e }; };
+    const E = econ(oct), gross = E.c + E.l, tt = (E.kg / 1000).toFixed(2);
+    const ytd = M.reduce((a, m) => a + econ(m).net, 0);
+    const DEVS = [
+      { k: 'all', lab: 'All devices', sub: '3 dehydrators' },
+      { k: 'd04', lab: 'Dehydrator 04', sub: 'Main kitchen · ES-300L' },
+      { k: 'd02', lab: 'Dehydrator 02', sub: 'Café · Eco 75' },
+      { k: 'd05', lab: 'Dehydrator 05', sub: 'Aged care kitchen · Eco 5' }
+    ];
+    const NM = { d04: 'Dehydrator 04', d02: 'Dehydrator 02', d05: 'Dehydrator 05' };
+    const cur = DEVS.find((d) => d.k === dev);
+    const devOpts = DEVS.map((d) => ({ ...d, sel: d.k === dev ? 'true' : 'false', chk: d.k === dev, pick: () => this.setState({ dev: d.k, dd: false, anim: s.anim + 1 }) }));
+    const wf = [
+      { k: 'Collection cost avoided', f: tt + ' t × $210 per tonne', v: '+' + money(E.c), left: '0%', w: pc(E.c / gross), bg: 'var(--accent)', delay: '200ms', tip: 'General waste collection you did not pay for: ' + money(E.c) },
+      { k: 'Landfill levy avoided', f: tt + ' t × $169.79 per tonne', v: '+' + money(E.l), left: pc(E.c / gross), w: pc(E.l / gross), bg: 'var(--success)', delay: '420ms', tip: 'Landfill levy you did not pay: ' + money(E.l) },
+      { k: 'Electricity used', f: E.kwh + ' kWh × $0.32 per kWh', v: '−' + money(E.e), left: pc(E.net / gross), w: pc(E.e / gross), bg: 'var(--warning)', delay: '640ms', tip: 'Power the dehydrators used: ' + money(E.e) },
+      { k: 'Net saving', f: 'Avoided costs less electricity', v: money(E.net), left: '0%', w: pc(E.net / gross), bg: 'var(--label)', delay: '860ms', tip: 'What you keep this month: ' + money(E.net), net: true }
+    ].map((r) => ({ ...r, kw: r.net ? '700' : '500', vc: r.net ? 'var(--label)' : (r.v.charAt(0) === '+' ? 'var(--success-text)' : 'var(--warning-text)') }));
+    const sv = vis.map((m) => econ(m).net), svMax = Math.max(...sv);
+    const savBars = vis.map((m, i) => ({ lab: m.name.slice(0, 3), h: (sv[i] / svMax * 100).toFixed(1) + '%', tip: m.name + ': ' + money(sv[i]) + ' saved', delay: (300 + i * 70) + 'ms', op: i === 5 ? '1' : '.35', v: money(sv[i]) }));
+    const vsSep = Math.round((sv[5] - sv[4]) / sv[4] * 100);
+
+    // drill-down chart
+    const P = s.path, DN = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'], DNL = ['Sunday', 'Monday', 'Tuesday', 'Wednesday', 'Thursday', 'Friday', 'Saturday'];
+    const wkRange = (w, m) => w.length === 1 ? w[0].d + ' ' + m.name.slice(0, 3) : w[0].d + ' to ' + w[w.length - 1].d + ' ' + m.name.slice(0, 3);
+    let raw = [], chSub = '', hint = '';
+    if (!P.length) {
+      raw = vis.map((m, i) => { const v = sumD(m.days); return { lab: m.name.slice(0, 3), sub: '', v, tip: m.name + ' 2026: ' + nf(v) + ' kg. Select to see weeks.', go: () => this.drill([i]) }; });
+      chSub = 'May to October 2026, by month'; hint = 'Select a month to see its weeks';
+    } else if (P.length === 1) {
+      const m = vis[P[0]];
+      raw = m.weeks.map((w, wi) => { const v = sumD(w); return { lab: 'Week ' + (wi + 1), sub: wkRange(w, m), v, tip: 'Week ' + (wi + 1) + ', ' + wkRange(w, m) + ': ' + nf(v) + ' kg. Select to see days.', go: () => this.drill([P[0], wi]) }; });
+      chSub = m.name + ' 2026, by week' + (m.mi === 9 ? ' (to date)' : ''); hint = 'Select a week to see its days';
+    } else {
+      const m = vis[P[0]], w = m.weeks[P[1]];
+      raw = w.map((x, xi) => { const v = x.by[dev]; return { lab: DN[x.dt.getDay()], sub: x.d + ' ' + m.name.slice(0, 3), v, tip: DNL[x.dt.getDay()] + ' ' + x.d + ' ' + m.name + ': ' + nf(v) + ' kg. Select to see cycles.', go: () => this.setState({ day: [P[0], P[1], xi] }) }; });
+      chSub = 'Week ' + (P[1] + 1) + ', ' + wkRange(w, m) + ', by day'; hint = 'Select a day to see its cycles';
+    }
+    const chTotal = raw.reduce((a, b) => a + b.v, 0), mx = Math.max(...raw.map((b) => b.v), 1);
+    const step = [5, 10, 20, 25, 50, 100, 200, 250, 500, 1000, 2000].find((c) => c * 4 >= mx * 1.08) || 1000;
+    const top = step * 4;
+    const ticks = [0, 1, 2, 3, 4].map((i) => ({ p: (i * 25) + '%', lab: nf(i * step), ln: i ? '1px dashed rgba(15,26,20,.1)' : '1px solid rgba(15,26,20,.16)' }));
+    const gc = s.anim % 2 ? 'gA' : 'gB';
+    const dbars = raw.map((b, i) => ({ ...b, h: (b.v / top * 100).toFixed(2) + '%', vl: nf(b.v), cls: 'dbar ' + gc, delay: (i * 70) + 'ms', aria: b.tip }));
+    const crumbs = [{ lab: '2026', go: () => this.drill([]) }];
+    if (P.length) crumbs.push({ lab: vis[P[0]].name, go: () => this.drill([P[0]]) });
+    if (P.length > 1) crumbs.push({ lab: 'Week ' + (P[1] + 1), go: () => {} });
+    crumbs.forEach((c, i) => { c.sep = i > 0; c.cur = i === crumbs.length - 1 ? 'page' : 'false'; });
+
+    // day detail
+    let dv = { title: '', sub: '', cycles: [], kin: '', kout: '', kwh: '', n: '' };
+    if (s.day) {
+      const m = vis[s.day[0]], x = m.weeks[s.day[1]][s.day[2]];
+      let r = Math.floor(x.seed * 2147483000) || 7; const rr = () => { r = (r * 16807) % 2147483647; return r / 2147483647; };
+      const cyc = [];
+      (dev === 'all' ? ['d04', 'd02', 'd05'] : [dev]).forEach((k, di) => {
+        const kg = x.by[k]; if (kg <= 0) return;
+        const n = Math.ceil(kg / 70), parts = this.split(kg, Array(n).fill(1));
+        parts.forEach((kin, ci) => {
+          const st = 6 * 60 + 10 + di * 35 + ci * 8 * 60 + Math.floor(rr() * 50), dur = Math.round(290 + kin * 2.6 + rr() * 40);
+          const hh = Math.floor(st / 60), mm = st % 60;
+          cyc.push({ st, dev: NM[k], start: (hh % 12 || 12) + ':' + String(mm).padStart(2, '0') + (hh < 12 ? ' AM' : ' PM'), kin, kout: Math.round(kin * 1.02) / 10, kwh: Math.round(kin * m.kpk * 10) / 10, dur: Math.floor(dur / 60) + 'h ' + String(dur % 60).padStart(2, '0') + 'm' });
+        });
+      });
+      cyc.sort((a, b) => a.st - b.st);
+      dv = {
+        title: DNL[x.dt.getDay()] + ' ' + x.d + ' ' + m.name, sub: cur.lab + ' · ' + cyc.length + ' cycles',
+        cycles: cyc.map((c) => ({ ...c, kinT: c.kin + ' kg', koutT: c.kout.toFixed(1) + ' kg', kwhT: c.kwh.toFixed(1) + ' kWh' })),
+        kin: nf(x.by[dev]) + ' kg', kout: cyc.reduce((a, c) => a + c.kout, 0).toFixed(1) + ' kg', kwh: cyc.reduce((a, c) => a + c.kwh, 0).toFixed(1) + ' kWh'
+      };
+    }
+
+    // impact + energy
+    const co2 = (kg) => kg * 1.795 / 1000;
+    const co2v = vis.map((m) => co2(sumD(m.days)));
+    const area = (vals, w, h, pad) => {
+      const mxv = Math.max(...vals), mn = Math.min(...vals) - (mxv - Math.min(...vals)) * 0.3, pts = vals.map((v, i) => [i * w / (vals.length - 1), pad + (1 - (v - mn) / (mxv - mn || 1)) * (h - pad * 2)]);
+      const line = pts.map((p, i) => (i ? 'L' : 'M') + p[0].toFixed(1) + ' ' + p[1].toFixed(1)).join(' ');
+      return { line, area: line + ' L' + w + ' ' + h + ' L0 ' + h + ' Z', lx: pts[pts.length - 1][0].toFixed(1), ly: pts[pts.length - 1][1].toFixed(1) };
+    };
+    const coA = area(co2v, 100, 50, 6);
+    const kp = vis.map((m) => m.kpk), enA = area(kp, 100, 50, 6);
+    const cars = Math.round(co2(E.kg) / 0.383);
+    return {
+      devOpts, devLab: cur.lab, ddShow: s.dd, ddOpen: s.dd ? 'true' : 'false', toggleDd: () => this.setState({ dd: !s.dd, menu: false }),
+      scope: 'Mildura Hospital · ' + cur.lab + ' · October 2026',
+      shareShow: s.share, openShare: () => this.setState({ share: true, dd: false }), closeShare: () => this.setState({ share: false }),
+      copyLink: () => { this.setState({ share: false }); this.toast('Link copied'); },
+      pdf: () => { this.setState({ share: false }); this.toast('Your PDF report is downloading'); },
+      netT: money(E.net), wf, savBars, ytdT: money(ytd), vsSep: (vsSep >= 0 ? 'Up ' : 'Down ') + Math.abs(vsSep) + '% on Sep',
+      savAria: 'Savings breakdown: collection ' + money(E.c) + ' plus levy ' + money(E.l) + ' minus electricity ' + money(E.e) + ' equals ' + money(E.net),
+      monAria: 'Monthly savings May to October: ' + vis.map((m, i) => m.name + ' ' + money(sv[i])).join(', '),
+      dbars, ticks, crumbs, chSub, hint, chTotal: nf(chTotal) + ' kg', canBack: P.length > 0,
+      back: () => this.drill(P.slice(0, -1)), chAria: 'Food waste diverted, ' + chSub + ', total ' + nf(chTotal) + ' kilograms',
+      barW: P.length === 2 ? '56%' : P.length === 1 ? '42%' : '34%',
+      dayShow: !!s.day, dv, closeDay: () => this.setState({ day: null }),
+      co2T: co2(E.kg).toFixed(1), cars, waterT: nf(E.kg * 0.898), coA, coAria: 'Carbon avoided per month, May to October, rising to ' + co2(E.kg).toFixed(1) + ' tonnes',
+      elecT: money(E.e), kpkT: E.kg ? (E.kwh / E.kg).toFixed(3) : '0', kwhT: nf(E.kwh), enA, enAria: 'Energy per kilogram, May to October, lowest in October at ' + (268 / 3120).toFixed(3),
+      monLabs: vis.map((m) => ({ l: m.name.slice(0, 3) })),
+      monVals: vis.map((m) => { const kg = sumD(m.days); return { l: m.name.slice(0, 3), co: co2(kg).toFixed(1) + ' t', kp: m.kpk.toFixed(3), cur: m.mi === 9 ? '700' : '400' }; }),
+      tabSav: s.tab === 'sav', tabFood: s.tab === 'food', tabImp: s.tab === 'imp', tabEn: s.tab === 'en',
+      tabs: [['sav', 'Savings'], ['food', 'Food waste'], ['imp', 'Impact'], ['en', 'Energy']].map(([k, label]) => ({ label, on: s.tab === k ? 'true' : 'false', go: () => this.setState({ tab: k, anim: s.anim + 1, dd: false }) })),
+      sumItems: [
+        { k: 'Saved this month', ks: 'Saved', v: money(E.net), t: 'sav', d: 'M12 3v18M16.5 7.5c-.8-1.2-2.4-2-4.5-2-2.6 0-4.3 1.3-4.3 3.1 0 4.3 9 2.3 9 6.6 0 1.9-1.9 3.3-4.7 3.3-2.3 0-4-.9-4.9-2.3' },
+        { k: 'Food waste diverted', ks: 'Diverted', v: nf(E.kg) + ' kg', t: 'food', d: 'M5 19c0-8 5-14 15-15-1 10-7 15-15 15zM5 19l7-7' },
+        { k: 'CO₂e avoided', ks: 'CO\u2082e', v: co2(E.kg).toFixed(1) + ' t', t: 'imp', d: 'M7 18a4 4 0 0 1-.6-8 6 6 0 0 1 11.4 1.5A3.5 3.5 0 0 1 17.5 18z' }
+      ].map((x) => ({ ...x, on: s.tab === x.t ? 'true' : 'false', go: () => this.setState({ tab: x.t, anim: s.anim + 1, dd: false }), aria: x.k + ': ' + x.v + '. Show details.' })),
+      stop: (e) => e.stopPropagation(),
+
+      ribRef: this.ribRef,
+      menuShow: s.menu, menuOpen: s.menu ? 'true' : 'false', menuIcon: s.menu ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
+      toggleMenu: () => this.setState({ menu: !s.menu }),
+      search: () => this.toast('Search devices, sites and alerts'),
+      bell: () => this.toast('3 new alerts. Open Alerts to see them.'),
+      onKey: (e) => { if (e.key === 'Escape') this.setState({ menu: false, toast: '', dd: false, share: false, day: null }); },
+      toastOn: !!s.toast, toastMsg: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>

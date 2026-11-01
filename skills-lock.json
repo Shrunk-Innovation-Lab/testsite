@@ -1,0 +1,11 @@
+{
+  "version": 1,
+  "skills": {
+    "glassmorphism": {
+      "source": "ranbot-ai/awesome-skills",
+      "sourceType": "github",
+      "skillPath": "skills/design-it-glassmorphism/SKILL.md",
+      "computedHash": "69c841803f475fb4d8ad6d25b37568a15b5455d1cfc477d0ca323d1475017597"
+    }
+  }
+}
