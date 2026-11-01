@@ -1,0 +1,321 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Alerts · Mildura Hospital · mobile</title>
+<script src="./support.js"></script>
+<script src="three.min.js"></script>
+</head>
+<body>
+<x-dc>
+<helmet>
+<style>
+body{margin:0;background:#F2F2F7;-webkit-font-smoothing:antialiased;-moz-osx-font-smoothing:grayscale}
+.gl{--bg:#F2F2F7;--bg2:#FFFFFF;--surface:#FFFFFF;--surface2:#F2F2F7;--fill:rgba(120,120,128,.16);--fill2:rgba(120,120,128,.08);
+--label:#1D1D1F;--label2:#6E6E73;--label3:#AEAEB2;--sep:rgba(60,60,67,.14);
+--accent:#16A34A;--accent-text:#15803D;--accent-fill:rgba(22,163,74,.12);--on-accent:#FFFFFF;
+--success:#34C759;--success-text:#248A3D;--warning:#FF9F0A;--warning-text:#B25000;--warning-fill:rgba(255,159,10,.14);
+--error:#FF3B30;--error-text:#D70015;--error-fill:rgba(255,59,48,.1);--info:#0A84FF;--info-text:#0066CC;--info-fill:rgba(10,132,255,.1);
+--glass:rgba(255,255,255,.62);--glass-edge:rgba(255,255,255,.85);--glass-line:rgba(0,0,0,.06);--card:rgba(255,255,255,.58);
+--shadow:0 1px 2px rgba(0,0,0,.04),0 6px 20px -12px rgba(0,0,0,.12);--focus:#0A84FF;
+font-family:-apple-system,BlinkMacSystemFont,"Helvetica Neue",Arial,sans-serif;color:var(--label);font-size:17px;line-height:1.35;letter-spacing:-.01em}
+
+
+html{scrollbar-color:rgba(120,120,128,.45) transparent;scrollbar-width:thin}
+.gl,.gl *{scrollbar-width:thin;scrollbar-color:var(--label3) transparent}
+.gl::-webkit-scrollbar,.gl ::-webkit-scrollbar{width:10px;height:10px}
+.gl::-webkit-scrollbar-track,.gl ::-webkit-scrollbar-track{background:transparent}
+.gl::-webkit-scrollbar-corner,.gl ::-webkit-scrollbar-corner{background:transparent}
+.gl::-webkit-scrollbar-thumb,.gl ::-webkit-scrollbar-thumb{background:var(--label3);border-radius:6px;border:3px solid transparent;background-clip:content-box;min-height:40px}
+.gl::-webkit-scrollbar-thumb:hover,.gl ::-webkit-scrollbar-thumb:hover{background:var(--label2);background-clip:content-box}
+.tn{font-variant-numeric:tabular-nums}
+.lt{font-size:34px;font-weight:700;letter-spacing:-.022em;line-height:1.1}
+.t1{font-size:28px;font-weight:700;letter-spacing:-.02em;line-height:1.15}
+.t2{font-size:22px;font-weight:700;letter-spacing:-.018em;line-height:1.2}
+.t3{font-size:20px;font-weight:600;letter-spacing:-.016em}
+.hl{font-size:17px;font-weight:600}
+.callout{font-size:16px}
+.sub{font-size:15px;color:var(--label2)}
+.foot{font-size:13px;color:var(--label2);letter-spacing:0}
+.cap{font-size:12px;color:var(--label2);letter-spacing:0}
+/* Content surfaces: solid. ("glass" kept as the class name for content cards.) */
+.glass,.card{background:var(--card);-webkit-backdrop-filter:blur(26px) saturate(180%);backdrop-filter:blur(26px) saturate(180%);border-radius:11px;box-shadow:inset 0 0 0 .5px var(--glass-line),inset 0 1px 0 var(--glass-edge),0 10px 30px -18px rgba(0,0,0,.18);box-sizing:border-box;min-width:0;min-height:0}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.glass,.card{background:var(--surface)}}
+.ribbons{position:fixed;inset:0;width:100%;height:100%;display:block;z-index:0;pointer-events:none}
+.ribbons .rb{animation:ribdrift 34s ease-in-out infinite alternate;transform-origin:50% 50%}
+.ribbons .rb1{animation-duration:41s;animation-delay:-12s}
+.ribbons .rb2{animation-duration:37s;animation-delay:-20s}
+@keyframes ribdrift{0%{transform:translate(-40px,-10px) rotate(-1.2deg)}50%{transform:translate(30px,14px) rotate(.8deg)}100%{transform:translate(60px,-6px) rotate(1.6deg)}}
+@media (prefers-reduced-motion:reduce){.ribbons .rb{animation:none}}
+.ph{display:inline-flex;align-items:center;gap:5px;height:24px;padding:0 8px;border-radius:6px;font-size:12px;font-weight:500;background:var(--fill2);color:var(--label3);white-space:nowrap}
+.ph i{width:6px;height:6px;border-radius:3px;background:currentColor;opacity:.6}
+.ph:not(.on):not(.bad) i{display:none}
+.phs{flex-wrap:nowrap}
+.ph.done{color:var(--label2)}
+.ph.on{background:var(--accent-fill);color:var(--success-text);font-weight:600}
+.ph.on i{opacity:1;background:var(--success);box-shadow:0 0 0 3px var(--accent-fill)}
+.ph.bad{background:var(--error-fill);color:var(--error-text);font-weight:600}
+.ph.bad i{opacity:1;background:var(--error)}
+.phs{display:flex;flex-wrap:wrap;gap:4px}
+/* Liquid Glass material: navigation, toolbars, menus, popovers only */
+.mat{background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);box-shadow:inset 0 0 0 .5px var(--glass-line),inset 0 1px 0 var(--glass-edge),0 8px 30px -14px rgba(0,0,0,.18)}
+@supports not ((backdrop-filter:blur(1px)) or (-webkit-backdrop-filter:blur(1px))){.mat{background:var(--surface)}}
+.deco{display:none}
+.eyebrow{font-size:13px;font-weight:600;color:var(--label2);letter-spacing:0}
+.pill{display:inline-flex;align-items:center;gap:7px;height:30px;padding:0 12px;border-radius:6px;background:var(--accent-fill);color:var(--success-text);font-weight:600;font-size:15px}
+.pill i{width:8px;height:8px;border-radius:4px;background:var(--success)}
+.ib{width:44px;height:44px;border-radius:7px;border:0;background:transparent;color:var(--label);display:inline-flex;align-items:center;justify-content:center;cursor:pointer;position:relative;transition:background .15s}
+.ib:hover{background:var(--fill2)}
+.ib:active{background:var(--fill)}
+.seg{display:inline-flex;gap:2px;padding:2px;border-radius:6px;background:var(--fill2)}
+.seg button{min-width:52px;height:32px;padding:0 12px;border:0;border-radius:4px;background:transparent;font:inherit;font-size:14px;font-weight:500;color:var(--label);cursor:pointer;transition:background .18s}
+.seg button[aria-pressed="true"]{background:var(--bg2);font-weight:600;box-shadow:0 1px 3px rgba(0,0,0,.12),0 0 0 .5px rgba(0,0,0,.04)}
+.mc{transition:transform .15s,box-shadow .15s;cursor:pointer;text-align:left;font:inherit;color:inherit;border:0}
+.mc:hover{transform:translateY(-1px)}
+.mc:active{transform:scale(.99)}
+.row{display:flex;align-items:center;gap:12px}
+.al{display:flex;align-items:center;gap:14px;width:100%;border:0;border-radius:7px;background:transparent;padding:10px 12px;font:inherit;color:inherit;text-align:left;cursor:pointer;box-sizing:border-box;transition:background .15s}
+.al:hover{background:var(--fill2)}
+.tile{width:36px;height:36px;border-radius:6px;display:flex;align-items:center;justify-content:center;flex:none}
+.bar{transition:opacity .15s}
+.bar:hover{opacity:.8}
+.ghost{display:inline-flex;align-items:center;gap:4px;border:0;background:none;font:inherit;font-size:15px;font-weight:500;color:var(--accent-text);cursor:pointer;min-height:36px;padding:0 8px;border-radius:4px}
+.ghost:hover{background:var(--accent-fill)}
+.pop{position:absolute;z-index:60;background:var(--glass);-webkit-backdrop-filter:blur(30px) saturate(180%);backdrop-filter:blur(30px) saturate(180%);border-radius:8px;padding:6px;box-shadow:inset 0 0 0 .5px var(--glass-line),0 18px 50px -12px rgba(0,0,0,.3);animation:popin .2s cubic-bezier(.2,.8,.2,1) both}
+.pop a,.pop button.mi{display:flex;align-items:center;gap:10px;width:100%;min-height:40px;padding:0 10px;border:0;border-radius:4px;background:none;color:var(--label);text-decoration:none;font:inherit;font-size:15px;cursor:pointer;box-sizing:border-box}
+.pop a:hover,.pop button.mi:hover{background:var(--accent);color:#FFFFFF}
+.gl :focus-visible{outline:3px solid var(--focus);outline-offset:2px}
+@keyframes popin{from{opacity:0;transform:scale(.96) translateY(-4px)}}
+@keyframes ring{from{stroke-dasharray:0 999}}
+@keyframes rise{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:none}}
+@keyframes grow{from{transform:scaleY(0)}}
+@keyframes draw{from{stroke-dashoffset:100}}
+.ringa{animation:ring 1s cubic-bezier(.2,.8,.2,1) both}
+.rise{animation:rise .35s cubic-bezier(.2,.8,.2,1) both}
+.grow{transform-origin:bottom;animation:grow .5s cubic-bezier(.2,.8,.2,1) both}
+.draw{stroke-dasharray:100;animation:draw .9s cubic-bezier(.2,.8,.2,1) both}
+@media (prefers-reduced-motion:reduce){.ringa,.rise,.grow,.draw,.pop{animation:none}.mc:hover{transform:none}}
+.wrap{position:relative;height:100vh;overflow-x:hidden;overflow-y:auto;background:var(--bg)}
+.page{position:relative;z-index:1;padding:0 16px calc(18px + env(safe-area-inset-bottom));display:flex;flex-direction:column;gap:12px}
+.mbar{position:sticky;top:0;z-index:30;margin:0 -16px;padding:calc(4px + env(safe-area-inset-top)) 8px 4px 16px;display:flex;align-items:center;justify-content:space-between;height:52px}
+.seg.thm{display:flex;margin:6px 4px 4px}
+.seg.thm button{flex:1;min-width:0;font-size:13px}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:8px;min-height:44px;padding:0 16px;white-space:nowrap;border-radius:7px;border:0;font:inherit;font-size:16px;font-weight:600;cursor:pointer;text-decoration:none;transition:background .15s,transform .12s,opacity .15s}
+.btn:active{transform:scale(.98)}
+.btn:disabled,.btn[aria-disabled="true"]{opacity:.4;cursor:default}
+.btn.p{background:var(--accent);color:var(--on-accent)}
+.btn.p:hover{filter:brightness(.95)}
+.btn.s{background:var(--fill2);color:var(--accent-text)}
+.btn.s:hover{background:var(--fill)}
+.btn.d{background:var(--error-fill);color:var(--error-text)}
+.fld{display:flex;flex-direction:column;gap:6px;font-size:13px;font-weight:500;color:var(--label2)}
+.inp{height:44px;border-radius:6px;border:0;background:var(--fill2);padding:0 12px;font:inherit;font-size:17px;color:var(--label);box-sizing:border-box;width:100%;transition:background .15s,box-shadow .15s}
+textarea.inp{height:auto;min-height:88px;padding:10px 12px;resize:vertical;line-height:1.4}
+.inp::placeholder{color:var(--label3)}
+.inp:focus{outline:0;background:var(--surface);box-shadow:0 0 0 3px var(--focus)}
+.inp[aria-invalid="true"]{box-shadow:0 0 0 2px var(--error)}
+.sw{position:relative;width:46px;height:28px;border-radius:14px;border:0;padding:0;cursor:pointer;flex:none;transition:background .2s;background:var(--fill)}
+.sw[aria-checked="true"]{background:var(--success) !important}
+.sw[aria-checked="false"]{background:var(--fill) !important}
+.sw span{position:absolute;top:2px;width:24px;height:24px;border-radius:12px;background:#FFFFFF;box-shadow:0 2px 4px rgba(0,0,0,.18);transition:left .2s}
+.sw[aria-checked="true"] span{left:20px !important}
+.sw[aria-checked="false"] span{left:2px !important}
+.chip{display:inline-flex;align-items:center;gap:6px;height:24px;padding:0 9px;border-radius:6px;font-size:12px;font-weight:600}
+.scrim{position:fixed;inset:0;z-index:70;background:rgba(0,0,0,.32);display:flex;align-items:center;justify-content:center;padding:16px;animation:fade .2s both}
+.modal{width:min(480px,100%);max-height:calc(100vh - 32px);overflow:auto;background:var(--surface);border-radius:12px;padding:24px;box-sizing:border-box;box-shadow:0 30px 80px -20px rgba(0,0,0,.45);animation:sheet .28s cubic-bezier(.2,.8,.2,1) both}
+@keyframes fade{from{opacity:0}}
+@keyframes sheet{from{opacity:0;transform:translateY(16px) scale(.98)}}
+@media (prefers-reduced-motion:reduce){.scrim,.modal{animation:none}}
+.seg .n{margin-left:6px;color:var(--label2)}
+.lst{display:flex;flex-direction:column}
+.lst .al{border-radius:7px;padding:10px 12px;position:relative}
+.lst .al[aria-current="true"]{background:var(--accent-fill)}
+.lst .al[aria-current="true"] .ttl{color:var(--accent-text)}
+.ttl{display:block;font-size:15px;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.udot{width:9px;height:9px;border-radius:5px;background:var(--info);flex:none}
+.tl{position:relative;display:grid;grid-template-columns:64px 14px minmax(0,1fr);gap:10px;align-items:start;padding-bottom:12px}
+.tl:last-child{padding-bottom:0}
+.tl .ln{position:absolute;left:80px;top:14px;bottom:-2px;width:1.5px;background:var(--sep)}
+.tl:last-child .ln{display:none}
+.tl .pt{width:10px;height:10px;border-radius:5px;margin-top:4px;box-shadow:0 0 0 3px var(--surface)}
+.dsec{padding:14px 0;border-top:.5px solid var(--sep)}
+.dsec h3{margin:0 0 4px;font-size:15px;font-weight:600;color:var(--label2)}
+.dsec p{margin:0;font-size:16px;line-height:1.45}
+.scrim.sh{align-items:flex-end;padding:0}
+.sheet{width:100%;max-height:88vh;overflow:auto;background:var(--surface);border-radius:12px 22px 0 0;padding:8px 16px calc(16px + env(safe-area-inset-bottom));box-sizing:border-box;box-shadow:0 -20px 60px -20px rgba(0,0,0,.4);animation:sheetup .32s cubic-bezier(.2,.8,.2,1) both}
+@media (max-width:600px){.ttl{white-space:normal}}
+@keyframes sheetup{from{transform:translateY(40px);opacity:.4}}
+@media (prefers-reduced-motion:reduce){.sheet{animation:none}}
+.seg.fl button{flex:1;min-width:0;padding:0 4px;font-size:13px;height:36px}
+</style>
+</helmet>
+<div class="gl wrap" data-theme="light" onKeyDown="{{onKey}}">
+  <svg class="ribbons" ref="{{ribRef}}" viewBox="0 0 1440 900" preserveAspectRatio="xMidYMid slice" aria-hidden="true" focusable="false"><defs><linearGradient id="rbG" x1="0" y1="0" x2="1440" y2="0" gradientUnits="userSpaceOnUse"><stop offset="0" stop-color="#fff" stop-opacity=".5"></stop><stop offset=".35" stop-color="#fff" stop-opacity="1"></stop><stop offset=".7" stop-color="#fff" stop-opacity=".75"></stop><stop offset="1" stop-color="#fff" stop-opacity=".45"></stop></linearGradient><mask id="rbM" maskUnits="userSpaceOnUse" x="-200" y="-200" width="1840" height="1300"><rect x="-200" y="-200" width="1840" height="1300" fill="url(#rbG)"></rect></mask></defs><g class="rb rb0"><path d="M-160 164.7 L-120 174.9 L-80 188.7 L-40 205.2 L0 223.0 L40 240.8 L80 257.3 L120 271.1 L160 281.3 L200 287.4 L240 289.2 L280 287.1 L320 281.5 L360 273.7 L400 264.5 L440 255.3 L480 246.9 L520 240.2 L560 235.5 L600 232.9 L640 232.1 L680 232.4 L720 233.0 L760 233.0 L800 231.6 L840 227.9 L880 221.8 L920 213.2 L960 202.4 L1000 190.3 L1040 177.8 L1080 166.3 L1120 156.8 L1160 150.5 L1200 148.2 L1240 150.5 L1280 157.4 L1320 168.4 L1360 182.7 L1400 199.3 L1440 216.8 L1480 233.8 L1520 249.0 L1560 261.3 L1600 270.2 L1600 368.5 L1560 359.5 L1520 348.6 L1480 336.5 L1440 323.9 L1400 311.8 L1360 301.2 L1320 292.9 L1280 287.7 L1240 285.8 L1200 287.3 L1160 291.8 L1120 298.8 L1080 307.2 L1040 316.1 L1000 324.4 L960 331.4 L920 336.2 L880 338.7 L840 339.0 L800 337.4 L760 334.8 L720 332.1 L680 330.4 L640 330.8 L600 333.9 L560 340.2 L520 349.9 L480 362.3 L440 376.8 L400 392.1 L360 406.6 L320 418.9 L280 427.5 L240 431.1 L200 429.1 L160 421.1 L120 407.4 L80 388.9 L40 366.9 L0 343.0 L-40 319.1 L-80 297.1 L-120 278.6 L-160 264.9 Z" fill="#34C759" fill-opacity="0.3" mask="url(#rbM)"><animate attributeName="d" dur="26s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M-160 164.7 L-120 174.9 L-80 188.7 L-40 205.2 L0 223.0 L40 240.8 L80 257.3 L120 271.1 L160 281.3 L200 287.4 L240 289.2 L280 287.1 L320 281.5 L360 273.7 L400 264.5 L440 255.3 L480 246.9 L520 240.2 L560 235.5 L600 232.9 L640 232.1 L680 232.4 L720 233.0 L760 233.0 L800 231.6 L840 227.9 L880 221.8 L920 213.2 L960 202.4 L1000 190.3 L1040 177.8 L1080 166.3 L1120 156.8 L1160 150.5 L1200 148.2 L1240 150.5 L1280 157.4 L1320 168.4 L1360 182.7 L1400 199.3 L1440 216.8 L1480 233.8 L1520 249.0 L1560 261.3 L1600 270.2 L1600 368.5 L1560 359.5 L1520 348.6 L1480 336.5 L1440 323.9 L1400 311.8 L1360 301.2 L1320 292.9 L1280 287.7 L1240 285.8 L1200 287.3 L1160 291.8 L1120 298.8 L1080 307.2 L1040 316.1 L1000 324.4 L960 331.4 L920 336.2 L880 338.7 L840 339.0 L800 337.4 L760 334.8 L720 332.1 L680 330.4 L640 330.8 L600 333.9 L560 340.2 L520 349.9 L480 362.3 L440 376.8 L400 392.1 L360 406.6 L320 418.9 L280 427.5 L240 431.1 L200 429.1 L160 421.1 L120 407.4 L80 388.9 L40 366.9 L0 343.0 L-40 319.1 L-80 297.1 L-120 278.6 L-160 264.9 Z;M-160 303.7 L-120 311.6 L-80 315.7 L-40 315.8 L0 312.3 L40 305.7 L80 296.6 L120 286.1 L160 274.9 L200 263.9 L240 253.7 L280 244.9 L320 237.5 L360 231.5 L400 226.6 L440 222.3 L480 218.2 L520 213.7 L560 208.6 L600 202.6 L640 195.8 L680 188.5 L720 181.3 L760 174.8 L800 169.8 L840 167.0 L880 167.2 L920 170.7 L960 177.8 L1000 188.3 L1040 201.7 L1080 217.4 L1120 234.4 L1160 251.5 L1200 267.8 L1240 282.1 L1280 293.7 L1320 302.0 L1360 306.8 L1400 308.0 L1440 306.1 L1480 301.6 L1520 295.3 L1560 288.0 L1600 280.4 L1600 381.1 L1560 396.5 L1520 412.5 L1480 427.7 L1440 440.6 L1400 449.8 L1360 454.2 L1320 452.9 L1280 445.7 L1240 432.7 L1200 414.6 L1160 392.5 L1120 367.9 L1080 342.4 L1040 317.8 L1000 295.8 L960 277.6 L920 264.5 L880 256.9 L840 255.1 L800 258.6 L760 266.8 L720 278.7 L680 293.0 L640 308.6 L600 324.3 L560 339.0 L520 352.1 L480 363.1 L440 371.8 L400 378.3 L360 383.1 L320 386.5 L280 389.0 L240 391.2 L200 393.2 L160 395.4 L120 397.8 L80 400.1 L40 402.3 L0 403.8 L-40 404.4 L-80 403.8 L-120 401.7 L-160 398.1 Z;M-160 259.3 L-120 241.2 L-80 224.4 L-40 209.9 L0 198.3 L40 189.8 L80 184.2 L120 181.1 L160 179.6 L200 178.8 L240 178.1 L280 176.6 L320 174.0 L360 170.3 L400 165.7 L440 160.8 L480 156.4 L520 153.7 L560 153.5 L600 156.6 L640 163.7 L680 174.9 L720 189.9 L760 208.2 L800 228.6 L840 250.0 L880 270.6 L920 289.2 L960 304.4 L1000 315.2 L1040 320.8 L1080 321.3 L1120 316.7 L1160 307.9 L1200 295.9 L1240 281.8 L1280 267.1 L1320 252.7 L1360 239.8 L1400 229.0 L1440 220.4 L1480 214.1 L1520 209.5 L1560 205.9 L1600 202.7 L1600 332.3 L1560 340.7 L1520 348.1 L1480 355.2 L1440 362.4 L1400 370.1 L1360 378.5 L1320 387.5 L1280 396.7 L1240 405.7 L1200 413.6 L1160 419.7 L1120 423.2 L1080 423.5 L1040 420.2 L1000 413.2 L960 402.9 L920 389.8 L880 374.8 L840 359.0 L800 343.3 L760 329.0 L720 316.7 L680 307.2 L640 300.5 L600 296.7 L560 295.2 L520 295.5 L480 296.5 L440 297.6 L400 298.0 L360 297.1 L320 294.8 L280 291.3 L240 287.1 L200 283.0 L160 280.1 L120 279.5 L80 282.3 L40 289.1 L0 300.5 L-40 316.3 L-80 336.1 L-120 358.9 L-160 383.1 Z;M-160 192.8 L-120 194.3 L-80 196.7 L-40 199.3 L0 201.6 L40 203.2 L80 204.0 L120 204.1 L160 203.8 L200 203.7 L240 204.3 L280 206.3 L320 210.2 L360 216.3 L400 224.6 L440 235.0 L480 247.1 L520 260.1 L560 273.1 L600 285.2 L640 295.3 L680 302.7 L720 306.8 L760 307.2 L800 303.9 L840 297.2 L880 287.7 L920 276.2 L960 263.7 L1000 251.1 L1040 239.3 L1080 229.0 L1120 220.6 L1160 214.5 L1200 210.4 L1240 208.1 L1280 207.0 L1320 206.6 L1360 206.3 L1400 205.6 L1440 204.1 L1480 201.8 L1520 198.8 L1560 195.5 L1600 192.5 L1600 344.5 L1560 346.4 L1520 346.3 L1480 343.7 L1440 338.7 L1400 331.7 L1360 323.5 L1320 315.2 L1280 307.8 L1240 302.5 L1200 300.5 L1160 302.6 L1120 309.2 L1080 320.4 L1040 335.8 L1000 354.6 L960 375.4 L920 396.7 L880 417.0 L840 434.6 L800 448.0 L760 456.2 L720 458.4 L680 454.5 L640 444.8 L600 430.0 L560 411.4 L520 390.5 L480 368.8 L440 347.8 L400 329.1 L360 313.6 L320 302.2 L280 295.2 L240 292.4 L200 293.5 L160 297.6 L120 304.0 L80 311.5 L40 319.3 L0 326.6 L-40 332.9 L-80 337.7 L-120 341.2 L-160 343.4 Z;M-160 164.7 L-120 174.9 L-80 188.7 L-40 205.2 L0 223.0 L40 240.8 L80 257.3 L120 271.1 L160 281.3 L200 287.4 L240 289.2 L280 287.1 L320 281.5 L360 273.7 L400 264.5 L440 255.3 L480 246.9 L520 240.2 L560 235.5 L600 232.9 L640 232.1 L680 232.4 L720 233.0 L760 233.0 L800 231.6 L840 227.9 L880 221.8 L920 213.2 L960 202.4 L1000 190.3 L1040 177.8 L1080 166.3 L1120 156.8 L1160 150.5 L1200 148.2 L1240 150.5 L1280 157.4 L1320 168.4 L1360 182.7 L1400 199.3 L1440 216.8 L1480 233.8 L1520 249.0 L1560 261.3 L1600 270.2 L1600 368.5 L1560 359.5 L1520 348.6 L1480 336.5 L1440 323.9 L1400 311.8 L1360 301.2 L1320 292.9 L1280 287.7 L1240 285.8 L1200 287.3 L1160 291.8 L1120 298.8 L1080 307.2 L1040 316.1 L1000 324.4 L960 331.4 L920 336.2 L880 338.7 L840 339.0 L800 337.4 L760 334.8 L720 332.1 L680 330.4 L640 330.8 L600 333.9 L560 340.2 L520 349.9 L480 362.3 L440 376.8 L400 392.1 L360 406.6 L320 418.9 L280 427.5 L240 431.1 L200 429.1 L160 421.1 L120 407.4 L80 388.9 L40 366.9 L0 343.0 L-40 319.1 L-80 297.1 L-120 278.6 L-160 264.9 Z"></animate></path></g><g class="rb rb1"><path d="M-160 516.2 L-120 529.5 L-80 539.1 L-40 544.6 L0 545.9 L40 543.3 L80 537.1 L120 528.1 L160 516.9 L200 504.6 L240 491.8 L280 479.5 L320 468.1 L360 458.2 L400 449.9 L440 443.2 L480 437.8 L520 433.4 L560 429.3 L600 425.2 L640 420.5 L680 414.9 L720 408.0 L760 399.9 L800 390.8 L840 381.2 L880 371.5 L920 362.6 L960 355.2 L1000 350.2 L1040 348.1 L1080 349.6 L1120 355.0 L1160 364.2 L1200 377.1 L1240 393.1 L1280 411.6 L1320 431.6 L1360 452.0 L1400 471.8 L1440 490.0 L1480 505.7 L1520 518.2 L1560 527.1 L1600 532.3 L1600 704.3 L1560 698.5 L1520 687.7 L1480 672.1 L1440 652.3 L1400 629.3 L1360 604.2 L1320 578.4 L1280 553.2 L1240 530.0 L1200 510.1 L1160 494.3 L1120 483.4 L1080 477.7 L1040 477.1 L1000 481.4 L960 489.8 L920 501.4 L880 515.3 L840 530.3 L800 545.4 L760 559.6 L720 572.2 L680 582.7 L640 591.0 L600 597.0 L560 601.2 L520 603.9 L480 605.9 L440 607.7 L400 609.9 L360 613.1 L320 617.7 L280 623.6 L240 631.0 L200 639.4 L160 648.3 L120 657.2 L80 665.2 L40 671.6 L0 675.9 L-40 677.3 L-80 675.6 L-120 670.7 L-160 662.7 Z" fill="#C63527" fill-opacity="0.16" mask="url(#rbM)"><animate attributeName="d" dur="32s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M-160 516.2 L-120 529.5 L-80 539.1 L-40 544.6 L0 545.9 L40 543.3 L80 537.1 L120 528.1 L160 516.9 L200 504.6 L240 491.8 L280 479.5 L320 468.1 L360 458.2 L400 449.9 L440 443.2 L480 437.8 L520 433.4 L560 429.3 L600 425.2 L640 420.5 L680 414.9 L720 408.0 L760 399.9 L800 390.8 L840 381.2 L880 371.5 L920 362.6 L960 355.2 L1000 350.2 L1040 348.1 L1080 349.6 L1120 355.0 L1160 364.2 L1200 377.1 L1240 393.1 L1280 411.6 L1320 431.6 L1360 452.0 L1400 471.8 L1440 490.0 L1480 505.7 L1520 518.2 L1560 527.1 L1600 532.3 L1600 704.3 L1560 698.5 L1520 687.7 L1480 672.1 L1440 652.3 L1400 629.3 L1360 604.2 L1320 578.4 L1280 553.2 L1240 530.0 L1200 510.1 L1160 494.3 L1120 483.4 L1080 477.7 L1040 477.1 L1000 481.4 L960 489.8 L920 501.4 L880 515.3 L840 530.3 L800 545.4 L760 559.6 L720 572.2 L680 582.7 L640 591.0 L600 597.0 L560 601.2 L520 603.9 L480 605.9 L440 607.7 L400 609.9 L360 613.1 L320 617.7 L280 623.6 L240 631.0 L200 639.4 L160 648.3 L120 657.2 L80 665.2 L40 671.6 L0 675.9 L-40 677.3 L-80 675.6 L-120 670.7 L-160 662.7 Z;M-160 528.7 L-120 513.1 L-80 496.9 L-40 480.9 L0 465.6 L40 451.5 L80 438.8 L120 427.8 L160 418.3 L200 410.2 L240 403.3 L280 397.3 L320 392.0 L360 387.0 L400 382.3 L440 377.9 L480 373.9 L520 370.5 L560 368.0 L600 366.9 L640 367.7 L680 370.6 L720 376.1 L760 384.4 L800 395.6 L840 409.4 L880 425.6 L920 443.7 L960 463.0 L1000 482.7 L1040 502.1 L1080 520.1 L1120 536.1 L1160 549.4 L1200 559.4 L1240 565.8 L1280 568.5 L1320 567.5 L1360 563.2 L1400 556.1 L1440 546.6 L1480 535.5 L1520 523.3 L1560 510.8 L1600 498.2 L1600 663.0 L1560 668.2 L1520 672.9 L1480 677.3 L1440 681.1 L1400 684.2 L1360 686.3 L1320 687.2 L1280 686.6 L1240 684.2 L1200 680.1 L1160 674.1 L1120 666.4 L1080 657.1 L1040 646.6 L1000 635.1 L960 623.1 L920 610.9 L880 598.9 L840 587.3 L800 576.4 L760 566.4 L720 557.3 L680 549.1 L640 541.7 L600 535.1 L560 529.2 L520 524.0 L480 519.6 L440 516.0 L400 513.5 L360 512.4 L320 513.1 L280 516.0 L240 521.3 L200 529.5 L160 540.8 L120 555.1 L80 572.3 L40 592.2 L0 614.0 L-40 637.2 L-80 660.7 L-120 683.5 L-160 704.5 Z;M-160 388.1 L-120 388.9 L-80 391.1 L-40 394.0 L0 397.0 L40 399.6 L80 401.3 L120 402.0 L160 401.6 L200 400.4 L240 398.8 L280 397.3 L320 396.6 L360 397.2 L400 399.9 L440 404.9 L480 412.6 L520 422.9 L560 435.6 L600 450.2 L640 466.0 L680 482.1 L720 497.5 L760 511.4 L800 522.8 L840 531.0 L880 535.5 L920 536.0 L960 532.5 L1000 525.3 L1040 515.0 L1080 502.3 L1120 488.1 L1160 473.3 L1200 458.9 L1240 445.6 L1280 434.0 L1320 424.6 L1360 417.5 L1400 412.8 L1440 410.0 L1480 408.7 L1520 408.4 L1560 408.4 L1600 408.2 L1600 545.4 L1560 541.7 L1520 538.7 L1480 537.2 L1440 538.0 L1400 541.6 L1360 548.5 L1320 558.9 L1280 572.5 L1240 589.0 L1200 607.6 L1160 627.5 L1120 647.4 L1080 666.2 L1040 682.6 L1000 695.6 L960 704.2 L920 707.9 L880 706.2 L840 699.3 L800 687.6 L760 671.8 L720 652.8 L680 632.0 L640 610.6 L600 589.7 L560 570.8 L520 554.6 L480 541.8 L440 533.0 L400 528.2 L360 527.0 L320 529.0 L280 533.6 L240 539.7 L200 546.4 L160 553.1 L120 558.7 L80 563.0 L40 565.5 L0 566.1 L-40 565.2 L-80 563.1 L-120 560.4 L-160 557.8 Z;M-160 409.5 L-120 414.7 L-80 419.9 L-40 425.3 L0 431.2 L40 438.0 L80 445.9 L120 455.0 L160 465.4 L200 476.9 L240 489.4 L280 502.4 L320 515.3 L360 527.5 L400 538.4 L440 547.2 L480 553.3 L520 556.4 L560 556.0 L600 552.1 L640 544.7 L680 534.3 L720 521.3 L760 506.2 L800 490.0 L840 473.3 L880 456.9 L920 441.6 L960 427.8 L1000 416.1 L1040 406.6 L1080 399.3 L1120 394.3 L1160 391.2 L1200 389.6 L1240 389.3 L1280 389.7 L1320 390.6 L1360 391.7 L1400 392.9 L1440 394.1 L1480 395.5 L1520 397.3 L1560 399.8 L1600 403.5 L1600 521.8 L1560 520.3 L1520 521.6 L1480 525.3 L1440 530.5 L1400 536.8 L1360 543.5 L1320 550.2 L1280 556.4 L1240 562.1 L1200 567.3 L1160 571.9 L1120 576.3 L1080 580.6 L1040 585.3 L1000 590.5 L960 596.5 L920 603.3 L880 611.1 L840 619.6 L800 628.6 L760 637.9 L720 647.1 L680 655.8 L640 663.5 L600 670.1 L560 675.1 L520 678.6 L480 680.2 L440 680.2 L400 678.5 L360 675.4 L320 671.0 L280 665.6 L240 659.3 L200 652.4 L160 644.8 L120 636.6 L80 627.7 L40 618.3 L0 608.0 L-40 597.0 L-80 585.2 L-120 572.7 L-160 559.7 Z;M-160 516.2 L-120 529.5 L-80 539.1 L-40 544.6 L0 545.9 L40 543.3 L80 537.1 L120 528.1 L160 516.9 L200 504.6 L240 491.8 L280 479.5 L320 468.1 L360 458.2 L400 449.9 L440 443.2 L480 437.8 L520 433.4 L560 429.3 L600 425.2 L640 420.5 L680 414.9 L720 408.0 L760 399.9 L800 390.8 L840 381.2 L880 371.5 L920 362.6 L960 355.2 L1000 350.2 L1040 348.1 L1080 349.6 L1120 355.0 L1160 364.2 L1200 377.1 L1240 393.1 L1280 411.6 L1320 431.6 L1360 452.0 L1400 471.8 L1440 490.0 L1480 505.7 L1520 518.2 L1560 527.1 L1600 532.3 L1600 704.3 L1560 698.5 L1520 687.7 L1480 672.1 L1440 652.3 L1400 629.3 L1360 604.2 L1320 578.4 L1280 553.2 L1240 530.0 L1200 510.1 L1160 494.3 L1120 483.4 L1080 477.7 L1040 477.1 L1000 481.4 L960 489.8 L920 501.4 L880 515.3 L840 530.3 L800 545.4 L760 559.6 L720 572.2 L680 582.7 L640 591.0 L600 597.0 L560 601.2 L520 603.9 L480 605.9 L440 607.7 L400 609.9 L360 613.1 L320 617.7 L280 623.6 L240 631.0 L200 639.4 L160 648.3 L120 657.2 L80 665.2 L40 671.6 L0 675.9 L-40 677.3 L-80 675.6 L-120 670.7 L-160 662.7 Z"></animate></path></g><g class="rb rb2"><path d="M-160 762.1 L-120 748.0 L-80 730.8 L-40 712.4 L0 694.9 L40 679.8 L80 668.1 L120 660.3 L160 655.9 L200 654.1 L240 653.5 L280 653.0 L320 651.2 L360 647.5 L400 641.8 L440 634.5 L480 626.8 L520 620.1 L560 616.0 L600 616.0 L640 621.1 L680 631.8 L720 647.8 L760 667.9 L800 690.4 L840 713.3 L880 734.2 L920 751.2 L960 762.8 L1000 768.0 L1040 766.9 L1080 760.1 L1120 749.0 L1160 735.3 L1200 720.9 L1240 707.5 L1280 696.3 L1320 688.1 L1360 682.6 L1400 679.3 L1440 677.2 L1480 674.9 L1520 671.1 L1560 665.1 L1600 656.5 L1600 777.5 L1560 791.6 L1520 801.4 L1480 806.8 L1440 808.6 L1400 807.9 L1360 806.5 L1320 805.9 L1280 807.3 L1240 811.4 L1200 818.4 L1160 827.7 L1120 838.1 L1080 848.1 L1040 856.0 L1000 860.4 L960 860.3 L920 855.1 L880 845.1 L840 831.0 L800 814.3 L760 796.4 L720 779.1 L680 763.8 L640 751.4 L600 742.5 L560 737.0 L520 734.5 L480 734.2 L440 735.1 L400 736.6 L360 738.1 L320 739.5 L280 741.2 L240 744.0 L200 748.8 L160 756.4 L120 767.6 L80 782.5 L40 800.8 L0 821.3 L-40 842.7 L-80 862.7 L-120 879.4 L-160 890.7 Z" fill="#30B0A0" fill-opacity="0.24" mask="url(#rbM)"><animate attributeName="d" dur="29s" repeatCount="indefinite" calcMode="spline" keyTimes="0;.25;.5;.75;1" keySplines=".45 0 .55 1;.45 0 .55 1;.45 0 .55 1;.45 0 .55 1" values="M-160 762.1 L-120 748.0 L-80 730.8 L-40 712.4 L0 694.9 L40 679.8 L80 668.1 L120 660.3 L160 655.9 L200 654.1 L240 653.5 L280 653.0 L320 651.2 L360 647.5 L400 641.8 L440 634.5 L480 626.8 L520 620.1 L560 616.0 L600 616.0 L640 621.1 L680 631.8 L720 647.8 L760 667.9 L800 690.4 L840 713.3 L880 734.2 L920 751.2 L960 762.8 L1000 768.0 L1040 766.9 L1080 760.1 L1120 749.0 L1160 735.3 L1200 720.9 L1240 707.5 L1280 696.3 L1320 688.1 L1360 682.6 L1400 679.3 L1440 677.2 L1480 674.9 L1520 671.1 L1560 665.1 L1600 656.5 L1600 777.5 L1560 791.6 L1520 801.4 L1480 806.8 L1440 808.6 L1400 807.9 L1360 806.5 L1320 805.9 L1280 807.3 L1240 811.4 L1200 818.4 L1160 827.7 L1120 838.1 L1080 848.1 L1040 856.0 L1000 860.4 L960 860.3 L920 855.1 L880 845.1 L840 831.0 L800 814.3 L760 796.4 L720 779.1 L680 763.8 L640 751.4 L600 742.5 L560 737.0 L520 734.5 L480 734.2 L440 735.1 L400 736.6 L360 738.1 L320 739.5 L280 741.2 L240 744.0 L200 748.8 L160 756.4 L120 767.6 L80 782.5 L40 800.8 L0 821.3 L-40 842.7 L-80 862.7 L-120 879.4 L-160 890.7 Z;M-160 668.5 L-120 664.0 L-80 662.5 L-40 663.2 L0 665.3 L40 667.6 L80 669.4 L120 670.0 L160 669.3 L200 667.5 L240 665.4 L280 663.7 L320 663.6 L360 666.0 L400 671.4 L440 680.0 L480 691.6 L520 705.2 L560 719.8 L600 733.8 L640 745.8 L680 754.5 L720 759.0 L760 758.9 L800 754.3 L840 745.8 L880 734.6 L920 722.1 L960 709.6 L1000 698.3 L1040 689.2 L1080 682.7 L1120 678.8 L1160 677.1 L1200 676.6 L1240 676.5 L1280 675.9 L1320 674.1 L1360 670.9 L1400 666.4 L1440 661.2 L1480 656.2 L1520 652.4 L1560 651.1 L1600 653.0 L1600 795.0 L1560 790.9 L1520 787.0 L1480 783.0 L1440 778.5 L1400 773.5 L1360 768.0 L1320 762.6 L1280 758.0 L1240 755.1 L1200 754.9 L1160 758.3 L1120 766.0 L1080 778.2 L1040 794.4 L1000 813.8 L960 834.7 L920 855.4 L880 873.7 L840 887.6 L800 895.5 L760 896.4 L720 890.0 L680 876.8 L640 858.1 L600 835.8 L560 812.4 L520 790.2 L480 771.5 L440 758.0 L400 750.7 L360 749.8 L320 754.7 L280 763.9 L240 775.7 L200 788.0 L160 798.8 L120 806.5 L80 810.2 L40 809.6 L0 805.1 L-40 797.8 L-80 789.3 L-120 781.3 L-160 775.6 Z;M-160 654.0 L-120 658.9 L-80 661.3 L-40 661.5 L0 660.5 L40 659.6 L80 660.1 L120 663.3 L160 670.1 L200 680.7 L240 694.6 L280 710.8 L320 727.5 L360 742.9 L400 755.0 L440 762.2 L480 763.3 L520 758.1 L560 746.9 L600 731.1 L640 712.3 L680 692.6 L720 674.1 L760 658.5 L800 647.1 L840 640.4 L880 638.1 L920 639.4 L960 643.0 L1000 647.5 L1040 651.2 L1080 653.3 L1120 653.2 L1160 650.9 L1200 647.2 L1240 643.4 L1280 640.8 L1320 641.0 L1360 645.1 L1400 653.8 L1440 666.9 L1480 683.6 L1520 702.6 L1560 721.9 L1600 739.4 L1600 858.4 L1560 834.0 L1520 807.7 L1480 782.2 L1440 760.1 L1400 743.3 L1360 733.2 L1320 729.8 L1280 732.5 L1240 739.9 L1200 749.9 L1160 760.5 L1120 769.8 L1080 776.2 L1040 779.1 L1000 778.5 L960 775.0 L920 770.1 L880 765.4 L840 762.4 L800 762.7 L760 767.1 L720 775.8 L680 788.3 L640 803.5 L600 819.6 L560 835.1 L520 848.0 L480 857.2 L440 861.6 L400 861.1 L360 856.1 L320 847.4 L280 836.4 L240 824.3 L200 812.5 L160 801.7 L120 792.5 L80 785.0 L40 778.6 L0 772.7 L-40 766.6 L-80 759.8 L-120 752.1 L-160 743.6 Z;M-160 703.1 L-120 710.1 L-80 718.7 L-40 728.7 L0 739.8 L40 751.1 L80 761.4 L120 769.4 L160 773.9 L200 773.8 L240 768.8 L280 758.7 L320 744.2 L360 726.4 L400 706.9 L440 687.2 L480 669.0 L520 653.7 L560 642.3 L600 635.3 L640 632.5 L680 633.3 L720 636.9 L760 642.1 L800 648.0 L840 653.6 L880 658.5 L920 662.6 L960 666.3 L1000 670.2 L1040 675.1 L1080 681.7 L1120 690.5 L1160 701.8 L1200 715.3 L1240 730.1 L1280 745.2 L1320 759.1 L1360 770.4 L1400 777.7 L1440 780.1 L1480 777.1 L1520 768.8 L1560 756.0 L1600 739.8 L1600 829.7 L1560 839.0 L1520 847.8 L1480 855.1 L1440 860.6 L1400 863.6 L1360 864.2 L1320 862.5 L1280 858.9 L1240 853.7 L1200 847.3 L1160 840.1 L1120 832.1 L1080 823.3 L1040 813.5 L1000 802.5 L960 790.2 L920 776.6 L880 762.2 L840 747.7 L800 734.1 L760 722.7 L720 715.0 L680 712.2 L640 715.3 L600 724.9 L560 740.8 L520 762.3 L480 787.7 L440 815.2 L400 842.4 L360 866.7 L320 886.2 L280 899.1 L240 904.4 L200 902.1 L160 892.9 L120 878.3 L80 860.2 L40 841.0 L0 822.9 L-40 807.7 L-80 796.8 L-120 790.6 L-160 789.0 Z;M-160 762.1 L-120 748.0 L-80 730.8 L-40 712.4 L0 694.9 L40 679.8 L80 668.1 L120 660.3 L160 655.9 L200 654.1 L240 653.5 L280 653.0 L320 651.2 L360 647.5 L400 641.8 L440 634.5 L480 626.8 L520 620.1 L560 616.0 L600 616.0 L640 621.1 L680 631.8 L720 647.8 L760 667.9 L800 690.4 L840 713.3 L880 734.2 L920 751.2 L960 762.8 L1000 768.0 L1040 766.9 L1080 760.1 L1120 749.0 L1160 735.3 L1200 720.9 L1240 707.5 L1280 696.3 L1320 688.1 L1360 682.6 L1400 679.3 L1440 677.2 L1480 674.9 L1520 671.1 L1560 665.1 L1600 656.5 L1600 777.5 L1560 791.6 L1520 801.4 L1480 806.8 L1440 808.6 L1400 807.9 L1360 806.5 L1320 805.9 L1280 807.3 L1240 811.4 L1200 818.4 L1160 827.7 L1120 838.1 L1080 848.1 L1040 856.0 L1000 860.4 L960 860.3 L920 855.1 L880 845.1 L840 831.0 L800 814.3 L760 796.4 L720 779.1 L680 763.8 L640 751.4 L600 742.5 L560 737.0 L520 734.5 L480 734.2 L440 735.1 L400 736.6 L360 738.1 L320 739.5 L280 741.2 L240 744.0 L200 748.8 L160 756.4 L120 767.6 L80 782.5 L40 800.8 L0 821.3 L-40 842.7 L-80 862.7 L-120 879.4 L-160 890.7 Z"></animate></path></g></svg>
+  <div class="page">
+    <header class="mbar mat">
+      <a href="Glass-Today-Mobile.dc.html" aria-label="Home" style="display: inline-flex"><img src="logo.png" alt="enrich360: Food · Farm · Future" style="height: 24px; width: auto"></a>
+      <div style="display: flex">
+        <button class="ib" type="button" aria-label="Notifications, 3 new" onClick="{{bell}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"></path></svg><span aria-hidden="true" style="position: absolute; top: 10px; right: 11px; width: 8px; height: 8px; border-radius: 4px; background: var(--error); box-shadow: 0 0 0 2px var(--bg)"></span></button>
+        <button class="ib" type="button" aria-label="Menu" aria-expanded="{{menuOpen}}" onClick="{{toggleMenu}}"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" aria-hidden="true"><path d="{{menuIcon}}"></path></svg></button>
+      </div>
+      <sc-if value="{{menuShow}}" hint-placeholder-val="{{false}}">
+        <nav class="pop" aria-label="Main" style="top: 52px; right: 8px; width: 250px">
+          <a href="Glass-Today-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M3 11l9-7 9 7v9a1 1 0 0 1-1 1h-5v-6H9v6H4a1 1 0 0 1-1-1z"></path></svg>Overview</a><a href="Glass-Devices-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 3h12a1 1 0 0 1 1 1v16a1 1 0 0 1-1 1H6a1 1 0 0 1-1-1V4a1 1 0 0 1 1-1zM9 7h6"></path></svg>Devices</a><a href="Glass-Analytics-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 20V11M12 20V5M18 20v-6"></path></svg>Analytics</a><a href="Glass-Insights-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 18h6M10 21h4M12 3a6 6 0 0 0-3.6 10.8c.6.5 1 1.2 1 2V16h5.2v-.2c0-.8.4-1.5 1-2A6 6 0 0 0 12 3z"></path></svg>Insights</a><a href="Glass-Alerts-Mobile.dc.html" aria-current="page" style="font-weight: 600; color: var(--accent-text)"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M18 8a6 6 0 0 0-12 0c0 7-3 9-3 9h18s-3-2-3-9M13.7 21a2 2 0 0 1-3.4 0"></path></svg>Alerts</a><a href="Glass-Service-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M14.7 6.3a4 4 0 0 0-5.4 5.4L3 18l3 3 6.3-6.3a4 4 0 0 0 5.4-5.4l-2.5 2.5-2.4-.6-.6-2.4z"></path></svg>Service</a><a href="Glass-Parts-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M21 8l-9-5-9 5 9 5 9-5zM3 8v8l9 5 9-5V8M12 13v8"></path></svg>Parts</a><a href="Glass-Rewards-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M20 12v9H4v-9M2 7h20v5H2zM12 22V7M12 7H7.5a2.5 2.5 0 0 1 0-5C11 2 12 7 12 7zM12 7h4.5a2.5 2.5 0 0 0 0-5C13 2 12 7 12 7z"></path></svg>Rewards</a>
+          <div style="height: .5px; background: var(--sep); margin: 6px 4px"></div>
+          <a href="Glass-Profile-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 12a4 4 0 1 0 0-8 4 4 0 0 0 0 8zM4 21a8 8 0 0 1 16 0"></path></svg>Alex Carter</a><a href="Glass-Login-Mobile.dc.html"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M15 4h4a1 1 0 0 1 1 1v14a1 1 0 0 1-1 1h-4M10 17l5-5-5-5M15 12H3"></path></svg>Sign out</a>
+          </nav>
+      </sc-if>
+    </header>
+    <section>
+      <div style="display: flex; align-items: flex-end; gap: 8px; margin-top: 4px">
+        <h1 class="lt" style="margin: 0; flex: 1">Alerts</h1>
+        <button class="ghost" type="button" style="min-height: 44px" onClick="{{ackAll}}"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M2 12l5 5L17 7M12 17l1 1L23 8"></path></svg>Acknowledge all</button>
+      </div>
+      <div class="sub tn" style="margin-top: 2px">{{unreadN}} unread · Mildura Hospital</div>
+    </section>
+    <div class="seg fl" role="group" aria-label="Filter alerts by type" style="display: flex"><sc-for list="{{filters}}" as="f" hint-placeholder-count="4"><button type="button" aria-pressed="{{f.on}}" onClick="{{f.go}}">{{f.l}}<span class="n tn">{{f.n}}</span></button></sc-for></div>
+    <section class="glass" aria-label="Alert list" style="padding: 6px">
+      <div class="lst">
+      <sc-for list="{{list}}" as="r" hint-placeholder-count="6">
+            <button class="al rise" aria-haspopup="dialog" type="button" aria-label="{{r.aria}}" onClick="{{r.go}}" style="animation-delay: {{r.delay}}">
+              <span class="tile" style="background: {{r.bg}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="stroke: {{r.c}}"><path d="{{r.d}}"></path></svg></span>
+              <span style="flex: 1; min-width: 0"><span class="ttl">{{r.t}}</span><span class="foot" style="display: block; margin-top: 1px; white-space: nowrap; overflow: hidden; text-overflow: ellipsis">{{r.unit}} · {{r.bld}}</span></span>
+              <span style="display: flex; flex-direction: column; align-items: flex-end; gap: 6px; flex: none"><span class="foot tn">{{r.time}}</span><sc-if value="{{r.un}}" hint-placeholder-val="{{false}}"><span class="udot" title="Unread"></span></sc-if><sc-if value="{{r.snz}}" hint-placeholder-val="{{false}}"><span class="cap" title="Snoozed for 1 hour" style="display: inline-flex"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2"></path></svg></span></sc-if></span>
+            </button>
+          </sc-for>
+      </div>
+    </section>
+    <footer style="font-size: 11px; color: var(--label2); text-align: center; padding-top: 4px">Copyright © 2026 enrich360 Pty Ltd. All Rights Reserved.</footer>
+  </div>
+<sc-if value="{{sheetShow}}" hint-placeholder-val="{{false}}">
+  <div class="scrim sh" onClick="{{closeSheet}}">
+    <div class="sheet" role="dialog" aria-modal="true" aria-labelledby="detHm" onClick="{{stop}}">
+      <div style="display: flex; justify-content: center; padding: 2px 0 6px"><span style="width: 36px; height: 5px; border-radius: 3px; background: var(--fill)"></span></div>
+      <div style="display: flex; justify-content: flex-end; margin: -6px -8px 0 0"><button class="ib" type="button" aria-label="Close alert details" onClick="{{closeSheet}}"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M6 6l12 12M18 6L6 18"></path></svg></button></div>
+      <div style="display: flex; align-items: flex-start; gap: 14px">
+            <span class="tile" style="width: 44px; height: 44px; border-radius: 14px; background: {{det.bg}}"><svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke-width="1.9" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true" style="stroke: {{det.c}}"><path d="{{det.d}}"></path></svg></span>
+            <div style="flex: 1; min-width: 0">
+              <div style="display: flex; gap: 6px; flex-wrap: wrap">
+                <span class="chip" style="background: {{det.bg}}; color: {{det.c}}"><span style="width: 7px; height: 7px; border-radius: 4px; background: {{det.dot}}"></span>{{det.sevLab}}</span>
+                <sc-if value="{{det.un}}" hint-placeholder-val="{{false}}"><span class="chip" style="background: var(--info-fill); color: var(--info-text)">Unread</span></sc-if>
+                <sc-if value="{{det.snz}}" hint-placeholder-val="{{false}}"><span class="chip" style="background: var(--fill2); color: var(--label2)"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 7v5l3 2"></path></svg>Snoozed until 12:35 PM</span></sc-if>
+              </div>
+              <h2 id="detHm" class="t3" style="margin: 8px 0 0">{{det.t}}</h2>
+              <div class="sub" style="margin-top: 2px">{{det.unit}} · {{det.site}} · {{det.when}}</div>
+            </div>
+          </div>
+          <div style="margin-top: 14px">
+            <div class="dsec"><h3>What happened</h3><p>{{det.what}}</p></div>
+            <div class="dsec"><h3>Effect on the cycle</h3><p>{{det.eff}}</p></div>
+            <div class="dsec"><h3>Recommended next step</h3><p>{{det.nxt}}</p></div>
+            <div class="dsec" style="padding-bottom: 6px">
+              <button class="ghost" type="button" aria-expanded="{{tlExp}}" aria-controls="tlm" onClick="{{toggleTl}}" style="margin-left: -8px; color: var(--label); font-weight: 600"><span style="display: inline-flex; transform: rotate({{tlRot}}); transition: transform .18s"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.0" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M9 6l6 6-6 6"></path></svg></span>{{tlLab}}<span class="foot tn" style="font-weight: 400; margin-left: 4px">{{det.tlN}} events</span></button>
+              <sc-if value="{{tlOpen}}" hint-placeholder-val="{{false}}">
+              <div id="tlm" role="list" aria-label="Timeline of events" style="margin-top: 10px">
+                <sc-for list="{{det.tl}}" as="e" hint-placeholder-count="4">
+                  <div class="tl" role="listitem"><span class="foot tn" style="text-align: right; padding-top: 1px">{{e.t}}</span><span class="pt" style="background: {{e.c}}"></span><span style="font-size: 15px">{{e.txt}}</span><span class="ln"></span></div>
+                </sc-for>
+              </div>
+              </sc-if>
+            </div>
+          </div>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 8px; padding: 12px 0 4px; position: sticky; bottom: calc(-16px - env(safe-area-inset-bottom)); background: var(--surface); border-top: .5px solid var(--sep); margin-bottom: -4px">
+            <sc-if value="{{det.un}}" hint-placeholder-val="{{false}}"><button class="btn p" type="button" onClick="{{det.ack}}" style="padding: 0 10px; grid-column: 1 / -1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Acknowledge</button></sc-if>
+            <sc-if value="{{det.acked}}" hint-placeholder-val="{{false}}"><button class="btn s" type="button" aria-disabled="true" onClick="{{det.ack}}" style="padding: 0 10px; grid-column: 1 / -1"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true"><path d="M5 12l5 5L20 7"></path></svg>Acknowledged</button></sc-if>
+            <a class="btn s" href="Glass-Service-Mobile.dc.html" style="padding: 0 10px">Request service</a>
+            <button class="btn s" type="button" onClick="{{det.snooze}}" style="padding: 0 10px">Snooze 1 hour</button>
+          </div>
+    </div>
+  </div>
+</sc-if>
+<sc-if value="{{toastOn}}" hint-placeholder-val="{{false}}">
+  <div role="status" class="mat" style="position: fixed; left: 16px; right: 16px; bottom: calc(20px + env(safe-area-inset-bottom)); z-index: 90; color: var(--label); padding: 12px 18px; border-radius: 8px; font-size: 15px; font-weight: 500">{{toastMsg}}</div>
+</sc-if>
+</div>
+</x-dc>
+<script type="text/x-dc" data-dc-script data-props='{"$preview":{"width":390,"height":844}}'>
+class Component extends DCLogic {
+  constructor(props) {
+    super(props);
+    this.state = { f: 'all', sel: 'a1', ack: {}, snz: {}, sheet: false, tl: false, toast: '', menu: false };
+    this.ribRef = (el) => { if (el && el.pauseAnimations && window.matchMedia && window.matchMedia('(prefers-reduced-motion: reduce)').matches) el.pauseAnimations(); };
+  }
+  componentWillUnmount() { clearTimeout(this.tt); clearInterval(this.cd); if (this.unit) cancelAnimationFrame(this.unit.raf); }
+  toast(m) { clearTimeout(this.tt); this.setState({ toast: m }); this.tt = setTimeout(() => this.setState({ toast: '' }), 2600); }
+  renderVals() {
+    const s = this.state;
+    const SEV = {
+      fault: { lab: 'Fault', c: 'var(--error-text)', bg: 'var(--error-fill)', dot: 'var(--error)', d: 'M12 3l10 18H2zM12 10v5M12 18v.5' },
+      warn: { lab: 'Warning', c: 'var(--warning-text)', bg: 'var(--warning-fill)', dot: 'var(--warning)', d: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 8v5M12 16v.5' },
+      info: { lab: 'Info', c: 'var(--info-text)', bg: 'var(--info-fill)', dot: 'var(--info)', d: 'M12 3a9 9 0 1 0 0 18 9 9 0 0 0 0-18zM12 11v5M12 7.6v.4' }
+    };
+    const AL = [
+      { id: 'a3', sev: 'info', t: 'Cycle complete, ready to empty', unit: 'Dehydrator 02', site: 'Café, Building C', time: '11:20 AM', when: 'Today at 11:20 AM',
+        what: 'Drying finished on Dehydrator 02. 18 kg of food waste became about 1.9 kg of dry output.',
+        eff: 'The unit is now cooling. It is safe to empty in about 40 minutes, at 12:15 PM.',
+        nxt: 'Empty the output bin after 12:15 PM, then load the next batch.',
+        tl: [['7:30 AM', 'Cycle started with 18 kg', 'g'], ['11:20 AM', 'Drying finished, cooling started', 'i'], ['12:15 PM', 'Ready to empty (expected)', 'n']] },
+      { id: 'a1', sev: 'fault', t: 'Discharge door open', unit: 'Dehydrator 05', site: 'Aged care kitchen, Building D', time: '10:41 AM', when: 'Today at 10:41 AM',
+        what: 'The discharge door opened during drying and has stayed open. The unit paused itself for safety.',
+        eff: 'The cycle is paused at 22% with 6 kg in the tank. Heaters are off, so the load is not drying.',
+        nxt: 'Close and latch the door firmly. The cycle restarts on its own within 1 minute. If the door will not latch, the gasket may be worn, so request service.',
+        tl: [['10:05 AM', 'Cycle started with 6 kg', 'g'], ['10:41 AM', 'Door opened, cycle paused', 'e'], ['10:42 AM', 'Alert sent to Alex Carter', 'n'], ['11:11 AM', 'Reminder sent, door still open', 'e']] },
+      { id: 'a2', sev: 'warn', t: 'Air Heater 2 running cold', unit: 'Dehydrator 04', site: 'Main kitchen, Building A', time: '9:12 AM', when: 'Today at 9:12 AM',
+        what: 'Air Heater 2 is running about 9 °C below its target. The other heaters are normal.',
+        eff: 'Drying may take about 1 hour longer. Today\'s cycle should now finish around 2:30 PM.',
+        nxt: 'Nothing to do right now. Jordan Lee will check the heater at the visit on Mon 26 Oct, 9:00 (SR-1210).',
+        tl: [['22 Oct', 'First seen, SR-1210 logged', 'w'], ['23 Oct', 'Visit booked for Mon 26 Oct, 9:00', 'n'], ['8:45 AM', 'Cycle started with 118 kg', 'g'], ['9:12 AM', 'Heater 2 below target again', 'w']] },
+      { id: 'a4', sev: 'warn', t: 'Filter check due in 5 cycles', unit: 'Dehydrator 04', site: 'Main kitchen, Building A', time: 'Yesterday', when: 'Yesterday at 4:05 PM',
+        what: 'The exhaust filter on Dehydrator 04 has used 82% of its expected life.',
+        eff: 'No effect yet. A clogged filter slows drying and can make odours stronger.',
+        nxt: 'It is already on the visit for Mon 26 Oct. A spare filter cartridge is $189 if you want one on hand.',
+        tl: [['12 Sep', 'Exhaust filter replaced (SR-1182)', 'g'], ['Yesterday', 'Filter reached 80% of its life', 'w'], ['Today', 'Now at 82%, 5 cycles left', 'n']] },
+      { id: 'a6', sev: 'info', t: 'Service visit booked', unit: 'Dehydrator 04', site: 'Main kitchen, Building A', time: 'Fri', when: 'Fri 23 Oct at 2:10 PM',
+        what: 'Jordan Lee from enrich360 Service will visit on Mon 26 Oct at 9:00 to check Air Heater 2 (SR-1210).',
+        eff: 'None. Dehydrator 04 can keep running normally until then.',
+        nxt: 'Make sure someone can let Jordan into the main kitchen. You can change the time in Service.',
+        tl: [['22 Oct', 'Service request SR-1210 logged', 'n'], ['22 Oct', 'Assigned to Jordan Lee', 'n'], ['23 Oct', 'Visit booked for Mon 26 Oct, 9:00', 'g']] },
+      { id: 'a5', sev: 'info', t: 'Weekly report ready', unit: 'All devices', site: 'Mildura Hospital', time: 'Mon', when: 'Mon 19 Oct at 7:00 AM',
+        what: 'Your report for 12 to 18 Oct is ready: 742 kg of food waste diverted and 61 kWh used.',
+        eff: 'None. This is a summary only.',
+        nxt: 'Open Analytics to read or share the full report.',
+        tl: [['7:00 AM', 'Report created', 'g'], ['7:01 AM', 'Emailed to Alex Carter', 'n']] }
+    ];
+    const TLC = { g: 'var(--success)', i: 'var(--info)', w: 'var(--warning)', e: 'var(--error)', n: 'var(--label3)' };
+    const unread = (a) => !s.ack[a.id] && ['a1', 'a2', 'a3'].includes(a.id);
+    const fit = (a, f) => f === 'all' || a.sev === f;
+    const pick = (f) => { const m = AL.filter((a) => fit(a, f)); return m.find((a) => a.id === s.sel) ? s.sel : (m[0] ? m[0].id : s.sel); };
+    const list = AL.filter((a) => fit(a, s.f)).map((a, i) => {
+      const v = SEV[a.sev];
+      return { ...a, c: v.c, bg: v.bg, d: v.d, sevLab: v.lab, un: unread(a), cur: a.id === s.sel ? 'true' : 'false', delay: (i * 30) + 'ms', snz: !!s.snz[a.id],
+        aria: v.lab + ': ' + a.t + ', ' + a.unit + ', ' + a.time + (unread(a) ? ', unread' : ''),
+        bld: a.site.split(', ').pop(), go: () => this.setState({ sel: a.id, sheet: true }) };
+    });
+    const filters = [['all', 'All'], ['fault', 'Faults'], ['warn', 'Warnings'], ['info', 'Info']].map(([k, l]) => ({ l, n: AL.filter((a) => fit(a, k)).length, on: s.f === k ? 'true' : 'false', go: () => this.setState({ f: k, sel: pick(k) }) }));
+    const a = AL.find((x) => x.id === s.sel) || AL[1], v = SEV[a.sev];
+    const det = { ...a, c: v.c, bg: v.bg, d: v.d, dot: v.dot, sevLab: v.lab, acked: !unread(a), un: unread(a), snz: !!s.snz[a.id],
+      tl: a.tl.map((e) => ({ t: e[0], txt: e[1], c: TLC[e[2]] })), tlN: a.tl.length,
+      ack: () => { this.setState({ ack: { ...this.state.ack, [a.id]: true } }); this.toast(unread(a) ? 'Marked as read: ' + a.t : 'Already marked as read'); },
+      snooze: () => { this.setState({ snz: { ...this.state.snz, [a.id]: true } }); this.toast('Snoozed for 1 hour. We will remind you at 12:35 PM.'); } };
+    const unreadN = AL.filter(unread).length;
+    return {
+      tlOpen: !!s.tl, tlExp: s.tl ? 'true' : 'false', tlRot: s.tl ? '90deg' : '0deg', tlLab: s.tl ? 'Hide timeline' : 'Show timeline', toggleTl: () => this.setState({ tl: !s.tl }),
+      list, filters, det, unreadN, hasUnread: unreadN > 0, noUnread: unreadN === 0, sheetShow: !!s.sheet,
+      closeSheet: () => this.setState({ sheet: false }),
+      stop: (e) => e.stopPropagation(),
+      ackAll: () => { this.setState({ ack: { a1: true, a2: true, a3: true } }); this.toast(unreadN ? 'All alerts marked as read' : 'Everything is already read'); },
+      listKey: (e) => { if (e.key !== 'ArrowDown' && e.key !== 'ArrowUp') return; const bs = [...e.currentTarget.querySelectorAll('.al')]; const i = bs.indexOf(document.activeElement); if (i < 0) return; e.preventDefault(); const n = bs[Math.max(0, Math.min(bs.length - 1, i + (e.key === 'ArrowDown' ? 1 : -1)))]; n.focus(); n.click(); },
+      ribRef: this.ribRef,
+      menuShow: s.menu, menuOpen: s.menu ? 'true' : 'false', menuIcon: s.menu ? 'M6 6l12 12M18 6L6 18' : 'M4 7h16M4 12h16M4 17h16',
+      toggleMenu: () => this.setState({ menu: !s.menu }),
+      search: () => this.toast('Search devices, sites and alerts'),
+      bell: () => this.toast('3 new alerts. Open Alerts to see them.'),
+      onKey: (e) => { if (e.key === 'Escape') this.setState({ menu: false, toast: '', sheet: false }); },
+      toastOn: !!s.toast, toastMsg: s.toast
+    };
+  }
+}
+</script>
+</body>
+</html>
